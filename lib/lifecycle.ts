@@ -53,3 +53,12 @@ export async function transitionLifecycle(input: TransitionInput): Promise<Trans
 
   return { ok: true, from: current as LifecycleState, to };
 }
+
+export async function listTransitions(specId: string) {
+  return await sql`
+    SELECT id, spec_id, from_state, to_state, transitioned_at, transitioned_by, reason, notes
+    FROM spec_lifecycle_transitions
+    WHERE spec_id = ${specId}
+    ORDER BY transitioned_at DESC
+  `;
+}
