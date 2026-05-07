@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ACC Express Order System — SOP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 9pt;
+    color: #1a1a1a;
+    background: #fff;
+    line-height: 1.45;
+  }
+
+  /* ── Print page setup ── */
+  @page {
+    size: letter portrait;
+    margin: 0.5in 0.55in 0.45in 0.55in;
+  }
+
+  .page {
+    width: 7.4in;
+    margin: 0 auto;
+  }
+
+  /* ── Screen wrapper ── */
+  @media screen {
+    body { background: #d0d0d0; }
+    .page {
+      background: #fff;
+      margin: 24px auto;
+      padding: 0.5in 0.55in 0.45in 0.55in;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+      min-height: 10in;
+    }
+  }
+
+  /* ── Print button ── */
+  .print-btn {
+    text-align: center;
+    padding: 14px 0 10px;
+    width: 7.4in;
+    margin: 0 auto;
+  }
+  .print-btn button {
+    background: #f08122;
+    color: #fff;
+    border: none;
+    padding: 9px 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12pt;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .print-btn button:hover { background: #d9711e; }
+  @media print { .print-btn { display: none; } }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #f08122;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-left img { height: 38px; width: auto; }
+  .header-title { font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; }
+  .header-title .sup {
+    font-size: 7.5pt; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #f08122;
+  }
+  .header-title .doc {
+    font-size: 15pt; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: #111; line-height: 1.1;
+  }
+  .header-right {
+    text-align: right; font-size: 7.5pt; color: #999;
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    letter-spacing: 0.05em; text-transform: uppercase; line-height: 1.7;
+  }
+
+  /* ── Intro ── */
+  .intro {
+    background: #fff8f3; border-left: 4px solid #f08122;
+    padding: 8px 12px; margin-bottom: 11px;
+    font-size: 8.5pt; color: #333;
+  }
+  .intro strong { color: #c45f00; }
+
+  /* ── Demo credentials bar ── */
+  .demo-bar {
+    background: #111; color: #fff;
+    border-radius: 5px; padding: 10px 14px;
+    margin-bottom: 13px;
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr;
+    align-items: center;
+    gap: 0 18px;
+  }
+  .demo-bar .demo-label {
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #f08122;
+    border-right: 1px solid #333; padding-right: 18px;
+    white-space: nowrap;
+  }
+  .demo-cred { border-right: 1px solid #2a2a2a; padding-right: 18px; }
+  .demo-cred:last-child { border-right: none; padding-right: 0; }
+  .demo-cred .dc-title {
+    font-size: 7pt; color: #888; text-transform: uppercase;
+    letter-spacing: 0.12em; font-weight: 600;
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    margin-bottom: 3px;
+  }
+  .demo-cred .dc-row {
+    display: flex; align-items: baseline; gap: 6px; margin-bottom: 1px;
+  }
+  .demo-cred .dc-key {
+    font-size: 7pt; color: #777; width: 52px; flex-shrink: 0;
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .demo-cred .dc-val {
+    font-family: 'Courier New', monospace;
+    font-size: 10pt; font-weight: 700; color: #fff;
+    letter-spacing: 0.05em;
+  }
+  .demo-cred .dc-val.orange { color: #f08122; }
+
+  /* ── Three columns ── */
+  .three-col {
+    display: grid;
+    grid-template-columns: 2.5fr 1.8fr 1.8fr;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Section heading ── */
+  .sec-head {
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #f08122;
+    border-bottom: 1.5px solid #f0dece; padding-bottom: 3px;
+    margin-bottom: 8px;
+  }
+
+  /* ── Role badge ── */
+  .role {
+    display: inline-block;
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    font-size: 7pt; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 1px 5px; border-radius: 2px;
+    vertical-align: middle; margin-right: 3px;
+  }
+  .role.builder { background: #fff3e6; color: #c45f00; border: 1px solid #f08122; }
+  .role.pm      { background: #e8f0fe; color: #1a5fb4; border: 1px solid #7baaf7; }
+  .role.admin   { background: #fce8e6; color: #c0392b; border: 1px solid #e57368; }
+
+  /* ── Steps ── */
+  ol.steps { list-style: none; padding: 0; }
+  ol.steps li {
+    display: flex; gap: 7px; margin-bottom: 6px; align-items: flex-start;
+  }
+  .sn {
+    flex-shrink: 0; width: 16px; height: 16px;
+    background: #f08122; color: #fff;
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    font-size: 8.5pt; font-weight: 700; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .sb { flex: 1; font-size: 8.5pt; }
+  .sb strong { color: #111; font-size: 8.5pt; }
+  .sb .note { font-size: 7.5pt; color: #777; font-style: italic; margin-top: 1px; }
+
+  /* ── URL chip ── */
+  .url {
+    display: inline-block; background: #1a1a1a; color: #f08122;
+    font-family: 'Courier New', monospace; font-size: 8pt;
+    padding: 1px 6px; border-radius: 2px;
+  }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid #eee; margin: 9px 0; }
+
+  /* ── URL reference table ── */
+  .ref-table {
+    width: 100%; border-collapse: collapse; font-size: 8.5pt;
+    margin-top: 4px;
+  }
+  .ref-table td {
+    padding: 4px 8px; border-bottom: 1px solid #f2f2f2; vertical-align: middle;
+  }
+  .ref-table td:first-child {
+    font-family: 'Courier New', monospace; font-size: 8pt;
+    color: #c45f00; white-space: nowrap; width: 36%;
+  }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr:nth-child(even) td { background: #fafafa; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 12px; padding-top: 8px; border-top: 1px solid #eee;
+    display: flex; justify-content: space-between;
+    font-size: 7pt; color: #ccc;
+    font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="print-btn">
+  <button onclick="window.print()">⎙ &nbsp; Print / Save as PDF</button>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <img src="/logo.png" alt="Advanced Custom Cabinets" />
+      <div class="header-title">
+        <div class="sup">Standard Operating Procedure</div>
+        <div class="doc">Express Order System</div>
+      </div>
+    </div>
+    <div class="header-right">
+      Advanced Custom Cabinets<br>
+      Coeur d'Alene, Idaho<br>
+      Effective: April 2026 · Rev 1.0
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <strong>What this is:</strong> Builders submit cabinet, trim, and door orders through a secure web portal. The order lands in our system and hits the residential inbox as a formatted PDF — automatically, the moment they hit Submit.
+  </div>
+
+  <!-- DEMO CREDENTIALS -->
+  <div class="demo-bar">
+    <div class="demo-label">Demo<br>Credentials</div>
+
+    <div class="demo-cred">
+      <div class="dc-title"><span class="role builder">Builder</span> Login</div>
+      <div class="dc-row"><span class="dc-key">URL</span><span class="dc-val orange">localhost:3000/express</span></div>
+      <div class="dc-row"><span class="dc-key">Username</span><span class="dc-val">demo</span></div>
+      <div class="dc-row"><span class="dc-key">Password</span><span class="dc-val">demo1234</span></div>
+    </div>
+
+    <div class="demo-cred">
+      <div class="dc-title"><span class="role pm">PM</span> Jobs Dashboard</div>
+      <div class="dc-row"><span class="dc-key">URL</span><span class="dc-val orange">localhost:3000/jobs</span></div>
+      <div class="dc-row"><span class="dc-key">Login</span><span class="dc-val">No login required</span></div>
+    </div>
+
+    <div class="demo-cred">
+      <div class="dc-title"><span class="role admin">Admin</span> Builder Accounts</div>
+      <div class="dc-row"><span class="dc-key">URL</span><span class="dc-val orange">localhost:3000/admin</span></div>
+      <div class="dc-row"><span class="dc-key">Password</span><span class="dc-val">acc-admin-2026</span></div>
+    </div>
+  </div>
+
+  <!-- THREE COLUMNS -->
+  <div class="three-col">
+
+    <!-- BUILDER -->
+    <div>
+      <div class="sec-head"><span class="role builder">Builder</span> Placing an Order</div>
+      <ol class="steps">
+        <li>
+          <div class="sn">1</div>
+          <div class="sb"><strong>Go to the portal</strong><br>
+          <span class="url">localhost:3000/express</span>
+          <div class="note">Redirects to login automatically. Bookmark it.</div></div>
+        </li>
+        <li>
+          <div class="sn">2</div>
+          <div class="sb"><strong>Log in</strong><br>
+          Enter username and password provided by ACC.</div>
+        </li>
+        <li>
+          <div class="sn">3</div>
+          <div class="sb"><strong>Project Details</strong><br>
+          Client name, site address, city, delivery date.</div>
+        </li>
+        <li>
+          <div class="sn">4</div>
+          <div class="sb"><strong>Select Scope</strong><br>
+          Check Cabinets, Trim, and/or Doors. Only selected sections appear.</div>
+        </li>
+        <li>
+          <div class="sn">5</div>
+          <div class="sb"><strong>Cabinets</strong><br>
+          Add finish groups — paint/stain/melamine, color, door style. Add rooms, then drop in your cabinet list with sizes.</div>
+        </li>
+        <li>
+          <div class="sn">6</div>
+          <div class="sb"><strong>Trim</strong><br>
+          Pick style and spec level. Enter LF for base, crown, shoe, and openings. System calculates board-feet to order.</div>
+        </li>
+        <li>
+          <div class="sn">7</div>
+          <div class="sb"><strong>Doors</strong><br>
+          Add line items — type, size, species, core, hardware, qty.</div>
+        </li>
+        <li>
+          <div class="sn">8</div>
+          <div class="sb"><strong>Review &amp; Submit</strong><br>
+          Check the summary. Hit <strong>Submit Order.</strong>
+          <div class="note">Confirmation screen shows your job number. ACC gets the PDF immediately.</div></div>
+        </li>
+        <li>
+          <div class="sn">9</div>
+          <div class="sb"><strong>View past orders</strong><br>
+          Click <strong>My Orders</strong> in the header anytime.</div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- PM -->
+    <div>
+      <div class="sec-head"><span class="role pm">PM</span> Receiving an Order</div>
+      <ol class="steps">
+        <li>
+          <div class="sn">1</div>
+          <div class="sb"><strong>Check the inbox</strong><br>
+          Email hits <span class="url" style="font-size:7pt">residential@<br>advancedcabinets.net</span> the moment builder submits.
+          <div class="note">Subject: New Express Order — ACC-XXXX — Client Name</div></div>
+        </li>
+        <li>
+          <div class="sn">2</div>
+          <div class="sb"><strong>Open the PDF</strong><br>
+          Full breakdown — client, builder, all specs, door pricing, trim BF. Print or save to job folder.</div>
+        </li>
+        <li>
+          <div class="sn">3</div>
+          <div class="sb"><strong>Find it in the system</strong><br>
+          <span class="url">localhost:3000/jobs</span><br>
+          Express jobs show an orange <strong>Express</strong> badge. Status starts at <em>Intake.</em></div>
+        </li>
+        <li>
+          <div class="sn">4</div>
+          <div class="sb"><strong>Call the builder</strong><br>
+          Confirm details, answer questions, collect deposit. Builder contact is on the job record.</div>
+        </li>
+        <li>
+          <div class="sn">5</div>
+          <div class="sb"><strong>Update status</strong><br>
+          Move the job:<br>
+          <em>Intake → Active → Production → Complete</em></div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- ADMIN -->
+    <div>
+      <div class="sec-head"><span class="role admin">Admin</span> Builder Accounts</div>
+      <ol class="steps">
+        <li>
+          <div class="sn">1</div>
+          <div class="sb"><strong>Go to</strong><br>
+          <span class="url">localhost:3000/admin</span><br>
+          Enter the admin password.</div>
+        </li>
+        <li>
+          <div class="sn">2</div>
+          <div class="sb"><strong>Create an account</strong><br>
+          Username, temp password, name, company, email, phone. Hit <em>Create Account.</em>
+          <div class="note">Hand credentials to the builder in person.</div></div>
+        </li>
+        <li>
+          <div class="sn">3</div>
+          <div class="sb"><strong>Deactivate / Reactivate</strong><br>
+          Click <em>Deactivate</em> to immediately block access. Click again to restore.</div>
+        </li>
+        <li>
+          <div class="sn">4</div>
+          <div class="sb"><strong>Reset a password</strong><br>
+          Click <em>Reset PW,</em> enter a new temp password, save.</div>
+        </li>
+      </ol>
+
+      <hr class="divider">
+
+      <div class="sec-head" style="margin-top:4px">Notes</div>
+      <ul style="list-style:none;padding:0;font-size:8pt;color:#444;line-height:1.5">
+        <li style="margin-bottom:5px">📁 Orders saved locally at <span style="font-family:'Courier New';font-size:7.5pt;color:#c45f00">data/orders/</span></li>
+        <li style="margin-bottom:5px">📧 Emails sent from <span style="font-family:'Courier New';font-size:7.5pt">residentialacc2<br>@gmail.com</span></li>
+        <li style="margin-bottom:5px">🔒 Builder sessions last 30 days. Admin session lasts 7 days.</li>
+        <li>🛠 Server runs on <span style="font-family:'Courier New';font-size:7.5pt">npm run dev</span> — must be running for the portal to work.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- QUICK REFERENCE -->
+  <hr class="divider">
+  <div class="sec-head">Quick Reference — All URLs</div>
+  <table class="ref-table">
+    <tr>
+      <td>localhost:3000/express</td>
+      <td><span class="role builder">Builder</span> Express portal — login, new order, order history</td>
+    </tr>
+    <tr>
+      <td>localhost:3000/jobs</td>
+      <td><span class="role pm">PM</span> All jobs — Express orders flagged with orange badge</td>
+    </tr>
+    <tr>
+      <td>localhost:3000/admin/builders</td>
+      <td><span class="role admin">Admin</span> Create, deactivate, reset passwords for builder accounts</td>
+    </tr>
+    <tr>
+      <td>localhost:3000/jobs/new</td>
+      <td><span class="role pm">PM</span> Manually create a job (non-Express intake)</td>
+    </tr>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Advanced Custom Cabinets — Coeur d'Alene, Idaho</span>
+    <span>Express Order System SOP — Rev 1.0 — April 2026</span>
+    <span>Internal Use Only</span>
+  </div>
+
+</div>
+</body>
+</html>

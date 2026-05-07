@@ -1,0 +1,8 @@
+id,name,brand,model,type,overlay,close,notes
+HH-000,None (push-to-open),—,—,—,—,—,No hinge — push-to-open or trackball
+HH-BLU-001,Blum Compact 38N Blumotion 1/2 Overlay,Blum,38N355B.08,euro_concealed,1/2,soft-close,Most common ACC hinge
+HH-BLU-002,Blum Compact 38N Blumotion Full Overlay,Blum,38N355B.16,euro_concealed,full,soft-close,Full overlay variant
+HH-BLU-003,Blum Compact 38N Inset,Blum,38N355B.00,euro_concealed,inset,soft-close,Inset doors
+HH-BLU-004,Blum CLIP top BLUMOTION 110-degree,Blum,71B3550,euro_concealed,full,soft-close,Premium concealed hinge
+HH-SAL-001,Salice Series 200 Soft-Close 1/2 Overlay,Salice,C2APE99,euro_concealed,1/2,soft-close,Salice equivalent
+HH-099,Other,—,—,—,—,—,Specify in notes

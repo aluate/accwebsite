@@ -1,0 +1,42 @@
+[
+  {
+    "id": "HBP-000",
+    "name": "None",
+    "brand": null,
+    "model": null,
+    "opening_width_in": null,
+    "notes": "No base pullout"
+  },
+  {
+    "id": "HBP-001",
+    "name": "Rev-A-Shelf Spice Pullout 6in",
+    "brand": "Rev-A-Shelf",
+    "model": "448-BC-6C",
+    "opening_width_in": "6",
+    "notes": "Narrow spice rack"
+  },
+  {
+    "id": "HBP-002",
+    "name": "Rev-A-Shelf Spice Pullout 9in",
+    "brand": "Rev-A-Shelf",
+    "model": "448-BC-9C",
+    "opening_width_in": "9",
+    "notes": "Standard spice"
+  },
+  {
+    "id": "HBP-003",
+    "name": "Rev-A-Shelf Tray Divider 12in",
+    "brand": "Rev-A-Shelf",
+    "model": "448-TR12-1",
+    "opening_width_in": "12",
+    "notes": "Vertical tray dividers"
+  },
+  {
+    "id": "HBP-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "opening_width_in": null,
+    "notes": "Specify in notes"
+  }
+]

@@ -1,0 +1,106 @@
+{
+  "_note": "Placeholder prices — PNW distributor estimates, Apr 2026. Update per actual supplier schedule.",
+
+  "door_types": [
+    { "id": "interior_slab",    "label": "Interior Slab",      "has_swing": true,  "has_core": true,  "has_bore": true,  "has_hardware": true,  "has_hinge_prep": false },
+    { "id": "interior_prehung", "label": "Interior Pre-hung",  "has_swing": true,  "has_core": true,  "has_bore": true,  "has_hardware": true,  "has_hinge_prep": true  },
+    { "id": "bifold",           "label": "Bifold",             "has_swing": false, "has_core": true,  "has_bore": false, "has_hardware": false, "has_hinge_prep": false },
+    { "id": "bypass",           "label": "Bypass / Slider",   "has_swing": false, "has_core": true,  "has_bore": false, "has_hardware": false, "has_hinge_prep": false },
+    { "id": "exterior_prehung", "label": "Exterior Pre-hung",  "has_swing": true,  "has_core": false, "has_bore": true,  "has_hardware": true,  "has_hinge_prep": true  },
+    { "id": "pocket_slab",      "label": "Pocket Slab",        "has_swing": false, "has_core": true,  "has_bore": true,  "has_hardware": true,  "has_hinge_prep": false },
+    { "id": "french_interior",  "label": "French Interior",    "has_swing": true,  "has_core": true,  "has_bore": true,  "has_hardware": true,  "has_hinge_prep": true  },
+    { "id": "french_exterior",  "label": "French Exterior",    "has_swing": true,  "has_core": false, "has_bore": true,  "has_hardware": true,  "has_hinge_prep": true  }
+  ],
+
+  "sizes": {
+    "interior_slab": [
+      { "nom": "2/0×6/8", "base_price": 55  },
+      { "nom": "2/4×6/8", "base_price": 62  },
+      { "nom": "2/6×6/8", "base_price": 68  },
+      { "nom": "2/8×6/8", "base_price": 75  },
+      { "nom": "3/0×6/8", "base_price": 82  },
+      { "nom": "2/6×7/0", "base_price": 85  },
+      { "nom": "2/8×7/0", "base_price": 92  },
+      { "nom": "3/0×7/0", "base_price": 98  },
+      { "nom": "2/6×8/0", "base_price": 105 },
+      { "nom": "2/8×8/0", "base_price": 112 },
+      { "nom": "3/0×8/0", "base_price": 120 }
+    ],
+    "interior_prehung": [
+      { "nom": "2/0×6/8", "base_price": 155 },
+      { "nom": "2/4×6/8", "base_price": 162 },
+      { "nom": "2/6×6/8", "base_price": 168 },
+      { "nom": "2/8×6/8", "base_price": 178 },
+      { "nom": "3/0×6/8", "base_price": 188 },
+      { "nom": "2/6×7/0", "base_price": 185 },
+      { "nom": "2/8×7/0", "base_price": 195 },
+      { "nom": "3/0×7/0", "base_price": 205 },
+      { "nom": "2/6×8/0", "base_price": 215 },
+      { "nom": "2/8×8/0", "base_price": 225 },
+      { "nom": "3/0×8/0", "base_price": 235 }
+    ],
+    "bifold": [
+      { "nom": "4/0×6/8", "base_price": 92  },
+      { "nom": "5/0×6/8", "base_price": 105 },
+      { "nom": "6/0×6/8", "base_price": 118 },
+      { "nom": "4/0×8/0", "base_price": 125 },
+      { "nom": "5/0×8/0", "base_price": 142 },
+      { "nom": "6/0×8/0", "base_price": 158 }
+    ],
+    "bypass": [
+      { "nom": "4/0×6/8", "base_price": 125 },
+      { "nom": "5/0×6/8", "base_price": 138 },
+      { "nom": "6/0×6/8", "base_price": 152 },
+      { "nom": "8/0×6/8", "base_price": 185 },
+      { "nom": "4/0×8/0", "base_price": 160 },
+      { "nom": "6/0×8/0", "base_price": 188 },
+      { "nom": "8/0×8/0", "base_price": 225 }
+    ],
+    "exterior_prehung": [
+      { "nom": "2/8×6/8", "base_price": 285 },
+      { "nom": "3/0×6/8", "base_price": 325 },
+      { "nom": "2/8×8/0", "base_price": 385 },
+      { "nom": "3/0×8/0", "base_price": 428 },
+      { "nom": "3/0×9/0", "base_price": 495 }
+    ],
+    "pocket_slab": [
+      { "nom": "2/6×6/8", "base_price": 68  },
+      { "nom": "2/8×6/8", "base_price": 75  },
+      { "nom": "3/0×6/8", "base_price": 82  },
+      { "nom": "2/6×8/0", "base_price": 105 },
+      { "nom": "2/8×8/0", "base_price": 112 },
+      { "nom": "3/0×8/0", "base_price": 120 }
+    ],
+    "french_interior": [
+      { "nom": "5/0×6/8", "base_price": 345 },
+      { "nom": "6/0×6/8", "base_price": 378 },
+      { "nom": "5/0×8/0", "base_price": 418 },
+      { "nom": "6/0×8/0", "base_price": 455 }
+    ],
+    "french_exterior": [
+      { "nom": "5/0×6/8", "base_price": 648 },
+      { "nom": "6/0×6/8", "base_price": 695 },
+      { "nom": "5/0×8/0", "base_price": 748 },
+      { "nom": "6/0×8/0", "base_price": 798 }
+    ]
+  },
+
+  "core_adder": {
+    "hollow": 0,
+    "solid":  55
+  },
+
+  "species_mult": {
+    "paint_grade":  1.00,
+    "knotty_alder": 1.45,
+    "clear_alder":  1.75,
+    "knotty_pine":  1.25
+  },
+
+  "hardware_adder": {
+    "none":    0,
+    "passage": 28,
+    "privacy": 34,
+    "dummy":   16
+  }
+}

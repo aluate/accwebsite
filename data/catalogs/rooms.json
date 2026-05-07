@@ -1,0 +1,177 @@
+[
+  {
+    "id": "ROOM-001",
+    "name": "Kitchen Perimeter",
+    "category": "kitchen",
+    "sort_order": "10",
+    "notes": "Suggests multi-finish thinking — perimeter cabinets often differ from island"
+  },
+  {
+    "id": "ROOM-002",
+    "name": "Kitchen Island",
+    "category": "kitchen",
+    "sort_order": "20",
+    "notes": "Often a different finish than perimeter"
+  },
+  {
+    "id": "ROOM-003",
+    "name": "Kitchen Bar",
+    "category": "kitchen",
+    "sort_order": "30",
+    "notes": "Wet bar / dry bar"
+  },
+  {
+    "id": "ROOM-004",
+    "name": "Kitchen Hood Wall",
+    "category": "kitchen",
+    "sort_order": "40",
+    "notes": "Range/hood wall sometimes its own zone"
+  },
+  {
+    "id": "ROOM-005",
+    "name": "Pantry",
+    "category": "kitchen",
+    "sort_order": "50",
+    "notes": "Walk-in or reach-in"
+  },
+  {
+    "id": "ROOM-006",
+    "name": "Master Bath Vanity",
+    "category": "bath",
+    "sort_order": "60",
+    "notes": "Vanity-only zone"
+  },
+  {
+    "id": "ROOM-007",
+    "name": "Master Bath Tower",
+    "category": "bath",
+    "sort_order": "65",
+    "notes": "Linen tower / tall storage"
+  },
+  {
+    "id": "ROOM-008",
+    "name": "Master Closet",
+    "category": "closet",
+    "sort_order": "70",
+    "notes": null
+  },
+  {
+    "id": "ROOM-009",
+    "name": "Bath 2",
+    "category": "bath",
+    "sort_order": "80",
+    "notes": null
+  },
+  {
+    "id": "ROOM-010",
+    "name": "Bath 3",
+    "category": "bath",
+    "sort_order": "85",
+    "notes": null
+  },
+  {
+    "id": "ROOM-011",
+    "name": "Bath 4",
+    "category": "bath",
+    "sort_order": "90",
+    "notes": null
+  },
+  {
+    "id": "ROOM-012",
+    "name": "Powder Bath",
+    "category": "bath",
+    "sort_order": "95",
+    "notes": null
+  },
+  {
+    "id": "ROOM-013",
+    "name": "Bedroom Closet 2",
+    "category": "closet",
+    "sort_order": "100",
+    "notes": null
+  },
+  {
+    "id": "ROOM-014",
+    "name": "Bedroom Closet 3",
+    "category": "closet",
+    "sort_order": "105",
+    "notes": null
+  },
+  {
+    "id": "ROOM-015",
+    "name": "Bedroom Closet 4",
+    "category": "closet",
+    "sort_order": "110",
+    "notes": null
+  },
+  {
+    "id": "ROOM-016",
+    "name": "Laundry",
+    "category": "utility",
+    "sort_order": "120",
+    "notes": null
+  },
+  {
+    "id": "ROOM-017",
+    "name": "Mud Room",
+    "category": "utility",
+    "sort_order": "125",
+    "notes": null
+  },
+  {
+    "id": "ROOM-018",
+    "name": "Office Built-Ins",
+    "category": "living",
+    "sort_order": "130",
+    "notes": null
+  },
+  {
+    "id": "ROOM-019",
+    "name": "Living Room Built-Ins",
+    "category": "living",
+    "sort_order": "135",
+    "notes": null
+  },
+  {
+    "id": "ROOM-020",
+    "name": "Library",
+    "category": "living",
+    "sort_order": "140",
+    "notes": null
+  },
+  {
+    "id": "ROOM-021",
+    "name": "Bar Cabinetry",
+    "category": "living",
+    "sort_order": "145",
+    "notes": null
+  },
+  {
+    "id": "ROOM-022",
+    "name": "Wine Room",
+    "category": "kitchen",
+    "sort_order": "150",
+    "notes": null
+  },
+  {
+    "id": "ROOM-023",
+    "name": "ADU Kitchen",
+    "category": "kitchen",
+    "sort_order": "160",
+    "notes": "Accessory dwelling unit"
+  },
+  {
+    "id": "ROOM-024",
+    "name": "ADU Vanity",
+    "category": "bath",
+    "sort_order": "170",
+    "notes": null
+  },
+  {
+    "id": "ROOM-025",
+    "name": "Garage Storage",
+    "category": "utility",
+    "sort_order": "180",
+    "notes": null
+  }
+]

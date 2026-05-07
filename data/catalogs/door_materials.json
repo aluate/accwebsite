@@ -1,0 +1,101 @@
+[
+  {
+    "id": "DM-001",
+    "name": "Paint-Grade Poplar",
+    "species": "poplar",
+    "grade": "paint-grade",
+    "grain_pattern": "closed",
+    "notes": "Most common paint-grade door material",
+    "placeholder": false
+  },
+  {
+    "id": "DM-002",
+    "name": "Soft Maple Stain-Grade",
+    "species": "soft maple",
+    "grade": "stain-grade",
+    "grain_pattern": "closed",
+    "notes": "Stain-finish soft maple",
+    "placeholder": false
+  },
+  {
+    "id": "DM-003",
+    "name": "Hard Maple Stain-Grade",
+    "species": "hard maple",
+    "grade": "stain-grade",
+    "grain_pattern": "closed",
+    "notes": "Premium hard maple",
+    "placeholder": false
+  },
+  {
+    "id": "DM-004",
+    "name": "Cherry",
+    "species": "cherry",
+    "grade": "stain-grade",
+    "grain_pattern": "medium",
+    "notes": "Warm cherry color body",
+    "placeholder": false
+  },
+  {
+    "id": "DM-005",
+    "name": "Alder Knotty",
+    "species": "alder",
+    "grade": "rustic-grade",
+    "grain_pattern": "medium",
+    "notes": "Knotty alder for rustic looks",
+    "placeholder": false
+  },
+  {
+    "id": "DM-006",
+    "name": "Alder Clear",
+    "species": "alder",
+    "grade": "stain-grade",
+    "grain_pattern": "medium",
+    "notes": "Clear alder \u2014 less knotty",
+    "placeholder": false
+  },
+  {
+    "id": "DM-007",
+    "name": "Walnut",
+    "species": "walnut",
+    "grade": "stain-grade",
+    "grain_pattern": "open",
+    "notes": "Premium dark walnut",
+    "placeholder": false
+  },
+  {
+    "id": "DM-008",
+    "name": "Red Oak",
+    "species": "oak",
+    "grade": "stain-grade",
+    "grain_pattern": "open",
+    "notes": "Open-grain oak",
+    "placeholder": false
+  },
+  {
+    "id": "DM-009",
+    "name": "White Oak Quartersawn",
+    "species": "oak",
+    "grade": "stain-grade",
+    "grain_pattern": "straight",
+    "notes": "Premium white oak",
+    "placeholder": false
+  },
+  {
+    "id": "DM-010",
+    "name": "MDF Primed",
+    "species": "mdf",
+    "grade": "paint-grade",
+    "grain_pattern": null,
+    "notes": "For paint slab doors",
+    "placeholder": false
+  },
+  {
+    "id": "DM-099",
+    "name": "Other",
+    "species": null,
+    "grade": null,
+    "grain_pattern": null,
+    "notes": "Specify in notes",
+    "placeholder": false
+  }
+]

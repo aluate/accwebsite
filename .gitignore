@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local data — never commit the database or submitted orders (contain client PII)
+/data/acc-jobs.db
+/data/acc-jobs.db-shm
+/data/acc-jobs.db-wal
+/data/orders/
+/data/archives/
+/data/jobs/
+
+# Real customer drawings — never commit
+/EXAMPLE DRAWINGS/
+
+# Cab Door reference PDFs (kept for ingest, not to be public)
+/Patternguide_2024_web.pdf
+/2026_productshowcase.pdf
+
+# Local secrets file
+secrets.txt

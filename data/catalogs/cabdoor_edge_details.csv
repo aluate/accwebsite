@@ -1,0 +1,40 @@
+id,name,category,hinge_compatible,mitre_compatible,notes,placeholder
+E-2,E-2,standard,true,true,,false
+E-3,E-3,standard,true,true,,false
+E-4,E-4,standard,true,true,,false
+E-5,E-5,standard,true,true,,false
+E-6,E-6,standard,true,true,"R-1/4"" radius.",false
+E-7,E-7,standard,true,true,"9/16"" with R-1/4"" / R-3/8"".",false
+E-10,E-10,standard,true,true,,false
+E-18,E-18,standard,true,true,,false
+E-20,E-20,standard,true,true,,false
+E-25,E-25,standard,true,true,,false
+E-32,E-32,standard,true,true,"1-1/4"" x 5/16"". Default edge for MP-3 (Petersburg).",false
+E-34,E-34,standard,true,true,,false
+E-38,E-38,standard,true,true,,false
+E-40,E-40,standard,true,true,,false
+E-41,E-41,standard,true,true,"3/16"" with R-1/8"".",false
+E-42,E-42,standard,true,true,"5/16"" / 1/4"" with R-1/4"" / R-1/8"".",false
+E-46,E-46,standard,true,true,"R-1/16"" x 1/8"". Default edge for MP-4 (Williamsburg).",false
+E-55,E-55,standard,true,true,"1/8"" x 9/16"" / 3/8"".",false
+E-56,E-56,standard,true,true,"R-1/2"".",false
+E-62,E-62,standard,true,true,,false
+E-63,E-63,standard,true,true,,false
+E-64,E-64,standard,true,true,,false
+E-65,E-65,standard,true,true,,false
+E-70,E-70,standard,true,true,"1/4"" / 3/8"" / 5/8"" / 3/8"".",false
+E-72,E-72,standard,true,true,"1-3/16"" / 13/16"" / 11/16"".",false
+E-73,E-73,standard,true,true,,false
+E-74,E-74,standard,true,true,,false
+E-87,E-87,standard,true,true,Minimum Euro hinge prep offset 2mm.,false
+E-95,E-95,standard,true,true,"1/2"" x 19/32"". Minimum Euro hinge prep offset 2mm.",false
+E-107,E-107,standard,true,true,"13/32"". Minimum Euro hinge prep offset 2mm.",false
+E-1,E-1,finger_pull,true,false,"9/16"" x 1/8"" finger pull.",false
+E-9,E-9,finger_pull,true,false,"5/8"" x 5/16"" finger pull.",false
+E-11,E-11,finger_pull,true,false,"5/8"" finger pull.",false
+E-51,E-51,finger_pull,true,false,Finger pull. Euro hinge prep not available.,false
+E-75,E-75,finger_pull,true,false,Finger pull. Min Euro hinge prep offset 3mm.,false
+E-76,E-76,finger_pull,true,false,Finger pull. Min Euro hinge prep offset 3mm.,false
+E-79,E-79,finger_pull,true,false,Finger pull. Euro hinge prep not available.,false
+E-77,E-77,raised_drawer_front,false,false,Raised drawer front edge. #900 Solid Classic DFs only — will not work on doors. Not available with mitres.,false
+E-78,E-78,raised_drawer_front,false,false,Raised drawer front edge. #900 Solid Classic DFs only — will not work on doors. Not available with mitres.,false

@@ -1,0 +1,199 @@
+[
+  {
+    "id": "PL-001",
+    "name": "Bar Pull 3in",
+    "brand": "Richelieu",
+    "model": "BP815196",
+    "type": "pull",
+    "hole_spacing_in": 3,
+    "length_in": 4.5,
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome",
+      "Oil Rubbed Bronze"
+    ],
+    "notes": "Most common size; base cabinets"
+  },
+  {
+    "id": "PL-002",
+    "name": "Bar Pull 5in",
+    "brand": "Richelieu",
+    "model": "BP815128",
+    "type": "pull",
+    "hole_spacing_in": 5,
+    "length_in": 6.5,
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome",
+      "Oil Rubbed Bronze"
+    ],
+    "notes": "Upper cabinets and drawers"
+  },
+  {
+    "id": "PL-003",
+    "name": "Bar Pull 8in",
+    "brand": "Richelieu",
+    "model": "BP815224",
+    "type": "pull",
+    "hole_spacing_in": 8,
+    "length_in": 9.5,
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome"
+    ],
+    "notes": "Island and tall cabinets"
+  },
+  {
+    "id": "PL-004",
+    "name": "Bar Pull 12in",
+    "brand": "Richelieu",
+    "model": "BP815320",
+    "type": "pull",
+    "hole_spacing_in": 12,
+    "length_in": 13.5,
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black"
+    ],
+    "notes": "Drawer banks; pantry"
+  },
+  {
+    "id": "PL-005",
+    "name": "Cup Pull 3in",
+    "brand": "Liberty",
+    "model": "P01025",
+    "type": "cup",
+    "hole_spacing_in": 3,
+    "length_in": null,
+    "finish_options": [
+      "Antique Brass",
+      "Oil Rubbed Bronze",
+      "Satin Nickel"
+    ],
+    "notes": "Traditional/farmhouse; lower cabinets"
+  },
+  {
+    "id": "PL-006",
+    "name": "Cup Pull 3in Bin",
+    "brand": "Top Knobs",
+    "model": "M1329",
+    "type": "cup",
+    "hole_spacing_in": 3,
+    "length_in": null,
+    "finish_options": [
+      "Antique Pewter",
+      "Brushed Satin Nickel"
+    ],
+    "notes": "Vintage farmhouse look"
+  },
+  {
+    "id": "PL-007",
+    "name": "Round Knob 1.25in",
+    "brand": "Richelieu",
+    "model": "BP530195195",
+    "type": "knob",
+    "hole_spacing_in": "single",
+    "length_in": null,
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome"
+    ],
+    "notes": "Upper cabinet doors; single hole"
+  },
+  {
+    "id": "PL-008",
+    "name": "Square Knob 1.25in",
+    "brand": "Richelieu",
+    "model": "BP781160",
+    "type": "knob",
+    "hole_spacing_in": "single",
+    "length_in": null,
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black"
+    ],
+    "notes": "Modern square; doors"
+  },
+  {
+    "id": "PL-009",
+    "name": "T-Bar Pull 5in",
+    "brand": "Top Knobs",
+    "model": "M2006",
+    "type": "pull",
+    "hole_spacing_in": 5,
+    "length_in": 6,
+    "finish_options": [
+      "Brushed Satin Nickel",
+      "Flat Black"
+    ],
+    "notes": "Transitional; slightly different profile than bar"
+  },
+  {
+    "id": "PL-010",
+    "name": "Edge Pull Slim",
+    "brand": "Amerock",
+    "model": "BP36879",
+    "type": "pull",
+    "hole_spacing_in": "single",
+    "length_in": 3,
+    "finish_options": [
+      "Matte Black",
+      "Satin Nickel"
+    ],
+    "notes": "Finger-pull for slab doors; integrated look"
+  },
+  {
+    "id": "PL-011",
+    "name": "Arch Pull 3in",
+    "brand": "Liberty",
+    "model": "P10ARC",
+    "type": "pull",
+    "hole_spacing_in": 3,
+    "length_in": 4.25,
+    "finish_options": [
+      "Antique Brass",
+      "Oil Rubbed Bronze"
+    ],
+    "notes": "Traditional arch; frame & panel doors"
+  },
+  {
+    "id": "PL-012",
+    "name": "Wire Pull 3in",
+    "brand": "Top Knobs",
+    "model": "M1",
+    "type": "pull",
+    "hole_spacing_in": 3,
+    "length_in": null,
+    "finish_options": [
+      "Polished Nickel",
+      "Oil Rubbed Bronze"
+    ],
+    "notes": "Wire/bail style; traditional"
+  },
+  {
+    "id": "PL-013",
+    "name": "No Hardware",
+    "brand": null,
+    "model": null,
+    "type": "none",
+    "hole_spacing_in": null,
+    "length_in": null,
+    "finish_options": null,
+    "notes": "Integrated push-to-open or touch latch"
+  },
+  {
+    "id": "PL-014",
+    "name": "Other/Custom",
+    "brand": "Custom",
+    "model": null,
+    "type": "custom",
+    "hole_spacing_in": null,
+    "length_in": null,
+    "finish_options": null,
+    "notes": "Specify brand model finish hole spacing in notes"
+  }
+]

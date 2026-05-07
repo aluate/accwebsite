@@ -1,0 +1,5 @@
+id,name,brand,model,type,notes
+HSC-001,5mm Push-In Shelf Clip,Hardware Resources,SC-5,push_in,Standard 5mm shelf pin
+HSC-002,5mm Push-In Spoon-Type,Rev-A-Shelf,RV-5MM-SP,push_in,Spoon-style for nominally thicker shelves
+HSC-003,Adjustable Pilaster + Clip,Knape & Vogt,255-ALU,pilaster,Heavy-duty adjustable
+HSC-099,Other,—,—,—,Specify in notes

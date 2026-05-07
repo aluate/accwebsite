@@ -1,0 +1,8 @@
+id,name,sort_order,notes
+SH-001,Dead Flat,1,Zero sheen — least light reflection
+SH-002,Matte,2,Very low sheen
+SH-003,Eggshell,3,Low sheen — common for cabinet interiors
+SH-004,Satin,4,Mid sheen — most popular cabinet sheen
+SH-005,Semi-Gloss,5,Mid-high sheen
+SH-006,Gloss,6,High sheen
+SH-099,Other,99,Specify in notes

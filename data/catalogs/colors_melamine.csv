@@ -1,0 +1,149 @@
+id,supplier,collection,line,code,name,texture,woodgrain,price_tier,hex_approx,notes,placeholder
+MEL-SW-W03,Stevenswood,Stevenswood (Walnut),Walnut,W03,Valenti Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
+MEL-SW-W04,Stevenswood,Stevenswood (Walnut),Walnut,W04,Amble Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
+MEL-SW-W13,Stevenswood,Stevenswood (Walnut),Walnut,W13,Opus Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
+MEL-SW-W43,Stevenswood,Stevenswood (Walnut),Walnut,W43,Roan Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
+MEL-SW-W45,Stevenswood,Stevenswood (Walnut),Walnut,W45,Magpie Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
+MEL-SW-W68,Stevenswood,Stevenswood (Walnut),Walnut,W68,Cognac Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
+MEL-SW-W77,Stevenswood,Stevenswood (Itabri),Itabri,W77,Nova Itabri,Wood Matte,true,std,,Stevenswood TFL Itabri series,false
+MEL-SW-W80,Stevenswood,Stevenswood (Itabri),Itabri,W80,Jordan Itabri,Wood Matte,true,std,,Stevenswood TFL Itabri series,false
+MEL-SW-W89,Stevenswood,Stevenswood (Itabri),Itabri,W89,Sandro Itabri,Wood Matte,true,std,,Stevenswood TFL Itabri series,false
+MEL-SW-784,Stevenswood,Stevenswood (Sary Walnut),Walnut,784,Karius Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
+MEL-SW-774,Stevenswood,Stevenswood (Sary Walnut),Walnut,774,Tyne Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
+MEL-SW-669,Stevenswood,Stevenswood (Sary Walnut),Walnut,669,Tino Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
+MEL-SW-540,Stevenswood,Stevenswood (Sary Walnut),Walnut,540,Solano Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
+MEL-SW-579,Stevenswood,Stevenswood (Sary Walnut),Walnut,579,Tuscany Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
+MEL-SW-633,Stevenswood,Stevenswood (Sary Walnut),Walnut,633,Tonali Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
+MEL-SW-514,Stevenswood,Timber,Oak,514,Outer Banks Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
+MEL-SW-592,Stevenswood,Timber,Oak,592,Battle Creek Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
+MEL-SW-603,Stevenswood,Timber,Oak,603,Door County Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
+MEL-SW-637,Stevenswood,Timber,Oak,637,Iron Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
+MEL-SW-654,Stevenswood,Timber,Oak,654,Lakefront Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
+MEL-SW-688,Stevenswood,Timber,Oak,688,Studio Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
+MEL-SW-574,Stevenswood,Stevenswood,Elm,574,Natural Elm,Wood Matte,true,std,,Stevenswood TFL,false
+MEL-SW-596,Stevenswood,Stevenswood,Solid,596,Morning Fog,Warm Matte,false,std,,Stevenswood TFL solid,false
+MEL-SW-632,Stevenswood,Stevenswood,Solid,632,Midnight Espresso,Softex,false,std,,Stevenswood TFL solid,false
+MEL-SW-700,Stevenswood,Stevenswood,Solid,700,Insipid,Warm Matte,false,std,,Stevenswood TFL solid,false
+MEL-TF-PRELUDE-PLACEHOLDER,Tafisa,Prelude,Alto (A),—,Alto Series Placeholder,Alto (A),true,A,,Tafisa Prelude line — populate Alto colors from Tafisa rep,true
+MEL-TF-PRELUDE-C-PLACEHOLDER,Tafisa,Prelude,Crystalite (C),—,Crystalite Series Placeholder,Crystalite (C),true,A,,Tafisa Prelude line — Crystalite (matte),true
+MEL-TF-PRELUDE-I-PLACEHOLDER,Tafisa,Prelude,Isola (I),—,Isola Series Placeholder,Isola (I),true,A,,Tafisa Prelude line — Isola texture,true
+MEL-TF-PRELUDE-K-PLACEHOLDER,Tafisa,Prelude,Karisma (K),—,Karisma Series Placeholder,Karisma (K),true,A,,Tafisa Prelude line — Karisma texture,true
+MEL-TF-PRELUDE-S-PLACEHOLDER,Tafisa,Prelude,Smoothwood (S),—,Smoothwood Series Placeholder,Smoothwood (S),true,A,,Tafisa Prelude line — Smoothwood texture,true
+MEL-TF-PRELUDE-R-PLACEHOLDER,Tafisa,Prelude,Urbania (R),—,Urbania Series Placeholder,Urbania (R),true,A,,Tafisa Prelude line — Urbania texture,true
+MEL-TF-SOMMET-B-PLACEHOLDER,Tafisa,Sommet,Brava (B),—,Brava Series Placeholder,Brava (B),true,B,,Tafisa Sommet line — Brava texture,true
+MEL-TF-SOMMET-F-PLACEHOLDER,Tafisa,Sommet,Feria (F),—,Feria Series Placeholder,Feria (F),true,B,,Tafisa Sommet line — Feria texture,true
+MEL-TF-SOMMET-Y-PLACEHOLDER,Tafisa,Sommet,Viva (Y),—,Viva Series Placeholder,Viva (Y),true,B,,Tafisa Sommet line — Viva texture,true
+MEL-TF-MATERIA-PLACEHOLDER,Tafisa,Materia,Materia,—,Materia Series Placeholder,Materia,false,A,,Tafisa Materia matte line — newer launch,true
+MEL-CUSTOM,Custom,Custom Match,Custom,—,Other / Custom Match,—,false,custom,,Escape hatch — PM specifies supplier and code in finish notes,false
+MEL-EG-F416-ST10,Egger,Decorative Collection 26+,Next Level,F416 ST10,Beige Textile,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
+MEL-EG-F417-ST10,Egger,Decorative Collection 26+,Next Level,F417 ST10,Grey Textile,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
+MEL-EG-F422-ST10,Egger,Decorative Collection 26+,Next Level,F422 ST10,White Linen,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
+MEL-EG-F433-ST10,Egger,Decorative Collection 26+,Next Level,F433 ST10,Anthracite Linen,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
+MEL-EG-H1176-ST37,Egger,Decorative Collection 26+,Exclusive,H1176 ST37,White Halifax,ST37,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST37 • $2.58/sq ft,false
+MEL-EG-H1180-ST37,Egger,Decorative Collection 26+,Exclusive,H1180 ST37,Natural Halifax,ST37,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST37 • $2.58/sq ft,false
+MEL-EG-H1181-ST37,Egger,Decorative Collection 26+,Exclusive,H1181 ST37,Tobacco Halifax,ST37,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST37 • $2.58/sq ft,false
+MEL-EG-H1210-ST12,Egger,Decorative Collection 26+,Next Level,H1210 ST12,GB Tossini Elm,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H1222-ST12,Egger,Decorative Collection 26+,Next Level,H1222 ST12,Fox Grey Tossini Elm,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H1225-ST12,Egger,Decorative Collection 26+,Next Level,H1225 ST12,Trondhelm Ash,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H1247-ST17,Egger,Decorative Collection 26+,Inspired,H1247 ST17,Graphite Sheffield Acacia,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
+MEL-EG-H1288-ST19,Egger,Decorative Collection 26+,Essence,H1288 ST19,Stone Grey Frozen Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H1290-ST19,Egger,Decorative Collection 26+,Essence,H1290 ST19,White Frozen Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H1292-ST19,Egger,Decorative Collection 26+,Essence,H1292 ST19,Carbon Frozen Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H1307-ST19,Egger,Decorative Collection 26+,Essence,H1307 ST19,Brown Warmla Walnut,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H1367-ST40,Egger,Decorative Collection 26+,Exclusive,H1367 ST40,Light Natural Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
+MEL-EG-H1369-ST40,Egger,Decorative Collection 26+,Exclusive,H1369 ST40,Marone Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
+MEL-EG-H1384-ST40,Egger,Decorative Collection 26+,Exclusive,H1384 ST40,White Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
+MEL-EG-H1385-ST40,Egger,Decorative Collection 26+,Exclusive,H1385 ST40,Natural Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
+MEL-EG-H1386-ST40,Egger,Decorative Collection 26+,Exclusive,H1386 ST40,Brown Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
+MEL-EG-H1388,Egger,Decorative Collection 26+,Exclusive,H1388,Sand Casella Oak,,false,tier6_exclusive,,Egger 26+ — Exclusive line • $2.58/sq ft,false
+MEL-EG-H1701-ST12,Egger,Decorative Collection 26+,Next Level,H1701 ST12,White Tossini Elm,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H1708-ST17,Egger,Decorative Collection 26+,Inspired,H1708 ST17,Brighton Chestnut,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
+MEL-EG-H1715-ST12,Egger,Decorative Collection 26+,Next Level,H1715 ST12,Parona Walnut,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H1816-ST7,Egger,Decorative Collection 26+,Everyday,H1816 ST7,Natural Maple,ST7,true,tier_call,,Egger 26+ — Everyday line • ST7 • call for pricing,false
+MEL-EG-H3041-ST12,Egger,Decorative Collection 26+,Next Level,H3041 ST12,Natural Eucalyptus,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H3157-ST12,Egger,Decorative Collection 26+,Next Level,H3157 ST12,Vicenza Oak,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H3158-ST19,Egger,Decorative Collection 26+,Essence,H3158 ST19,Grey Vicenza Oak,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H3165-ST12,Egger,Decorative Collection 26+,Next Level,H3165 ST12,Light Vicenza Oak,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H3171-ST12,Egger,Decorative Collection 26+,Next Level,H3171 ST12,Oiled Kendal Oak,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
+MEL-EG-H3195-ST19,Egger,Decorative Collection 26+,Essence,H3195 ST19,White Fineline,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H3197-ST19,Egger,Decorative Collection 26+,Essence,H3197 ST19,Medium Grey Fineline,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H3198-ST19,Egger,Decorative Collection 26+,Essence,H3198 ST19,Dark Grey Fineline,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H3322-ST17,Egger,Decorative Collection 26+,Inspired,H3322 ST17,Light Natural Rovato Oak,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
+MEL-EG-H3710-ST12,Egger,Decorative Collection 26+,Essence,H3710 ST12,Natural Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
+MEL-EG-H3786-ST19,Egger,Decorative Collection 26+,Essence,H3786 ST19,Natural Bolivar Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H3787-ST19,Egger,Decorative Collection 26+,Essence,H3787 ST19,Brown Bolivar Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
+MEL-EG-H3790-ST12,Egger,Decorative Collection 26+,Essence,H3790 ST12,Honey Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
+MEL-EG-H3791-ST12,Egger,Decorative Collection 26+,Essence,H3791 ST12,Auburn Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
+MEL-EG-H3794-ST12,Egger,Decorative Collection 26+,Essence,H3794 ST12,Chocolate Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
+MEL-EG-H3860-ST9,Egger,Decorative Collection 26+,Next Level,H3860 ST9,Champagne Hard Maple,ST9,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST9 • $1.87/sq ft,false
+MEL-EG-H7604-ST17,Egger,Decorative Collection 26+,Inspired,H7604 ST17,Natural Dimaro Walnut,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
+MEL-EG-U216-ST9,Egger,Decorative Collection 26+,Classic,U216 ST9,Came Beige,ST9,false,tier1_classic,,Egger 26+ — Classic line • ST9 • $1.34/sq ft,false
+MEL-EG-U220-ST9,Egger,Decorative Collection 26+,Classic,U220 ST9,Soft Beige,ST9,false,tier1_classic,,Egger 26+ — Classic line • ST9 • $1.34/sq ft,false
+MEL-EG-U250-ST9,Egger,Decorative Collection 26+,Inspired,U250 ST9,Caramel Beige,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-U398-TM,Egger,Decorative Collection 26+,Perfect Sense,U398 TM,Dark Berry,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U444-ST9,Egger,Decorative Collection 26+,Inspired,U444 ST9,Cassis,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-U502-ST9,Egger,Decorative Collection 26+,Inspired,U502 ST9,Misty Blue,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-U590,Egger,Decorative Collection 26+,Perfect Sense,U590,Deep Blue,,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • $4.12/sq ft,false
+MEL-EG-U604-ST9,Egger,Decorative Collection 26+,Inspired,U604 ST9,Reed Green,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-U665-ST9,Egger,Decorative Collection 26+,Inspired,U665 ST9,Stone Green,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-U665-TM,Egger,Decorative Collection 26+,Perfect Sense,U665 TM,Stone Green,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U702-ST9,Egger,Decorative Collection 26+,Essential,U702 ST9,Cashmere Grey,ST9,true,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
+MEL-EG-U702-TM,Egger,Decorative Collection 26+,Perfect Sense,U702 TM,Cashmere Grey,TM,true,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U705-ST9,Egger,Decorative Collection 26+,Essential,U705 ST9,Angora Grey,ST9,false,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
+MEL-EG-U708-TM,Egger,Decorative Collection 26+,Perfect Sense,U708 TM,Light Grey,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U732-ST9,Egger,Decorative Collection 26+,Classic,U732 ST9,Dust Grey,ST9,false,tier1_classic,,Egger 26+ — Classic line • ST9 • $1.34/sq ft,false
+MEL-EG-U750-ST9,Egger,Decorative Collection 26+,Essential,U750 ST9,Taupe Grey,ST9,false,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
+MEL-EG-U755-TM,Egger,Decorative Collection 26+,Perfect Sense,U755 TM,Havanna Grey,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U779-ST7,Egger,Decorative Collection 26+,Classic,U779 ST7,Fog Grey,ST7,false,tier1_classic,,Egger 26+ — Classic line • ST7 • $1.34/sq ft,false
+MEL-EG-U780-ST9,Egger,Decorative Collection 26+,Inspired,U780 ST9,Monument Grey,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-U961-TM,Egger,Decorative Collection 26+,Perfect Sense,U961 TM,Graphite Grey,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U963-ST9,Egger,Decorative Collection 26+,Essential,U963 ST9,Diamond Grey,ST9,false,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
+MEL-EG-U999-ST19,Egger,Decorative Collection 26+,Next Level,U999 ST19,Black,ST19,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST19 • $1.87/sq ft,false
+MEL-EG-U999-TM,Egger,Decorative Collection 26+,Perfect Sense,U999 TM,Black,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-U999-ST7,Egger,Decorative Collection 26+,Everyday,U999 ST7,Black,ST7,false,tier_call,,Egger 26+ — Everyday line • ST7 • call for pricing,false
+MEL-EG-W1100-ST9,Egger,Decorative Collection 26+,Inspired,W1100 ST9,Alpine White,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
+MEL-EG-W1100-TM,Egger,Decorative Collection 26+,Perfect Sense,W1100 TM,Alpine White,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
+MEL-EG-W960-ST7,Egger,Decorative Collection 26+,Everyday,W960 ST7,Classic White,ST7,false,tier_call,,Egger 26+ — Everyday line • ST7 • call for pricing,false
+MEL-SW-589,Stevenswood,Stevenswood (ARTIKA),Echo,589,Grey Echo,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-G86,Stevenswood,Stevenswood (ARTIKA),Notte,G86,Gregio Notte,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-L39,Stevenswood,Stevenswood (Walnut Pittoni),Walnut Pittoni,L39,Midnight Run,Walnut Pittoni,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-G88,Stevenswood,Stevenswood (ARTIKA),Rustik,G88,Natural Rustik,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-W51,Stevenswood,Stevenswood (ARTIKA),Cherry,W51,Richmond Cherry,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-529,Stevenswood,Stevenswood (ARTIKA),Teak,529,Takase Teak,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-W42,Stevenswood,Stevenswood (Wood Matte),Walnut,W42,Bleached Walnut,Wood Matte,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-L33,Stevenswood,Stevenswood (Mezzo Cherry),Cherry,L33,Serotina,Mezzo Cherry,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-L35,Stevenswood,Stevenswood (Mezzo Cherry),Cherry,L35,Kirsche,Mezzo Cherry,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-W66,Stevenswood,Stevenswood (Wood Matte),Walnut,W66,Dark Walnut,Wood Matte,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-W53,Stevenswood,Stevenswood (ARTIKA),Cypress,W53,Arizona Cypress,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-174,Stevenswood,Stevenswood (ARTIKA),Solid,174,Black,ARTIKA,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-G87,Stevenswood,Stevenswood (ARTIKA),Rustik,G87,Cannella Rustik,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-G92,Stevenswood,Stevenswood (ARTIKA),Drift,G92,Drift Loud,ARTIKA,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-SW-W29,Stevenswood,Stevenswood (ARTIKA),Pine,W29,Gregio Pine,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-L05,TruNorth,TruNorth (Legno),Solid,L05,Alno,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-L09,TruNorth,TruNorth (Legno),Solid,L09,Kyushu,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-L33,TruNorth,TruNorth (Legno),Solid,L33,Serotina,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-L35,TruNorth,TruNorth (Legno),Solid,L35,Kirsche,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-L39,TruNorth,TruNorth (Legno),Solid,L39,Midnight Run,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-W29,TruNorth,TruNorth (Artica),Pine,W29,Gregio Pine,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-W42,TruNorth,TruNorth (Timber),Walnut,W42,Bleached Walnut,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-W51,TruNorth,TruNorth (Artica),Cherry,W51,Richmond Cherry,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-W53,TruNorth,TruNorth (Artica),Cypress,W53,Arizona Cypress,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-W66,TruNorth,TruNorth (Timber),Walnut,W66,Dark Walnut,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-174,TruNorth,TruNorth (Timber),Solid,174,Black,Timber,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-514,TruNorth,TruNorth (Timber),Oak,514,Outer Banks Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-529,TruNorth,TruNorth (Artica),Teak,529,Takase Teak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-574,TruNorth,TruNorth (Artica),Elm,574,Natural Elm,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-576,TruNorth,TruNorth (Artica),Elm,576,Dark Elm,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-589,TruNorth,TruNorth (Artica),Solid,589,Grey Echo,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-592,TruNorth,TruNorth (Artica),Oak,592,Battle Creek Oak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-596,TruNorth,TruNorth (Artica),Solid,596,Morning Fog,Artica,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-603,TruNorth,TruNorth (Timber),Oak,603,Door County Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-654,TruNorth,TruNorth (Timber),Oak,654,Lakefront Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-688,TruNorth,TruNorth (Timber),Oak,688,Studio Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-043,TruNorth,TruNorth (Timber),Oak,043,Pearl White Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-G76,TruNorth,TruNorth (Artica),Teak,G76,Shadow Teak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-G77,TruNorth,TruNorth (Artica),Teak,G77,Natural Teak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-G86,TruNorth,TruNorth (Artica),Solid,G86,Gregio Notte,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-G87,TruNorth,TruNorth (Artica),Rustik,G87,Cannella Rustik,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-G88,TruNorth,TruNorth (Artica),Rustik,G88,Natural Rustik,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-TN-G92,TruNorth,TruNorth (Artica),Solid,G92,Drift Loud,Artica,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false

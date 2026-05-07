@@ -1,0 +1,151 @@
+[
+  {
+    "id": "BPROF-RESIDENTIAL",
+    "builder_name": "Residential Customer",
+    "builder_company": null,
+    "default_finish_type": "paint",
+    "default_carcass_id": "CAR-002",
+    "default_drawer_box_id": "DBX-002",
+    "default_pull_id": "PL-001",
+    "default_paint_brand": "SW",
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004",
+      "ACC-007"
+    ],
+    "preferred_cabdoor_usage_groups": [
+      "A",
+      "B"
+    ],
+    "notes": "Default for walk-in homeowners — clean residential pop tier (PF maple ply box; dovetail drawers; standard 3in bar pull; SW paint; trash + rollouts + lazy susan baseline)",
+    "is_residential_default": true
+  },
+  {
+    "id": "BPROF-ATLAS",
+    "builder_name": "Atlas Builders",
+    "builder_company": "Atlas Builders",
+    "default_finish_type": "paint",
+    "default_carcass_id": "CAR-001",
+    "default_drawer_box_id": "DBX-001",
+    "default_pull_id": "PL-001",
+    "default_paint_brand": "SW",
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004"
+    ],
+    "preferred_cabdoor_usage_groups": "A",
+    "notes": "Repeat builder; runs same plan models across multiple subdivisions — Karl to confirm defaults",
+    "is_residential_default": false
+  },
+  {
+    "id": "BPROF-BUSH",
+    "builder_name": "Bush Legacy",
+    "builder_company": "Bush Legacy",
+    "default_finish_type": "stain",
+    "default_carcass_id": "CAR-002",
+    "default_drawer_box_id": "DBX-002",
+    "default_pull_id": "PL-005",
+    "default_paint_brand": null,
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004",
+      "ACC-007",
+      "ACC-008"
+    ],
+    "preferred_cabdoor_usage_groups": [
+      "A",
+      "B"
+    ],
+    "notes": "Stain-heavy custom work — Karl to confirm defaults",
+    "is_residential_default": false
+  },
+  {
+    "id": "BPROF-PREMIER",
+    "builder_name": "Premier",
+    "builder_company": "Premier",
+    "default_finish_type": "paint",
+    "default_carcass_id": "CAR-001",
+    "default_drawer_box_id": "DBX-001",
+    "default_pull_id": "PL-001",
+    "default_paint_brand": "SW",
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004"
+    ],
+    "preferred_cabdoor_usage_groups": "A",
+    "notes": "Karl to confirm defaults",
+    "is_residential_default": false
+  },
+  {
+    "id": "BPROF-STANCRAFT",
+    "builder_name": "Stancraft",
+    "builder_company": "Stancraft",
+    "default_finish_type": "paint",
+    "default_carcass_id": "CAR-002",
+    "default_drawer_box_id": "DBX-002",
+    "default_pull_id": "PL-001",
+    "default_paint_brand": "SW",
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004"
+    ],
+    "preferred_cabdoor_usage_groups": "A",
+    "notes": "Lake/cabin work (saw 25020 Smith Lake House) — Karl to confirm defaults",
+    "is_residential_default": false
+  },
+  {
+    "id": "BPROF-COBALT",
+    "builder_name": "Cobalt",
+    "builder_company": "Cobalt",
+    "default_finish_type": "melamine",
+    "default_carcass_id": "CAR-001",
+    "default_drawer_box_id": "DBX-001",
+    "default_pull_id": "PL-010",
+    "default_paint_brand": null,
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004"
+    ],
+    "preferred_cabdoor_usage_groups": "A",
+    "notes": "Different team / format on WO47081 — Karl to confirm defaults",
+    "is_residential_default": false
+  },
+  {
+    "id": "BPROF-BAR17",
+    "builder_name": "Bar 17",
+    "builder_company": "Bar 17",
+    "default_finish_type": "stain",
+    "default_carcass_id": "CAR-002",
+    "default_drawer_box_id": "DBX-002",
+    "default_pull_id": "PL-005",
+    "default_paint_brand": null,
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004"
+    ],
+    "preferred_cabdoor_usage_groups": [
+      "A",
+      "B"
+    ],
+    "notes": "Cabin builder (saw PRLM Linhoff Cabin) — Karl to confirm defaults",
+    "is_residential_default": false
+  },
+  {
+    "id": "BPROF-RSB",
+    "builder_name": "RSB Customs",
+    "builder_company": "RSB Customs",
+    "default_finish_type": "paint",
+    "default_carcass_id": "CAR-002",
+    "default_drawer_box_id": "DBX-002",
+    "default_pull_id": "PL-001",
+    "default_paint_brand": "SW",
+    "default_accessories": [
+      "ACC-001",
+      "ACC-004",
+      "ACC-007"
+    ],
+    "preferred_cabdoor_usage_groups": "A",
+    "notes": "Saw RSB Osweiler drawings — Karl to confirm defaults",
+    "is_residential_default": false
+  }
+]

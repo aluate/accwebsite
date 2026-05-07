@@ -1,0 +1,7 @@
+id,name,type,brand,notes
+TC-001,Magnamax Conversion Varnish,conversion_varnish,ML Campbell,Standard ACC topcoat for paint and stain
+TC-002,Krystal Conversion Varnish,conversion_varnish,ML Campbell,Lower-VOC alternative
+TC-003,Resistant Pre-Cat Lacquer,pre_cat_lacquer,ML Campbell,Quick-cure lacquer
+TC-004,Aqualente Water-Based,water_based,ML Campbell,Waterborne for low-VOC jobs
+TC-005,No Topcoat (raw / pre-finished),—,—,Pre-finished melamine or unfinished doors
+TC-099,Other,—,—,Specify in notes

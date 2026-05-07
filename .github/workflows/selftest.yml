@@ -1,0 +1,33 @@
+# Run the ACC self-test on push and pull request.
+#
+# Why selftest and not `next build`? selftest exercises:
+#   - Catalog FK integrity (cabdoor_presets, builder_profiles)
+#   - Lifecycle state machine (11/11 in-memory transitions)
+#   - Approval state machine (13/13 edge legality)
+#   - TypeScript compile (tsc --noEmit)
+#   - DB shape (skipped in CI since we don't ship a DB; no false alarms)
+#
+# To enable: push the repo to GitHub. Workflow runs automatically.
+
+name: selftest
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Sync catalogs
+        run: npm run sync-catalogs
+      - name: Self-test
+        run: npm run selftest

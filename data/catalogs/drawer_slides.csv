@@ -1,0 +1,9 @@
+id,name,brand,model,mount,close,length_options_in,notes
+DS-000,None,—,—,—,—,—,Push-to-open or no slides
+DS-BLU-001,Blum Tandem Plus Blumotion 21in,Blum,563H5330B,undermount,soft-close,21,Standard ACC base drawer
+DS-BLU-002,Blum Tandem Plus Blumotion 18in,Blum,563H4570B,undermount,soft-close,18,Standard for 21-deep cabinets
+DS-BLU-003,Blum Tandem Plus Blumotion 15in,Blum,563H3810B,undermount,soft-close,15,Shallow drawer
+DS-BLU-004,Blum Movento with Tip-On Blumotion 21in,Blum,766H5330S,undermount,soft-close+touch,21,Push-to-open + soft-close
+DS-SAL-001,Salice Futura 21in,Salice,A8B7421,undermount,soft-close,21,Salice equivalent
+DS-HET-001,Hettich Quadro V6 Silent System 21in,Hettich,9080110,undermount,soft-close,21,Hettich equivalent
+DS-099,Other,—,—,—,—,—,Specify in notes

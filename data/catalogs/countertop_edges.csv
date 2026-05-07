@@ -1,0 +1,9 @@
+id,name,description,notes
+CE-001,Eased,Square top edge slightly rounded,Standard quartz/granite edge
+CE-002,Pencil Round,Slightly more rounded than eased,Soft modern edge
+CE-003,Bullnose,Full half-round,Traditional
+CE-004,Half Bullnose,Top bullnose with square bottom,Common for thick tops
+CE-005,Ogee,S-curve profile,Ornate traditional
+CE-006,Mitered,Two pieces joined at 45 to fake a thicker edge,Built-up edge
+CE-007,Beveled,Angled top edge,Modern angular
+CE-099,Other,—,Specify in notes

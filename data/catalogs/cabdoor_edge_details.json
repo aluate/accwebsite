@@ -1,0 +1,353 @@
+[
+  {
+    "id": "E-2",
+    "name": "E-2",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-3",
+    "name": "E-3",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-4",
+    "name": "E-4",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-5",
+    "name": "E-5",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-6",
+    "name": "E-6",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "R-1/4\" radius.",
+    "placeholder": false
+  },
+  {
+    "id": "E-7",
+    "name": "E-7",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "9/16\" with R-1/4\" / R-3/8\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-10",
+    "name": "E-10",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-18",
+    "name": "E-18",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-20",
+    "name": "E-20",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-25",
+    "name": "E-25",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-32",
+    "name": "E-32",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "1-1/4\" x 5/16\". Default edge for MP-3 (Petersburg).",
+    "placeholder": false
+  },
+  {
+    "id": "E-34",
+    "name": "E-34",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-38",
+    "name": "E-38",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-40",
+    "name": "E-40",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-41",
+    "name": "E-41",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "3/16\" with R-1/8\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-42",
+    "name": "E-42",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "5/16\" / 1/4\" with R-1/4\" / R-1/8\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-46",
+    "name": "E-46",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "R-1/16\" x 1/8\". Default edge for MP-4 (Williamsburg).",
+    "placeholder": false
+  },
+  {
+    "id": "E-55",
+    "name": "E-55",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "1/8\" x 9/16\" / 3/8\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-56",
+    "name": "E-56",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "R-1/2\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-62",
+    "name": "E-62",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-63",
+    "name": "E-63",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-64",
+    "name": "E-64",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-65",
+    "name": "E-65",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-70",
+    "name": "E-70",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "1/4\" / 3/8\" / 5/8\" / 3/8\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-72",
+    "name": "E-72",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "1-3/16\" / 13/16\" / 11/16\".",
+    "placeholder": false
+  },
+  {
+    "id": "E-73",
+    "name": "E-73",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-74",
+    "name": "E-74",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": null,
+    "placeholder": false
+  },
+  {
+    "id": "E-87",
+    "name": "E-87",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "Minimum Euro hinge prep offset 2mm.",
+    "placeholder": false
+  },
+  {
+    "id": "E-95",
+    "name": "E-95",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "1/2\" x 19/32\". Minimum Euro hinge prep offset 2mm.",
+    "placeholder": false
+  },
+  {
+    "id": "E-107",
+    "name": "E-107",
+    "category": "standard",
+    "hinge_compatible": true,
+    "mitre_compatible": true,
+    "notes": "13/32\". Minimum Euro hinge prep offset 2mm.",
+    "placeholder": false
+  },
+  {
+    "id": "E-1",
+    "name": "E-1",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "9/16\" x 1/8\" finger pull.",
+    "placeholder": false
+  },
+  {
+    "id": "E-9",
+    "name": "E-9",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "5/8\" x 5/16\" finger pull.",
+    "placeholder": false
+  },
+  {
+    "id": "E-11",
+    "name": "E-11",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "5/8\" finger pull.",
+    "placeholder": false
+  },
+  {
+    "id": "E-51",
+    "name": "E-51",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "Finger pull. Euro hinge prep not available.",
+    "placeholder": false
+  },
+  {
+    "id": "E-75",
+    "name": "E-75",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "Finger pull. Min Euro hinge prep offset 3mm.",
+    "placeholder": false
+  },
+  {
+    "id": "E-76",
+    "name": "E-76",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "Finger pull. Min Euro hinge prep offset 3mm.",
+    "placeholder": false
+  },
+  {
+    "id": "E-79",
+    "name": "E-79",
+    "category": "finger_pull",
+    "hinge_compatible": true,
+    "mitre_compatible": false,
+    "notes": "Finger pull. Euro hinge prep not available.",
+    "placeholder": false
+  },
+  {
+    "id": "E-77",
+    "name": "E-77",
+    "category": "raised_drawer_front",
+    "hinge_compatible": false,
+    "mitre_compatible": false,
+    "notes": "Raised drawer front edge. #900 Solid Classic DFs only — will not work on doors. Not available with mitres.",
+    "placeholder": false
+  },
+  {
+    "id": "E-78",
+    "name": "E-78",
+    "category": "raised_drawer_front",
+    "hinge_compatible": false,
+    "mitre_compatible": false,
+    "notes": "Raised drawer front edge. #900 Solid Classic DFs only — will not work on doors. Not available with mitres.",
+    "placeholder": false
+  }
+]

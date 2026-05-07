@@ -1,0 +1,181 @@
+[
+  {
+    "id": "SP-001",
+    "name": "Alder",
+    "grades": [
+      "Select",
+      "Rustic",
+      "Knotty"
+    ],
+    "hardness_janka": "590",
+    "typical_use": [
+      "Painted cabinets",
+      "trim supply"
+    ],
+    "notes": "Soft hardwood; takes paint well; most common in PNW residential"
+  },
+  {
+    "id": "SP-002",
+    "name": "Maple (Hard)",
+    "grades": [
+      "Select",
+      "Paint Grade"
+    ],
+    "hardness_janka": "1450",
+    "typical_use": [
+      "Painted/stained cabinets",
+      "faces"
+    ],
+    "notes": "Dense and smooth; excellent for painted doors"
+  },
+  {
+    "id": "SP-003",
+    "name": "Maple (Soft)",
+    "grades": "Select",
+    "hardness_janka": "950",
+    "typical_use": [
+      "Interior trim",
+      "boxes"
+    ],
+    "notes": "Lighter than hard maple; good painted option"
+  },
+  {
+    "id": "SP-004",
+    "name": "Red Oak",
+    "grades": [
+      "Select",
+      "#1 Common"
+    ],
+    "hardness_janka": "1290",
+    "typical_use": [
+      "Stained cabinets",
+      "traditional trim"
+    ],
+    "notes": "Open grain; popular for traditional stain work"
+  },
+  {
+    "id": "SP-005",
+    "name": "White Oak",
+    "grades": [
+      "Select",
+      "Rift & Quartered"
+    ],
+    "hardness_janka": "1360",
+    "typical_use": [
+      "Modern stained cabinets",
+      "trim"
+    ],
+    "notes": "Tighter grain than red; Rift/Q for contemporary"
+  },
+  {
+    "id": "SP-006",
+    "name": "Cherry",
+    "grades": [
+      "Select",
+      "#1 Common"
+    ],
+    "hardness_janka": "950",
+    "typical_use": [
+      "Stained cabinets",
+      "executive millwork"
+    ],
+    "notes": "Darkens with light exposure; rich tone"
+  },
+  {
+    "id": "SP-007",
+    "name": "Walnut",
+    "grades": [
+      "Select",
+      "#1 Common"
+    ],
+    "hardness_janka": "1010",
+    "typical_use": [
+      "Stained cabinets",
+      "accent panels"
+    ],
+    "notes": "Premium; dark chocolate tones"
+  },
+  {
+    "id": "SP-008",
+    "name": "Hickory",
+    "grades": [
+      "Select",
+      "Rustic"
+    ],
+    "hardness_janka": "1820",
+    "typical_use": "Rustic stained cabinets",
+    "notes": "High contrast grain; very hard"
+  },
+  {
+    "id": "SP-009",
+    "name": "Ash",
+    "grades": "Select",
+    "hardness_janka": "1320",
+    "typical_use": [
+      "Stained/painted trim",
+      "contemporary"
+    ],
+    "notes": "Similar to white oak; open grain"
+  },
+  {
+    "id": "SP-010",
+    "name": "Poplar",
+    "grades": "Paint Grade",
+    "hardness_janka": "540",
+    "typical_use": [
+      "Interior trim (painted only)",
+      "secondary wood"
+    ],
+    "notes": "Soft; inconsistent color — paint only"
+  },
+  {
+    "id": "SP-011",
+    "name": "Pine (Ponderosa)",
+    "grades": [
+      "Select",
+      "Knotty"
+    ],
+    "hardness_janka": "460",
+    "typical_use": [
+      "Rustic trim",
+      "knotty pine cabinets"
+    ],
+    "notes": "PNW local species; soft"
+  },
+  {
+    "id": "SP-012",
+    "name": "Douglas Fir",
+    "grades": [
+      "Clear",
+      "Select"
+    ],
+    "hardness_janka": "660",
+    "typical_use": [
+      "Structural trim",
+      "commercial"
+    ],
+    "notes": "Local PNW species; distinctive grain"
+  },
+  {
+    "id": "SP-013",
+    "name": "MDF",
+    "grades": "Paint Grade",
+    "hardness_janka": null,
+    "typical_use": [
+      "Painted doors",
+      "shop cabinets"
+    ],
+    "notes": "No grain; ultra-smooth painted finish; no moisture exposure"
+  },
+  {
+    "id": "SP-014",
+    "name": "Birch Plywood",
+    "grades": "Cabinet Grade",
+    "hardness_janka": null,
+    "typical_use": [
+      "Box material (painted)",
+      "shelving"
+    ],
+    "notes": "Shop standard for primed/painted interiors"
+  }
+]

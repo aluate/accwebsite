@@ -1,0 +1,299 @@
+[
+  {
+    "id": "ACC-001",
+    "name": "Single Rollout Tray",
+    "brand": "Rev-A-Shelf",
+    "series": "5WB1",
+    "category": "rollout",
+    "width_options_in": [
+      12,
+      15,
+      18,
+      21,
+      24
+    ],
+    "finish_options": [
+      "White",
+      "Natural"
+    ],
+    "notes": "Full extension; for base cabinets; standard depth"
+  },
+  {
+    "id": "ACC-002",
+    "name": "Double Rollout Tray (Stacked)",
+    "brand": "Rev-A-Shelf",
+    "series": "5WB2",
+    "category": "rollout",
+    "width_options_in": [
+      12,
+      15,
+      18,
+      21,
+      24
+    ],
+    "finish_options": [
+      "White",
+      "Natural"
+    ],
+    "notes": "Two-tier stacked; fits standard 30+ base"
+  },
+  {
+    "id": "ACC-003",
+    "name": "Full-Extension Rollout Shelf",
+    "brand": "Rev-A-Shelf",
+    "series": "5RB",
+    "category": "rollout",
+    "width_options_in": [
+      12,
+      15,
+      18,
+      21,
+      24
+    ],
+    "finish_options": [
+      "White",
+      "Chrome"
+    ],
+    "notes": "Heavy duty; 100lb rating; full extension"
+  },
+  {
+    "id": "ACC-004",
+    "name": "Pull-Out Trash (Single 35qt)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WCSC-1",
+    "category": "trash",
+    "width_options_in": [
+      11,
+      14
+    ],
+    "finish_options": "White",
+    "notes": "Single bin; fits 12 or 15 base"
+  },
+  {
+    "id": "ACC-005",
+    "name": "Pull-Out Trash (Double 35qt + 8qt)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WCSC-2",
+    "category": "trash",
+    "width_options_in": [
+      14,
+      17
+    ],
+    "finish_options": "White",
+    "notes": "Large bin + recycle bin combo"
+  },
+  {
+    "id": "ACC-006",
+    "name": "Pull-Out Trash (Double 50qt)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WCBLS-2",
+    "category": "trash",
+    "width_options_in": [
+      17,
+      20
+    ],
+    "finish_options": "White",
+    "notes": "Two large bins; 18+ base"
+  },
+  {
+    "id": "ACC-007",
+    "name": "Lazy Susan – Full Round",
+    "brand": "Rev-A-Shelf",
+    "series": "5LS",
+    "category": "lazy_susan",
+    "width_options_in": [
+      28,
+      32,
+      36
+    ],
+    "finish_options": [
+      "White",
+      "Chrome"
+    ],
+    "notes": "Corner base; full round; polymer or wire"
+  },
+  {
+    "id": "ACC-008",
+    "name": "Lazy Susan – Kidney (D-Shape)",
+    "brand": "Rev-A-Shelf",
+    "series": "5LSC",
+    "category": "lazy_susan",
+    "width_options_in": [
+      32,
+      36
+    ],
+    "finish_options": "White",
+    "notes": "Blind corner; kidney shape; 2-shelf"
+  },
+  {
+    "id": "ACC-009",
+    "name": "Pie Cut Lazy Susan",
+    "brand": "Rev-A-Shelf",
+    "series": "5PC",
+    "category": "lazy_susan",
+    "width_options_in": [
+      28,
+      32,
+      36
+    ],
+    "finish_options": "White",
+    "notes": "Corner cabinet; pie-cut shelves"
+  },
+  {
+    "id": "ACC-010",
+    "name": "Door Mount Spice Rack",
+    "brand": "Rev-A-Shelf",
+    "series": "4ASR",
+    "category": "door_storage",
+    "width_options_in": [
+      11,
+      14,
+      17
+    ],
+    "finish_options": "Chrome",
+    "notes": "Mounts inside door; upper or base"
+  },
+  {
+    "id": "ACC-011",
+    "name": "Door Mount Tray Divider",
+    "brand": "Rev-A-Shelf",
+    "series": "4TDS",
+    "category": "door_storage",
+    "width_options_in": [
+      11,
+      14
+    ],
+    "finish_options": "Chrome",
+    "notes": "Cutting board & tray storage; base"
+  },
+  {
+    "id": "ACC-012",
+    "name": "Cookware Organizer",
+    "brand": "Rev-A-Shelf",
+    "series": "RCPO",
+    "category": "specialty",
+    "width_options_in": [
+      8,
+      11,
+      14
+    ],
+    "finish_options": "Chrome",
+    "notes": "Vertical dividers for pots/pans; deep base"
+  },
+  {
+    "id": "ACC-013",
+    "name": "Pull-Out Peg Drawer Organizer",
+    "brand": "Rev-A-Shelf",
+    "series": "4DI",
+    "category": "drawer",
+    "width_options_in": [
+      14,
+      17,
+      20,
+      24
+    ],
+    "finish_options": [
+      "Walnut",
+      "Gray"
+    ],
+    "notes": "Peg system; deep drawer organization"
+  },
+  {
+    "id": "ACC-014",
+    "name": "Knife Block Insert",
+    "brand": "Rev-A-Shelf",
+    "series": "4KBSDA",
+    "category": "drawer",
+    "width_options_in": [
+      11,
+      14
+    ],
+    "finish_options": "Walnut",
+    "notes": "In-drawer knife storage; horizontal"
+  },
+  {
+    "id": "ACC-015",
+    "name": "Utensil Divider Kit",
+    "brand": "Rev-A-Shelf",
+    "series": "4FSDB",
+    "category": "drawer",
+    "width_options_in": [
+      12,
+      17
+    ],
+    "finish_options": [
+      "Birch",
+      "Gray"
+    ],
+    "notes": "Expandable drawer dividers; multi-section"
+  },
+  {
+    "id": "ACC-016",
+    "name": "Pull-Out Cabinet Shelf",
+    "brand": "Rev-A-Shelf",
+    "series": "5PBS",
+    "category": "rollout",
+    "width_options_in": [
+      12,
+      15,
+      18,
+      21,
+      24
+    ],
+    "finish_options": "Chrome",
+    "notes": "Single shelf; base or upper; full extension"
+  },
+  {
+    "id": "ACC-017",
+    "name": "Pantry Pull-Out (Frame)",
+    "brand": "Rev-A-Shelf",
+    "series": "5PD-Series",
+    "category": "pantry",
+    "width_options_in": [
+      8,
+      11,
+      14
+    ],
+    "finish_options": "Chrome",
+    "notes": "For pantry/tall cabinets; multiple shelves"
+  },
+  {
+    "id": "ACC-018",
+    "name": "Base Cabinet Filler Pull-Out",
+    "brand": "Rev-A-Shelf",
+    "series": "BCFPO",
+    "category": "specialty",
+    "width_options_in": [
+      3,
+      6
+    ],
+    "finish_options": "Chrome",
+    "notes": "Narrow filler pull-out; spice/flat storage"
+  },
+  {
+    "id": "ACC-019",
+    "name": "Hamper (Single)",
+    "brand": "Rev-A-Shelf",
+    "series": "RV-18KD",
+    "category": "specialty",
+    "width_options_in": [
+      14,
+      18
+    ],
+    "finish_options": [
+      "Chrome",
+      "White"
+    ],
+    "notes": "Laundry hamper insert; bathroom/mudroom"
+  },
+  {
+    "id": "ACC-020",
+    "name": "Other/Custom",
+    "brand": "Custom",
+    "series": null,
+    "category": "other",
+    "width_options_in": null,
+    "finish_options": null,
+    "notes": "Specify brand + item in notes"
+  }
+]

@@ -1,0 +1,21 @@
+id,name,brand,series,category,width_options_in,finish_options,notes
+ACC-001,Single Rollout Tray,Rev-A-Shelf,5WB1,rollout,"12;15;18;21;24","White;Natural",Full extension; for base cabinets; standard depth
+ACC-002,Double Rollout Tray (Stacked),Rev-A-Shelf,5WB2,rollout,"12;15;18;21;24","White;Natural",Two-tier stacked; fits standard 30"+ base
+ACC-003,Full-Extension Rollout Shelf,Rev-A-Shelf,5RB,rollout,"12;15;18;21;24","White;Chrome",Heavy duty; 100lb rating; full extension
+ACC-004,Pull-Out Trash (Single 35qt),Rev-A-Shelf,4WCSC-1,trash,"11;14","White",Single bin; fits 12" or 15" base
+ACC-005,Pull-Out Trash (Double 35qt + 8qt),Rev-A-Shelf,4WCSC-2,trash,"14;17","White",Large bin + recycle bin combo
+ACC-006,Pull-Out Trash (Double 50qt),Rev-A-Shelf,4WCBLS-2,trash,"17;20","White",Two large bins; 18"+ base
+ACC-007,Lazy Susan – Full Round,Rev-A-Shelf,5LS,lazy_susan,"28;32;36","White;Chrome",Corner base; full round; polymer or wire
+ACC-008,Lazy Susan – Kidney (D-Shape),Rev-A-Shelf,5LSC,lazy_susan,"32;36","White",Blind corner; kidney shape; 2-shelf
+ACC-009,Pie Cut Lazy Susan,Rev-A-Shelf,5PC,lazy_susan,"28;32;36","White",Corner cabinet; pie-cut shelves
+ACC-010,Door Mount Spice Rack,Rev-A-Shelf,4ASR,door_storage,"11;14;17","Chrome",Mounts inside door; upper or base
+ACC-011,Door Mount Tray Divider,Rev-A-Shelf,4TDS,door_storage,"11;14","Chrome",Cutting board & tray storage; base
+ACC-012,Cookware Organizer,Rev-A-Shelf,RCPO,specialty,"8;11;14","Chrome",Vertical dividers for pots/pans; deep base
+ACC-013,Pull-Out Peg Drawer Organizer,Rev-A-Shelf,4DI,drawer,"14;17;20;24","Walnut;Gray",Peg system; deep drawer organization
+ACC-014,Knife Block Insert,Rev-A-Shelf,4KBSDA,drawer,"11;14","Walnut",In-drawer knife storage; horizontal
+ACC-015,Utensil Divider Kit,Rev-A-Shelf,4FSDB,drawer,"12;17","Birch;Gray",Expandable drawer dividers; multi-section
+ACC-016,Pull-Out Cabinet Shelf,Rev-A-Shelf,5PBS,rollout,"12;15;18;21;24","Chrome",Single shelf; base or upper; full extension
+ACC-017,Pantry Pull-Out (Frame),Rev-A-Shelf,5PD-Series,pantry,"8;11;14","Chrome",For pantry/tall cabinets; multiple shelves
+ACC-018,Base Cabinet Filler Pull-Out,Rev-A-Shelf,BCFPO,specialty,"3;6","Chrome",Narrow filler pull-out; spice/flat storage
+ACC-019,Hamper (Single),Rev-A-Shelf,RV-18KD,specialty,"14;18","Chrome;White",Laundry hamper insert; bathroom/mudroom
+ACC-020,Other/Custom,Custom,—,other,—,—,Specify brand + item in notes

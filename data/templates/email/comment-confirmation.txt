@@ -1,0 +1,11 @@
+Subject: {{job_id}} — Got your comment
+
+Hi {{display_name}},
+
+Got your comment on {{job_id}}:
+  "{{comment_body}}"
+
+We'll respond once engineering or the PM reviews it. View status:
+  {{portal_url}}/portal/jobs/{{job_id}}
+
+— ACC

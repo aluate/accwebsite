@@ -1,0 +1,52 @@
+[
+  {
+    "id": "HTP-000",
+    "name": "None",
+    "brand": null,
+    "model": null,
+    "bin_count": null,
+    "bin_size": null,
+    "opening_width_in": null,
+    "notes": "No trash pullout"
+  },
+  {
+    "id": "HTP-001",
+    "name": "Rev-A-Shelf Double 35qt",
+    "brand": "Rev-A-Shelf",
+    "model": "5349-1518DM-2",
+    "bin_count": "2",
+    "bin_size": "35qt",
+    "opening_width_in": "15",
+    "notes": "Standard 15-inch base trash"
+  },
+  {
+    "id": "HTP-002",
+    "name": "Rev-A-Shelf Single 35qt",
+    "brand": "Rev-A-Shelf",
+    "model": "5349-15DM-1",
+    "bin_count": "1",
+    "bin_size": "35qt",
+    "opening_width_in": "15",
+    "notes": "Single bin variant"
+  },
+  {
+    "id": "HTP-003",
+    "name": "Hafele Hailo Easy Cargo",
+    "brand": "Hafele",
+    "model": "503.65.621",
+    "bin_count": "2",
+    "bin_size": "30L",
+    "opening_width_in": "18",
+    "notes": "Premium soft-close trash"
+  },
+  {
+    "id": "HTP-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "bin_count": null,
+    "bin_size": null,
+    "opening_width_in": null,
+    "notes": "Specify in notes"
+  }
+]

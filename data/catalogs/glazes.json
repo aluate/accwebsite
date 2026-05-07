@@ -1,0 +1,51 @@
+[
+  {
+    "id": "GL-000",
+    "name": "None",
+    "brand": null,
+    "color_family": null,
+    "notes": "No glaze"
+  },
+  {
+    "id": "GL-001",
+    "name": "Mocha Glaze",
+    "brand": "ML Campbell",
+    "color_family": "brown",
+    "notes": "Brown body glaze"
+  },
+  {
+    "id": "GL-002",
+    "name": "Vandyke Brown",
+    "brand": "ML Campbell",
+    "color_family": "brown",
+    "notes": "Dark warm brown"
+  },
+  {
+    "id": "GL-003",
+    "name": "Black Glaze",
+    "brand": "ML Campbell",
+    "color_family": "black",
+    "notes": "Black body"
+  },
+  {
+    "id": "GL-004",
+    "name": "Antique White Glaze",
+    "brand": "ML Campbell",
+    "color_family": "off-white",
+    "notes": "Light age effect"
+  },
+  {
+    "id": "GL-005",
+    "name": "Custom Match",
+    "brand": "Custom",
+    "color_family": null,
+    "notes": "PM specifies in notes"
+  },
+  {
+    "id": "GL-099",
+    "name": "Other",
+    "brand": null,
+    "color_family": null,
+    "notes": "Specify in notes"
+  }
+]

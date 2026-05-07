@@ -1,0 +1,47 @@
+[
+  {
+    "id": "HCR-000",
+    "name": "None",
+    "brand": null,
+    "model": null,
+    "diameter_in": null,
+    "finish": null,
+    "notes": "No closet rod in this finish group"
+  },
+  {
+    "id": "HCR-001",
+    "name": "Round 1-1/4in Chrome",
+    "brand": "Hardware Resources",
+    "model": "RR-114-CH",
+    "diameter_in": "1.25",
+    "finish": "Chrome",
+    "notes": "Most common closet rod"
+  },
+  {
+    "id": "HCR-002",
+    "name": "Round 1-1/4in Brushed Nickel",
+    "brand": "Hardware Resources",
+    "model": "RR-114-BN",
+    "diameter_in": "1.25",
+    "finish": "Brushed Nickel",
+    "notes": "Match brushed nickel pulls"
+  },
+  {
+    "id": "HCR-003",
+    "name": "Oval Closet Rod 6ft",
+    "brand": "Knape & Vogt",
+    "model": "1010-72-CH",
+    "diameter_in": null,
+    "finish": "Chrome",
+    "notes": "Oval cross-section"
+  },
+  {
+    "id": "HCR-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "diameter_in": null,
+    "finish": null,
+    "notes": "Specify in notes"
+  }
+]

@@ -1,0 +1,85 @@
+[
+  {
+    "id": "HDP-000",
+    "name": "None (push-to-open)",
+    "brand": null,
+    "model": null,
+    "type": null,
+    "hole_spacing_in": null,
+    "length_in": null,
+    "finish_options": null,
+    "notes": "No pull \u2014 push-to-open"
+  },
+  {
+    "id": "HDP-001",
+    "name": "Bar Pull 3in",
+    "brand": "Richelieu",
+    "model": "BP815196",
+    "type": "pull",
+    "hole_spacing_in": "3",
+    "length_in": "4.5",
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome",
+      "Oil Rubbed Bronze"
+    ],
+    "notes": "Most common door pull"
+  },
+  {
+    "id": "HDP-002",
+    "name": "Bar Pull 5in",
+    "brand": "Richelieu",
+    "model": "BP815128",
+    "type": "pull",
+    "hole_spacing_in": "5",
+    "length_in": "6.5",
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome",
+      "Oil Rubbed Bronze"
+    ],
+    "notes": "Larger doors and uppers"
+  },
+  {
+    "id": "HDP-003",
+    "name": "Knob 1-1/4in",
+    "brand": "Richelieu",
+    "model": "BP881025",
+    "type": "knob",
+    "hole_spacing_in": null,
+    "length_in": "1.25",
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black",
+      "Polished Chrome"
+    ],
+    "notes": "Round knob"
+  },
+  {
+    "id": "HDP-004",
+    "name": "Cup Pull 3in",
+    "brand": "Richelieu",
+    "model": "BP9425396",
+    "type": "cup_pull",
+    "hole_spacing_in": "3",
+    "length_in": "3.75",
+    "finish_options": [
+      "Brushed Nickel",
+      "Matte Black"
+    ],
+    "notes": "Traditional cup"
+  },
+  {
+    "id": "HDP-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "type": null,
+    "hole_spacing_in": null,
+    "length_in": null,
+    "finish_options": null,
+    "notes": "Specify in notes"
+  }
+]

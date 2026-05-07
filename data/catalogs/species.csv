@@ -1,0 +1,15 @@
+id,name,grades,hardness_janka,typical_use,notes
+SP-001,Alder,Select;Rustic;Knotty,590,Painted cabinets; trim supply,Soft hardwood; takes paint well; most common in PNW residential
+SP-002,Maple (Hard),Select;Paint Grade,1450,Painted/stained cabinets; faces,Dense and smooth; excellent for painted doors
+SP-003,Maple (Soft),Select,950,Interior trim; boxes,Lighter than hard maple; good painted option
+SP-004,Red Oak,Select;#1 Common,1290,Stained cabinets; traditional trim,Open grain; popular for traditional stain work
+SP-005,White Oak,Select;Rift & Quartered,1360,Modern stained cabinets; trim,Tighter grain than red; Rift/Q for contemporary
+SP-006,Cherry,Select;#1 Common,950,Stained cabinets; executive millwork,Darkens with light exposure; rich tone
+SP-007,Walnut,Select;#1 Common,1010,Stained cabinets; accent panels,Premium; dark chocolate tones
+SP-008,Hickory,Select;Rustic,1820,Rustic stained cabinets,High contrast grain; very hard
+SP-009,Ash,Select,1320,Stained/painted trim; contemporary,Similar to white oak; open grain
+SP-010,Poplar,Paint Grade,540,Interior trim (painted only); secondary wood,Soft; inconsistent color — paint only
+SP-011,Pine (Ponderosa),Select;Knotty,460,Rustic trim; knotty pine cabinets,PNW local species; soft
+SP-012,Douglas Fir,Clear;Select,660,Structural trim; commercial,Local PNW species; distinctive grain
+SP-013,MDF,Paint Grade,—,Painted doors; shop cabinets,No grain; ultra-smooth painted finish; no moisture exposure
+SP-014,Birch Plywood,Cabinet Grade,—,Box material (painted); shelving,Shop standard for primed/painted interiors

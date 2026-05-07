@@ -1,0 +1,38 @@
+[
+  {
+    "id": "HM-001",
+    "name": "Cabinet Bumpers",
+    "category": "bumper",
+    "notes": "Soft door/drawer bumpers \u2014 100-pack"
+  },
+  {
+    "id": "HM-002",
+    "name": "Touch Latch (push-to-open)",
+    "category": "latch",
+    "notes": "For non-handle doors"
+  },
+  {
+    "id": "HM-003",
+    "name": "Cabinet Lock",
+    "category": "lock",
+    "notes": "Liquor or document storage"
+  },
+  {
+    "id": "HM-004",
+    "name": "Adjustable Leveler Foot",
+    "category": "leveler",
+    "notes": "For furniture-grade base cabinets"
+  },
+  {
+    "id": "HM-005",
+    "name": "Wire Tray Insert",
+    "category": "organizer",
+    "notes": "Generic wire organizer"
+  },
+  {
+    "id": "HM-099",
+    "name": "Other",
+    "category": null,
+    "notes": "Specify in notes"
+  }
+]

@@ -1,0 +1,11 @@
+Subject: {{job_id}} — {{client_name}} — Drawings ready for review
+
+Hi {{display_name}},
+
+The latest drawings for {{job_id}} ({{client_name}}) are posted. Please review and comment via the portal — reference cabinet numbers (e.g. "B12") when calling out specifics.
+
+  {{portal_url}}/portal/jobs/{{job_id}}
+
+You have 14 days from acknowledgement to submit change requests through the portal at no charge. After that, change orders are billable.
+
+— ACC

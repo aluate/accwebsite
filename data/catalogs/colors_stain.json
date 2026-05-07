@@ -1,0 +1,52 @@
+[
+  {
+    "id": "STN-ML-PLACEHOLDER",
+    "brand": "ML",
+    "code": null,
+    "name": "ML Campbell stains — populate from rep",
+    "is_in_house_mix": false,
+    "is_custom_match": false,
+    "notes": "Need ML Campbell stain catalog",
+    "placeholder": true
+  },
+  {
+    "id": "STN-ACC-PLACEHOLDER-1",
+    "brand": "ACC",
+    "code": "ACC-01",
+    "name": "ACC In-House Mix #1 (Karl to fill)",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "One of the ~10 ACC named in-house mixes — Karl to provide list",
+    "placeholder": true
+  },
+  {
+    "id": "STN-ACC-PLACEHOLDER-2",
+    "brand": "ACC",
+    "code": "ACC-02",
+    "name": "ACC In-House Mix #2 (Karl to fill)",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "One of the ~10 ACC named in-house mixes — Karl to provide list",
+    "placeholder": true
+  },
+  {
+    "id": "STN-ACC-PLACEHOLDER-3",
+    "brand": "ACC",
+    "code": "ACC-03",
+    "name": "ACC In-House Mix #3 (Karl to fill)",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "One of the ~10 ACC named in-house mixes — Karl to provide list",
+    "placeholder": true
+  },
+  {
+    "id": "STN-CUSTOM",
+    "brand": "Custom",
+    "code": null,
+    "name": "Other / Custom Match",
+    "is_in_house_mix": false,
+    "is_custom_match": true,
+    "notes": "Escape hatch — PM specifies brand + code or sample reference in finish notes",
+    "placeholder": false
+  }
+]

@@ -1,0 +1,155 @@
+[
+  {
+    "id": "MP-01",
+    "size": "3in",
+    "name": "Lexington",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\". Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-02",
+    "size": "3in",
+    "name": "Concord",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\". Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-06",
+    "size": "3in",
+    "name": "Somersville",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\"; other widths on request. Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-09",
+    "size": "3in",
+    "name": "Revere",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\". Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-11",
+    "size": "3in",
+    "name": "Georgetown",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\"; other widths on request. Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-12",
+    "size": "3in",
+    "name": "Cambridge",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\"; rope moulding inlaid. Species: alder, maple, red oak, white oak, cherry, PG hdwd, walnut.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-27",
+    "size": "3in",
+    "name": "Cherry Hill",
+    "category": "3in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 3\". Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-3",
+    "size": "2.25in",
+    "name": "Petersburg",
+    "category": "2.25in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/4\"; 2-1/2\" and 3\" with upcharge. Default edge E-32; select edge from p40-42.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-4",
+    "size": "2.25in",
+    "name": "Williamsburg",
+    "category": "2.25in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/4\"; 2-1/2\" and 3\" with upcharge. Default edge E-46; select edge from p40-42. Multi-paneled parts not available.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-5",
+    "size": "2.25in",
+    "name": "Chesapeake",
+    "category": "2.25in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/4\"; 2-1/2\" and 3\" with upcharge. No lite styles.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-20",
+    "size": "2.25in",
+    "name": "Chantilly",
+    "category": "2.25in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/4\"; rope moulding inlaid. Species: alder, maple, red oak, white oak, cherry, PG hdwd, walnut.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-21",
+    "size": "2.25in",
+    "name": "Wheatland",
+    "category": "2.25in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/4\". No lite styles.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-34",
+    "size": "2.25in",
+    "name": "MP-34",
+    "category": "2.25in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/4\". No lite styles.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-7P",
+    "size": "2.25in",
+    "name": "Brookhaven (Rosewood Edge)",
+    "category": "custom_mitre",
+    "usage_group": "A",
+    "notes": "Apply any Group A inside profile. To order, replace X in MP-7P-X with profile number (e.g. MP-7P-15). Std 2-1/4\"; 2-1/2\" and 3\" with upcharge. Lites: standard + deluxe based on selected profile. Great for glazed finishes.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-19",
+    "size": "2.5in",
+    "name": "Hartford",
+    "category": "2.5in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/2\". No other widths except DF pattern. No lite styles.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-26",
+    "size": "2.5in",
+    "name": "Alexandria",
+    "category": "2.5in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/2\". Lites: standard + deluxe.",
+    "placeholder": false
+  },
+  {
+    "id": "MP-56",
+    "size": "2.5in",
+    "name": "MP-56",
+    "category": "2.5in_mitre",
+    "usage_group": "A",
+    "notes": "Standard width 2-1/2\"; 2-1/4\" and 3\" with upcharge. No lite styles.",
+    "placeholder": false
+  }
+]

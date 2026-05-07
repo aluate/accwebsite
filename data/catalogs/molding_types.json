@@ -1,0 +1,98 @@
+[
+  {
+    "id": "MTYPE-001",
+    "type": "toe_skin",
+    "display_name": "Toe Skin",
+    "typical_size": "4.5in",
+    "inherits_room_finish": true,
+    "notes": "Default 4.5in; some rooms 6in (Karl to confirm)"
+  },
+  {
+    "id": "MTYPE-002",
+    "type": "base_shoe",
+    "display_name": "Base Shoe",
+    "typical_size": "1/2x3/4",
+    "inherits_room_finish": true,
+    "notes": "Standard quarter-round-ish profile"
+  },
+  {
+    "id": "MTYPE-003",
+    "type": "scribe",
+    "display_name": "Scribe",
+    "typical_size": "1/4x3/4",
+    "inherits_room_finish": true,
+    "notes": "Filler scribe to wall"
+  },
+  {
+    "id": "MTYPE-004",
+    "type": "filler",
+    "display_name": "Filler",
+    "typical_size": "3in / 6in",
+    "inherits_room_finish": true,
+    "notes": "Width varies; commonly 3in or 6in"
+  },
+  {
+    "id": "MTYPE-005",
+    "type": "light_rail",
+    "display_name": "Light Rail",
+    "typical_size": "1.5in",
+    "inherits_room_finish": true,
+    "notes": "Under upper cabinets"
+  },
+  {
+    "id": "MTYPE-006",
+    "type": "crown_nailer",
+    "display_name": "Crown Nailer",
+    "typical_size": "3/4x3.5in",
+    "inherits_room_finish": true,
+    "notes": "Backer for crown molding"
+  },
+  {
+    "id": "MTYPE-007",
+    "type": "crown_molding",
+    "display_name": "Crown Molding",
+    "typical_size": "varies",
+    "inherits_room_finish": true,
+    "notes": "Cab Door 3in or 2-1/4in mitre patterns; or custom shop profile"
+  },
+  {
+    "id": "MTYPE-008",
+    "type": "baseboard",
+    "display_name": "Baseboard",
+    "typical_size": "varies",
+    "inherits_room_finish": true,
+    "notes": "Standard ACC baseboard; profile per job"
+  },
+  {
+    "id": "MTYPE-009",
+    "type": "toe_kick",
+    "display_name": "Toe Kick",
+    "typical_size": "varies",
+    "inherits_room_finish": true,
+    "notes": "Finished toe kick board (visible kick face)"
+  },
+  {
+    "id": "MTYPE-010",
+    "type": "applied_panel",
+    "display_name": "Applied Panel",
+    "typical_size": "varies",
+    "inherits_room_finish": true,
+    "notes": "End panels and fronts that match finish"
+  },
+  {
+    "id": "MTYPE-011",
+    "type": "batten",
+    "display_name": "Batten",
+    "typical_size": "varies",
+    "inherits_room_finish": true,
+    "notes": "Vertical battens for board-and-batten interiors"
+  },
+  {
+    "id": "MTYPE-012",
+    "type": "other",
+    "display_name": "Other (specify)",
+    "typical_size": null,
+    "inherits_room_finish": false,
+    "notes": "Escape hatch — PM types name and dimensions"
+  }
+]

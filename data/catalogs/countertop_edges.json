@@ -1,0 +1,50 @@
+[
+  {
+    "id": "CE-001",
+    "name": "Eased",
+    "description": "Square top edge slightly rounded",
+    "notes": "Standard quartz/granite edge"
+  },
+  {
+    "id": "CE-002",
+    "name": "Pencil Round",
+    "description": "Slightly more rounded than eased",
+    "notes": "Soft modern edge"
+  },
+  {
+    "id": "CE-003",
+    "name": "Bullnose",
+    "description": "Full half-round",
+    "notes": "Traditional"
+  },
+  {
+    "id": "CE-004",
+    "name": "Half Bullnose",
+    "description": "Top bullnose with square bottom",
+    "notes": "Common for thick tops"
+  },
+  {
+    "id": "CE-005",
+    "name": "Ogee",
+    "description": "S-curve profile",
+    "notes": "Ornate traditional"
+  },
+  {
+    "id": "CE-006",
+    "name": "Mitered",
+    "description": "Two pieces joined at 45 to fake a thicker edge",
+    "notes": "Built-up edge"
+  },
+  {
+    "id": "CE-007",
+    "name": "Beveled",
+    "description": "Angled top edge",
+    "notes": "Modern angular"
+  },
+  {
+    "id": "CE-099",
+    "name": "Other",
+    "description": null,
+    "notes": "Specify in notes"
+  }
+]

@@ -1,0 +1,72 @@
+=================================================================
+ACC Website — Vercel Environment Variables
+Set these in: Vercel dashboard → accwebsite project → Settings → Environment Variables
+All should be set for: Production, Preview, Development
+=================================================================
+
+DATABASE_URL
+  postgresql://postgres:2Cnz5KQ9Q%248%40hQu@db.kuqmhgjrlfawsnzmempl.supabase.co:5432/postgres
+  (For production, swap this for the Supabase "Transaction" pooler URL from:
+   Supabase → Project Settings → Database → Connection pooling → Transaction mode)
+  Pooler URL format: postgresql://postgres.kuqmhgjrlfawsnzmempl:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres
+
+NEXT_PUBLIC_SUPABASE_URL
+  https://kuqmhgjrlfawsnzmempl.supabase.co
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1cW1oZ2pybGZhd3Nuem1lbXBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODMxNDEsImV4cCI6MjA5Mzc1OTE0MX0.xXOxAG3rF_vbVl34q6s92m1eHQHg6KaJEhusWJnGHYs
+
+SUPABASE_SERVICE_ROLE_KEY
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1cW1oZ2pybGZhd3Nuem1lbXBsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODE4MzE0MSwiZXhwIjoyMDkzNzU5MTQxfQ.UMnYWIOJ9UY7dAT87rJ3Ol4wrsEdXdP6SdrT1aJP_78
+
+SESSION_SECRET
+  acc-internal-XkQ7mP2nL9vR4wJ8hD6tF1cB3yN5uA0e
+
+GMAIL_USER
+  residentialacc2@gmail.com
+
+GMAIL_APP_PASSWORD
+  fjgcyntmfdvvmycu
+
+PM_EMAIL
+  residential@advancedcabinets.net
+
+ADMIN_PASSWORD
+  acc-admin-2026
+
+=================================================================
+ALSO DO BEFORE FIRST DEPLOY:
+=================================================================
+
+1. Push schema to Supabase (run once from your local machine):
+   node scripts/db-push.mjs
+
+2. Create Supabase Storage bucket:
+   - Go to Supabase → Storage → New bucket
+   - Name: job-files
+   - Public: NO (private)
+   - File size limit: 50MB
+
+3. In Vercel, set the Root Directory to: . (leave blank, it auto-detects)
+   Framework Preset: Next.js
+
+4. Connect your domain advancedcabinets.org:
+   - Vercel → accwebsite project → Settings → Domains → Add domain
+   - Add: advancedcabinets.org
+   - Vercel will show you DNS records to set in Cloudflare
+
+5. In Cloudflare (advancedcabinets.org DNS):
+   - Add CNAME record: @ → cname.vercel-dns.com (or whatever Vercel shows)
+   - Or A record pointing to Vercel's IP
+   - Proxy status: DNS only (grey cloud) initially, enable proxy after SSL is verified
+
+=================================================================
+IMPORTANT: DATABASE_URL for Vercel production
+=================================================================
+Vercel serverless functions use short-lived connections. Use the
+Supabase pooler (Transaction mode) instead of the direct connection:
+
+Supabase → Project Settings → Database → Connection pooling
+Copy the "Transaction" mode URL and use that as DATABASE_URL in Vercel.
+The direct URL works fine for local dev via db-push.mjs.
+=================================================================

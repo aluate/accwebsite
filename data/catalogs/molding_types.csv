@@ -1,0 +1,13 @@
+id,type,display_name,typical_size,inherits_room_finish,notes
+MTYPE-001,toe_skin,Toe Skin,4.5in,true,Default 4.5in; some rooms 6in (Karl to confirm),
+MTYPE-002,base_shoe,Base Shoe,1/2x3/4,true,Standard quarter-round-ish profile
+MTYPE-003,scribe,Scribe,1/4x3/4,true,Filler scribe to wall
+MTYPE-004,filler,Filler,3in / 6in,true,Width varies; commonly 3in or 6in
+MTYPE-005,light_rail,Light Rail,1.5in,true,Under upper cabinets
+MTYPE-006,crown_nailer,Crown Nailer,3/4x3.5in,true,Backer for crown molding
+MTYPE-007,crown_molding,Crown Molding,varies,true,Cab Door 3in or 2-1/4in mitre patterns; or custom shop profile
+MTYPE-008,baseboard,Baseboard,varies,true,Standard ACC baseboard; profile per job
+MTYPE-009,toe_kick,Toe Kick,varies,true,Finished toe kick board (visible kick face)
+MTYPE-010,applied_panel,Applied Panel,varies,true,End panels and fronts that match finish
+MTYPE-011,batten,Batten,varies,true,Vertical battens for board-and-batten interiors
+MTYPE-012,other,Other (specify),—,false,Escape hatch — PM types name and dimensions

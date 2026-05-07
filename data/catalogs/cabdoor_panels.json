@@ -1,0 +1,410 @@
+[
+  {
+    "id": "Pnl-1",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-2",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-3",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-4",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-6",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-7",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-9",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-10",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-15",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-16",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-18",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-19",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-20",
+    "usage_group": "B",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-21",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-22",
+    "usage_group": "B",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-24",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-27",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-33",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-37",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-41",
+    "usage_group": "G",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-42",
+    "usage_group": "G",
+    "available_in_flat_back": true,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-44",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-45",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "std_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-51",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-55",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-56",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-58",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-59",
+    "usage_group": "B",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-62",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-63",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-64",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-67",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-68",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-69",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-70",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-72",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-74",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-76",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-77",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-78",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-79",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-80",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-81",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-82",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-86",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-90",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-91",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "applied_moulding",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-149",
+    "usage_group": "A",
+    "available_in_flat_back": true,
+    "category": "reverse_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-150",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "reverse_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-501",
+    "usage_group": "B",
+    "available_in_flat_back": false,
+    "category": "reverse_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "Pnl-831",
+    "usage_group": "A",
+    "available_in_flat_back": false,
+    "category": "reverse_raised",
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  }
+]

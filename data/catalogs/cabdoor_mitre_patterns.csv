@@ -1,0 +1,18 @@
+id,size,name,category,usage_group,notes,placeholder
+MP-01,3in,Lexington,3in_mitre,A,"Standard width 3"". Lites: standard + deluxe.",false
+MP-02,3in,Concord,3in_mitre,A,"Standard width 3"". Lites: standard + deluxe.",false
+MP-06,3in,Somersville,3in_mitre,A,"Standard width 3""; other widths on request. Lites: standard + deluxe.",false
+MP-09,3in,Revere,3in_mitre,A,"Standard width 3"". Lites: standard + deluxe.",false
+MP-11,3in,Georgetown,3in_mitre,A,"Standard width 3""; other widths on request. Lites: standard + deluxe.",false
+MP-12,3in,Cambridge,3in_mitre,A,"Standard width 3""; rope moulding inlaid. Species: alder, maple, red oak, white oak, cherry, PG hdwd, walnut.",false
+MP-27,3in,Cherry Hill,3in_mitre,A,"Standard width 3"". Lites: standard + deluxe.",false
+MP-3,2.25in,Petersburg,2.25in_mitre,A,"Standard width 2-1/4""; 2-1/2"" and 3"" with upcharge. Default edge E-32; select edge from p40-42.",false
+MP-4,2.25in,Williamsburg,2.25in_mitre,A,"Standard width 2-1/4""; 2-1/2"" and 3"" with upcharge. Default edge E-46; select edge from p40-42. Multi-paneled parts not available.",false
+MP-5,2.25in,Chesapeake,2.25in_mitre,A,"Standard width 2-1/4""; 2-1/2"" and 3"" with upcharge. No lite styles.",false
+MP-20,2.25in,Chantilly,2.25in_mitre,A,"Standard width 2-1/4""; rope moulding inlaid. Species: alder, maple, red oak, white oak, cherry, PG hdwd, walnut.",false
+MP-21,2.25in,Wheatland,2.25in_mitre,A,"Standard width 2-1/4"". No lite styles.",false
+MP-34,2.25in,MP-34,2.25in_mitre,A,"Standard width 2-1/4"". No lite styles.",false
+MP-7P,2.25in,Brookhaven (Rosewood Edge),custom_mitre,A,"Apply any Group A inside profile. To order, replace X in MP-7P-X with profile number (e.g. MP-7P-15). Std 2-1/4""; 2-1/2"" and 3"" with upcharge. Lites: standard + deluxe based on selected profile. Great for glazed finishes.",false
+MP-19,2.5in,Hartford,2.5in_mitre,A,"Standard width 2-1/2"". No other widths except DF pattern. No lite styles.",false
+MP-26,2.5in,Alexandria,2.5in_mitre,A,"Standard width 2-1/2"". Lites: standard + deluxe.",false
+MP-56,2.5in,MP-56,2.5in_mitre,A,"Standard width 2-1/2""; 2-1/4"" and 3"" with upcharge. No lite styles.",false

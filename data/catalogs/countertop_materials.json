@@ -1,0 +1,87 @@
+[
+  {
+    "id": "CM-001",
+    "name": "Quartz",
+    "category": "engineered_stone",
+    "brand_examples": [
+      "Cambria",
+      "Caesarstone",
+      "Silestone",
+      "MSI Q"
+    ],
+    "notes": "Most common \u2014 engineered stone"
+  },
+  {
+    "id": "CM-002",
+    "name": "Granite",
+    "category": "natural_stone",
+    "brand_examples": "Various",
+    "notes": "Natural stone"
+  },
+  {
+    "id": "CM-003",
+    "name": "Marble",
+    "category": "natural_stone",
+    "brand_examples": "Various",
+    "notes": "Premium natural \u2014 softer"
+  },
+  {
+    "id": "CM-004",
+    "name": "Quartzite",
+    "category": "natural_stone",
+    "brand_examples": "Various",
+    "notes": "Natural stone harder than marble"
+  },
+  {
+    "id": "CM-005",
+    "name": "Solid Surface",
+    "category": "solid_surface",
+    "brand_examples": [
+      "Corian",
+      "Hi-Macs"
+    ],
+    "notes": "Acrylic-based"
+  },
+  {
+    "id": "CM-006",
+    "name": "Butcher Block",
+    "category": "wood",
+    "brand_examples": [
+      "Hard maple",
+      "Walnut",
+      "Cherry"
+    ],
+    "notes": "Wood cutting surface"
+  },
+  {
+    "id": "CM-007",
+    "name": "Laminate",
+    "category": "laminate",
+    "brand_examples": [
+      "Formica",
+      "Wilsonart"
+    ],
+    "notes": "Economical"
+  },
+  {
+    "id": "CM-008",
+    "name": "Concrete",
+    "category": "cast_in_place",
+    "brand_examples": "Custom",
+    "notes": "Custom poured"
+  },
+  {
+    "id": "CM-009",
+    "name": "Stainless Steel",
+    "category": "metal",
+    "brand_examples": "Various",
+    "notes": "Commercial / industrial"
+  },
+  {
+    "id": "CM-099",
+    "name": "Other",
+    "category": null,
+    "brand_examples": null,
+    "notes": "Specify in notes"
+  }
+]

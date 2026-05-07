@@ -1,0 +1,6 @@
+id,name,vendor,compatible_types,notes,placeholder
+MPRO-CD-3IN,Cab Door 3in Mitre Crown,Cab Door,crown_molding,Pattern guide page 18 — full ingest pending,true
+MPRO-CD-2.25IN,Cab Door 2-1/4in Mitre Crown,Cab Door,crown_molding,Pattern guide page 22 — full ingest pending,true
+MPRO-ACC-FLAT,ACC Flat Stock,ACC Custom,toe_skin;base_shoe;scribe;filler;crown_nailer;light_rail,Standard flat ACC trim,false
+MPRO-ACC-QTR,ACC Quarter Round,ACC Custom,base_shoe,Standard ACC quarter round,false
+MPRO-CUSTOM,Other (specify in notes),Custom,toe_skin;base_shoe;scribe;filler;crown_nailer;light_rail;crown_molding;baseboard;toe_kick;applied_panel;batten,Escape hatch,false

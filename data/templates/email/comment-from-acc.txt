@@ -1,0 +1,13 @@
+Subject: {{job_id}} — Comment on drawings from ACC
+
+Hi {{display_name}},
+
+{{commenter_name}} replied to your drawings comment on {{job_id}} ({{client_name}}):
+
+  "{{comment_body}}"
+  {{cabinet_ref}}{{page_ref}}
+
+View thread:
+  {{portal_url}}/portal/jobs/{{job_id}}
+
+— ACC

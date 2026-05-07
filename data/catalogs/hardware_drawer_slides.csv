@@ -1,0 +1,7 @@
+id,name,brand,model,mount,close,length_options_in,notes
+HDS-000,None,—,—,—,—,—,No slides — push-fit or alternate mechanism
+HDS-BLU-001,Blum Tandem Plus Blumotion,Blum,563H,undermount,soft-close,15;18;21,Standard ACC base drawer
+HDS-BLU-002,Blum Movento Tip-On Blumotion,Blum,766H,undermount,soft-close+touch,15;18;21,Push-to-open + soft-close
+HDS-SAL-001,Salice Futura,Salice,A8B,undermount,soft-close,15;18;21,Salice equivalent
+HDS-HET-001,Hettich Quadro V6 Silent System,Hettich,9080,undermount,soft-close,15;18;21,Hettich equivalent
+HDS-099,Other,—,—,—,—,—,Specify in notes

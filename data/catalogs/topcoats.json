@@ -1,0 +1,44 @@
+[
+  {
+    "id": "TC-001",
+    "name": "Magnamax Conversion Varnish",
+    "type": "conversion_varnish",
+    "brand": "ML Campbell",
+    "notes": "Standard ACC topcoat for paint and stain"
+  },
+  {
+    "id": "TC-002",
+    "name": "Krystal Conversion Varnish",
+    "type": "conversion_varnish",
+    "brand": "ML Campbell",
+    "notes": "Lower-VOC alternative"
+  },
+  {
+    "id": "TC-003",
+    "name": "Resistant Pre-Cat Lacquer",
+    "type": "pre_cat_lacquer",
+    "brand": "ML Campbell",
+    "notes": "Quick-cure lacquer"
+  },
+  {
+    "id": "TC-004",
+    "name": "Aqualente Water-Based",
+    "type": "water_based",
+    "brand": "ML Campbell",
+    "notes": "Waterborne for low-VOC jobs"
+  },
+  {
+    "id": "TC-005",
+    "name": "No Topcoat (raw / pre-finished)",
+    "type": null,
+    "brand": null,
+    "notes": "Pre-finished melamine or unfinished doors"
+  },
+  {
+    "id": "TC-099",
+    "name": "Other",
+    "type": null,
+    "brand": null,
+    "notes": "Specify in notes"
+  }
+]

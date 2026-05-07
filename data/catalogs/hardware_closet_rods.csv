@@ -1,0 +1,6 @@
+id,name,brand,model,diameter_in,finish,notes
+HCR-000,None,—,—,—,—,No closet rod in this finish group
+HCR-001,Round 1-1/4in Chrome,Hardware Resources,RR-114-CH,1.25,Chrome,Most common closet rod
+HCR-002,Round 1-1/4in Brushed Nickel,Hardware Resources,RR-114-BN,1.25,Brushed Nickel,Match brushed nickel pulls
+HCR-003,Oval Closet Rod 6ft,Knape & Vogt,1010-72-CH,—,Chrome,Oval cross-section
+HCR-099,Other,—,—,—,—,Specify in notes

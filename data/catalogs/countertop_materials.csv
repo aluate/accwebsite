@@ -1,0 +1,11 @@
+id,name,category,brand_examples,notes
+CM-001,Quartz,engineered_stone,Cambria;Caesarstone;Silestone;MSI Q,Most common — engineered stone
+CM-002,Granite,natural_stone,Various,Natural stone
+CM-003,Marble,natural_stone,Various,Premium natural — softer
+CM-004,Quartzite,natural_stone,Various,Natural stone harder than marble
+CM-005,Solid Surface,solid_surface,Corian;Hi-Macs,Acrylic-based
+CM-006,Butcher Block,wood,Hard maple;Walnut;Cherry,Wood cutting surface
+CM-007,Laminate,laminate,Formica;Wilsonart,Economical
+CM-008,Concrete,cast_in_place,Custom,Custom poured
+CM-009,Stainless Steel,metal,Various,Commercial / industrial
+CM-099,Other,—,—,Specify in notes

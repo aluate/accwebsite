@@ -1,0 +1,4 @@
+id,name,construction,species,prefinish,notes,is_other
+DBX-001,Doweled Butt-Joint Prefinished Plywood,doweled_butt_joint,maple,prefinished,Standard ACC drawer box — built in-house,false
+DBX-002,Buy-out Dovetail,dovetail,buyout,buyout,Sourced from outside vendor — specify vendor in per-finish notes if required,false
+DBX-099,Other (specify in notes),other,,,Escape hatch — PM must enter construction + species + finish in notes,true

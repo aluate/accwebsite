@@ -1,0 +1,15 @@
+id,name,brand,model,type,hole_spacing_in,length_in,finish_options,notes
+PL-001,Bar Pull 3in,Richelieu,BP815196,pull,3,4.5,"Brushed Nickel;Matte Black;Polished Chrome;Oil Rubbed Bronze",Most common size; base cabinets
+PL-002,Bar Pull 5in,Richelieu,BP815128,pull,5,6.5,"Brushed Nickel;Matte Black;Polished Chrome;Oil Rubbed Bronze",Upper cabinets and drawers
+PL-003,Bar Pull 8in,Richelieu,BP815224,pull,8,9.5,"Brushed Nickel;Matte Black;Polished Chrome",Island and tall cabinets
+PL-004,Bar Pull 12in,Richelieu,BP815320,pull,12,13.5,"Brushed Nickel;Matte Black",Drawer banks; pantry
+PL-005,Cup Pull 3in,Liberty,P01025,cup,3,,"Antique Brass;Oil Rubbed Bronze;Satin Nickel",Traditional/farmhouse; lower cabinets
+PL-006,Cup Pull 3in Bin,Top Knobs,M1329,cup,3,,"Antique Pewter;Brushed Satin Nickel",Vintage farmhouse look
+PL-007,Round Knob 1.25in,Richelieu,BP530195195,knob,single,,"Brushed Nickel;Matte Black;Polished Chrome",Upper cabinet doors; single hole
+PL-008,Square Knob 1.25in,Richelieu,BP781160,knob,single,,"Brushed Nickel;Matte Black",Modern square; doors
+PL-009,T-Bar Pull 5in,Top Knobs,M2006,pull,5,6,"Brushed Satin Nickel;Flat Black",Transitional; slightly different profile than bar
+PL-010,Edge Pull Slim,Amerock,BP36879,pull,single,3,"Matte Black;Satin Nickel",Finger-pull for slab doors; integrated look
+PL-011,Arch Pull 3in,Liberty,P10ARC,pull,3,4.25,"Antique Brass;Oil Rubbed Bronze",Traditional arch; frame & panel doors
+PL-012,Wire Pull 3in,Top Knobs,M1,pull,3,,"Polished Nickel;Oil Rubbed Bronze",Wire/bail style; traditional
+PL-013,No Hardware,,,none,,,,Integrated push-to-open or touch latch
+PL-014,Other/Custom,Custom,,custom,,,,Specify brand model finish hole spacing in notes

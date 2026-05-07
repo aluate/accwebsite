@@ -1,0 +1,32 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export function NewDoorSpecButton({ jobId }: { jobId: string }) {
+  const router = useRouter();
+  const [creating, setCreating] = useState(false);
+
+  async function create() {
+    setCreating(true);
+    const name = prompt("Name this door spec (e.g. Main House, Garage ADU):");
+    if (!name) { setCreating(false); return; }
+    const res = await fetch("/api/door-specs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ job_id: jobId, name }),
+    });
+    const { id } = await res.json();
+    router.push(`/jobs/${jobId}/doors/${id}`);
+  }
+
+  return (
+    <button
+      onClick={create}
+      disabled={creating}
+      className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded transition-colors disabled:opacity-50"
+    >
+      {creating ? "Creating…" : "+ New Door Spec"}
+    </button>
+  );
+}

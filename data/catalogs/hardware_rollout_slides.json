@@ -1,0 +1,50 @@
+[
+  {
+    "id": "HRS-000",
+    "name": "None",
+    "brand": null,
+    "model": null,
+    "mount": null,
+    "close": null,
+    "length_options_in": null,
+    "notes": "No rollouts in this finish group"
+  },
+  {
+    "id": "HRS-BLU-001",
+    "name": "Blum Tandem Plus Blumotion (rollout)",
+    "brand": "Blum",
+    "model": "563H",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": [
+      "15",
+      "18",
+      "21"
+    ],
+    "notes": "Same as drawer slides"
+  },
+  {
+    "id": "HRS-KV-001",
+    "name": "Knape & Vogt 3132 Full Extension",
+    "brand": "Knape & Vogt",
+    "model": "3132",
+    "mount": "sidemount",
+    "close": null,
+    "length_options_in": [
+      "18",
+      "22",
+      "24"
+    ],
+    "notes": "Steel ball-bearing slide"
+  },
+  {
+    "id": "HRS-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "mount": null,
+    "close": null,
+    "length_options_in": null,
+    "notes": "Specify in notes"
+  }
+]

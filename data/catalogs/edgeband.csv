@@ -1,0 +1,10 @@
+id,product_name,supplier,type,color_match,compatible_finish_type,thickness_mm,width_in,notes,placeholder
+EB-001,Stevenswood G86,Stevenswood,melamine,Stevenswood Grigio Notte,melamine,1.0,15/16,Auto-pair for Stevenswood Grigio Notte - placeholder,true
+EB-002,Tafisa T581,Tafisa,melamine,Tafisa Sheer Beauty,melamine,1.0,15/16,Auto-pair for Tafisa Sheer Beauty - placeholder,true
+EB-003,Tafisa T2013,Tafisa,melamine,Tafisa Summertime Blues,melamine,1.0,15/16,Auto-pair for Tafisa Summertime Blues - placeholder,true
+EB-004,Tafisa L582K,Tafisa,melamine,Tafisa Fashionista,melamine,1.0,15/16,Auto-pair for Tafisa Fashionista - placeholder,true
+EB-005,ESI PVC White,ESI,pvc,white,paint,0.4,15/16,Generic white PVC for painted doors,true
+EB-006,ESI PVC Black,ESI,pvc,black,paint,0.4,15/16,Generic black PVC for painted doors,true
+EB-007,Custom Hardwood — Paint to Match,Internal,hardwood,custom,paint;stain,3.0,15/16,Solid hardwood applied edge then painted to match — flags Finishing Dept,false
+EB-008,Custom Hardwood — Stain to Match,Internal,hardwood,custom,stain,3.0,15/16,Solid hardwood applied edge then stained to match — flags Finishing Dept,false
+EB-099,Other (specify in notes),Custom,custom,,all,,,Escape hatch when none of the above fit,false

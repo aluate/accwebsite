@@ -1,0 +1,47 @@
+[
+  {
+    "id": "CAR-001",
+    "name": "Hardrock Maple PB",
+    "material_class": "particleboard",
+    "species": "maple",
+    "prefinish": "prefinished",
+    "notes": "Standard ACC carcass for melamine-fronted jobs",
+    "is_other": false
+  },
+  {
+    "id": "CAR-002",
+    "name": "Prefinished Plywood — Maple",
+    "material_class": "plywood",
+    "species": "maple",
+    "prefinish": "prefinished",
+    "notes": "Default plywood option — specify when paint/stain doors are upgraded to ply box",
+    "is_other": false
+  },
+  {
+    "id": "CAR-003",
+    "name": "Prefinished Plywood — Birch",
+    "material_class": "plywood",
+    "species": "birch",
+    "prefinish": "prefinished",
+    "notes": "Cheaper plywood alt — preserves option when maple ply is unavailable or over budget",
+    "is_other": false
+  },
+  {
+    "id": "CAR-004",
+    "name": "White PB",
+    "material_class": "particleboard",
+    "species": "n/a",
+    "prefinish": "white_melamine",
+    "notes": "Rare — only when the customer specifically asks for it",
+    "is_other": false
+  },
+  {
+    "id": "CAR-099",
+    "name": "Other (specify in notes)",
+    "material_class": "other",
+    "species": null,
+    "prefinish": null,
+    "notes": "Escape hatch — PM must enter material in the per-finish notes field",
+    "is_other": true
+  }
+]

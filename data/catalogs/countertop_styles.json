@@ -1,0 +1,32 @@
+[
+  {
+    "id": "CS-001",
+    "name": "Standard",
+    "description": "Flat top with eased edges",
+    "notes": "Most common"
+  },
+  {
+    "id": "CS-002",
+    "name": "Waterfall",
+    "description": "Top continues down the side as a vertical face",
+    "notes": "Premium island detail"
+  },
+  {
+    "id": "CS-003",
+    "name": "Mitered Return",
+    "description": "Mitered edge for thick built-up appearance",
+    "notes": "Built-up edge with mitered corner"
+  },
+  {
+    "id": "CS-004",
+    "name": "Live Edge",
+    "description": "Natural-edge top (typically wood)",
+    "notes": "Wood butcher block"
+  },
+  {
+    "id": "CS-099",
+    "name": "Other",
+    "description": null,
+    "notes": "Specify in notes"
+  }
+]

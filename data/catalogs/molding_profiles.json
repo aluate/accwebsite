@@ -1,0 +1,61 @@
+[
+  {
+    "id": "MPRO-CD-3IN",
+    "name": "Cab Door 3in Mitre Crown",
+    "vendor": "Cab Door",
+    "compatible_types": "crown_molding",
+    "notes": "Pattern guide page 18 — full ingest pending",
+    "placeholder": true
+  },
+  {
+    "id": "MPRO-CD-2.25IN",
+    "name": "Cab Door 2-1/4in Mitre Crown",
+    "vendor": "Cab Door",
+    "compatible_types": "crown_molding",
+    "notes": "Pattern guide page 22 — full ingest pending",
+    "placeholder": true
+  },
+  {
+    "id": "MPRO-ACC-FLAT",
+    "name": "ACC Flat Stock",
+    "vendor": "ACC Custom",
+    "compatible_types": [
+      "toe_skin",
+      "base_shoe",
+      "scribe",
+      "filler",
+      "crown_nailer",
+      "light_rail"
+    ],
+    "notes": "Standard flat ACC trim",
+    "placeholder": false
+  },
+  {
+    "id": "MPRO-ACC-QTR",
+    "name": "ACC Quarter Round",
+    "vendor": "ACC Custom",
+    "compatible_types": "base_shoe",
+    "notes": "Standard ACC quarter round",
+    "placeholder": false
+  },
+  {
+    "id": "MPRO-CUSTOM",
+    "name": "Other (specify in notes)",
+    "vendor": "Custom",
+    "compatible_types": [
+      "toe_skin",
+      "base_shoe",
+      "scribe",
+      "filler",
+      "crown_nailer",
+      "light_rail",
+      "crown_molding",
+      "baseboard",
+      "toe_kick",
+      "applied_panel",
+      "batten"
+    ],
+    "notes": "Escape hatch",
+    "placeholder": false
+  }
+]

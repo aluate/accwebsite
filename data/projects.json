@@ -1,0 +1,67 @@
+{
+  "projects": [
+    {
+      "id": "proper-hotel",
+      "title": "The Proper Hotel",
+      "location": "San Francisco, California",
+      "slug": "proper-hotel",
+      "featured": true,
+      "scope": "Advanced Custom Cabinets did a variety of things in this major overhaul remodel such as cabinetry for restaurant, bar, casework, trim and ceilings throughout, restroom vanities and partitions, bunkbeds, display cabinets, lobby front desk and on and on.",
+      "images": []
+    },
+    {
+      "id": "oaks-christian-academy",
+      "title": "The Oaks Christian Academy",
+      "location": "Spokane, Washington",
+      "slug": "oaks-christian-academy",
+      "featured": true,
+      "scope": "ACC produced and installed beautiful stained white oak box beams throughout the academy. All the stair and walkway railings, all the cabinetry/casework in each of the classrooms and offices, and all of the millwork details were custom creations for this project.",
+      "images": []
+    },
+    {
+      "id": "atlas-building-group",
+      "title": "Atlas Building Group",
+      "location": "Coeur d'Alene, Idaho",
+      "slug": "atlas-building-group",
+      "featured": true,
+      "scope": "ACC produced a Modern/European cabinetry profile for this downtown Coeur d'Alene residence. The scope of the project included a unique hidden light system underneath the wall cabinets in the secondary kitchen, floating vanities with a seating area, a panel for integrated drop-in range controls, and a stunning custom architectural feature as the centerpiece of the main kitchen.",
+      "images": []
+    },
+    {
+      "id": "nfl-facility",
+      "title": "NFL Facility",
+      "location": "Seattle, Washington",
+      "slug": "nfl-facility",
+      "featured": true,
+      "scope": "Advanced Cabinets assisted with the engineering of and produced and installed multiple custom elements for this exclusive endzone hangout. The 50' bar (and two more at 35') was constructed by ACC and clad with ornamental metal panels. Also provided was the shelving and brass work behind the bar, the ornamental metal panels on the walls, upholstered bench seating throughout, custom freestanding bar seating and casework elevations, all quartz counters and stonework, and architectural millwork.",
+      "images": []
+    },
+    {
+      "id": "kindred-and-co",
+      "title": "Kindred & Co",
+      "location": "Post Falls, Idaho",
+      "slug": "kindred-and-co",
+      "featured": false,
+      "scope": "",
+      "images": []
+    },
+    {
+      "id": "custom-home-lake-cda",
+      "title": "Custom Home Build",
+      "location": "Lake Coeur d'Alene, Idaho",
+      "slug": "custom-home-lake-cda",
+      "featured": false,
+      "scope": "",
+      "images": []
+    },
+    {
+      "id": "woodrun-condos",
+      "title": "Woodrun Condos",
+      "location": "Schweitzer Mtn — Sandpoint, Idaho",
+      "slug": "woodrun-condos",
+      "featured": false,
+      "scope": "",
+      "images": []
+    }
+  ]
+}

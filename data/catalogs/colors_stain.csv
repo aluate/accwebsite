@@ -1,0 +1,6 @@
+id,brand,code,name,is_in_house_mix,is_custom_match,notes,placeholder
+STN-ML-PLACEHOLDER,ML,—,ML Campbell stains — populate from rep,false,false,Need ML Campbell stain catalog,true
+STN-ACC-PLACEHOLDER-1,ACC,ACC-01,ACC In-House Mix #1 (Karl to fill),true,false,One of the ~10 ACC named in-house mixes — Karl to provide list,true
+STN-ACC-PLACEHOLDER-2,ACC,ACC-02,ACC In-House Mix #2 (Karl to fill),true,false,One of the ~10 ACC named in-house mixes — Karl to provide list,true
+STN-ACC-PLACEHOLDER-3,ACC,ACC-03,ACC In-House Mix #3 (Karl to fill),true,false,One of the ~10 ACC named in-house mixes — Karl to provide list,true
+STN-CUSTOM,Custom,—,Other / Custom Match,false,true,Escape hatch — PM specifies brand + code or sample reference in finish notes,false

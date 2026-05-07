@@ -1,0 +1,26 @@
+id,name,category,sort_order,notes
+ROOM-001,Kitchen Perimeter,kitchen,10,Suggests multi-finish thinking — perimeter cabinets often differ from island
+ROOM-002,Kitchen Island,kitchen,20,Often a different finish than perimeter
+ROOM-003,Kitchen Bar,kitchen,30,Wet bar / dry bar
+ROOM-004,Kitchen Hood Wall,kitchen,40,Range/hood wall sometimes its own zone
+ROOM-005,Pantry,kitchen,50,Walk-in or reach-in
+ROOM-006,Master Bath Vanity,bath,60,Vanity-only zone
+ROOM-007,Master Bath Tower,bath,65,Linen tower / tall storage
+ROOM-008,Master Closet,closet,70,
+ROOM-009,Bath 2,bath,80,
+ROOM-010,Bath 3,bath,85,
+ROOM-011,Bath 4,bath,90,
+ROOM-012,Powder Bath,bath,95,
+ROOM-013,Bedroom Closet 2,closet,100,
+ROOM-014,Bedroom Closet 3,closet,105,
+ROOM-015,Bedroom Closet 4,closet,110,
+ROOM-016,Laundry,utility,120,
+ROOM-017,Mud Room,utility,125,
+ROOM-018,Office Built-Ins,living,130,
+ROOM-019,Living Room Built-Ins,living,135,
+ROOM-020,Library,living,140,
+ROOM-021,Bar Cabinetry,living,145,
+ROOM-022,Wine Room,kitchen,150,
+ROOM-023,ADU Kitchen,kitchen,160,Accessory dwelling unit
+ROOM-024,ADU Vanity,bath,170,
+ROOM-025,Garage Storage,utility,180,

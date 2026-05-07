@@ -1,0 +1,9 @@
+id,builder_name,builder_company,default_finish_type,default_carcass_id,default_drawer_box_id,default_pull_id,default_paint_brand,default_accessories,preferred_cabdoor_usage_groups,notes,is_residential_default
+BPROF-RESIDENTIAL,Residential Customer,—,paint,CAR-002,DBX-002,PL-001,SW,ACC-001;ACC-004;ACC-007,A;B,Default for walk-in homeowners — clean residential pop tier (PF maple ply box; dovetail drawers; standard 3in bar pull; SW paint; trash + rollouts + lazy susan baseline),true
+BPROF-ATLAS,Atlas Builders,Atlas Builders,paint,CAR-001,DBX-001,PL-001,SW,ACC-001;ACC-004,A,Repeat builder; runs same plan models across multiple subdivisions — Karl to confirm defaults,false
+BPROF-BUSH,Bush Legacy,Bush Legacy,stain,CAR-002,DBX-002,PL-005,—,ACC-001;ACC-004;ACC-007;ACC-008,A;B,Stain-heavy custom work — Karl to confirm defaults,false
+BPROF-PREMIER,Premier,Premier,paint,CAR-001,DBX-001,PL-001,SW,ACC-001;ACC-004,A,Karl to confirm defaults,false
+BPROF-STANCRAFT,Stancraft,Stancraft,paint,CAR-002,DBX-002,PL-001,SW,ACC-001;ACC-004,A,Lake/cabin work (saw 25020 Smith Lake House) — Karl to confirm defaults,false
+BPROF-COBALT,Cobalt,Cobalt,melamine,CAR-001,DBX-001,PL-010,—,ACC-001;ACC-004,A,Different team / format on WO47081 — Karl to confirm defaults,false
+BPROF-BAR17,Bar 17,Bar 17,stain,CAR-002,DBX-002,PL-005,—,ACC-001;ACC-004,A;B,Cabin builder (saw PRLM Linhoff Cabin) — Karl to confirm defaults,false
+BPROF-RSB,RSB Customs,RSB Customs,paint,CAR-002,DBX-002,PL-001,SW,ACC-001;ACC-004;ACC-007,A,Saw RSB Osweiler drawings — Karl to confirm defaults,false

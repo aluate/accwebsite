@@ -1,0 +1,9 @@
+id,name,species,grade,notes
+MM-001,Paint-Grade Poplar,poplar,paint-grade,Most common for paint moldings
+MM-002,Soft Maple Stain-Grade,soft maple,stain-grade,Stain-finish moldings
+MM-003,Hard Maple Stain-Grade,hard maple,stain-grade,Premium hardwood
+MM-004,Cherry,cherry,stain-grade,Cherry color body
+MM-005,Alder,alder,stain-grade,Knotty alder for rustic
+MM-006,MDF Primed,mdf,primed,Paint moldings — economical
+MM-007,Oak Stain-Grade,oak,stain-grade,Red oak grain
+MM-099,Other,—,—,Specify in notes

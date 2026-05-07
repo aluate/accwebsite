@@ -1,0 +1,6 @@
+id,name,brand,model,bin_count,bin_size,opening_width_in,notes
+HTP-000,None,—,—,—,—,—,No trash pullout
+HTP-001,Rev-A-Shelf Double 35qt,Rev-A-Shelf,5349-1518DM-2,2,35qt,15,Standard 15-inch base trash
+HTP-002,Rev-A-Shelf Single 35qt,Rev-A-Shelf,5349-15DM-1,1,35qt,15,Single bin variant
+HTP-003,Hafele Hailo Easy Cargo,Hafele,503.65.621,2,30L,18,Premium soft-close trash
+HTP-099,Other,—,—,—,—,—,Specify in notes

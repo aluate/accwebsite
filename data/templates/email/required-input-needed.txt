@@ -1,0 +1,13 @@
+Subject: {{job_id}} — {{client_name}} — Need: {{input_label}}
+
+Hi {{display_name}},
+
+We're holding on {{job_id}} ({{client_name}}, {{site_address}}) until we receive:
+
+  {{input_label}}
+  {{input_description}}
+
+Until this is in, your delivery clock isn't running. Upload via the portal or reply with what you've got:
+  {{portal_url}}/portal/jobs/{{job_id}}
+
+— ACC

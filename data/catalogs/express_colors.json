@@ -1,0 +1,45 @@
+{
+  "_note": "Express wizard color book — 10 per finish type + OTHER/TBD. Update names/hex to match your actual sample boards.",
+
+  "paint": [
+    { "id": "ep01", "name": "Bright White",      "hex": "#F5F4EF" },
+    { "id": "ep02", "name": "White Dove",         "hex": "#F3EFE4" },
+    { "id": "ep03", "name": "Chantilly Lace",     "hex": "#F6F4EE" },
+    { "id": "ep04", "name": "Repose Gray",         "hex": "#B2AEA8" },
+    { "id": "ep05", "name": "Agreeable Gray",      "hex": "#C8BCA8" },
+    { "id": "ep06", "name": "Accessible Beige",    "hex": "#C9B99A" },
+    { "id": "ep07", "name": "Naval Blue",          "hex": "#3A4D6B" },
+    { "id": "ep08", "name": "Tricorn Black",       "hex": "#2B2B2B" },
+    { "id": "ep09", "name": "Sage Green",          "hex": "#7E9E7E" },
+    { "id": "ep10", "name": "Sea Salt",            "hex": "#B2C8C0" },
+    { "id": "ep_other", "name": "Other / TBD",    "hex": null }
+  ],
+
+  "stain": [
+    { "id": "es01", "name": "Natural" },
+    { "id": "es02", "name": "Golden Brown" },
+    { "id": "es03", "name": "Provincial" },
+    { "id": "es04", "name": "Dark Walnut" },
+    { "id": "es05", "name": "Ebony" },
+    { "id": "es06", "name": "Early American" },
+    { "id": "es07", "name": "Classic Gray" },
+    { "id": "es08", "name": "Weathered Oak" },
+    { "id": "es09", "name": "Carbon" },
+    { "id": "es10", "name": "Gunstock" },
+    { "id": "es_other", "name": "Other / TBD" }
+  ],
+
+  "melamine": [
+    { "id": "em01", "name": "White" },
+    { "id": "em02", "name": "Off-White" },
+    { "id": "em03", "name": "Light Gray" },
+    { "id": "em04", "name": "Slate Gray" },
+    { "id": "em05", "name": "Sand" },
+    { "id": "em06", "name": "Black" },
+    { "id": "em07", "name": "Espresso" },
+    { "id": "em08", "name": "Natural Maple" },
+    { "id": "em09", "name": "Walnut" },
+    { "id": "em10", "name": "Chestnut" },
+    { "id": "em_other", "name": "Other / TBD" }
+  ]
+}

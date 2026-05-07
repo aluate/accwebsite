@@ -1,0 +1,489 @@
+{
+  "B_1D": {
+    "display_name": "Base 1-Door",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [9, 12, 15, 18],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "B1D-{width}",
+    "cv_assembly": "B1D",
+    "cnc_program": "B1D_STD",
+    "requires_hinge_side": true,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 3,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_2D": {
+    "display_name": "Base 2-Door",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [24, 27, 30, 33, 36],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "B2D-{width}",
+    "cv_assembly": "B2D",
+    "cnc_program": "B2D_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 4,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_3DR": {
+    "display_name": "Base 3-Drawer",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [12, 15, 18, 21, 24, 27, 30, 33, 36],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "B3DR-{width}",
+    "cv_assembly": "B3DR",
+    "cnc_program": "B3DR_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_4DR": {
+    "display_name": "Base 4-Drawer",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [12, 15, 18, 21],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "B4DR-{width}",
+    "cv_assembly": "B4DR",
+    "cnc_program": "B4DR_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_SINK": {
+    "display_name": "Sink Base",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [30, 33, 36],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "BSINK-{width}",
+    "cv_assembly": "BSINK",
+    "cnc_program": "BSINK_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 2,
+      "supports_trash_kit": true,
+      "trash_config": ["None", "Single", "Double"],
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_TRASH": {
+    "display_name": "Trash Pullout Base",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [15, 18],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "BTRASH-{width}",
+    "cv_assembly": "BTRASH",
+    "cnc_program": "BTRASH_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": true,
+      "trash_config": ["Single", "Double"],
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_CORNER_BL": {
+    "display_name": "Blind Corner Base",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [39, 42, 45],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "BCORNERBL-{width}",
+    "cv_assembly": "BCORNERBL",
+    "cnc_program": "BCORNERBL_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "B_CORNER_LS": {
+    "display_name": "Lazy Susan Corner Base",
+    "category": "Base",
+    "default_height_in": 34.5,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [33, 36],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "BCORNERLS-{width}",
+    "cv_assembly": "BCORNERLS",
+    "cnc_program": "BCORNERLS_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "W_1D": {
+    "display_name": "Wall 1-Door",
+    "category": "Wall",
+    "default_height_in": 30.0,
+    "default_depth_in": 12.0,
+    "allowed_widths_in": [9, 12, 15, 18],
+    "allowed_heights_in": [30.0, 36.0],
+    "code_pattern": "W1D-{width}-{height}",
+    "cv_assembly": "W1D",
+    "cnc_program": "W1D_STD",
+    "requires_hinge_side": true,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false
+    }
+  },
+  "W_2D": {
+    "display_name": "Wall 2-Door",
+    "category": "Wall",
+    "default_height_in": 30.0,
+    "default_depth_in": 12.0,
+    "allowed_widths_in": [24, 27, 30, 33, 36],
+    "allowed_heights_in": [30.0, 36.0, 42.0],
+    "code_pattern": "W2D-{width}-{height}",
+    "cv_assembly": "W2D",
+    "cnc_program": "W2D_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false
+    }
+  },
+  "W_1D_GLASS": {
+    "display_name": "Wall 1-Door Glass",
+    "category": "Wall",
+    "default_height_in": 30.0,
+    "default_depth_in": 12.0,
+    "allowed_widths_in": [12, 15, 18],
+    "allowed_heights_in": [30.0, 36.0],
+    "code_pattern": "W1DGL-{width}-{height}",
+    "cv_assembly": "W1DGL",
+    "cnc_program": "W1DGL_STD",
+    "requires_hinge_side": true,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false
+    }
+  },
+  "W_2D_GLASS": {
+    "display_name": "Wall 2-Door Glass",
+    "category": "Wall",
+    "default_height_in": 30.0,
+    "default_depth_in": 12.0,
+    "allowed_widths_in": [24, 27, 30],
+    "allowed_heights_in": [30.0, 36.0],
+    "code_pattern": "W2DGL-{width}-{height}",
+    "cv_assembly": "W2DGL",
+    "cnc_program": "W2DGL_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false
+    }
+  },
+  "W_FRIDGE_OC": {
+    "display_name": "Over-Fridge Cabinet",
+    "category": "Wall",
+    "default_height_in": 18.0,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [30, 33, 36],
+    "allowed_heights_in": [12.0, 18.0],
+    "code_pattern": "WFRGOC-{width}-{height}",
+    "cv_assembly": "WFRGOC",
+    "cnc_program": "WFRGOC_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false
+    }
+  },
+  "W_HOOD": {
+    "display_name": "Short Hood Cabinet",
+    "category": "Wall",
+    "default_height_in": 18.0,
+    "default_depth_in": 12.0,
+    "allowed_widths_in": [30, 33, 36],
+    "allowed_heights_in": [15.0, 18.0],
+    "code_pattern": "WHOOD-{width}-{height}",
+    "cv_assembly": "WHOOD",
+    "cnc_program": "WHOOD_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "T_PANTRY": {
+    "display_name": "Pantry Tall",
+    "category": "Tall",
+    "default_height_in": 90.0,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [15, 18, 24, 30],
+    "allowed_heights_in": [84.0, 90.0, 96.0],
+    "code_pattern": "TPANTRY-{width}-{height}",
+    "cv_assembly": "TPANTRY",
+    "cnc_program": "TPANTRY_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 5,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "T_UTILITY": {
+    "display_name": "Utility Tall (Doors + Drawers)",
+    "category": "Tall",
+    "default_height_in": 90.0,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [15, 18, 24, 30],
+    "allowed_heights_in": [84.0, 90.0, 96.0],
+    "code_pattern": "TUTIL-{width}-{height}",
+    "cv_assembly": "TUTIL",
+    "cnc_program": "TUTIL_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 4,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "T_OVENMIC": {
+    "display_name": "Oven/Micro Tall",
+    "category": "Tall",
+    "default_height_in": 90.0,
+    "default_depth_in": 24.0,
+    "allowed_widths_in": [30, 33],
+    "allowed_heights_in": [84.0, 90.0],
+    "code_pattern": "TOVENMIC-{width}-{height}",
+    "cv_assembly": "TOVENMIC",
+    "cnc_program": "TOVENMIC_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "V_SINK_CENTER": {
+    "display_name": "Vanity Sink Center",
+    "category": "Vanity",
+    "default_height_in": 34.5,
+    "default_depth_in": 21.0,
+    "allowed_widths_in": [30, 36, 42, 48],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "VSINKC-{width}",
+    "cv_assembly": "VSINKC",
+    "cnc_program": "VSINKC_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 2,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "V_SINK_LEFT": {
+    "display_name": "Vanity Sink Left",
+    "category": "Vanity",
+    "default_height_in": 34.5,
+    "default_depth_in": 21.0,
+    "allowed_widths_in": [36, 42, 48, 60],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "VSINKL-{width}",
+    "cv_assembly": "VSINKL",
+    "cnc_program": "VSINKL_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 2,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "V_SINK_RIGHT": {
+    "display_name": "Vanity Sink Right",
+    "category": "Vanity",
+    "default_height_in": 34.5,
+    "default_depth_in": 21.0,
+    "allowed_widths_in": [36, 42, 48, 60],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "VSINKR-{width}",
+    "cv_assembly": "VSINKR",
+    "cnc_program": "VSINKR_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": true,
+      "max_rollouts": 2,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "V_3DR": {
+    "display_name": "Vanity 3-Drawer",
+    "category": "Vanity",
+    "default_height_in": 34.5,
+    "default_depth_in": 21.0,
+    "allowed_widths_in": [12, 15, 18, 21],
+    "allowed_heights_in": [34.5],
+    "code_pattern": "V3DR-{width}",
+    "cv_assembly": "V3DR",
+    "cnc_program": "V3DR_STD",
+    "requires_hinge_side": false,
+    "options": {
+      "supports_rollouts": false,
+      "max_rollouts": 0,
+      "supports_trash_kit": false,
+      "supports_spice_pullout": false,
+      "supports_applied_panels": true
+    }
+  },
+  "A_FILLER_V": {
+    "display_name": "Vertical Filler",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "each",
+    "size_mode": "width_height",
+    "code_pattern": "AFILLV-{width}x{height}",
+    "cv_assembly": "AFILLV",
+    "cnc_program": "AFILLV_STD",
+    "requires_hinge_side": false
+  },
+  "A_FILLER_H": {
+    "display_name": "Horizontal Filler",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "each",
+    "size_mode": "width_height",
+    "code_pattern": "AFILLH-{width}x{height}",
+    "cv_assembly": "AFILLH",
+    "cnc_program": "AFILLH_STD",
+    "requires_hinge_side": false
+  },
+  "A_PANEL_END": {
+    "display_name": "Finished End Panel",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "each",
+    "size_mode": "width_height",
+    "code_pattern": "APANELEND-{width}x{height}",
+    "cv_assembly": "APANELEND",
+    "cnc_program": "APANELEND_STD",
+    "requires_hinge_side": false
+  },
+  "A_PANEL_BACK": {
+    "display_name": "Back Panel (Island)",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "each",
+    "size_mode": "width_height",
+    "code_pattern": "APANELBK-{width}x{height}",
+    "cv_assembly": "APANELBK",
+    "cnc_program": "APANELBK_STD",
+    "requires_hinge_side": false
+  },
+  "A_TOEKICK": {
+    "display_name": "Toe Kick",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "lf",
+    "size_mode": "length_only",
+    "code_pattern": "ATK-{length}",
+    "cv_assembly": "ATK",
+    "cnc_program": "ATK_STD",
+    "requires_hinge_side": false
+  },
+  "A_CROWN": {
+    "display_name": "Crown Moulding",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "lf",
+    "size_mode": "length_only",
+    "code_pattern": "ACROWN-{length}",
+    "cv_assembly": "ACROWN",
+    "cnc_program": "ACROWN_STD",
+    "requires_hinge_side": false
+  },
+  "A_LIGHTRAIL": {
+    "display_name": "Light Rail",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "lf",
+    "size_mode": "length_only",
+    "code_pattern": "ALR-{length}",
+    "cv_assembly": "ALR",
+    "cnc_program": "ALR_STD",
+    "requires_hinge_side": false
+  },
+  "A_FSHELF": {
+    "display_name": "Floating Shelf",
+    "category": "Accessory",
+    "is_accessory": true,
+    "unit": "each",
+    "size_mode": "width_depth",
+    "default_thickness_in": 1.75,
+    "allowed_depths_in": [10, 12, 14],
+    "code_pattern": "AFSHELF-{width}x{depth}",
+    "cv_assembly": "AFSHELF",
+    "cnc_program": "AFSHELF_STD",
+    "requires_hinge_side": false
+  }
+}
+

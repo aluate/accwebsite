@@ -1,0 +1,29 @@
+[
+  {
+    "id": "DBX-001",
+    "name": "Doweled Butt-Joint Prefinished Plywood",
+    "construction": "doweled_butt_joint",
+    "species": "maple",
+    "prefinish": "prefinished",
+    "notes": "Standard ACC drawer box — built in-house",
+    "is_other": false
+  },
+  {
+    "id": "DBX-002",
+    "name": "Buy-out Dovetail",
+    "construction": "dovetail",
+    "species": "buyout",
+    "prefinish": "buyout",
+    "notes": "Sourced from outside vendor — specify vendor in per-finish notes if required",
+    "is_other": false
+  },
+  {
+    "id": "DBX-099",
+    "name": "Other (specify in notes)",
+    "construction": "other",
+    "species": null,
+    "prefinish": null,
+    "notes": "Escape hatch — PM must enter construction + species + finish in notes",
+    "is_other": true
+  }
+]

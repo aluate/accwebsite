@@ -1,0 +1,8 @@
+id,name,brand,color_family,notes
+GL-000,None,—,—,No glaze
+GL-001,Mocha Glaze,ML Campbell,brown,Brown body glaze
+GL-002,Vandyke Brown,ML Campbell,brown,Dark warm brown
+GL-003,Black Glaze,ML Campbell,black,Black body
+GL-004,Antique White Glaze,ML Campbell,off-white,Light age effect
+GL-005,Custom Match,Custom,—,PM specifies in notes
+GL-099,Other,—,—,Specify in notes

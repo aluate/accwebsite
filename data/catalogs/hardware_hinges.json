@@ -1,0 +1,72 @@
+[
+  {
+    "id": "HH-000",
+    "name": "None (push-to-open)",
+    "brand": null,
+    "model": null,
+    "type": null,
+    "overlay": null,
+    "close": null,
+    "notes": "No hinge \u2014 push-to-open or trackball"
+  },
+  {
+    "id": "HH-BLU-001",
+    "name": "Blum Compact 38N Blumotion 1/2 Overlay",
+    "brand": "Blum",
+    "model": "38N355B.08",
+    "type": "euro_concealed",
+    "overlay": "1/2",
+    "close": "soft-close",
+    "notes": "Most common ACC hinge"
+  },
+  {
+    "id": "HH-BLU-002",
+    "name": "Blum Compact 38N Blumotion Full Overlay",
+    "brand": "Blum",
+    "model": "38N355B.16",
+    "type": "euro_concealed",
+    "overlay": "full",
+    "close": "soft-close",
+    "notes": "Full overlay variant"
+  },
+  {
+    "id": "HH-BLU-003",
+    "name": "Blum Compact 38N Inset",
+    "brand": "Blum",
+    "model": "38N355B.00",
+    "type": "euro_concealed",
+    "overlay": "inset",
+    "close": "soft-close",
+    "notes": "Inset doors"
+  },
+  {
+    "id": "HH-BLU-004",
+    "name": "Blum CLIP top BLUMOTION 110-degree",
+    "brand": "Blum",
+    "model": "71B3550",
+    "type": "euro_concealed",
+    "overlay": "full",
+    "close": "soft-close",
+    "notes": "Premium concealed hinge"
+  },
+  {
+    "id": "HH-SAL-001",
+    "name": "Salice Series 200 Soft-Close 1/2 Overlay",
+    "brand": "Salice",
+    "model": "C2APE99",
+    "type": "euro_concealed",
+    "overlay": "1/2",
+    "close": "soft-close",
+    "notes": "Salice equivalent"
+  },
+  {
+    "id": "HH-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "type": null,
+    "overlay": null,
+    "close": null,
+    "notes": "Specify in notes"
+  }
+]

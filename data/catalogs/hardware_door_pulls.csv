@@ -1,0 +1,7 @@
+id,name,brand,model,type,hole_spacing_in,length_in,finish_options,notes
+HDP-000,None (push-to-open),—,—,—,—,—,—,No pull — push-to-open
+HDP-001,Bar Pull 3in,Richelieu,BP815196,pull,3,4.5,Brushed Nickel;Matte Black;Polished Chrome;Oil Rubbed Bronze,Most common door pull
+HDP-002,Bar Pull 5in,Richelieu,BP815128,pull,5,6.5,Brushed Nickel;Matte Black;Polished Chrome;Oil Rubbed Bronze,Larger doors and uppers
+HDP-003,Knob 1-1/4in,Richelieu,BP881025,knob,—,1.25,Brushed Nickel;Matte Black;Polished Chrome,Round knob
+HDP-004,Cup Pull 3in,Richelieu,BP9425396,cup_pull,3,3.75,Brushed Nickel;Matte Black,Traditional cup
+HDP-099,Other,—,—,—,—,—,—,Specify in notes

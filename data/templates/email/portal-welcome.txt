@@ -1,0 +1,22 @@
+Subject: Builder Portal access — {{builder_company}} ({{job_id}})
+
+Hi {{display_name}},
+
+Your Advanced Custom Cabinets portal is set up. Sign in to track {{job_id}} (and any other ACC jobs we have for {{builder_company}}).
+
+  URL: {{portal_url}}/portal/login
+  Username: {{username}}
+  Temporary password: {{temp_password}}
+
+You'll be asked to set a new password on first sign-in (8+ characters).
+
+What's there:
+  - Progress bar for each job
+  - Checklist of what we still need from you (delivery date is set when this clears)
+  - Upload area for plans, appliance specs, and site photos
+  - Drawings — comment with cabinet numbers (e.g. "B12 should be 18in")
+  - Change-request submission
+
+Reply here if anything looks off.
+
+— ACC

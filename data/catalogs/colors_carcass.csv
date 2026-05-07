@@ -1,0 +1,6 @@
+id,name,material_class,species,prefinish,notes,is_other
+CAR-001,Hardrock Maple PB,particleboard,maple,prefinished,Standard ACC carcass for melamine-fronted jobs,false
+CAR-002,Prefinished Plywood — Maple,plywood,maple,prefinished,Default plywood option — specify when paint/stain doors are upgraded to ply box,false
+CAR-003,Prefinished Plywood — Birch,plywood,birch,prefinished,Cheaper plywood alt — preserves option when maple ply is unavailable or over budget,false
+CAR-004,White PB,particleboard,n/a,white_melamine,Rare — only when the customer specifically asks for it,false
+CAR-099,Other (specify in notes),other,,,Escape hatch — PM must enter material in the per-finish notes field,true

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "HBC-000",
+    "name": "None",
+    "brand": null,
+    "model": null,
+    "opening_width_in": null,
+    "notes": "No blind corner mechanism"
+  },
+  {
+    "id": "HBC-001",
+    "name": "Rev-A-Shelf Pull-Out Blind Corner LH",
+    "brand": "Rev-A-Shelf",
+    "model": "5pn-15cr-1",
+    "opening_width_in": "15",
+    "notes": "Left-hand blind corner"
+  },
+  {
+    "id": "HBC-002",
+    "name": "Rev-A-Shelf Pull-Out Blind Corner RH",
+    "brand": "Rev-A-Shelf",
+    "model": "5pn-15cr-1-r",
+    "opening_width_in": "15",
+    "notes": "Right-hand blind corner"
+  },
+  {
+    "id": "HBC-003",
+    "name": "Hafele Magic Corner II",
+    "brand": "Hafele",
+    "model": "540.42.131",
+    "opening_width_in": "18",
+    "notes": "Premium swing-out"
+  },
+  {
+    "id": "HBC-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "opening_width_in": null,
+    "notes": "Specify in notes"
+  }
+]

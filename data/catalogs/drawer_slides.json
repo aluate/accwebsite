@@ -1,0 +1,82 @@
+[
+  {
+    "id": "DS-000",
+    "name": "None",
+    "brand": null,
+    "model": null,
+    "mount": null,
+    "close": null,
+    "length_options_in": null,
+    "notes": "Push-to-open or no slides"
+  },
+  {
+    "id": "DS-BLU-001",
+    "name": "Blum Tandem Plus Blumotion 21in",
+    "brand": "Blum",
+    "model": "563H5330B",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": "21",
+    "notes": "Standard ACC base drawer"
+  },
+  {
+    "id": "DS-BLU-002",
+    "name": "Blum Tandem Plus Blumotion 18in",
+    "brand": "Blum",
+    "model": "563H4570B",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": "18",
+    "notes": "Standard for 21-deep cabinets"
+  },
+  {
+    "id": "DS-BLU-003",
+    "name": "Blum Tandem Plus Blumotion 15in",
+    "brand": "Blum",
+    "model": "563H3810B",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": "15",
+    "notes": "Shallow drawer"
+  },
+  {
+    "id": "DS-BLU-004",
+    "name": "Blum Movento with Tip-On Blumotion 21in",
+    "brand": "Blum",
+    "model": "766H5330S",
+    "mount": "undermount",
+    "close": "soft-close+touch",
+    "length_options_in": "21",
+    "notes": "Push-to-open + soft-close"
+  },
+  {
+    "id": "DS-SAL-001",
+    "name": "Salice Futura 21in",
+    "brand": "Salice",
+    "model": "A8B7421",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": "21",
+    "notes": "Salice equivalent"
+  },
+  {
+    "id": "DS-HET-001",
+    "name": "Hettich Quadro V6 Silent System 21in",
+    "brand": "Hettich",
+    "model": "9080110",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": "21",
+    "notes": "Hettich equivalent"
+  },
+  {
+    "id": "DS-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "mount": null,
+    "close": null,
+    "length_options_in": null,
+    "notes": "Specify in notes"
+  }
+]

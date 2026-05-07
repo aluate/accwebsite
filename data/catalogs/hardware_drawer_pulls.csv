@@ -1,0 +1,7 @@
+id,name,brand,model,type,hole_spacing_in,length_in,finish_options,notes
+HRP-000,None (push-to-open),—,—,—,—,—,—,No pull — push-to-open
+HRP-001,Bar Pull 5in,Richelieu,BP815128,pull,5,6.5,Brushed Nickel;Matte Black;Polished Chrome;Oil Rubbed Bronze,Standard drawer pull
+HRP-002,Bar Pull 8in,Richelieu,BP815224,pull,8,9.5,Brushed Nickel;Matte Black;Polished Chrome,Larger drawers and bank fronts
+HRP-003,Bar Pull 12in,Richelieu,BP815320,pull,12,13.5,Brushed Nickel;Matte Black,Drawer banks; pantry
+HRP-004,Cup Pull 3in,Richelieu,BP9425396,cup_pull,3,3.75,Brushed Nickel;Matte Black,Traditional cup
+HRP-099,Other,—,—,—,—,—,—,Specify in notes

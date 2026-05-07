@@ -1,0 +1,113 @@
+[
+  {
+    "id": "EB-001",
+    "product_name": "Stevenswood G86",
+    "supplier": "Stevenswood",
+    "type": "melamine",
+    "color_match": "Stevenswood Grigio Notte",
+    "compatible_finish_type": "melamine",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Auto-pair for Stevenswood Grigio Notte - placeholder",
+    "placeholder": true
+  },
+  {
+    "id": "EB-002",
+    "product_name": "Tafisa T581",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Tafisa Sheer Beauty",
+    "compatible_finish_type": "melamine",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Auto-pair for Tafisa Sheer Beauty - placeholder",
+    "placeholder": true
+  },
+  {
+    "id": "EB-003",
+    "product_name": "Tafisa T2013",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Tafisa Summertime Blues",
+    "compatible_finish_type": "melamine",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Auto-pair for Tafisa Summertime Blues - placeholder",
+    "placeholder": true
+  },
+  {
+    "id": "EB-004",
+    "product_name": "Tafisa L582K",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Tafisa Fashionista",
+    "compatible_finish_type": "melamine",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Auto-pair for Tafisa Fashionista - placeholder",
+    "placeholder": true
+  },
+  {
+    "id": "EB-005",
+    "product_name": "ESI PVC White",
+    "supplier": "ESI",
+    "type": "pvc",
+    "color_match": "white",
+    "compatible_finish_type": "paint",
+    "thickness_mm": "0.4",
+    "width_in": "15/16",
+    "notes": "Generic white PVC for painted doors",
+    "placeholder": true
+  },
+  {
+    "id": "EB-006",
+    "product_name": "ESI PVC Black",
+    "supplier": "ESI",
+    "type": "pvc",
+    "color_match": "black",
+    "compatible_finish_type": "paint",
+    "thickness_mm": "0.4",
+    "width_in": "15/16",
+    "notes": "Generic black PVC for painted doors",
+    "placeholder": true
+  },
+  {
+    "id": "EB-007",
+    "product_name": "Custom Hardwood — Paint to Match",
+    "supplier": "Internal",
+    "type": "hardwood",
+    "color_match": "custom",
+    "compatible_finish_type": [
+      "paint",
+      "stain"
+    ],
+    "thickness_mm": "3.0",
+    "width_in": "15/16",
+    "notes": "Solid hardwood applied edge then painted to match — flags Finishing Dept",
+    "placeholder": false
+  },
+  {
+    "id": "EB-008",
+    "product_name": "Custom Hardwood — Stain to Match",
+    "supplier": "Internal",
+    "type": "hardwood",
+    "color_match": "custom",
+    "compatible_finish_type": "stain",
+    "thickness_mm": "3.0",
+    "width_in": "15/16",
+    "notes": "Solid hardwood applied edge then stained to match — flags Finishing Dept",
+    "placeholder": false
+  },
+  {
+    "id": "EB-099",
+    "product_name": "Other (specify in notes)",
+    "supplier": "Custom",
+    "type": "custom",
+    "color_match": null,
+    "compatible_finish_type": "all",
+    "thickness_mm": null,
+    "width_in": null,
+    "notes": "Escape hatch when none of the above fit",
+    "placeholder": false
+  }
+]

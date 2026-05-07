@@ -1,0 +1,12 @@
+id,name,species,grade,grain_pattern,notes,placeholder
+DM-001,Paint-Grade Poplar,poplar,paint-grade,closed,Most common paint-grade door material,false
+DM-002,Soft Maple Stain-Grade,soft maple,stain-grade,closed,Stain-finish soft maple,false
+DM-003,Hard Maple Stain-Grade,hard maple,stain-grade,closed,Premium hard maple,false
+DM-004,Cherry,cherry,stain-grade,medium,Warm cherry color body,false
+DM-005,Alder Knotty,alder,rustic-grade,medium,Knotty alder for rustic looks,false
+DM-006,Alder Clear,alder,stain-grade,medium,Clear alder — less knotty,false
+DM-007,Walnut,walnut,stain-grade,open,Premium dark walnut,false
+DM-008,Red Oak,oak,stain-grade,open,Open-grain oak,false
+DM-009,White Oak Quartersawn,oak,stain-grade,straight,Premium white oak,false
+DM-010,MDF Primed,mdf,paint-grade,—,For paint slab doors,false
+DM-099,Other,—,—,—,Specify in notes,false

@@ -1,0 +1,818 @@
+[
+  {
+    "id": "P-1",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-2",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-3",
+    "usage_group": "B",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-4",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-5",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-6",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-7",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-9",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-10",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-11",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-12",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-14",
+    "usage_group": "D",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-15",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-17",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": false,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-18",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-19",
+    "usage_group": "E",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-20",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-21",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-23",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-26",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-27",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-28",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-34",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-35",
+    "usage_group": "F",
+    "category": "cope_pattern",
+    "arch_available": false,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-36",
+    "usage_group": "G",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-37",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": false,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-38",
+    "usage_group": "B",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-39",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-40",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-43",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-45",
+    "usage_group": "G",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-47",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-49",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-50",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-51",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-53",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": false,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-56",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-57",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-58",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-59",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-65",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-66",
+    "usage_group": "B",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-67",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-68",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-72",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": true,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-79",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-80",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-84",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-96",
+    "usage_group": "E",
+    "category": "cope_pattern",
+    "arch_available": false,
+    "glaze_suitable": false,
+    "lite_compatibility": "none",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-97",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  },
+  {
+    "id": "P-133",
+    "usage_group": "A",
+    "category": "cope_pattern",
+    "arch_available": true,
+    "glaze_suitable": false,
+    "lite_compatibility": "standard+deluxe",
+    "std_width_in": 2.25,
+    "upcharge_widths_in": [
+      2.5,
+      3
+    ],
+    "min_panel_width_in": null,
+    "notes": "Auto-extracted from Cabdoor Patterns Guide 2024",
+    "placeholder": false
+  }
+]

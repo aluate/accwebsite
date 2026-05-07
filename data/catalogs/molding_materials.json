@@ -1,0 +1,58 @@
+[
+  {
+    "id": "MM-001",
+    "name": "Paint-Grade Poplar",
+    "species": "poplar",
+    "grade": "paint-grade",
+    "notes": "Most common for paint moldings"
+  },
+  {
+    "id": "MM-002",
+    "name": "Soft Maple Stain-Grade",
+    "species": "soft maple",
+    "grade": "stain-grade",
+    "notes": "Stain-finish moldings"
+  },
+  {
+    "id": "MM-003",
+    "name": "Hard Maple Stain-Grade",
+    "species": "hard maple",
+    "grade": "stain-grade",
+    "notes": "Premium hardwood"
+  },
+  {
+    "id": "MM-004",
+    "name": "Cherry",
+    "species": "cherry",
+    "grade": "stain-grade",
+    "notes": "Cherry color body"
+  },
+  {
+    "id": "MM-005",
+    "name": "Alder",
+    "species": "alder",
+    "grade": "stain-grade",
+    "notes": "Knotty alder for rustic"
+  },
+  {
+    "id": "MM-006",
+    "name": "MDF Primed",
+    "species": "mdf",
+    "grade": "primed",
+    "notes": "Paint moldings \u2014 economical"
+  },
+  {
+    "id": "MM-007",
+    "name": "Oak Stain-Grade",
+    "species": "oak",
+    "grade": "stain-grade",
+    "notes": "Red oak grain"
+  },
+  {
+    "id": "MM-099",
+    "name": "Other",
+    "species": null,
+    "grade": null,
+    "notes": "Specify in notes"
+  }
+]

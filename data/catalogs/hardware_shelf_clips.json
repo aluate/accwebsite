@@ -1,0 +1,34 @@
+[
+  {
+    "id": "HSC-001",
+    "name": "5mm Push-In Shelf Clip",
+    "brand": "Hardware Resources",
+    "model": "SC-5",
+    "type": "push_in",
+    "notes": "Standard 5mm shelf pin"
+  },
+  {
+    "id": "HSC-002",
+    "name": "5mm Push-In Spoon-Type",
+    "brand": "Rev-A-Shelf",
+    "model": "RV-5MM-SP",
+    "type": "push_in",
+    "notes": "Spoon-style for nominally thicker shelves"
+  },
+  {
+    "id": "HSC-003",
+    "name": "Adjustable Pilaster + Clip",
+    "brand": "Knape & Vogt",
+    "model": "255-ALU",
+    "type": "pilaster",
+    "notes": "Heavy-duty adjustable"
+  },
+  {
+    "id": "HSC-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "type": null,
+    "notes": "Specify in notes"
+  }
+]

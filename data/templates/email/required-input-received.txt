@@ -1,0 +1,12 @@
+Subject: {{job_id}} — {{client_name}} — Got: {{input_label}}
+
+Hi {{display_name}},
+
+We've marked "{{input_label}}" as received on {{job_id}} ({{client_name}}).
+
+  {{outstanding_summary}}
+
+When everything is in, your delivery date sets automatically. View your portal:
+  {{portal_url}}/portal/jobs/{{job_id}}
+
+— ACC
