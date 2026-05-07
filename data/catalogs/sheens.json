@@ -3,7 +3,7 @@
     "id": "SH-001",
     "name": "Dead Flat",
     "sort_order": "1",
-    "notes": "Zero sheen \u2014 least light reflection"
+    "notes": "Zero sheen — least light reflection"
   },
   {
     "id": "SH-002",
@@ -15,13 +15,13 @@
     "id": "SH-003",
     "name": "Eggshell",
     "sort_order": "3",
-    "notes": "Low sheen \u2014 common for cabinet interiors"
+    "notes": "Low sheen — common for cabinet interiors"
   },
   {
     "id": "SH-004",
     "name": "Satin",
     "sort_order": "4",
-    "notes": "Mid sheen \u2014 most popular cabinet sheen"
+    "notes": "Mid sheen — most popular cabinet sheen"
   },
   {
     "id": "SH-005",

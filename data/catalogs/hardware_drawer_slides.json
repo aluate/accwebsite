@@ -7,7 +7,7 @@
     "mount": null,
     "close": null,
     "length_options_in": null,
-    "notes": "No slides \u2014 push-fit or alternate mechanism"
+    "notes": "No slides — push-fit or alternate mechanism"
   },
   {
     "id": "HDS-BLU-001",
@@ -17,9 +17,9 @@
     "mount": "undermount",
     "close": "soft-close",
     "length_options_in": [
-      "15",
-      "18",
-      "21"
+      15,
+      18,
+      21
     ],
     "notes": "Standard ACC base drawer"
   },
@@ -31,9 +31,9 @@
     "mount": "undermount",
     "close": "soft-close+touch",
     "length_options_in": [
-      "15",
-      "18",
-      "21"
+      15,
+      18,
+      21
     ],
     "notes": "Push-to-open + soft-close"
   },
@@ -45,9 +45,9 @@
     "mount": "undermount",
     "close": "soft-close",
     "length_options_in": [
-      "15",
-      "18",
-      "21"
+      15,
+      18,
+      21
     ],
     "notes": "Salice equivalent"
   },
@@ -59,9 +59,9 @@
     "mount": "undermount",
     "close": "soft-close",
     "length_options_in": [
-      "15",
-      "18",
-      "21"
+      15,
+      18,
+      21
     ],
     "notes": "Hettich equivalent"
   },

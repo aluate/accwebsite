@@ -17,9 +17,9 @@
     "mount": "undermount",
     "close": "soft-close",
     "length_options_in": [
-      "15",
-      "18",
-      "21"
+      15,
+      18,
+      21
     ],
     "notes": "Same as drawer slides"
   },
@@ -31,9 +31,9 @@
     "mount": "sidemount",
     "close": null,
     "length_options_in": [
-      "18",
-      "22",
-      "24"
+      18,
+      22,
+      24
     ],
     "notes": "Steel ball-bearing slide"
   },

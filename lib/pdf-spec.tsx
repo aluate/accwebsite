@@ -470,246 +470,113 @@ function FinishHeaderStrip({ data, fg }: { data: SpecPDFData; fg: FinishGroupVie
 }
 
 function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroupView; idx: number }) {
-  const code = `F.${idx + 1}`;
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
-      <TitleBlock data={data} code={code} />
+      <TitleBlock data={data} code={`F.${idx + 1}`} />
       <FinishHeaderStrip data={data} fg={fg} />
-
-      <View style={S.twoCol}>
-        {/* LEFT — Material / Door / Drawer / Edgeband / Hardware */}
+      <View style={S.body}>
         <View style={S.colLeft}>
-          {/* Material Schedule */}
-          <Band title="Material Schedule" />
-          <View style={S.tHead}>
-            <Text style={[S.tHeadCl, { flex: 1.4 }]}>Slot</Text>
-            <Text style={[S.tHeadCl, { flex: 2 }]}>Material</Text>
-            <Text style={[S.tHeadCl, { flex: 2.2 }]}>Where Used / Notes</Text>
-          </View>
+          {/* Materials schedule */}
+          <Band title="Materials" />
           {fg.materials.length === 0 ? (
-            <Text style={S.empty}>No materials configured.</Text>
+            <Text style={S.empty}>No materials specified.</Text>
           ) : fg.materials.map((m, i) => (
             <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{m.role_label}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{dash(m.name)}</Text>
-              <Text style={[S.tCell, { flex: 2.2 }]}>{[m.where_used, m.notes].filter(Boolean).join(" — ") || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.2 }]}>{m.role_label}</Text>
+              <Text style={[S.tCell, { flex: 2 }]}>{m.material_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{m.where_used || "—"}</Text>
             </View>
           ))}
 
-          {/* Door / Drawer-Front Schedule */}
-          <Band title="Door Schedule" />
-          <View style={S.tHead}>
-            <Text style={[S.tHeadCl, { flex: 1.4 }]}>Role</Text>
-            <Text style={[S.tHeadCl, { flex: 1.6 }]}>Style</Text>
-            <Text style={[S.tHeadCl, { flex: 1.5 }]}>Material</Text>
-            <Text style={[S.tHeadCl, { flex: 0.7 }]}>OE</Text>
-            <Text style={[S.tHeadCl, { flex: 0.7 }]}>IE</Text>
-            <Text style={[S.tHeadCl, { flex: 0.9 }]}>Panel</Text>
-            <Text style={[S.tHeadCl, { flex: 0.7 }]}>Grain</Text>
-            <Text style={[S.tHeadCl, { flex: 1 }]}>Vendor</Text>
-          </View>
+          {/* Door fronts */}
+          <Band title="Door Fronts" />
           {fg.door_fronts.length === 0 ? (
-            <Text style={S.empty}>No door fronts configured.</Text>
+            <Text style={S.empty}>No door fronts specified.</Text>
           ) : fg.door_fronts.map((d, i) => (
             <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{[d.role_label, d.slot_label].filter(Boolean).join(" — ")}</Text>
-              <Text style={[S.tCell, { flex: 1.6 }]}>{dash(d.style_name)}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{dash(d.material_name)}</Text>
-              <Text style={[S.tCell, { flex: 0.7 }]}>{dash(d.oe_name)}</Text>
-              <Text style={[S.tCell, { flex: 0.7 }]}>{dash(d.ie_name)}</Text>
-              <Text style={[S.tCell, { flex: 0.9 }]}>{dash(d.panel_name)}</Text>
-              <Text style={[S.tCell, { flex: 0.7 }]}>{dash(d.grain)}</Text>
-              <Text style={[S.tCell, { flex: 1 }]}>{dash(d.vendor)}</Text>
+              <Text style={[S.tCell, { flex: 1 }]}>{d.role_label}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{d.style_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{d.material_name || "—"}</Text>
             </View>
           ))}
 
-          {/* Drawer Schedule */}
-          <Band title="Drawer Schedule" />
-          <View style={S.tHead}>
-            <Text style={[S.tHeadCl, { flex: 1.4 }]}>Role</Text>
-            <Text style={[S.tHeadCl, { flex: 2.5 }]}>Box / Style</Text>
-            <Text style={[S.tHeadCl, { flex: 2 }]}>Slides</Text>
-            <Text style={[S.tHeadCl, { flex: 2.5 }]}>Notes</Text>
-          </View>
+          {/* Drawers */}
+          <Band title="Drawers" />
           {fg.drawers.length === 0 ? (
-            <Text style={S.empty}>No drawers configured.</Text>
+            <Text style={S.empty}>No drawers specified.</Text>
           ) : fg.drawers.map((d, i) => (
             <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{[d.role_label, d.slot_label].filter(Boolean).join(" — ")}</Text>
-              <Text style={[S.tCell, { flex: 2.5 }]}>{dash(d.drawer_box_name)}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{dash(d.slides_name)}</Text>
-              <Text style={[S.tCell, { flex: 2.5 }]}>{dash(d.notes)}</Text>
+              <Text style={[S.tCell, { flex: 1 }]}>{d.role_label}</Text>
+              <Text style={[S.tCell, { flex: 2 }]}>{d.drawer_box_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{d.slides_name || "—"}</Text>
             </View>
           ))}
 
-          {/* Edgeband Schedule */}
-          <Band title="Edgeband Schedule" />
-          <View style={S.tHead}>
-            <Text style={[S.tHeadCl, { flex: 0.4 }]}>ID</Text>
-            <Text style={[S.tHeadCl, { flex: 2.6 }]}>Edgeband</Text>
-            <Text style={[S.tHeadCl, { flex: 2.6 }]}>Where Used</Text>
-            <Text style={[S.tHeadCl, { flex: 2 }]}>Notes</Text>
-          </View>
+          {/* Edgebands */}
+          <Band title="Edgebands" />
           {fg.edgebands.length === 0 ? (
-            <Text style={S.empty}>No edgebands configured.</Text>
+            <Text style={S.empty}>No edgebands specified.</Text>
           ) : fg.edgebands.map((e, i) => (
             <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 0.4, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{e.code}</Text>
-              <Text style={[S.tCell, { flex: 2.6 }]}>{dash(e.edgeband_name)}</Text>
-              <Text style={[S.tCell, { flex: 2.6 }]}>{dash(e.where_used_label)}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{dash(e.notes)}</Text>
-            </View>
-          ))}
-
-          {/* Hardware Schedule */}
-          <Band title="Hardware" />
-          <View style={S.tHead}>
-            <Text style={[S.tHeadCl, { flex: 1.5 }]}>Type</Text>
-            <Text style={[S.tHeadCl, { flex: 1 }]}>Brand</Text>
-            <Text style={[S.tHeadCl, { flex: 2.4 }]}>Description</Text>
-            <Text style={[S.tHeadCl, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
-            <Text style={[S.tHeadCl, { flex: 1.6 }]}>Location</Text>
-            <Text style={[S.tHeadCl, { flex: 1 }]}>Vendor</Text>
-          </View>
-          {fg.hardware.length === 0 ? (
-            <Text style={S.empty}>No hardware configured.</Text>
-          ) : fg.hardware.map((h, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{[h.role_label, h.slot_label].filter(Boolean).join(" — ")}</Text>
-              <Text style={[S.tCell, { flex: 1 }]}>{dash(h.brand)}</Text>
-              <Text style={[S.tCell, { flex: 2.4 }]}>{dash(h.hardware_name)}</Text>
-              <Text style={[S.tCell, { flex: 0.5, textAlign: "right" }]}>{h.qty ?? "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.6 }]}>{dash(h.location)}</Text>
-              <Text style={[S.tCell, { flex: 1 }]}>{dash(h.vendor)}</Text>
+              <Text style={[S.tCell, { flex: 0.6 }]}>{e.code}</Text>
+              <Text style={[S.tCell, { flex: 2 }]}>{e.edgeband_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 2 }]}>{e.where_used || "—"}</Text>
             </View>
           ))}
         </View>
 
-        {/* RIGHT — Finish / Moldings / Countertops */}
         <View style={S.colRight}>
-          {/* Finish */}
-          <Band title="Finish Schedule" />
-          {[
-            { label: "Stain",   value: fg.finish.stain_name },
-            { label: "Paint",   value: fg.finish.paint_name },
-            { label: "Glaze",   value: fg.finish.glaze_name },
-            { label: "Topcoat", value: fg.finish.topcoat_name },
-            { label: "Sheen",   value: fg.finish.sheen_name },
-          ].map((row, i) => (
-            <View key={i} style={S.kv}>
-              <Text style={S.kvLabel}>{row.label}</Text>
-              <Text style={S.kvValue}>{dash(row.value)}</Text>
+          {/* Hardware */}
+          <Band title="Hardware" />
+          {fg.hardware.length === 0 ? (
+            <Text style={S.empty}>No hardware specified.</Text>
+          ) : fg.hardware.map((h, i) => (
+            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+              <Text style={[S.tCell, { flex: 1.2 }]}>{h.role_label}</Text>
+              <Text style={[S.tCell, { flex: 2 }]}>{h.hardware_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 0.5, textAlign: "right" }]}>{h.qty ?? "—"}</Text>
             </View>
           ))}
 
           {/* Moldings */}
           <Band title="Moldings" />
-          <View style={S.tHead}>
-            <Text style={[S.tHeadCl, { flex: 1.4 }]}>Type</Text>
-            <Text style={[S.tHeadCl, { flex: 0.7 }]}>Size</Text>
-            <Text style={[S.tHeadCl, { flex: 1.5 }]}>Material</Text>
-            <Text style={[S.tHeadCl, { flex: 0.6, textAlign: "right" }]}>LF</Text>
-          </View>
           {fg.moldings.length === 0 ? (
-            <Text style={S.empty}>No moldings.</Text>
+            <Text style={S.empty}>No moldings specified.</Text>
           ) : fg.moldings.map((m, i) => (
             <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.4, fontFamily: m.qty_lf || m.profile_name ? "Helvetica-Bold" : "Helvetica", color: m.qty_lf || m.profile_name ? DARK : MUTED }]}>{m.type_label}</Text>
-              <Text style={[S.tCell, { flex: 0.7 }]}>{m.size_in ? `${m.size_in}"` : "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{dash(m.material_name)}</Text>
+              <Text style={[S.tCell, { flex: 1.4 }]}>{m.type_label}</Text>
+              <Text style={[S.tCell, { flex: 1.4 }]}>{m.profile_name || "—"}</Text>
               <Text style={[S.tCell, { flex: 0.6, textAlign: "right" }]}>{m.qty_lf ?? "—"}</Text>
             </View>
           ))}
 
           {/* Countertops */}
           <Band title="Countertops" />
-          {fg.countertops.length === 0 ? (
-            <Text style={S.empty}>No countertops in this finish group.</Text>
+          {(!fg.countertops || fg.countertops.length === 0) ? (
+            <Text style={S.empty}>No countertops specified.</Text>
           ) : fg.countertops.map((c, i) => (
-            <View key={i} style={[S.notesBox, { marginTop: i === 0 ? 4 : 6 }]}>
-              <Text style={[S.notesLabel, { color: ORANGE }]}>{c.location || `Counter ${i + 1}`}</Text>
-              {[
-                { label: "Style",          value: c.style_name },
-                { label: "Edge",           value: c.edge_name },
-                { label: "Splash",         value: c.splash_style },
-                { label: "Splash Edge",    value: c.splash_edge_name },
-                { label: "Material",       value: c.material_name },
-                { label: "Buildup",        value: c.buildup_in ? `${c.buildup_in}"` : "" },
-                { label: "Core Substrate", value: c.core_substrate },
-                { label: "Brackets",       value: c.brackets },
-              ].map((row, j) => (
-                <View key={j} style={[S.kv, { paddingHorizontal: 0 }]}>
-                  <Text style={S.kvLabel}>{row.label}</Text>
-                  <Text style={S.kvValue}>{dash(row.value)}</Text>
-                </View>
-              ))}
-              {c.notes ? <Text style={[S.notesBody, { marginTop: 3 }]}>{c.notes}</Text> : null}
+            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+              <Text style={[S.tCell, { flex: 1.2 }]}>{c.location || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{c.style_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{c.material_name || "—"}</Text>
             </View>
           ))}
         </View>
       </View>
-
       <PageFooter data={data} />
     </Page>
   );
 }
 
-// ─── N.1 Notes ────────────────────────────────────────────────────────────────
+// ─── Main exported renderer ────────────────────────────────────────────────
 
-function NotesPage({ data }: { data: SpecPDFData }) {
-  const blocks = [
-    { label: "Install Instructions", body: data.notes_install },
-    { label: "Finishing Department", body: data.notes_finishing },
-    { label: "Shop Build Notes",     body: data.notes_shop },
-    { label: "Client-Facing",        body: data.notes_client },
-  ].filter((b) => b.body && b.body.trim());
-
+export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   return (
-    <Page size="LETTER" orientation="landscape" style={S.page}>
-      <TitleBlock data={data} code="N.1" />
-      <Text style={S.h1}>Notes</Text>
-      <Text style={S.h2}>Build notes split by audience. Per-finish notes live on each F.x page.</Text>
-
-      {blocks.length === 0 ? (
-        <Text style={S.empty}>No build notes entered.</Text>
-      ) : (
-        <View style={S.twoCol}>
-          {/* Two columns of notes for landscape balance */}
-          <View style={{ flex: 1, gap: 6 }}>
-            {blocks.filter((_, i) => i % 2 === 0).map((b, i) => (
-              <View key={i} style={S.notesBox}>
-                <Text style={S.notesLabel}>{b.label}</Text>
-                <Text style={S.notesBody}>{b.body}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={{ flex: 1, gap: 6 }}>
-            {blocks.filter((_, i) => i % 2 === 1).map((b, i) => (
-              <View key={i} style={S.notesBox}>
-                <Text style={S.notesLabel}>{b.label}</Text>
-                <Text style={S.notesBody}>{b.body}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-
-      <PageFooter data={data} />
-    </Page>
-  );
-}
-
-// ─── Render ───────────────────────────────────────────────────────────────────
-
-export async function renderSpecPDF(data: SpecPDFData): Promise<Buffer> {
-  const doc = (
     <Document>
       <CoverPage data={data} />
       {data.finish_groups.map((fg, i) => (
         <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
       ))}
-      <NotesPage data={data} />
     </Document>
   );
-  return await renderToBuffer(doc);
 }

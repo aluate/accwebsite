@@ -115,6 +115,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ name
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   await requireRole("admin");
   const { name } = await params;
+
+  // Vercel: filesystem is read-only in production.
+  // Catalog edits must be made locally, then committed and deployed.
+  if (process.env.VERCEL) {
+    return NextResponse.json({
+      error: "Catalog editing is not available on Vercel. Edit the CSV locally, run npm run sync-catalogs, and commit/deploy.",
+    }, { status: 501 });
+  }
+
   const file = resolveCatalogPath(name);
   if (!file) return NextResponse.json({ error: "Library not found" }, { status: 404 });
 
@@ -148,44 +157,5 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ name
   }
 
   const rows = Math.max(0, newText.replace(/\r\n/g, "\n").split("\n").filter((l) => l.trim()).length - 1);
-  return NextResponse.json({ ok: true, rows });
-}
-
-  // Vercel: filesystem is read-only in production.
-  // Catalog edits must be made locally and committed to git for now.
-  if (process.env.VERCEL) {
-    return NextResponse.json({
-      error: "Catalog editing is not available on Vercel. Edit the CSV locally, run npm run sync-catalogs, and commit/deploy.",
-    }, { status: 501 });
-  }
-
-  const newText = await req.text();
-  if (!newText.trim()) return NextResponse.json({ error: "Empty body" }, { status: 400 });
-
-  const existing = fs.readFileSync(file, "utf-8");
-  const oldHeaders = parseHeader(existing);
-  const newHeaders = parseHeader(newText);
-  if (oldHeaders.join(",") !== newHeaders.join(",")) {
-    return NextResponse.json({
-      error: "Header row must match exactly. Edit headers in code, not the UI.",
-      expected: oldHeaders,
-      got: newHeaders,
-    }, { status: 400 });
-  }
-
-  fs.writeFileSync(file, newText, "utf-8");
-
-  const sync = spawnSync("node", ["scripts/sync-catalogs.mjs"], {
-    cwd: process.cwd(),
-    encoding: "utf-8",
-  });
-  if (sync.status !== 0) {
-    return NextResponse.json({
-      error: "CSV saved but sync-catalogs failed",
-      stderr: sync.stderr || sync.stdout || "",
-    }, { status: 500 });
-  }
-
-  const rows = newText.split("\n").filter((l) => l.trim()).length - 1; // minus header
   return NextResponse.json({ ok: true, rows });
 }

@@ -164,68 +164,32 @@ export function MoldingsTab({ groups, rooms, moldings, moldingTypes, moldingProf
                         </div>
                         {isOtherMaterial && (
                           <div className="sm:col-span-2">
-                            <label className={LABEL}>Material — type custom</label>
+                            <label className={LABEL}>Material (specify)</label>
                             <input
+                              className={INPUT}
                               value={m.material_other}
                               onChange={(e) => onUpdate(m.id, { material_other: e.target.value })}
-                              placeholder="e.g. Sapele primed, Walnut S2S, paint-grade pine #2…"
-                              className={INPUT}
-                              autoFocus
+                              placeholder="Describe material…"
                             />
                           </div>
                         )}
-                        <div className="flex items-end">
+                        <div className={isOtherMaterial ? "sm:col-span-1" : "sm:col-span-1"}>
+                          <label className={LABEL}>&nbsp;</label>
                           <button
                             onClick={() => onRemove(m.id)}
-                            className="w-full border border-white/10 hover:border-red-400 text-white/30 hover:text-red-400 font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded transition-colors"
+                            className="w-full text-xs text-red-400/60 hover:text-red-400 font-condensed uppercase tracking-widest transition-colors py-2 bg-transparent border border-red-900/30 rounded"
                           >
                             Remove
                           </button>
                         </div>
                       </div>
-
-                      <div>
-                        <label className={LABEL}>Where Used (rooms)</label>
-                        <div className="flex flex-wrap gap-2">
-                          {rooms.length === 0 && (
-                            <span className="text-white/20 text-xs italic">Add rooms first</span>
-                          )}
-                          {rooms.map((r) => {
-                            const checked = m.where_used_room_ids.includes(r.id);
-                            return (
-                              <label
-                                key={r.id}
-                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded border cursor-pointer transition-colors ${
-                                  checked
-                                    ? "border-[#f08122] bg-[#f08122]/10 text-[#f08122]"
-                                    : "border-white/10 text-white/40 hover:border-white/30"
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={(e) => {
-                                    const next = e.target.checked
-                                      ? [...m.where_used_room_ids, r.id]
-                                      : m.where_used_room_ids.filter((x) => x !== r.id);
-                                    onUpdate(m.id, { where_used_room_ids: next });
-                                  }}
-                                  className="accent-[#f08122] w-3 h-3"
-                                />
-                                <span className="text-[10px] font-condensed uppercase tracking-widest">{r.name || "(unnamed)"}</span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                      </div>
-
                       <div>
                         <label className={LABEL}>Notes</label>
                         <input
+                          className={INPUT}
                           value={m.notes}
                           onChange={(e) => onUpdate(m.id, { notes: e.target.value })}
-                          placeholder="Special length, profile customization, install caveats…"
-                          className={INPUT}
+                          placeholder="Optional notes…"
                         />
                       </div>
                     </div>

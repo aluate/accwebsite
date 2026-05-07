@@ -695,23 +695,29 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
               </div>
               <div className="col-span-4">
                 <label className={LABEL}>Brackets</label>
-                <input className={INPUT} value={c.brackets ?? ""} onChange={(e) => updateCountertop(idx, { brackets: e.target.value || null })} placeholder="Steel L-bracket 12in / etc." />
+                <input className={INPUT} value={c.brackets ?? ""} onChange={(e) => updateCountertop(idx, { brackets: e.target.value || null })} placeholder="qty / style" />
               </div>
-            </div>
-            <div className="mt-2">
-              <label className={LABEL}>Notes</label>
-              <input className={INPUT} value={c.notes ?? ""} onChange={(e) => updateCountertop(idx, { notes: e.target.value || null })} placeholder="—" />
+              <div className="col-span-12">
+                <label className={LABEL}>Notes</label>
+                <input className={INPUT} value={c.notes ?? ""} onChange={(e) => updateCountertop(idx, { notes: e.target.value || null })} placeholder="Optional…" />
+              </div>
             </div>
           </div>
         ))}
+        <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors">+ Add Countertop</button>
       </div>
 
-      {/* Note: Moldings stay on the existing MoldingsTab — not duplicated here.
-          The new size_in / material_id columns can be added there in a follow-up. */}
-      <div className="text-[11px] text-white/40 italic px-1 pb-2">
-        Moldings continue to live on the Moldings tab. Per-finish where-used logic is unchanged;
-        the new size_in and material_id columns will surface there in a follow-up pass.
+      {/* Save */}
+      <div className="flex justify-end pt-4 border-t border-white/10">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-6 py-2.5 rounded transition-colors"
+        >
+          {saving ? "Saving…" : "Save Schedules"}
+        </button>
       </div>
+      {saveError && <p className="text-red-400 text-xs mt-2 text-right">{saveError}</p>}
     </div>
   );
 }

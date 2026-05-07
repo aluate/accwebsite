@@ -13,7 +13,7 @@
     "name": "Round 1-1/4in Chrome",
     "brand": "Hardware Resources",
     "model": "RR-114-CH",
-    "diameter_in": "1.25",
+    "diameter_in": 1.25,
     "finish": "Chrome",
     "notes": "Most common closet rod"
   },
@@ -22,7 +22,7 @@
     "name": "Round 1-1/4in Brushed Nickel",
     "brand": "Hardware Resources",
     "model": "RR-114-BN",
-    "diameter_in": "1.25",
+    "diameter_in": 1.25,
     "finish": "Brushed Nickel",
     "notes": "Match brushed nickel pulls"
   },

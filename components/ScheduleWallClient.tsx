@@ -354,84 +354,76 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
           }}
         >
           <div className="mb-3">
-            <h2 className="font-heading text-sm uppercase tracking-wide text-white/80">On Deck</h2>
-            <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest">
-              {onDeckEvents.length} pending · datable when ready
+            <p className="text-white/50 text-[10px] font-condensed uppercase tracking-widest">
+              On Deck — {onDeckEvents.length} event{onDeckEvents.length === 1 ? "" : "s"}
             </p>
           </div>
-          <div className="space-y-2">
-            {onDeckEvents.length === 0 ? (
-              <p className="text-white/20 text-xs italic">Nothing on deck.</p>
-            ) : (
-              onDeckEvents.map((e) => (
-                <OnDeckCard
-                  key={e.id}
-                  event={e}
-                  crews={crews}
-                  splitLabels={splitLabels}
-                  isDragging={draggingId === e.id}
-                  onDragStart={() => setDraggingId(e.id)}
-                  onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
-                />
-              ))
-            )}
-          </div>
+          {onDeckEvents.length === 0 ? (
+            <p className="text-white/20 text-xs italic">Drop events here to remove from schedule.</p>
+          ) : onDeckEvents.map((ev) => {
+            const col = crewColor(ev.crew_id, crews);
+            const job = jobs.find((j) => j.id === ev.job_id);
+            return (
+              <div
+                key={ev.id}
+                draggable
+                onDragStart={() => setDraggingId(ev.id)}
+                onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
+                className="mb-2 rounded p-2 cursor-grab select-none"
+                style={{ background: col.bg, borderLeft: `3px solid ${col.bar}` }}
+              >
+                <p className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                  {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+                </p>
+                <p className="text-xs text-white/70 truncate">{job?.client_name ?? ev.job_id}</p>
+                {ev.notes && <p className="text-[10px] text-white/40 truncate">{ev.notes}</p>}
+              </div>
+            );
+          })}
         </aside>
       </div>
 
-      {/* Conflict prompt — informational; the move already saved */}
+      {/* Conflict warn-but-allow modal */}
       {conflictPrompt && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setConflictPrompt(null); }}
-        >
-          <div className="bg-[#1a1a1a] border border-yellow-700/40 rounded-lg p-6 w-full max-w-xl">
-            <h2 className="font-heading text-lg uppercase tracking-wide text-yellow-300 mb-3">
-              ⚠ {conflictPrompt.conflicts.length} crew conflict{conflictPrompt.conflicts.length > 1 ? "s" : ""} — saved anyway
-            </h2>
-            <p className="text-white/60 text-xs mb-3">
-              The move has been saved to the database. If this isn&apos;t what you wanted, drag the event back or choose a different crew.
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded p-6 max-w-md w-full mx-4">
+            <h3 className="text-white font-condensed uppercase tracking-widest mb-3">Scheduling Conflict</h3>
+            <p className="text-white/60 text-sm mb-4">
+              The event was saved but conflicts with {conflictPrompt.conflicts.length} other event{conflictPrompt.conflicts.length === 1 ? "" : "s"}.
             </p>
-            <ul className="space-y-2 text-yellow-200/80 text-xs">
-              {conflictPrompt.conflicts.map((c) => (
-                <li key={c.id}>
-                  <strong>{c.crew_name ?? "Unassigned"}</strong> already on{" "}
-                  <strong>{c.job_client_name ?? c.job_id}</strong> ({c.description ?? c.event_type}){" "}
-                  {c.date_start}{c.date_end ? `–${c.date_end}` : ""}
-                </li>
-              ))}
-            </ul>
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={() => setConflictPrompt(null)}
-                className="bg-yellow-600 hover:bg-yellow-500 text-black font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
-              >
-                OK, got it
-              </button>
-            </div>
+            <button onClick={() => setConflictPrompt(null)} className="bg-[#f08122] text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded">
+              Dismiss
+            </button>
           </div>
         </div>
       )}
 
-      {/* Error toast */}
+      {/* Error modal */}
       {errorPrompt && (
-        <div className="fixed bottom-6 right-6 z-50 bg-red-900/80 border border-red-700/40 text-red-100 rounded p-3 max-w-md text-xs">
-          <div className="flex items-start gap-2">
-            <span>{errorPrompt}</span>
-            <button onClick={() => setErrorPrompt(null)} className="text-red-300 hover:text-white">×</button>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-red-900/30 rounded p-6 max-w-md w-full mx-4">
+            <h3 className="text-white font-condensed uppercase tracking-widest mb-3">Error</h3>
+            <p className="text-red-400 text-sm mb-4">{errorPrompt}</p>
+            <button onClick={() => setErrorPrompt(null)} className="bg-[#f08122] text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded">
+              Dismiss
+            </button>
           </div>
         </div>
       )}
 
+      {/* Add Event form */}
       {showAddForm && (
         <AddEventForm
-          crews={crews}
           jobs={jobs}
+          crews={crews}
           onClose={() => setShowAddForm(false)}
-          onCreated={() => {
-            // Server data is stale after a write — easiest reliable refresh
-            // is a full reload until we wire SWR/router.refresh integration.
-            window.location.reload();
+          onCreated={(ev) => {
+            if (ev.date_start) {
+              setForwardEvents((prev) => [...prev, ev as JobEventWithJoins]);
+            } else {
+              setOnDeckEvents((prev) => [ev as JobEventWithJoins, ...prev]);
+            }
+            setShowAddForm(false);
           }}
         />
       )}
@@ -439,12 +431,8 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
   );
 }
 
-// ── Calendar grid ──────────────────────────────────────────────────────────
-
-function CalendarGrid({
-  weeks, today, eventsByDate, crews, splitLabels,
-  draggingId, dropTargetKey, onDragStart, onDragEnd, onDragOverCell, onDrop,
-}: {
+// ─── CalendarGrid ──────────────────────────────────────────────────────────
+type CalendarGridProps = {
   weeks: string[][];
   today: string;
   eventsByDate: Map<string, JobEventWithJoins[]>;
@@ -456,198 +444,63 @@ function CalendarGrid({
   onDragEnd: () => void;
   onDragOverCell: (iso: string) => void;
   onDrop: (eventId: string, iso: string) => void;
-}) {
-  const dayHeaders = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+};
+
+function CalendarGrid({ weeks, today, eventsByDate, crews, splitLabels, draggingId, dropTargetKey, onDragStart, onDragEnd, onDragOverCell, onDrop }: CalendarGridProps) {
+  const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
   return (
-    <div className="space-y-2">
-      {/* Day-name header row — weekday only */}
-      <div className="grid grid-cols-5 gap-2">
-        {dayHeaders.map((d) => (
-          <div key={d} className="text-white/30 text-[10px] font-condensed uppercase tracking-widest text-center">
-            {d}
-          </div>
+    <div>
+      {/* Day-of-week header */}
+      <div className="grid grid-cols-5 gap-1 mb-1">
+        {DAY_HEADERS.map((d) => (
+          <div key={d} className="text-center text-[10px] font-condensed uppercase tracking-widest text-white/30 py-1">{d}</div>
         ))}
       </div>
-
       {/* Week rows */}
       {weeks.map((week, wi) => (
-        <div key={wi} className="grid grid-cols-5 gap-2">
+        <div key={wi} className="grid grid-cols-5 gap-1 mb-1">
           {week.map((iso) => {
             const events = eventsByDate.get(iso) ?? [];
-            const isToday    = iso === today;
-            const isPast     = iso < today;
-            const isDropTarget = draggingId !== null && dropTargetKey === iso;
+            const isToday = iso === today;
+            const isDrop  = dropTargetKey === iso;
             return (
               <div
                 key={iso}
-                onDragOver={(e) => {
-                  if (!draggingId) return;
-                  e.preventDefault();
-                  onDragOverCell(iso);
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (!draggingId) return;
-                  onDrop(draggingId, iso);
-                }}
-                className={`bg-[#1a1a1a] rounded p-2 min-h-[120px] transition-colors ${
-                  isPast ? "opacity-60" : ""
-                } ${
-                  isToday ? "ring-1 ring-[#f08122]/60" : ""
-                } ${
-                  isDropTarget ? "ring-2 ring-[#f08122] bg-[#1f1611]" : ""
+                className={`min-h-[80px] rounded p-1 border transition-colors ${
+                  isToday ? "border-[#f08122]/40 bg-[#f08122]/5" :
+                  isDrop  ? "border-[#f08122]/60 bg-[#1a1410]" :
+                            "border-white/5 bg-[#111]"
                 }`}
+                onDragOver={(e) => { if (draggingId) { e.preventDefault(); onDragOverCell(iso); } }}
+                onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
               >
-                <div className={`text-[10px] font-condensed uppercase tracking-widest mb-2 ${
-                  isToday ? "text-[#f08122]" : "text-white/30"
-                }`}>
-                  {iso.slice(5)}{isToday ? " · TODAY" : ""}
-                </div>
-                <div className="space-y-1">
-                  {/* S1 fix: cap visible events at 4 to prevent cell overflow;
-                      show "+N more" badge for the rest. */}
-                  {events.slice(0, 4).map((e) => (
-                    <EventCard
-                      key={e.id}
-                      event={e}
-                      crews={crews}
-                      splitLabel={splitLabels.get(e.id)}
-                      isDragging={draggingId === e.id}
-                      onDragStart={() => onDragStart(e.id)}
+                <p className={`text-[9px] font-condensed mb-1 ${isToday ? "text-[#f08122]" : "text-white/30"}`}>
+                  {iso.slice(5)} {/* MM-DD */}
+                </p>
+                {events.map((ev) => {
+                  const col = crewColor(ev.crew_id, crews);
+                  const split = splitLabels.get(ev.id);
+                  const badge = STATUS_BADGE[ev.status ?? "scheduled"];
+                  return (
+                    <div
+                      key={ev.id}
+                      draggable
+                      onDragStart={() => onDragStart(ev.id)}
                       onDragEnd={onDragEnd}
-                    />
-                  ))}
-                  {events.length > 4 && (
-                    <div className="text-white/30 text-[9px] font-condensed uppercase tracking-wider pl-1 pt-0.5">
-                      +{events.length - 4} more
+                      className={`rounded px-1 py-0.5 mb-0.5 cursor-grab select-none text-[9px] leading-tight ${draggingId === ev.id ? "opacity-40" : ""}`}
+                      style={{ background: col.bg, borderLeft: `2px solid ${col.bar}`, color: col.text }}
+                    >
+                      <span>{EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}</span>
+                      {split && <span className="ml-1 opacity-60">{split}</span>}
+                      {badge && <span className={`ml-1 px-0.5 rounded text-[8px] ${badge.cls}`}>{badge.label}</span>}
                     </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
             );
           })}
         </div>
       ))}
-    </div>
-  );
-}
-
-// ── Event cards ────────────────────────────────────────────────────────────
-
-function EventCard({
-  event, crews, splitLabel, isDragging, onDragStart, onDragEnd,
-}: {
-  event: JobEventWithJoins;
-  crews: Crew[];
-  splitLabel?: string;
-  isDragging?: boolean;
-  onDragStart?: () => void;
-  onDragEnd?: () => void;
-}) {
-  const col = crewColor(event.crew_id, crews);
-  const status = STATUS_BADGE[event.status] ?? STATUS_BADGE.scheduled;
-  const isMultiDay = event.date_end && event.date_start && event.date_end !== event.date_start;
-  // B1 fix: use weekday count (not calendar days) so a Mon–Wed install shows "3d" not "3d".
-  // Previously used calendar-day arithmetic which overcounted across weekends.
-  const dur = isMultiDay ? countWeekdays(event.date_start!, event.date_end!) : 1;
-
-  return (
-    <div
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", event.id);   // for browsers that need it
-        onDragStart?.();
-      }}
-      onDragEnd={() => onDragEnd?.()}
-      className={`rounded p-1.5 text-[10px] leading-tight cursor-grab active:cursor-grabbing transition-opacity ${
-        isDragging ? "opacity-40" : ""
-      }`}
-      style={{
-        background: col.bg,
-        borderLeft: `3px solid ${col.bar}`,
-      }}
-    >
-      <div className="flex items-center justify-between gap-1 mb-0.5">
-        <span className="text-white/90 font-condensed uppercase tracking-wider truncate">
-          {EVENT_TYPE_ICON[event.event_type]} {EVENT_TYPE_LABELS[event.event_type]}
-          {splitLabel && <span className="text-white/40 ml-1">{splitLabel}</span>}
-        </span>
-        <span className={`px-1 rounded text-[8px] font-bold tracking-wider ${status.cls}`}>
-          {status.label}
-        </span>
-      </div>
-      {event.description && (
-        <div className="text-white/70 truncate" title={event.description}>{event.description}</div>
-      )}
-      <div className="flex items-center justify-between mt-0.5">
-        <span className="text-white/50 truncate" title={event.job_client_name ?? ""}>
-          {event.job_client_name ?? event.job_id}
-        </span>
-        <span style={{ color: col.text }} className="font-condensed uppercase tracking-wider">
-          {event.crew_name ?? "Unassigned"}
-        </span>
-      </div>
-      {isMultiDay && (
-        <div className="text-white/30 text-[9px] mt-0.5 font-condensed uppercase tracking-wider">
-          {dur}d → {event.date_end}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── On Deck cards ──────────────────────────────────────────────────────────
-
-function OnDeckCard({
-  event, crews, splitLabels, isDragging, onDragStart, onDragEnd,
-}: {
-  event: JobEventWithJoins;
-  crews: Crew[];
-  splitLabels: Map<string, string>;
-  isDragging?: boolean;
-  onDragStart?: () => void;
-  onDragEnd?: () => void;
-}) {
-  const col = crewColor(event.crew_id, crews);
-  const splitLabel = splitLabels.get(event.id);
-  return (
-    <div
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", event.id);
-        onDragStart?.();
-      }}
-      onDragEnd={() => onDragEnd?.()}
-      className={`rounded p-2 text-xs cursor-grab active:cursor-grabbing transition-opacity ${
-        isDragging ? "opacity-40" : ""
-      }`}
-      style={{
-        background: col.bg,
-        borderLeft: `3px solid ${col.bar}`,
-      }}
-    >
-      <div className="flex items-center justify-between gap-1 mb-1">
-        <span className="text-white/90 font-condensed uppercase tracking-widest text-[10px]">
-          {EVENT_TYPE_ICON[event.event_type]} {EVENT_TYPE_LABELS[event.event_type]}
-          {splitLabel && <span className="text-white/40 ml-1">{splitLabel}</span>}
-        </span>
-        <span className="text-white/30 text-[9px] font-condensed uppercase tracking-wider">
-          {event.crew_name ?? "—"}
-        </span>
-      </div>
-      {event.description && (
-        <div className="text-white/80 mb-1">{event.description}</div>
-      )}
-      <div className="text-white/40 text-[10px] truncate" title={event.job_client_name ?? ""}>
-        {event.job_client_name ?? event.job_id}
-      </div>
-      {event.blocked_on && (
-        <div className="mt-1.5 text-yellow-300/80 text-[10px] font-condensed uppercase tracking-wider">
-          ⏸ {event.blocked_on}
-        </div>
-      )}
     </div>
   );
 }

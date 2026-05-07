@@ -14,9 +14,9 @@
     "name": "Rev-A-Shelf Double 35qt",
     "brand": "Rev-A-Shelf",
     "model": "5349-1518DM-2",
-    "bin_count": "2",
+    "bin_count": 2,
     "bin_size": "35qt",
-    "opening_width_in": "15",
+    "opening_width_in": 15,
     "notes": "Standard 15-inch base trash"
   },
   {
@@ -24,9 +24,9 @@
     "name": "Rev-A-Shelf Single 35qt",
     "brand": "Rev-A-Shelf",
     "model": "5349-15DM-1",
-    "bin_count": "1",
+    "bin_count": 1,
     "bin_size": "35qt",
-    "opening_width_in": "15",
+    "opening_width_in": 15,
     "notes": "Single bin variant"
   },
   {
@@ -34,9 +34,9 @@
     "name": "Hafele Hailo Easy Cargo",
     "brand": "Hafele",
     "model": "503.65.621",
-    "bin_count": "2",
+    "bin_count": 2,
     "bin_size": "30L",
-    "opening_width_in": "18",
+    "opening_width_in": 18,
     "notes": "Premium soft-close trash"
   },
   {

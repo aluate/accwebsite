@@ -39,10 +39,10 @@ if %errorlevel% neq 0 (
 REM Push
 echo.
 echo Pushing to GitHub...
-git push origin main
+git push origin master
 if %errorlevel% neq 0 (
     echo Trying to set upstream...
-    git push --set-upstream origin main
+    git push --set-upstream origin master
 )
 
 echo.
