@@ -370,4 +370,35 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_activity_log_job           ON activity_log(job_id, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_actor         ON activity_log(actor, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_at            ON activity_log(occurred_at);
-    CREATE INDEX IF
+  `);
+
+  // ── Schedule V2 column additions (idempotent) ──────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_start TEXT`,
+    `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_end   TEXT`,
+    `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // ── Seed event_phase_labels (idempotent) ───────────────────────────────────
+  const defaultLabels = [
+    { label: "Ladder Bases",   sort_order: 1 },
+    { label: "Casework",       sort_order: 2 },
+    { label: "Pulls & Panels", sort_order: 3 },
+    { label: "Post Tops",      sort_order: 4 },
+    { label: "Other",          sort_order: 99 },
+  ];
+  for (const { label, sort_order } of defaultLabels) {
+    await sql`
+      INSERT INTO event_phase_labels (label, sort_order, active)
+      VALUES (${label}, ${sort_order}, 1)
+      ON CONFLICT (label) DO NOTHING
+    `;
+  }
+
+  console.log("Schema push complete.");
+  await sql.end();
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
