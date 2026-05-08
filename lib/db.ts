@@ -12,17 +12,36 @@
 import postgres from "postgres";
 import { randomBytes } from "crypto";
 
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) throw new Error("DATABASE_URL env var is not set");
+// Lazy-init: don't throw at module load (breaks Next.js build-time evaluation).
+// The error surfaces on first query instead.
+function createSql() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error("DATABASE_URL env var is not set");
+  return postgres(url, {
+    ssl: "require",
+    max: 10,
+    idle_timeout: 20,
+    connect_timeout: 10,
+  });
+}
 
-const sql = postgres(DATABASE_URL, {
-  ssl: "require",
-  max: 10,
-  idle_timeout: 20,
-  connect_timeout: 10,
-  // Supabase prepended-project-ref format: postgres.PROJECT_REF
-  // Direct format:  postgresql://postgres:PW@db.REF.supabase.co:5432/postgres
-});
+let _sql: ReturnType<typeof postgres> | null = null;
+function getSql() {
+  if (!_sql) _sql = createSql();
+  return _sql;
+}
+
+// Proxy so existing `sql\`...\`` call sites work unchanged.
+const sql = new Proxy({} as ReturnType<typeof postgres>, {
+  get(_t, prop) {
+    const s = getSql();
+    const val = (s as unknown as Record<string|symbol, unknown>)[prop];
+    return typeof val === "function" ? val.bind(s) : val;
+  },
+  apply(_t, _thisArg, args) {
+    return (getSql() as unknown as (...a: unknown[]) => unknown)(...args);
+  },
+}) as ReturnType<typeof postgres>;
 
 export default sql;
 export { sql };
