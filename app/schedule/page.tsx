@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { requireBuilder } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { listCrews, forwardEvents, onDeckEvents, isoDateOffset } from "@/lib/schedule";
