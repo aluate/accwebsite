@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 /**
  * Schedules API for spec form expansion v2.
  *

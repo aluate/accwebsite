@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 /**
  * Schedule events: collection endpoints.
  *

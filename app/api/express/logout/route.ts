@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { NextRequest, NextResponse } from "next/server";
 import { deleteSession, COOKIE_NAME } from "@/lib/auth";
 

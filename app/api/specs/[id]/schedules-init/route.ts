@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 /**
  * One-shot bootstrap for the SpecSchedulesPanel React component.
  *

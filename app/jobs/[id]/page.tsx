@@ -1,9 +1,8 @@
-export const dynamic = "force-dynamic";
-
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
+import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { requireBuilder } from "@/lib/auth";
 
 const STATUS_STEPS = ["intake", "active", "production", "complete"];
@@ -162,6 +161,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           )}
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3">
+            <ReadyToScheduleButton jobId={id} />
             <button
               disabled
               className="bg-[#f08122]/20 text-[#f08122]/50 font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded cursor-not-allowed"
@@ -176,8 +176,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </button>
           </div>
 
+          {/* Schedule tab link */}
+          <div className="mt-6 pt-4 border-t border-white/5">
+            <Link
+              href={`/jobs/${id}/schedule`}
+              className="inline-flex items-center gap-2 text-xs font-condensed uppercase tracking-widest text-white/40 hover:text-[#f08122] border border-white/10 hover:border-[#f08122]/30 px-3 py-2 rounded transition-colors"
+            >
+              📅 Install Phases &amp; Schedule
+            </Link>
+          </div>
+
           {/* Phase 3a (2026-05): job-level file uploads */}
-          <div className="mt-8">
+          <div className="mt-6">
             <JobFilesPanel jobId={id} isAdmin={isAdmin} />
           </div>
         </div>

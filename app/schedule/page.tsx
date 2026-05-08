@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { requireBuilder } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { listCrews, forwardEvents, onDeckEvents, isoDateOffset } from "@/lib/schedule";
@@ -19,7 +17,8 @@ import { ScheduleWallClient } from "@/components/ScheduleWallClient";
  * them without leaving the wall view.
  */
 export default async function SchedulePage() {
-  await requireBuilder();
+  const session = await requireBuilder();
+  const isAdmin = session.role === "admin";
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -27,8 +26,8 @@ export default async function SchedulePage() {
     listCrews({ activeOnly: true }),
     forwardEvents({
       todayIso: today,
-      windowDaysBack: 7,
-      windowDaysForward: 28,
+      windowDaysBack: 30,
+      windowDaysForward: 60,
     }),
     onDeckEvents(),
     sql`SELECT id, client_name, site_address FROM jobs ORDER BY created_at DESC` as Promise<{ id: string; client_name: string; site_address: string }[]>,
@@ -40,10 +39,9 @@ export default async function SchedulePage() {
     forwardEvents: fwdEvents,
     onDeckEvents:  deckEvents,
     jobs,
-    // Window endpoints surfaced so the calendar grid can render the right
-    // 5-week stretch without recomputing on the client.
-    windowStartIso: isoDateOffset(today, -7),
-    windowEndIso:   isoDateOffset(today, +28),
+    isAdmin,
+    windowStartIso: isoDateOffset(today, -30),
+    windowEndIso:   isoDateOffset(today, +60),
   };
 
   return <ScheduleWallClient {...data} />;

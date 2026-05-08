@@ -22,6 +22,9 @@ function createSql() {
     max: 10,
     idle_timeout: 20,
     connect_timeout: 10,
+    // Required for PgBouncer transaction-mode pooling (Supabase Shared Pooler).
+    // Prepared statements are stateful and incompatible with transaction poolers.
+    prepare: false,
   });
 }
 
