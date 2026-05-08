@@ -156,4 +156,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ name
     encoding: "utf-8",
   });
   if (sync.status !== 0) {
-    retu
+    return NextResponse.json({
+      error: "CSV saved but sync-catalogs failed",
+      stderr: sync.stderr || sync.stdout || "",
+    }, { status: 500 });
+  }
+
+  const rows = Math.max(0, newText.replace(/\r\n/g, "\n").split("\n").filter((l) => l.trim()).length - 1);
+  return NextResponse.json({ ok: true, rows });
+}
