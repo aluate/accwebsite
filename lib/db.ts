@@ -32,7 +32,7 @@ function getSql() {
 }
 
 // Proxy so existing `sql\`...\`` call sites work unchanged.
-const sql = new Proxy({} as ReturnType<typeof postgres>, {
+const sql = new Proxy(getSql as unknown as ReturnType<typeof postgres>, {
   get(_t, prop) {
     const s = getSql();
     const val = (s as unknown as Record<string|symbol, unknown>)[prop];
