@@ -239,6 +239,22 @@ to make it persistent. I'll write a launch script when you're ready.
 
 ---
 
+## Z Drive Spec — answer before Feature 5 can be built
+
+> **What this unlocks:** Feature 5 (Z drive import) in `docs/ROLES_ROUTES_V1_SPEC.md` is a stub. A build session can't touch it until these questions are answered. Fill in what you know and tell me "Z drive ready" — I'll turn the stub into a full spec.
+
+1. **Folder structure on the Z drive.** One folder per job? What's the naming convention — job number, client name, something else? What files live inside (CV files, TradeSoft exports, PDFs, photos, Excel sheets, other)?
+
+2. **Job identifier.** Is there a number on the Z drive that maps to (or could map to) the `ACC-{YEAR}-{SEQ}` format we use in the app? Or would we need to build a mapping table?
+
+3. **Where does job metadata live?** Client name, address, delivery date, status — is that in TradeSoft, in file/folder names, in an Excel sheet, or somewhere else?
+
+4. **Sync frequency.** How often do new jobs get added to the Z drive? Daily? Per order? Is there a pattern?
+
+5. **Write-back.** Does anything need to flow *back* from the app to the Z drive? For example: spec PDFs we generate, or drawings we produce? Or is the Z drive purely a source for reading existing jobs into the app?
+
+---
+
 ## Lower-priority — answer when you can
 
 - **Tafisa color list per line** (Alto, Crystalite, Isola, Karisma, Smoothwood,
@@ -278,9 +294,4 @@ too — drop them as a comment and I'll route through the APIs.
 
 I ingested the photos at `data/catalogs/sources/tfl-samples/` (43 new rows: 15 Stevenswood + 28 TruNorth). A handful of names need your eyes:
 
-- **G92 "Drift Loud"** — the sticker reads "Drift Loud" but I'd guess this is meant to be "Drift Wood." Look at G92 in person and let me know which is right; I'll batch-update both Stevenswood and TruNorth rows.
-- **529 "Takase Teak" (TruNorth)** — the TruNorth sticker for code 529 is hard to read in the photo. I matched the name to Stevenswood's 529 (Takase Teak) on the assumption they're the same decor across suppliers. Possible alternatives I considered: "Pearl Teak", "Naval Teak". Confirm.
-- **174 Black** — Stevenswood sticker had "174" hand-written next to a small dark patch, but the printed sticker showed something else (struck through). I went with 174 Black/ARTIKA based on TruNorth's matching sticker. Confirm the Stevenswood code is also 174.
-- **Yellowstone Oak** and **Cascadia Rift** (TruNorth photo 2, separate samples) — no codes were visible in the photo so I left them out. If those are real ACC-stocked decors, send their sticker codes and I'll add them.
-
-Also: I notice many decors appear in BOTH Stevenswood and TruNorth catalogs with the same code. If that's intentional (e.g. ACC sells the same color through whichever supplier delivers fastest), the spec form will show both options. If that's not the case (e.g. ACC switched suppliers and those Stevenswood rows are stale), tell me which supplier won and I'll prune the loser.
+- **G92 "Drift Loud"** — the sticker reads "Drift Loud" but I'd guess this is meant to be "Drift Wood." Look at G92 in person and let me know which

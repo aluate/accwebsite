@@ -41,14 +41,16 @@ Partners are ACC owners. They need to see everything running through the shop bu
 
 ### Auth changes — `lib/auth.ts`
 
-Add `"partner"` to the `Role` type and `ROLES` constant:
+Add `"partner"` and `"installer"` to the `Role` type and `ROLES` constant:
 
 ```ts
-export type Role = "admin" | "user" | "engineer" | "partner";
-export const ROLES: readonly Role[] = ["admin", "user", "engineer", "partner"] as const;
+export type Role = "admin" | "user" | "engineer" | "partner" | "installer";
+export const ROLES: readonly Role[] = ["admin", "user", "engineer", "partner", "installer"] as const;
 ```
 
-No other auth logic changes. `requireBuilder()` and `requireRole()` already work generically — partners pass `requireBuilder()` just fine and are blocked by any `requireRole("admin")` or `requireRole("engineer")` call.
+Both roles are added now so accounts can be created and invited before their full UI surfaces ship. `"installer"` gets a placeholder page (see Feature 6). `"partner"` gets read-only access as described in this feature.
+
+No other auth logic changes. `requireBuilder()` and `requireRole()` already work generically — partners and installers pass `requireBuilder()` just fine and are blocked by any `requireRole("admin")` or `requireRole("engineer")` call.
 
 ### API-level enforcement
 
@@ -152,6 +154,30 @@ Already coded. Confirm it covers the new edit flow (role downgrade from admin sh
 - `POST /api/admin/builders` — add `role` to accepted body; validate against `ROLES` constant
 - `PATCH /api/admin/builders/[id]` — **new endpoint**: accepts `{ name, email, company, role }`, validates role, enforces last-admin check on role downgrade
 - `DELETE /api/admin/builders/[id]` — already exists; extend to check `active` + session history before hard-delete vs. deactivate
+
+**Session invalidation on deactivate:** When an account is deactivated (or hard-deleted), immediately kill all active sessions for that account:
+
+```ts
+db.prepare("DELETE FROM builder_sessions WHERE builder_id = ?").run(id);
+```
+
+Run this inside the same transaction as the `active = 0` update. Do not rely on session expiry — a deactivated user should lose access on the next request, not at cookie expiry (which could be 30 days out).
+
+---
+
+## Deployment Policy
+
+**External surfaces are off by default and must stay that way until ACC signs off.**
+
+The ACC partners have approved internal use only at this stage. `EXPRESS_ENABLED`, `PORTAL_ENABLED`, and the builder-role onboarding flow must remain disabled on the production domain (`accspec.net` / `advancedcabinets.org`) until the system has been validated internally by ACC staff. Do not enable any external-facing surface without explicit sign-off from Karl.
+
+This constraint applies even if a feature is technically complete. "Done" means working internally, not visible externally.
+
+Verification checklist before flipping any flag to `true` on production:
+- [ ] Feature has run on at least one real ACC job (not seed data)
+- [ ] Karl has reviewed the output and confirmed it's correct
+- [ ] At least 2 admin accounts exist and are accessible
+- [ ] Karl has explicitly approved the go-live for that surface
 
 ---
 
@@ -262,7 +288,7 @@ Selftest update in `scripts/selftest.mjs` (or wherever the role assertion lives)
 // Before:
 const ALLOWED_ROLES = ["admin", "user", "engineer"];
 // After:
-const ALLOWED_ROLES = ["admin", "user", "engineer", "partner"];
+const ALLOWED_ROLES = ["admin", "user", "engineer", "partner", "installer"];
 ```
 
 ---
@@ -313,9 +339,32 @@ V1 uses existing Gmail SMTP (`residentialacc2@gmail.com`) — same transport con
 New env var:
 
 ```
+APP_URL=https://accspec.net
+```
+
+Used to construct `/invite/[token]` and `/reset-password/[token]` links in outbound emails. Add to `.env.local` and to Vercel environment variables. No runtime default — omitting it won't throw, but invite emails will contain broken links.
+
 ### Email mutability — DAC flag
 
 Username = email. If someone's email changes (name change, role change), their login email must be updatable. The account management PATCH endpoint (Feature 2) must include `email/username` as an editable field. When admin updates it, all existing sessions remain valid (sessions are keyed to `builder_accounts.id`, not email). The user just logs in with the new email next time.
+
+### Page placement
+
+`/invite/[token]` lives at `app/invite/[token]/page.tsx` — **outside** every auth layout. It must be reachable by unauthenticated users clicking an email link.
+
+`proxy.ts` currently blocks unauthenticated requests to everything except `/express/login` and `/admin/login`. Add `/invite/:path*` and `/reset-password/:path*` to the allowlist:
+
+```ts
+// proxy.ts — add to the public-path allowlist
+const PUBLIC_PATHS = ["/express/login", "/admin/login", "/login", "/invite", "/reset-password"];
+if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+  return NextResponse.next();
+}
+```
+
+Also add both paths to `proxyConfig.matcher` so the proxy runs on them at all (otherwise Next.js skips the proxy entirely and the allowlist check never fires).
+
+The same placement rule applies to `/reset-password/[token]` — `app/reset-password/[token]/page.tsx`, same public allowlist entry.
 
 ### Schema additions
 
@@ -329,6 +378,10 @@ ALTER TABLE builder_accounts ADD COLUMN invite_expires_at TEXT;   -- ISO datetim
 -- UI and login form label it "Email" going forward.
 -- No column rename needed — avoids a table rebuild.
 ```
+
+**Reset token storage:** The forgot-password flow reuses `invite_token` and `invite_expires_at`. No additional columns needed. Rationale: only one pending token per account makes sense — if a reset is in flight and a new invite is issued (or vice versa), the new token simply overwrites the old one, which is the correct behavior. A separate column would allow two simultaneous valid tokens, which is a security footgun.
+
+The token-type distinction (invite vs. reset) is irrelevant at the DB level — both are "click this link to set your password." The page at the other end of the link handles the UX copy.
 
 ### Installer role placeholder
 
@@ -360,57 +413,4 @@ Installers are included in the initial company invite wave — the calendar view
 
 **Decided 2026-05-07.** This is the right long-term path. The sync agent runs on advserver on a schedule (Windows Task Scheduler), reads the Z drive, diffs against Supabase via a secured REST endpoint, and pushes new/changed records. The app never needs a direct connection to the Z drive.
 
-**Bootstrap path (one-time):** Before the agent is built, Karl exports a job list from TradeSoft as CSV and uploads it via `/admin/import`. This gets existing jobs into the system fast without waiting for the full agent. Option B is the bootstrap, Option A is the ongoing engine.
-
-**Full agent spec:** `scripts/zdrive-sync.mjs` on advserver. Scheduled via Windows Task Scheduler. Pushes to `/api/admin/import/zdrive` (admin API token required, never a cookie). Files stay on the Z drive; the agent pushes metadata only. Supabase Storage receives generated outputs (spec PDFs, Excel) that write back to the Z drive from the app side.
-
-Full agent design lives in the Z Drive Import spec session — this stub is resolved there.
-
-### Source of truth split (must be defined before building)
-
-| Data type | Source of truth |
-|---|---|
-| Job metadata (client, address, status) | App DB |
-| Spec / lifecycle / schedule | App DB |
-| CV drawings (original) | Z drive |
-| Generated spec PDFs | App (Supabase Storage) |
-| TradeSoft order data | TradeSoft (not synced) |
-
----
-
-## Build Order (updated)
-
-Tracks 1–4 are independent. Suggested sequence based on blast radius and launch dependencies:
-
-1. **Route suppression** (Feature 3) — proxy.ts + env flags only. No DB changes. Lowest risk, immediate value.
-2. **Partner role** (Feature 1) — auth type, `canEdit()` helper, API blocks, UI rendering changes, selftest update.
-3. **Account management UI** (Feature 2) — role dropdown, role badges, PATCH endpoint, deactivate logic, invite status column.
-4. **Invite / onboarding flow** (Feature 4) — schema additions, invite email, `/invite/[token]` page, forgot-password flow, installer placeholder. **Prerequisite for launch email.**
-5. **Z drive import** (Feature 5) — do not start until open questions above are answered. One-time CSV import (Option B) can ship independently of the ongoing sync agent (Option A).
-
----
-
-## DAC / TT Findings (2026-05-07)
-
-Recorded here so a build session inherits the reasoning.
-
-**Devil's Advocate findings:**
-- Email-as-username requires username to be mutable — PATCH endpoint must include it (designed in).
-- `residentialacc2@gmail.com` as the invite sender will get spam-filtered. From-address must change before launch (flagged as [KARL] item).
-- 72h invite expiry + no resend = support burden. Resend designed in.
-- Installers will get the launch email before their UI exists. Placeholder page designed in.
-- Last-admin safety: need ≥ 2 admin accounts live before the launch email. `npm run rotate-admin-pw` is the emergency fallback — document it in `KARL_TODO.md`.
-
-**Tahiti Test findings (light — nothing built yet):**
-- Password reset only works if domain is live and email is sending. Admin reset is the human fallback — requires a second admin to be available when Karl is unreachable.
-- Z drive sync agent is non-critical path by design — app functions without it, just doesn't pull new file data.
-- Invite resend must be usable by any admin, not just Karl.
-
----
-
-## What This Does NOT Change
-
-- Express Wizard suppression — already handled by `EXPRESS_ENABLED`. No changes needed.
-- The `/admin/jobs/[id]/portal` config page — internal admin UI, NOT suppressed by `PORTAL_ENABLED`. Stays accessible to admins.
-- Any existing role gates — `requireRole("admin")` and `requireRole("engineer")` calls are unchanged. `partner` simply cannot reach those routes.
-- Login flow — `/login` is always reachable. All roles log in the same way.
+**Bootstrap path (one-tim
