@@ -21,7 +21,6 @@ export async function GET() {
 
 // POST /api/admin/builders — create account
 //   body: { username, password, name, company?, email?, phone?, role? }
-//   role defaults to 'user'; only 'admin' or 'user' accepted.
 //   New accounts always get must_change_pw = 1 so users set their own password on first login.
 export async function POST(req: NextRequest) {
   const { username, password, name, company, email, phone, role } = await req.json();
@@ -42,8 +41,11 @@ export async function POST(req: NextRequest) {
   const now = new Date().toISOString();
 
   await sql`
-    INSERT INTO builder_accounts (id, username, password_hash, name, company, email, phone, active, created_at, role, must_change_pw)
-    VALUES (${id}, ${username.trim().toLowerCase()}, ${hash}, ${name.trim()}, ${company ?? null}, ${email ?? null}, ${phone ?? null}, 1, ${now}, ${safeRole}, 1)
+    INSERT INTO builder_accounts
+      (id, username, password_hash, name, company, email, phone, active, created_at, role, must_change_pw)
+    VALUES
+      (${id}, ${username.trim().toLowerCase()}, ${hash}, ${name.trim()},
+       ${company ?? null}, ${email ?? null}, ${phone ?? null}, 1, ${now}, ${safeRole}, 1)
   `;
 
   return NextResponse.json({ id, role: safeRole }, { status: 201 });
@@ -61,7 +63,6 @@ export async function PATCH(req: NextRequest) {
   }
   if (password) {
     const hash = await bcrypt.hash(password, 12);
-    // Resetting a password always forces a change on next login
     await sql`UPDATE builder_accounts SET password_hash = ${hash}, must_change_pw = 1 WHERE id = ${id}`;
   }
   if (typeof must_change_pw === "number") {
@@ -70,7 +71,26 @@ export async function PATCH(req: NextRequest) {
   if (role === "admin" || role === "user" || role === "engineer") {
     await sql`UPDATE builder_accounts SET role = ${role} WHERE id = ${id}`;
   }
-  if (name !== undefined)    await sql`UPDATE builder_accounts SET name = ${name} WHERE id = ${id}`;
-  if (company !== undefined) await sql`UPDATE builder_accounts SET company = ${company ?? null} WHERE id = ${id}`;
-  if (email !== undefined)   await sql`UPDATE builder_accounts SET email = ${email ?? null} WHERE id = ${id}`;
-  if (phone !== undefined)   await sql`UPDATE builder_accounts SET phone = ${phone ?? null} WHER
+  if (name !== undefined) {
+    await sql`UPDATE builder_accounts SET name = ${name} WHERE id = ${id}`;
+  }
+  if (company !== undefined) {
+    await sql`UPDATE builder_accounts SET company = ${company ?? null} WHERE id = ${id}`;
+  }
+  if (email !== undefined) {
+    await sql`UPDATE builder_accounts SET email = ${email ?? null} WHERE id = ${id}`;
+  }
+  if (phone !== undefined) {
+    await sql`UPDATE builder_accounts SET phone = ${phone ?? null} WHERE id = ${id}`;
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+// DELETE /api/admin/builders?id=... — remove account
+export async function DELETE(req: NextRequest) {
+  const id = new URL(req.url).searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  await sql`DELETE FROM builder_accounts WHERE id = ${id}`;
+  return NextResponse.json({ ok: true });
+}
