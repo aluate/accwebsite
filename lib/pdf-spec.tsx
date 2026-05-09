@@ -518,7 +518,6 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
             <Text style={S.empty}>No edgebands specified.</Text>
           ) : (
             <>
-              {/* Header row — matches drawing format */}
               <View style={[S.tRow, { backgroundColor: "#e8e8e8" }]}>
                 <Text style={[S.tCell, { flex: 0.5, fontWeight: "bold" }]}>ID</Text>
                 <Text style={[S.tCell, { flex: 0.8, fontWeight: "bold" }]}>Thickness</Text>
@@ -568,3 +567,31 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
 
           {/* Countertops */}
           <Band title="Countertops" />
+          {(!fg.countertops || fg.countertops.length === 0) ? (
+            <Text style={S.empty}>No countertops specified.</Text>
+          ) : fg.countertops.map((c, i) => (
+            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+              <Text style={[S.tCell, { flex: 1.2 }]}>{c.location || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{c.style_name || "—"}</Text>
+              <Text style={[S.tCell, { flex: 1.5 }]}>{c.material_name || "—"}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
+// ─── Main exported renderer ────────────────────────────────────────────────
+
+export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
+  return (
+    <Document>
+      <CoverPage data={data} />
+      {data.finish_groups.map((fg, i) => (
+        <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
+      ))}
+    </Document>
+  );
+}
