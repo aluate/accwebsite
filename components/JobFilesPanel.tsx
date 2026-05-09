@@ -16,7 +16,7 @@ const KINDS = [
   { key: "02_quote",         label: "02 Quote",               desc: "Bid documents, estimates" },
   { key: "03_job_specs",     label: "03 Job Specs",           desc: "Cabinet spec sheets" },
   { key: "04_appliances",    label: "04 Appliances",          desc: "Cut sheets, install templates" },
-  { key: "05_drawings",      label: "05 Drawings",            desc: "CV exports — PM stage and engineered (WO#)" },
+  { key: "05_drawings",      label: "05 Drawings",            desc: "CV exports, shop drawings" },
   { key: "05a_redlines",     label: "05a Redlines",           desc: "Marked-up drawings" },
   { key: "06_as_builts",     label: "06 As Builts",           desc: "Final installed drawings" },
   { key: "07_correspondence",label: "07 Correspondence",      desc: "Emails, letters, RFIs" },
@@ -122,14 +122,12 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
             <label className="block text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">Add file</label>
             {kind === "09_site_photos" ? (
               <div className="flex gap-2">
-                {/* Camera — straight to rear camera */}
                 <label className="flex-1 flex items-center justify-center gap-1.5 bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded cursor-pointer transition-colors">
-                  📷 Camera
+                  Camera
                   <input type="file" accept="image/*" capture="environment" onChange={onUpload} disabled={uploading} className="hidden" />
                 </label>
-                {/* Gallery — pick saved photo/video from library */}
                 <label className="flex-1 flex items-center justify-center gap-1.5 bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded cursor-pointer transition-colors">
-                  🖼 Gallery
+                  Gallery
                   <input type="file" accept="image/*,video/*" onChange={onUpload} disabled={uploading} className="hidden" />
                 </label>
               </div>
@@ -175,4 +173,33 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
                             src={f.url}
                             alt=""
                             className="w-12 h-12 object-cover rounded border border-white/10 shrink-0"
- 
+                            loading="lazy"
+                          />
+                        )}
+                        <span className="text-white/70 text-xs truncate flex-1">{f.filename}</span>
+                        <span className="text-white/30 text-[10px] font-condensed uppercase tracking-widest shrink-0 ml-3">
+                          {fmtSize(f.size)} · {new Date(f.uploaded_at).toLocaleDateString()}
+                        </span>
+                      </a>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(k.key, f.filename); }}
+                          disabled={deleting === f.filename}
+                          title="Delete file (admin only)"
+                          className="ml-3 text-red-400/40 hover:text-red-400 text-[10px] font-condensed uppercase tracking-widest shrink-0 disabled:opacity-30"
+                        >
+                          {deleting === f.filename ? "..." : "Delete"}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
