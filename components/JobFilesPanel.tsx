@@ -11,10 +11,23 @@ type FileEntry = {
 type FilesByKind = Record<string, FileEntry[]>;
 
 const KINDS = [
-  { key: "plans",      label: "Architectural Plans", desc: "Floor plans, elevations, section drawings" },
-  { key: "appliances", label: "Appliance Specs",     desc: "Cut sheets, install templates" },
-  { key: "site",       label: "Site Photos / Video", desc: "Walk-through, measurements, conditions" },
-  { key: "drawings",   label: "Cabinet Drawings",    desc: "CV exports — PM stage and engineered (WO#)" },
+  { key: "00_field_dims",    label: "00 Field Dimensions",    desc: "Site measurements, field dims" },
+  { key: "01_plan",          label: "01 Plan",                desc: "Floor plans, elevations, section drawings" },
+  { key: "02_quote",         label: "02 Quote",               desc: "Bid documents, estimates" },
+  { key: "03_job_specs",     label: "03 Job Specs",           desc: "Cabinet spec sheets" },
+  { key: "04_appliances",    label: "04 Appliances",          desc: "Cut sheets, install templates" },
+  { key: "05_drawings",      label: "05 Drawings",            desc: "CV exports — PM stage and engineered (WO#)" },
+  { key: "05a_redlines",     label: "05a Redlines",           desc: "Marked-up drawings" },
+  { key: "06_as_builts",     label: "06 As Builts",           desc: "Final installed drawings" },
+  { key: "07_correspondence",label: "07 Correspondence",      desc: "Emails, letters, RFIs" },
+  { key: "08_project_mgmt",  label: "08 Project Management",  desc: "Schedules, meeting notes" },
+  { key: "09_site_photos",   label: "09 Job Site Pictures",   desc: "Walk-through, measurements, conditions" },
+  { key: "10_billing",       label: "10 Billing",             desc: "Invoices, POs" },
+  { key: "11_punch_list",    label: "11 Punch List",          desc: "Outstanding items" },
+  { key: "12_cost_quality",  label: "12 Cost of Quality",     desc: "Defect and rework tracking" },
+  { key: "13_installation",  label: "13 Installation",        desc: "Install docs, crew notes" },
+  { key: "14_prod_docs",     label: "14 Production Documents",desc: "Shop packets, cut lists" },
+  { key: "15_contract",      label: "15 Contract",            desc: "Signed contracts, change orders" },
 ] as const;
 
 function fmtSize(bytes: number): string {
@@ -23,7 +36,7 @@ function fmtSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "plans" }: { jobId: string; isAdmin?: boolean; defaultKind?: string }) {
+export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_dims" }: { jobId: string; isAdmin?: boolean; defaultKind?: string }) {
   const [files, setFiles] = useState<FilesByKind>({});
   const [kind, setKind] = useState<string>(defaultKind);
   const [uploading, setUploading] = useState(false);
@@ -107,7 +120,7 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "plans" }:
           </div>
           <div className="flex-1 min-w-[220px]">
             <label className="block text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">Add file</label>
-            {kind === "site" ? (
+            {kind === "09_site_photos" ? (
               <div className="flex gap-2">
                 {/* Camera — straight to rear camera */}
                 <label className="flex-1 flex items-center justify-center gap-1.5 bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded cursor-pointer transition-colors">
@@ -161,34 +174,4 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "plans" }:
                           <img
                             src={f.url}
                             alt=""
-                            className="w-12 h-12 object-cover rounded border border-white/10 shrink-0"
-                            loading="lazy"
-                          />
-                        )}
-                        <span className="text-white/70 text-xs truncate flex-1">{f.filename}</span>
-                        <span className="text-white/30 text-[10px] font-condensed uppercase tracking-widest shrink-0 ml-3">
-                          {fmtSize(f.size)} · {new Date(f.uploaded_at).toLocaleDateString()}
-                        </span>
-                      </a>
-                      {isAdmin && (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(k.key, f.filename); }}
-                          disabled={deleting === f.filename}
-                          title="Delete file (admin only)"
-                          className="ml-3 text-red-400/40 hover:text-red-400 text-[10px] font-condensed uppercase tracking-widest shrink-0 disabled:opacity-30"
-                        >
-                          {deleting === f.filename ? "..." : "Delete"}
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+                            className="w-12 h-12 object-cover rounded border border-white/10 sh

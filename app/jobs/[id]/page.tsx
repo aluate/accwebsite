@@ -140,8 +140,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </div>
           )}
 
-          {/* Photo upload — site kind pre-selected */}
-          <JobFilesPanel jobId={id} isAdmin={false} defaultKind="site" />
+          {/* Photo upload — site photos pre-selected */}
+          <JobFilesPanel jobId={id} isAdmin={false} defaultKind="09_site_photos" />
         </div>
       </div>
     );
@@ -342,6 +342,4 @@ function Row({ label, value, href }: { label: string; value?: string; href?: str
       ) : (
         <p className="text-white text-sm">{value}</p>
       )}
-    </div>
-  );
-}
+    </
