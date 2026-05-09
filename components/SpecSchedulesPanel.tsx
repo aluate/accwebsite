@@ -417,7 +417,6 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   const carcassOpts   = catalogs.carcassMaterials.map((c) => ({ id: c.id, name: c.name }));
   const drawerBoxOpts = catalogs.drawerBoxes.map((d) => ({ id: d.id, name: d.name }));
   const edgebandOpts  = catalogs.edgebands.map((e) => ({ id: e.id, name: e.product_name }));
-  const edgebandCatalogMap = useMemo(() => new Map(catalogs.edgebands.map((e) => [e.id, e])), [catalogs.edgebands]);
   const doorStyleOpts = catalogs.doorStyles.map((d) => ({ id: d.id, name: d.name }));
   const doorMatOpts   = catalogs.doorMaterials.map((m) => ({ id: m.id, name: m.name }));
   const cbEdgeOpts    = catalogs.cabDoorEdgeDetails.map((e) => ({ id: e.id, name: e.name }));
@@ -586,15 +585,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
         {fgEdgebands.map((e, idx) => (
           <div key={`${e.code}-${idx}`} className="grid grid-cols-12 gap-2 items-center mb-1.5 px-1">
             <div className="col-span-1 text-xs font-bold text-[#f08122]">{e.code}</div>
-            <div className="col-span-4">
-              <CatalogSelect value={e.edgeband_id} onChange={(v) => updateEdgeband(idx, { edgeband_id: v })} options={edgebandOpts} />
-              {e.edgeband_id && edgebandCatalogMap.get(e.edgeband_id) != null && (
-                <div className="text-[9px] text-white/40 mt-0.5 truncate">
-                  {edgebandCatalogMap.get(e.edgeband_id)?.supplier}
-                  {edgebandCatalogMap.get(e.edgeband_id)?.thickness_mm ? " · " + edgebandCatalogMap.get(e.edgeband_id)?.thickness_mm + "mm" : ""}
-                </div>
-              )}
-            </div>
+            <div className="col-span-4"><CatalogSelect value={e.edgeband_id} onChange={(v) => updateEdgeband(idx, { edgeband_id: v })} options={edgebandOpts} /></div>
             <div className="col-span-4">
               <select className={SELECT} value={e.where_used ?? ""} onChange={(ev) => updateEdgeband(idx, { where_used: ev.target.value || null })}>
                 <option value="">— select —</option>
@@ -718,4 +709,25 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
               </div>
               <div className="col-span-12">
                 <label className={LABEL}>Notes</label>
-                <input className={INPUT} value={c.notes ?? ""} onChange={(e) => updateCoun
+                <input className={INPUT} value={c.notes ?? ""} onChange={(e) => updateCountertop(idx, { notes: e.target.value || null })} placeholder="Optional…" />
+              </div>
+            </div>
+          </div>
+        ))}
+        <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors">+ Add Countertop</button>
+      </div>
+
+      {/* Save */}
+      <div className="flex justify-end pt-4 border-t border-white/10">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-6 py-2.5 rounded transition-colors"
+        >
+          {saving ? "Saving…" : "Save Schedules"}
+        </button>
+      </div>
+      {saveError && <p className="text-red-400 text-xs mt-2 text-right">{saveError}</p>}
+    </div>
+  );
+}
