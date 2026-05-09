@@ -56,9 +56,15 @@ export async function POST(req: NextRequest) {
 //   body: { id, active?, password?, must_change_pw?, name?, company?, email?, phone?, role? }
 //   Setting password also sets must_change_pw = 1 (Reset PW flow).
 export async function PATCH(req: NextRequest) {
-  const { id, active, password, must_change_pw, name, company, email, phone, role } = await req.json();
+  const { id, username, active, password, must_change_pw, name, company, email, phone, role } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
+  if (username?.trim()) {
+    const newUsername = username.trim().toLowerCase();
+    const [conflict] = await sql`SELECT id FROM builder_accounts WHERE username = ${newUsername} AND id != ${id}`;
+    if (conflict) return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+    await sql`UPDATE builder_accounts SET username = ${newUsername} WHERE id = ${id}`;
+  }
   if (typeof active === "number") {
     await sql`UPDATE builder_accounts SET active = ${active} WHERE id = ${id}`;
   }
@@ -82,14 +88,4 @@ export async function PATCH(req: NextRequest) {
     await sql`UPDATE builder_accounts SET email = ${email ?? null} WHERE id = ${id}`;
   }
   if (phone !== undefined) {
-    await sql`UPDATE builder_accounts SET phone = ${phone ?? null} WHERE id = ${id}`;
-  }
-
-  return NextResponse.json({ ok: true });
-}
-
-// DELETE /api/admin/builders?id=... — remove account
-export async function DELETE(req: NextRequest) {
-  const id = new URL(req.url).searchParams.get("id");
-  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
-  await sql`DELETE FROM builder_accounts WHER
+    await sql`UPDATE buil
