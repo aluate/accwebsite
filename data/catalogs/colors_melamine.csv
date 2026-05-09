@@ -24,16 +24,6 @@ MEL-SW-574,Stevenswood,Stevenswood,Elm,574,Natural Elm,Wood Matte,true,std,,Stev
 MEL-SW-596,Stevenswood,Stevenswood,Solid,596,Morning Fog,Warm Matte,false,std,,Stevenswood TFL solid,false
 MEL-SW-632,Stevenswood,Stevenswood,Solid,632,Midnight Espresso,Softex,false,std,,Stevenswood TFL solid,false
 MEL-SW-700,Stevenswood,Stevenswood,Solid,700,Insipid,Warm Matte,false,std,,Stevenswood TFL solid,false
-MEL-TF-PRELUDE-PLACEHOLDER,Tafisa,Prelude,Alto (A),—,Alto Series Placeholder,Alto (A),true,A,,Tafisa Prelude line — populate Alto colors from Tafisa rep,true
-MEL-TF-PRELUDE-C-PLACEHOLDER,Tafisa,Prelude,Crystalite (C),—,Crystalite Series Placeholder,Crystalite (C),true,A,,Tafisa Prelude line — Crystalite (matte),true
-MEL-TF-PRELUDE-I-PLACEHOLDER,Tafisa,Prelude,Isola (I),—,Isola Series Placeholder,Isola (I),true,A,,Tafisa Prelude line — Isola texture,true
-MEL-TF-PRELUDE-K-PLACEHOLDER,Tafisa,Prelude,Karisma (K),—,Karisma Series Placeholder,Karisma (K),true,A,,Tafisa Prelude line — Karisma texture,true
-MEL-TF-PRELUDE-S-PLACEHOLDER,Tafisa,Prelude,Smoothwood (S),—,Smoothwood Series Placeholder,Smoothwood (S),true,A,,Tafisa Prelude line — Smoothwood texture,true
-MEL-TF-PRELUDE-R-PLACEHOLDER,Tafisa,Prelude,Urbania (R),—,Urbania Series Placeholder,Urbania (R),true,A,,Tafisa Prelude line — Urbania texture,true
-MEL-TF-SOMMET-B-PLACEHOLDER,Tafisa,Sommet,Brava (B),—,Brava Series Placeholder,Brava (B),true,B,,Tafisa Sommet line — Brava texture,true
-MEL-TF-SOMMET-F-PLACEHOLDER,Tafisa,Sommet,Feria (F),—,Feria Series Placeholder,Feria (F),true,B,,Tafisa Sommet line — Feria texture,true
-MEL-TF-SOMMET-Y-PLACEHOLDER,Tafisa,Sommet,Viva (Y),—,Viva Series Placeholder,Viva (Y),true,B,,Tafisa Sommet line — Viva texture,true
-MEL-TF-MATERIA-PLACEHOLDER,Tafisa,Materia,Materia,—,Materia Series Placeholder,Materia,false,A,,Tafisa Materia matte line — newer launch,true
 MEL-CUSTOM,Custom,Custom Match,Custom,—,Other / Custom Match,—,false,custom,,Escape hatch — PM specifies supplier and code in finish notes,false
 MEL-EG-F416-ST10,Egger,Decorative Collection 26+,Next Level,F416 ST10,Beige Textile,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
 MEL-EG-F417-ST10,Egger,Decorative Collection 26+,Next Level,F417 ST10,Grey Textile,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
