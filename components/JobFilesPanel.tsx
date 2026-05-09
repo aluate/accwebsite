@@ -23,9 +23,9 @@ function fmtSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function JobFilesPanel({ jobId, isAdmin = false }: { jobId: string; isAdmin?: boolean }) {
+export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "plans" }: { jobId: string; isAdmin?: boolean; defaultKind?: string }) {
   const [files, setFiles] = useState<FilesByKind>({});
-  const [kind, setKind] = useState<string>("plans");
+  const [kind, setKind] = useState<string>(defaultKind);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);

@@ -69,6 +69,14 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
+              <form action="/api/auth/logout" method="POST">
+                <button
+                  type="submit"
+                  className="px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide text-white/30 hover:text-white/70 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </form>
             </nav>
 
             {/* Mobile */}
@@ -101,6 +109,16 @@ export function Header() {
                       {item.label}
                     </Link>
                   ))}
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <form action="/api/auth/logout" method="POST">
+                      <button
+                        type="submit"
+                        className="w-full text-left px-3 py-2.5 text-sm font-condensed uppercase tracking-wide text-white/30 hover:text-white/60 transition-colors"
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </div>
                 </nav>
               </SheetContent>
             </Sheet>

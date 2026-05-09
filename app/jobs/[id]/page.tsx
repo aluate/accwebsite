@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
@@ -32,59 +34,185 @@ type Job = {
   mod_residential: boolean; mod_commercial: boolean; mod_trim: boolean; mod_doors: boolean;
 };
 
+type JobEvent = {
+  id: string;
+  event_type: string;
+  date_start: string | null;
+  date_end: string | null;
+  note: string | null;
+  crew_name: string | null;
+  status: string;
+};
+
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await requireBuilder();
   const isAdmin = session.role === "admin";
+  const isInstaller = session.role === "installer";
+
   const [job] = await sql`SELECT * FROM jobs WHERE id = ${id}` as Job[];
   if (!job) notFound();
 
+  // ── Installer view — stripped down to essentials ──────────────────────────
+  if (isInstaller) {
+    const today = new Date().toISOString().slice(0, 10);
+    const events = await sql<JobEvent[]>`
+      SELECT je.id, je.event_type, je.date_start, je.date_end, je.note, je.status,
+             c.name AS crew_name
+      FROM job_events je
+      LEFT JOIN crews c ON c.id = je.crew_id
+      WHERE je.job_id = ${id}
+        AND je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
+        AND (je.date_end IS NULL OR je.date_end >= ${today})
+      ORDER BY je.date_start NULLS LAST
+    `;
+
+    const mapsUrl = `https://maps.apple.com/?q=${encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "))}`;
+    const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "))}`;
+
+    return (
+      <div className="min-h-screen bg-[#111] text-white">
+        {/* Compact header */}
+        <div className="sticky top-0 z-10 bg-[#111]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
+          <Link href="/installer" className="text-white/40 hover:text-[#f08122] transition-colors text-sm">
+            ← My Jobs
+          </Link>
+          <span className="text-white/15">|</span>
+          <span className="text-[#f08122] font-condensed uppercase tracking-widest text-xs">{job.id}</span>
+        </div>
+
+        <div className="px-4 py-5 max-w-lg mx-auto space-y-5">
+          {/* Client + address */}
+          <div>
+            <h1 className="font-heading text-2xl uppercase tracking-wide text-white">{job.client_name}</h1>
+            {(job.site_address || job.city) && (
+              <div className="mt-2 flex gap-2">
+                <a
+                  href={mapsUrl}
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white/80 hover:text-white hover:border-white/20 transition-colors"
+                >
+                  📍 {[job.site_address, job.city].filter(Boolean).join(", ")}
+                  <span className="block text-[#f08122] text-[10px] font-condensed uppercase tracking-widest mt-1">Open in Maps →</span>
+                </a>
+                <a
+                  href={gmapsUrl}
+                  className="bg-white/5 border border-white/10 rounded-lg px-3 py-3 text-white/40 hover:text-white hover:border-white/20 transition-colors text-xs font-condensed uppercase tracking-widest flex items-center"
+                >
+                  G
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Upcoming events */}
+          {events.length > 0 && (
+            <div>
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2">Your Schedule</p>
+              <div className="space-y-2">
+                {events.map((ev) => {
+                  const dateStr = ev.date_start
+                    ? ev.date_end && ev.date_end !== ev.date_start
+                      ? `${ev.date_start} – ${ev.date_end}`
+                      : ev.date_start
+                    : "TBD";
+                  const TYPE_LABELS: Record<string, string> = {
+                    install: "Install", cab_delivery: "Cab Delivery",
+                    top_delivery: "Top Delivery", punch: "Punch",
+                    final_walkthrough: "Final Walkthrough", service: "Service",
+                  };
+                  return (
+                    <div key={ev.id} className="bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[#f08122] text-[10px] font-condensed uppercase tracking-widest">
+                          {TYPE_LABELS[ev.event_type] ?? ev.event_type}
+                        </span>
+                        <span className="text-white/30 text-[10px] font-condensed">{ev.status}</span>
+                      </div>
+                      <p className="text-white/70 text-sm">{dateStr}</p>
+                      {ev.crew_name && <p className="text-white/40 text-xs mt-0.5">👷 {ev.crew_name}</p>}
+                      {ev.note && (
+                        <p className="mt-2 text-yellow-300/70 text-xs border-l-2 border-yellow-500/40 pl-2">{ev.note}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Photo upload — site kind pre-selected */}
+          <JobFilesPanel jobId={id} isAdmin={false} defaultKind="site" />
+        </div>
+      </div>
+    );
+  }
+
+  // ── PM / Admin / Engineer view ────────────────────────────────────────────
   const activeModules = MODULE_DEFS.filter((m) => job[m.key]);
   const inactiveModules = MODULE_DEFS.filter((m) => !job[m.key]);
 
   return (
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
       <Link
         href="/jobs"
-        className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors mb-8 block"
+        className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors mb-6 block"
       >
         ← All Jobs
       </Link>
 
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-10">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <p className="font-condensed text-[#f08122] uppercase tracking-widest text-sm mb-1">{job.id}</p>
           <h1 className="font-heading text-3xl uppercase tracking-wide text-white">{job.client_name}</h1>
           <p className="text-white/50 text-sm mt-1">{job.site_address}{job.city ? `, ${job.city}` : ""}</p>
         </div>
-        <div className="flex items-center gap-3">
-          {job.builder_name && (
-            <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
-              Express
+        {isAdmin && (
+          <div className="flex flex-wrap items-center gap-2">
+            {job.builder_name && (
+              <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
+                Express
+              </span>
+            )}
+            <span className={`text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 ${STATUS_COLOR[job.status] ?? STATUS_COLOR.intake}`}>
+              {job.status}
             </span>
-          )}
-          <span className={`text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 ${STATUS_COLOR[job.status] ?? STATUS_COLOR.intake}`}>
-            {job.status}
-          </span>
-          <Link
-            href={`/admin/jobs/${id}/portal`}
-            className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/15 hover:border-[#f08122] rounded px-3 py-1 transition-colors"
-            title="Builder portal config"
-          >
-            Portal
-          </Link>
-          <Link
-            href={`/jobs/${id}/edit`}
-            className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1 transition-colors"
-          >
-            Edit
-          </Link>
-        </div>
+            <Link
+              href={`/admin/jobs/${id}/portal`}
+              className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/15 hover:border-[#f08122] rounded px-3 py-1.5 transition-colors"
+            >
+              Portal
+            </Link>
+            <Link
+              href={`/jobs/${id}/edit`}
+              className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1.5 transition-colors"
+            >
+              Edit
+            </Link>
+          </div>
+        )}
+        {!isAdmin && (
+          <div className="flex items-center gap-2">
+            {job.builder_name && (
+              <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
+                Express
+              </span>
+            )}
+            <span className={`text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 ${STATUS_COLOR[job.status] ?? STATUS_COLOR.intake}`}>
+              {job.status}
+            </span>
+            <Link
+              href={`/jobs/${id}/edit`}
+              className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1.5 transition-colors"
+            >
+              Edit
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Status pipeline */}
-      <div className="flex mb-10 overflow-x-auto">
+      <div className="flex mb-8 overflow-x-auto">
         {STATUS_STEPS.map((s, i) => {
           const isCurrent = job.status === s;
           const isPast = STATUS_STEPS.indexOf(job.status) > i;
@@ -176,7 +304,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </button>
           </div>
 
-          {/* Schedule tab link */}
           <div className="mt-6 pt-4 border-t border-white/5">
             <Link
               href={`/jobs/${id}/schedule`}
@@ -186,7 +313,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </Link>
           </div>
 
-          {/* Phase 3a (2026-05): job-level file uploads */}
           <div className="mt-6">
             <JobFilesPanel jobId={id} isAdmin={isAdmin} />
           </div>

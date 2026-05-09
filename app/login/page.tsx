@@ -39,6 +39,8 @@ function LoginForm() {
       router.push(next);
     } else if (role === "installer") {
       router.push("/installer");
+    } else if (role === "engineer") {
+      router.push("/engineer");
     } else {
       router.push("/jobs");
     }
