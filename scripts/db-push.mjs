@@ -377,6 +377,7 @@ async function main() {
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_start TEXT`,
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_end   TEXT`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS must_change_pw INTEGER NOT NULL DEFAULT 0`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
@@ -397,8 +398,4 @@ async function main() {
     `;
   }
 
-  console.log("Schema push complete.");
-  await sql.end();
-}
-
-main().catch((e) => { console.error(e); process.exit(1); });
+  console.log("Schem
