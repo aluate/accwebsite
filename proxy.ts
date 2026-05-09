@@ -27,4 +27,14 @@ export function proxy(req: NextRequest) {
     const token = req.cookies.get(COOKIE_NAME)?.value;
     if (!token) {
       const loginUrl = req.nextUrl.clone();
-      loginUrl.
+      loginUrl.pathname = "/login";
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const proxyConfig = {
+  matcher: ["/express/:path*", "/api/express/:path*"],
+};
