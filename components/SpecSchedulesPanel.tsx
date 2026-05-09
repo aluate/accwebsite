@@ -417,7 +417,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   const carcassOpts   = catalogs.carcassMaterials.map((c) => ({ id: c.id, name: c.name }));
   const drawerBoxOpts = catalogs.drawerBoxes.map((d) => ({ id: d.id, name: d.name }));
   const edgebandOpts  = catalogs.edgebands.map((e) => ({ id: e.id, name: e.product_name }));
-  const doorStyleOpts = catalogs.doorStyles.map((d) => ({ id: d.id, name: d.name }));
+  const doorStyleOpts = catalogs.doorStyles.filter((d) => !d.placeholder).map((d) => ({ id: d.id, name: d.name }));
   const doorMatOpts   = catalogs.doorMaterials.map((m) => ({ id: m.id, name: m.name }));
   const cbEdgeOpts    = catalogs.cabDoorEdgeDetails.map((e) => ({ id: e.id, name: e.name }));
   const cbInsideOpts  = catalogs.cabDoorInsideProfiles.map((i) => ({ id: i.id, name: i.id }));
@@ -431,6 +431,23 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   const ctopStyleOpts = catalogs.countertopStyles.map((s) => ({ id: s.id, name: s.name }));
   const ctopEdgeOpts  = catalogs.countertopEdges.map((e) => ({ id: e.id, name: e.name }));
   const ctopMatOpts   = catalogs.countertopMaterials.map((m) => ({ id: m.id, name: m.name }));
+
+  // Completeness score for current FG
+  const completeness = useMemo(() => {
+    const checks: { label: string; ok: boolean }[] = [
+      { label: "Cab exterior material",   ok: !!fgMaterials.find(m => m.role === "cab_ext")?.material_id },
+      { label: "Door style (base)",        ok: !!fgDoorFronts.find(d => d.role === "base")?.style_id },
+      { label: "Door material (base)",     ok: !!fgDoorFronts.find(d => d.role === "base")?.material_id },
+      { label: "Drawer box",               ok: !!fgDrawers.find(d => d.role === "drawer_box")?.drawer_box_id },
+      { label: "Drawer slides",            ok: !!fgDrawers.find(d => d.role === "drawer_box")?.slides_id },
+      { label: "Hinges",                   ok: !!fgHardware.find(h => h.role === "hinges")?.hardware_id },
+      { label: fg.finish_type === "paint" ? "Paint color" : "Stain color",
+        ok: fg.finish_type === "paint" ? !!fgFinishUpdate.paint_id : !!fgFinishUpdate.stain_id },
+      { label: "Topcoat",                  ok: !!fgFinishUpdate.topcoat_id },
+    ];
+    const done = checks.filter(c => c.ok).length;
+    return { done, total: checks.length, missing: checks.filter(c => !c.ok).map(c => c.label) };
+  }, [fgMaterials, fgDoorFronts, fgDrawers, fgHardware, fgFinishUpdate, fg.finish_type]);
 
   return (
     <div className="space-y-4">
@@ -453,9 +470,12 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
 
       {/* Save bar */}
       <div className="flex items-center justify-between bg-[#0a0a0a] border border-white/10 rounded p-2">
-        <div className="text-xs text-white/60">
-          Editing schedules for: <span className="text-[#f08122] font-semibold">{fg.label}</span>
-          {" · "}<span className="text-white/40">{fg.finish_type}</span>
+        <div className="flex items-center gap-3 text-xs text-white/60">
+          <span>Editing: <span className="text-[#f08122] font-semibold">{fg.label}</span> · <span className="text-white/40">{fg.finish_type}</span></span>
+          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${completeness.done === completeness.total ? "bg-green-900/40 text-green-400" : completeness.done >= completeness.total / 2 ? "bg-yellow-900/40 text-yellow-400" : "bg-red-900/30 text-red-400"}`}
+            title={completeness.missing.length > 0 ? "Missing: " + completeness.missing.join(", ") : "All required fields filled"}>
+            {completeness.done}/{completeness.total} required
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {warnings.length > 0 && (
@@ -571,10 +591,19 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       <div className={CARD}>
         <div className="flex items-center justify-between mb-2 pb-1 border-b border-white/10">
           <div className="text-[11px] font-bold uppercase tracking-widest text-[#f08122]">Edgeband Schedule</div>
-          <button onClick={() => {
-            const next = prompt("New edgeband code (e.g. Y, Z, AA):");
-            if (next && next.trim()) addEdgebandCode(next.trim().toUpperCase());
-          }} className="text-[10px] text-white/60 hover:text-white">+ Add Code</button>
+          <div className="flex items-center gap-1">
+            <input id="eb-new-code" className="w-12 bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-[10px] text-white/80 uppercase placeholder:text-white/20 focus:outline-none focus:border-[#f08122]" maxLength={4} placeholder="Y…" onKeyDown={(ev) => {
+              if (ev.key === "Enter") {
+                const v = (ev.target as HTMLInputElement).value.trim().toUpperCase();
+                if (v) { addEdgebandCode(v); (ev.target as HTMLInputElement).value = ""; }
+              }
+            }} />
+            <button onClick={(ev) => {
+              const inp = (ev.currentTarget.previousSibling as HTMLInputElement);
+              const v = inp.value.trim().toUpperCase();
+              if (v) { addEdgebandCode(v); inp.value = ""; }
+            }} className="text-[10px] text-white/60 hover:text-white">+ Add</button>
+          </div>
         </div>
         <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-widest text-white/40 mb-1.5 px-1">
           <div className="col-span-1">Code</div>
@@ -632,13 +661,15 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       <div className={CARD}>
         <div className={SECTION_HDR}>Finish</div>
         <div className="grid grid-cols-5 gap-3">
-          <div>
+          <div className={fg.finish_type === "paint" ? "opacity-30 pointer-events-none" : ""}>
             <label className={LABEL}>Stain {fg.finish_type === "stain" && <span className="text-[#f08122]">*</span>}</label>
             <CatalogSelect value={fgFinishUpdate.stain_id} onChange={(v) => updateFinish({ stain_id: v })} options={stainOpts} />
+            {fg.finish_type === "paint" && <div className="text-[9px] text-white/30 mt-0.5">n/a — paint type</div>}
           </div>
-          <div>
+          <div className={fg.finish_type === "stain" ? "opacity-30 pointer-events-none" : ""}>
             <label className={LABEL}>Paint {fg.finish_type === "paint" && <span className="text-[#f08122]">*</span>}</label>
             <CatalogSelect value={fgFinishUpdate.paint_id} onChange={(v) => updateFinish({ paint_id: v })} options={paintOpts} />
+            {fg.finish_type === "stain" && <div className="text-[9px] text-white/30 mt-0.5">n/a — stain type</div>}
           </div>
           <div>
             <label className={LABEL}>Glaze</label>
