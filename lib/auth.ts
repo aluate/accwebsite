@@ -6,12 +6,12 @@ import sql from "@/lib/db";
 export const COOKIE_NAME = "acc_builder_session";
 const SESSION_DAYS = 30;
 
-export type Role = "admin" | "user" | "engineer";
+export type Role = "admin" | "user" | "engineer" | "partner" | "installer";
 export type BuilderSession = {
   id: string; username: string; name: string;
   company: string | null; email: string | null; role: Role;
 };
-export const ROLES: readonly Role[] = ["admin", "user", "engineer"] as const;
+export const ROLES: readonly Role[] = ["admin", "user", "engineer", "partner", "installer"] as const;
 
 export function hashPassword(pw: string): Promise<string> { return bcrypt.hash(pw, 12); }
 export function verifyPassword(pw: string, hash: string): Promise<boolean> { return bcrypt.compare(pw, hash); }
@@ -61,6 +61,4 @@ export async function requireRole(role: Role | Role[]): Promise<BuilderSession> 
   const builder = await requireBuilder();
   const wanted = Array.isArray(role) ? role : [role];
   if (builder.role === "admin") return builder;
-  if (!wanted.includes(builder.role)) redirect("/jobs");
-  return builder;
-}
+  if (!wanted.includes(buil
