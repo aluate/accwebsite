@@ -6,6 +6,7 @@ import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { ReleaseToProductionButton } from "@/components/ReleaseToProductionButton";
+import { SendSignoffButton } from "@/components/SendSignoffButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -296,12 +297,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3">
             <ReadyToScheduleButton jobId={id} />
-            <button
-              disabled
-              className="bg-[#f08122]/20 text-[#f08122]/50 font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded cursor-not-allowed"
-            >
-              Send DocuSign
-            </button>
+            <SendSignoffButton jobId={id} />
             <ReleaseToProductionButton jobId={id} currentStatus={job.status} />
           </div>
 
