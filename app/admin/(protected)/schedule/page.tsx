@@ -9,7 +9,7 @@ export default async function AdminSchedulePage() {
   }
 
   const [crews, pto, changeRequests, onDeckJobs] = await Promise.all([
-    sql`SELECT * FROM crews WHERE active = 1 ORDER BY name`,
+    sql`SELECT * FROM crews ORDER BY active DESC, name`,
     sql`
       SELECT p.*, c.name AS crew_name
       FROM crew_pto p JOIN crews c ON c.id = p.crew_id
@@ -39,7 +39,6 @@ export default async function AdminSchedulePage() {
       GROUP BY je.job_id, j.client_name, j.site_address
       ORDER BY latest_at DESC
     `,
-    sql`SELECT id, label, sort_order, active FROM event_phase_labels ORDER BY sort_order, label`,
   ]);
 
   return (

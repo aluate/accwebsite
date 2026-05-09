@@ -154,7 +154,7 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
               <select value={jobId} onChange={(e) => setJobId(e.target.value)} className={SELECT}>
                 <option value="">— Select Job —</option>
                 {jobs.map((j) => (
-                  <option key={j.id} value={j.id}>{j.id} — {j.client_name}</option>
+                  <option key={j.id} value={j.id}>{j.id} — {j.client_name}{j.site_address ? ` (${j.site_address})` : ""}</option>
                 ))}
               </select>
             </div>
