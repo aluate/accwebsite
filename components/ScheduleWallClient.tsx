@@ -412,6 +412,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
             onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
             onDragOverCell={(iso) => setDropTargetKey(iso)}
             onDrop={(id, iso) => handleDrop(id, iso)}
+            onEventClick={setSelectedEvent}
           />
         </div>
 
@@ -660,6 +661,111 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
           }}
         />
       )}
+{/* ── Job detail modal ─────────────────────────────────────────────── */}
+{selectedEvent && (() => {
+  const ev  = selectedEvent;
+  const job = jobs.find((j) => j.id === ev.job_id);
+  const col = crewColor(ev.crew_id, crews);
+  const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
+      onClick={() => setSelectedEvent(null)}
+    >
+      <div
+        className="bg-[#1a1a1a] border border-white/10 rounded-xl w-full max-w-sm shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="h-1.5 w-full" style={{ background: col.bar }} />
+        <div className="p-5 space-y-4">
+          <div>
+            <p className="text-[#f08122] text-xs font-condensed uppercase tracking-widest mb-0.5">{ev.job_id}</p>
+            <p className="text-white text-xl font-heading uppercase tracking-wide leading-tight">
+              {ev.job_client_name ?? ev.job_id}
+            </p>
+            {ev.description && (
+              <p className="text-white/50 text-xs font-condensed mt-1 italic">{ev.description}</p>
+            )}
+          </div>
+          <div className="bg-[#111] rounded-lg px-4 py-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Type</span>
+              <span className="text-white text-xs font-condensed uppercase tracking-widest">
+                {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+              </span>
+            </div>
+            {ev.crew_name && (
+              <div className="flex items-center justify-between">
+                <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Crew</span>
+                <span className="text-xs font-condensed" style={{ color: col.text }}>{ev.crew_name}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Dates</span>
+              <span className="text-white text-xs font-condensed">
+                {ev.date_start}{ev.date_end && ev.date_end !== ev.date_start ? ` → ${ev.date_end}` : ""}
+              </span>
+            </div>
+          </div>
+          {address && (
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
+            >
+              <span className="text-white/30 text-base mt-0.5">📍</span>
+              <div>
+                <p className="text-white text-sm leading-snug group-hover:text-[#f08122] transition-colors">{address}</p>
+                <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to open in Maps</p>
+              </div>
+            </a>
+          )}
+          {(job?.client_phone || job?.client_email) && (
+            <div className="space-y-2">
+              {job?.client_phone && (
+                <a
+                  href={`tel:${job.client_phone}`}
+                  className="flex items-center gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-white/30 text-base">📞</span>
+                  <div>
+                    <p className="text-white text-sm group-hover:text-[#f08122] transition-colors">{job.client_phone}</p>
+                    <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to call</p>
+                  </div>
+                </a>
+              )}
+              {job?.client_email && (
+                <a
+                  href={`mailto:${job.client_email}`}
+                  className="flex items-center gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-white/30 text-base">✉️</span>
+                  <div>
+                    <p className="text-white text-sm group-hover:text-[#f08122] transition-colors">{job.client_email}</p>
+                    <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to email</p>
+                  </div>
+                </a>
+              )}
+            </div>
+          )}
+          <a
+            href={`/jobs/${ev.job_id}`}
+            className="flex items-center justify-center gap-2 w-full bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-3 rounded-lg transition-colors"
+          >
+            Open Job File →
+          </a>
+          <button
+            onClick={() => setSelectedEvent(null)}
+            className="w-full text-white/30 hover:text-white/60 font-condensed uppercase tracking-widest text-xs py-2 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+})()}
     </section>
   );
 }
@@ -691,12 +797,13 @@ type SpanningCalendarProps = {
   onDragEnd: () => void;
   onDragOverCell: (iso: string) => void;
   onDrop: (id: string, iso: string) => void;
+  onEventClick: (ev: JobEventWithJoins) => void;
 };
 
 function SpanningCalendar({
   weeks, today, events, laneMap, crews, splitLabels, holidayMap,
   draggingId, dropTargetKey, isAdmin,
-  onDragStart, onDragEnd, onDragOverCell, onDrop,
+  onDragStart, onDragEnd, onDragOverCell, onDrop, onEventClick,
 }: SpanningCalendarProps) {
 
   const maxLanes = useMemo(() => {
@@ -736,7 +843,6 @@ function SpanningCalendar({
   );
 
   return (
-    <>
     <div className="select-none">
 
       {/* Day-of-week header */}
@@ -815,7 +921,7 @@ function SpanningCalendar({
                   draggable={isAdmin}
                   onDragStart={(e) => { e.stopPropagation(); if (isAdmin) onDragStart(ev.id); }}
                   onDragEnd={onDragEnd}
-                  onClick={(e) => { e.stopPropagation(); if (!draggingId) setSelectedEvent(ev); }}
+                  onClick={(e) => { e.stopPropagation(); if (!draggingId) onEventClick(ev); }}
                   className={`absolute flex items-center overflow-hidden text-[9px] font-condensed ${
                     isAdmin ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                   }`}
@@ -862,111 +968,5 @@ function SpanningCalendar({
       })}
     </div>
 
-    {/* ── Job detail modal ─────────────────────────────────────────────── */}
-    {selectedEvent && (() => {
-      const ev  = selectedEvent;
-      const job = jobs.find((j) => j.id === ev.job_id);
-      const col = crewColor(ev.crew_id, crews);
-      const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
-      return (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
-          onClick={() => setSelectedEvent(null)}
-        >
-          <div
-            className="bg-[#1a1a1a] border border-white/10 rounded-xl w-full max-w-sm shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="h-1.5 w-full" style={{ background: col.bar }} />
-            <div className="p-5 space-y-4">
-              <div>
-                <p className="text-[#f08122] text-xs font-condensed uppercase tracking-widest mb-0.5">{ev.job_id}</p>
-                <p className="text-white text-xl font-heading uppercase tracking-wide leading-tight">
-                  {ev.job_client_name ?? ev.job_id}
-                </p>
-                {ev.description && (
-                  <p className="text-white/50 text-xs font-condensed mt-1 italic">{ev.description}</p>
-                )}
-              </div>
-              <div className="bg-[#111] rounded-lg px-4 py-3 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Type</span>
-                  <span className="text-white text-xs font-condensed uppercase tracking-widest">
-                    {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
-                  </span>
-                </div>
-                {ev.crew_name && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Crew</span>
-                    <span className="text-xs font-condensed" style={{ color: col.text }}>{ev.crew_name}</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Dates</span>
-                  <span className="text-white text-xs font-condensed">
-                    {ev.date_start}{ev.date_end && ev.date_end !== ev.date_start ? ` → ${ev.date_end}` : ""}
-                  </span>
-                </div>
-              </div>
-              {address && (
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
-                >
-                  <span className="text-white/30 text-base mt-0.5">📍</span>
-                  <div>
-                    <p className="text-white text-sm leading-snug group-hover:text-[#f08122] transition-colors">{address}</p>
-                    <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to open in Maps</p>
-                  </div>
-                </a>
-              )}
-              {(job?.client_phone || job?.client_email) && (
-                <div className="space-y-2">
-                  {job?.client_phone && (
-                    <a
-                      href={`tel:${job.client_phone}`}
-                      className="flex items-center gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
-                    >
-                      <span className="text-white/30 text-base">📞</span>
-                      <div>
-                        <p className="text-white text-sm group-hover:text-[#f08122] transition-colors">{job.client_phone}</p>
-                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to call</p>
-                      </div>
-                    </a>
-                  )}
-                  {job?.client_email && (
-                    <a
-                      href={`mailto:${job.client_email}`}
-                      className="flex items-center gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
-                    >
-                      <span className="text-white/30 text-base">✉️</span>
-                      <div>
-                        <p className="text-white text-sm group-hover:text-[#f08122] transition-colors">{job.client_email}</p>
-                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to email</p>
-                      </div>
-                    </a>
-                  )}
-                </div>
-              )}
-              <a
-                href={`/jobs/${ev.job_id}`}
-                className="flex items-center justify-center gap-2 w-full bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-3 rounded-lg transition-colors"
-              >
-                Open Job File →
-              </a>
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="w-full text-white/30 hover:text-white/60 font-condensed uppercase tracking-widest text-xs py-2 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    })()}
-    </>
   );
 }
