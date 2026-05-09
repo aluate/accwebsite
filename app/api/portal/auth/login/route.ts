@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { verifyPassword, createPortalSession, PORTAL_COOKIE } from "@/lib/portal-auth";

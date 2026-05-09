@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { transitionApproval, type ApprovalState } from "@/lib/approvals";
 import { sql, uid } from "@/lib/db";

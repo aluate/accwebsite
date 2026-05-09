@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { deletePortalSession, PORTAL_COOKIE } from "@/lib/portal-auth";

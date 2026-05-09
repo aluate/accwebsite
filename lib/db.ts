@@ -57,10 +57,4 @@ export async function nextJobId(): Promise<{ id: string; seq: number }> {
   const [row] = await sql`
     UPDATE seq SET val = val + 1 WHERE id = 1 RETURNING val
   `;
-  const seq = row.val as number;
-  const year = new Date().getFullYear();
-  return {
-    id: `ACC-${year}-${String(seq).padStart(4, "0")}`,
-    seq,
-  };
-}
+  const seq = row.val as

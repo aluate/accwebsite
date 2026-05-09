@@ -318,7 +318,8 @@ export type CountertopStyle    = { id: string; name: string; description: string
 export type CountertopEdge     = { id: string; name: string; description: string | null; notes: string | null };
 export type CountertopMaterial = { id: string; name: string; category: string | null; brand_examples: string | string[] | null; notes: string | null };
 
-// -- Loader registry ----------------------------------------------------------
+
+// ── Loader registry ───────────────────────────────────────────────
 
 export const catalogs = {
   paintColors:    () => load<PaintColor>("colors_paint"),
@@ -387,17 +388,4 @@ export const catalogs = {
     }
   },
 
-  countertopStyles:    () => load<CountertopStyle>("countertop_styles"),
-  countertopEdges:     () => load<CountertopEdge>("countertop_edges"),
-  countertopMaterials: () => load<CountertopMaterial>("countertop_materials"),
-
-  doorCatalog: (): DoorCatalog => {
-    const file = path.join(DIR, "doors_catalog.json");
-    return JSON.parse(fs.readFileSync(file, "utf-8")) as DoorCatalog;
-  },
-  cabinetFamilies: (): CabinetFamily[] => {
-    const file = path.join(DIR, "cabinets_catalog.json");
-    const raw = JSON.parse(fs.readFileSync(file, "utf-8")) as Record<string, Omit<CabinetFamily, "family_code">>;
-    return Object.entries(raw).map(([family_code, data]) => ({ family_code, ...data }));
-  },
-};
+  countertopStyles:    () => load<

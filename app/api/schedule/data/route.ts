@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 /**
  * One-shot bootstrap for the schedule wall view (/schedule).
  *

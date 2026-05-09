@@ -11,10 +11,17 @@ import { renderSpecPDF } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-init: avoid module-level throw when env vars are missing at build time.
+let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabaseAdmin;
+}
 
 const DISCLOSURE_STORAGE_PATH = "templates/residential-disclosure.pdf";
 const STORAGE_BUCKET = "job-files";
@@ -53,7 +60,7 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   if (drawingRows.length > 0) {
     const { storage_path, filename } = drawingRows[0] as { storage_path: string; filename: string };
     drawingFile = filename;
-    const { data: fileData, error } = await supabaseAdmin.storage
+    const { data: fileData, error } = await getSupabaseAdmin().storage
       .from(STORAGE_BUCKET)
       .download(storage_path);
     if (!error && fileData) {
@@ -69,7 +76,7 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   const wantsDisclosure = isResidentialJob(job?.builder_company);
   let disclosureBuf: Buffer | null = null;
   if (wantsDisclosure) {
-    const { data: discData, error: discError } = await supabaseAdmin.storage
+    const { data: discData, error: discError } = await getSupabaseAdmin().storage
       .from(STORAGE_BUCKET)
       .download(DISCLOSURE_STORAGE_PATH);
     if (!discError && discData) {
