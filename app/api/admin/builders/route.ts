@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "username, password, and name are required" }, { status: 400 });
   }
 
-  const safeRole = role === "admin" ? "admin" : role === "engineer" ? "engineer" : "user";
+  const VALID_ROLES = ["admin", "engineer", "installer", "partner", "user"];
+  const safeRole = VALID_ROLES.includes(role) ? role : "user";
 
   const [existing] = await sql`SELECT id FROM builder_accounts WHERE username = ${username.trim().toLowerCase()}`;
   if (existing) {
@@ -68,7 +69,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof must_change_pw === "number") {
     await sql`UPDATE builder_accounts SET must_change_pw = ${must_change_pw} WHERE id = ${id}`;
   }
-  if (role === "admin" || role === "user" || role === "engineer") {
+  if (["admin", "engineer", "installer", "partner", "user"].includes(role)) {
     await sql`UPDATE builder_accounts SET role = ${role} WHERE id = ${id}`;
   }
   if (name !== undefined) {
@@ -91,6 +92,4 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
-  await sql`DELETE FROM builder_accounts WHERE id = ${id}`;
-  return NextResponse.json({ ok: true });
-}
+  await sql`DELETE FROM builder_accounts WHER
