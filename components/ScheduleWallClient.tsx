@@ -480,7 +480,13 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
           </button>
           <div className="text-center">
             <p className="font-heading text-base uppercase tracking-wide text-white">
-              {new Date(mobileDay + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+              {(() => {
+                const [y, m, d] = mobileDay.split("-").map(Number);
+                const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                const dow = new Date(y, m - 1, d).getDay();
+                return `${DOW[dow]}, ${MON[m - 1]} ${d}`;
+              })()}
             </p>
             {mobileDay === today && (
               <p className="text-[#f08122] text-[10px] font-condensed uppercase tracking-widest">Today</p>
