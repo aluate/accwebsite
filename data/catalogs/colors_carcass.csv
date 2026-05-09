@@ -1,6 +1,7 @@
-id,name,material_class,species,prefinish,notes,is_other
-CAR-001,Hardrock Maple PB,particleboard,maple,prefinished,Standard ACC carcass for melamine-fronted jobs,false
-CAR-002,Prefinished Plywood — Maple,plywood,maple,prefinished,Default plywood option — specify when paint/stain doors are upgraded to ply box,false
-CAR-003,Prefinished Plywood — Birch,plywood,birch,prefinished,Cheaper plywood alt — preserves option when maple ply is unavailable or over budget,false
-CAR-004,White PB,particleboard,n/a,white_melamine,Rare — only when the customer specifically asks for it,false
-CAR-099,Other (specify in notes),other,,,Escape hatch — PM must enter material in the per-finish notes field,true
+id,name,material_class,species,prefinish,supplier_code,notes,is_other
+CAR-001,Hardrock Maple Melamine,particleboard,maple,prefinished,HARDROCK MAPLE MEL,"Standard ACC carcass for melamine-fronted jobs. Drawing label: HARDROCK MAPLE MEL. Must be called out with supplier code — ambiguous ""Plywood Box"" language caused $70k error on Spivey job.",false
+CAR-002,Prefinished Maple Plywood,plywood,maple,prefinished,PF MAPLE PLY,Premium plywood box — used when paint/stain doors are upgraded. Drawing label: PF Maple Ply or PREFIN. MAPLE PLYWOOD. Must specify SKU — see CAR-001 incident note.,false
+CAR-003,Prefinished Maple Plywood — Mel Ply Variant,plywood,maple,melamine_coated,MAPLE MEL PLY,Melamine-coated plywood box. Drawing label: Maple Mel Ply (Spivey). Same substrate as CAR-002 but melamine face instead of raw prefinish. Confirm SKU with purchasing.,false
+CAR-004,Prefinished Birch Plywood,plywood,birch,prefinished,PF BIRCH PLY,Cheaper plywood alt — use when maple ply is unavailable or over budget,false
+CAR-005,White Particleboard,particleboard,n/a,white_melamine,WHITE PB,Rare — only when customer specifically asks,false
+CAR-099,Other (specify in notes),other,,,,Escape hatch — PM must enter material in the per-finish notes field,true

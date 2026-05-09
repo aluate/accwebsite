@@ -1,8 +1,7 @@
 id,name,brand,model,type,overlay,close,notes
 HH-000,None (push-to-open),—,—,—,—,—,No hinge — push-to-open or trackball
-HH-BLU-001,Blum Compact 38N Blumotion 1/2 Overlay,Blum,38N355B.08,euro_concealed,1/2,soft-close,Most common ACC hinge
-HH-BLU-002,Blum Compact 38N Blumotion Full Overlay,Blum,38N355B.16,euro_concealed,full,soft-close,Full overlay variant
-HH-BLU-003,Blum Compact 38N Inset,Blum,38N355B.00,euro_concealed,inset,soft-close,Inset doors
-HH-BLU-004,Blum CLIP top BLUMOTION 110-degree,Blum,71B3550,euro_concealed,full,soft-close,Premium concealed hinge
-HH-SAL-001,Salice Series 200 Soft-Close 1/2 Overlay,Salice,C2APE99,euro_concealed,1/2,soft-close,Salice equivalent
+HH-BLU-110,Blum 110 CLIP top Blumotion Soft Close,Blum,71B3550,euro_concealed,full,soft-close,Standard ACC hinge — drawing label: Blum 110 Int-Soft Close
+HH-BLU-120,Blum 120 CLIP top Blumotion Soft Close,Blum,71B3750,euro_concealed,full,soft-close,"Wide-opening variant — drawing label: Blum 120, Soft Close. Used on pantries, corner cabs. Spivey, Bissell (2026 jobs)."
+HH-BLU-38N,Blum Compact 38N Blumotion 1/2 Overlay,Blum,38N355B.08,euro_concealed,1/2,soft-close,Half overlay variant
+HH-BLU-INSET,Blum Compact 38N Inset,Blum,38N355B.00,euro_concealed,inset,soft-close,Inset doors
 HH-099,Other,—,—,—,—,—,Specify in notes

@@ -8,3 +8,21 @@ EB-006,ESI PVC Black,ESI,pvc,black,paint,0.4,15/16,Generic black PVC for painted
 EB-007,Custom Hardwood — Paint to Match,Internal,hardwood,custom,paint;stain,3.0,15/16,Solid hardwood applied edge then painted to match — flags Finishing Dept,false
 EB-008,Custom Hardwood — Stain to Match,Internal,hardwood,custom,stain,3.0,15/16,Solid hardwood applied edge then stained to match — flags Finishing Dept,false
 EB-099,Other (specify in notes),Custom,custom,,all,,,Escape hatch when none of the above fit,false
+EB-ESI-3103,ESI 3103 Dulce Vita,ESI,pvc,warm beige/taupe,stain;paint,1.0,15/16,Used with BELLINI finish on alder (Stancraft Smith Lake),false
+EB-ESI-8726TF,ESI 8726TF Ebony Recon,ESI,pvc,dark ebony,stain,1.0,15/16,Used with Custom Dark Stain (Stancraft Smith Lake),false
+EB-ESI-30421TF,ESI 30421TF Finish Oak,ESI,pvc,natural oak,stain,0.018in,15/16,Pairs with RC White Oak veneer / NATURAL stain (Pritchette),false
+EB-ESI-8677,ESI 8677 Formica Scandi Rift Oak,ESI,pvc,scandi rift oak,stain,1.0,15/16,Pairs with GIMLET stain on RC White Oak (Bush Legacy),false
+EB-ESI-2416KTF,ESI 2416KTF Black Rift,ESI,pvc,black rift,paint,0.018in,15/16,Pairs with painted-black (SW Tricorn Black) veneer cabs (Vulpine),false
+EB-ESI-30320YMTF,ESI 30320YMTF Millenium Oak,ESI,pvc,millenium oak,stain,0.018in,15/16,Pairs with BELLINI stain on PS White Oak veneer (Vulpine Matterhorn),false
+EB-ESI-8306TF,ESI 8306TF Natural Teak,ESI,pvc,natural teak,stain,0.018in,15/16,Pairs with Knotty Alder / Amaretto stain (Bissell),false
+EB-ESI-20229,ESI 20229 Midnight Sun,ESI,pvc,dark charcoal,paint,0.018in,15/16,Pairs with SW Iron Ore painted island (Bissell),false
+EB-ESI-4905,ESI ESI-4905 Maple Melamine,ESI,melamine,maple melamine,melamine,0.018in,15/16,Standard interior edgeband — adjustable shelves and unfinished bottoms. Used in nearly every job.,false
+EB-AGT-P723,AGT P723 Pearl Black,AGT,pvc,AGT Pearl Black 3010,melamine,1.0,15/16,Matches AGT Pearl Black 3010 melamine (Pritchette),false
+EB-AGT-3002,AGT 3002 Dark Grey Soft Touch,AGT,pvc,AGT Dark Grey Matte Soft Touch,melamine,1.0,15/16,Matches AGT Dark Grey Matte Soft Touch 3002 (Kenny Debaene),false
+EB-TAFISA-L583K,Tafisa L583 (K) First Class,Tafisa,melamine,Tafisa First Class,melamine,1.0,15/16,Matches Tafisa First Class L583 (Atlas Plant 6549),false
+EB-TAFISA-L582K,Tafisa L582 (K) Fashionista,Tafisa,melamine,Tafisa Fashionista,melamine,1.0,15/16,"Matches Tafisa Fashionista L582 (Kenny, Woolridge)",false
+EB-UNIBOARD-K15,Uniboard K15 Cannes Riviera Oak,Uniboard,melamine,Uniboard K15 Cannes Riviera Oak,melamine,1.0,15/16,Matches Uniboard K15 Cannes Riviera Oak melamine (Stancraft Smith Lake),false
+EB-SW-G86,Stevenswood G86 Grigio Notte,Stevenswood,melamine,Stevenswood Grigio Notte,melamine,1.0,15/16,Matches Stevenswood G86 Grigio Notte melamine (Spivey),false
+EB-SW-0065-PTM,S.W. SW 0065 Vogue Green (Paint to Match),SW,paint_to_match,SW Vogue Green,paint,0.018in,15/16,Edgeband painted to match door color — Bissell Bar,false
+EB-HMmaple,Hardrock Maple EB (Stock),ESI,melamine,Hardrock Maple Melamine,melamine,0.018in,15/16,Standard interior shelves and unfinished ends — stock. Used in virtually every job for I and U positions.,false
+EB-PFMAPLE-DRAWER,PF Maple (Drawer Box),Stock,melamine,Prefinished Maple,all,0.018in,15/16,Standard B and C positions (drawer box sides and F&B) — stock in every job,false

@@ -57,7 +57,7 @@ export type DrawerView = {
 };
 
 export type EdgebandView = {
-  code: string; edgeband_name: string;
+  code: string; edgeband_name: string; supplier: string; thickness: string;
   where_used_label: string; notes: string;
 };
 
@@ -516,13 +516,29 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
           <Band title="Edgebands" />
           {fg.edgebands.length === 0 ? (
             <Text style={S.empty}>No edgebands specified.</Text>
-          ) : fg.edgebands.map((e, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 0.6 }]}>{e.code}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{e.edgeband_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{e.where_used || "—"}</Text>
-            </View>
-          ))}
+          ) : (
+            <>
+              {/* Header row — matches drawing format */}
+              <View style={[S.tRow, { backgroundColor: "#e8e8e8" }]}>
+                <Text style={[S.tCell, { flex: 0.5, fontWeight: "bold" }]}>ID</Text>
+                <Text style={[S.tCell, { flex: 0.8, fontWeight: "bold" }]}>Thickness</Text>
+                <Text style={[S.tCell, { flex: 1.2, fontWeight: "bold" }]}>Mfr #</Text>
+                <Text style={[S.tCell, { flex: 2, fontWeight: "bold" }]}>Description</Text>
+                <Text style={[S.tCell, { flex: 2, fontWeight: "bold" }]}>Where Used</Text>
+                <Text style={[S.tCell, { flex: 1.5, fontWeight: "bold" }]}>Notes</Text>
+              </View>
+              {fg.edgebands.map((e, i) => (
+                <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                  <Text style={[S.tCell, { flex: 0.5 }]}>{e.code}</Text>
+                  <Text style={[S.tCell, { flex: 0.8 }]}>{e.thickness || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 1.2 }]}>{e.supplier || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 2 }]}>{e.edgeband_name || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 2 }]}>{e.where_used_label || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 1.5 }]}>{e.notes || ""}</Text>
+                </View>
+              ))}
+            </>
+          )}
         </View>
 
         <View style={S.colRight}>
@@ -552,31 +568,3 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
 
           {/* Countertops */}
           <Band title="Countertops" />
-          {(!fg.countertops || fg.countertops.length === 0) ? (
-            <Text style={S.empty}>No countertops specified.</Text>
-          ) : fg.countertops.map((c, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.2 }]}>{c.location || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{c.style_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{c.material_name || "—"}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-      <PageFooter data={data} />
-    </Page>
-  );
-}
-
-// ─── Main exported renderer ────────────────────────────────────────────────
-
-export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
-  return (
-    <Document>
-      <CoverPage data={data} />
-      {data.finish_groups.map((fg, i) => (
-        <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
-      ))}
-    </Document>
-  );
-}

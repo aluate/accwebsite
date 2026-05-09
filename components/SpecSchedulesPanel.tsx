@@ -53,6 +53,16 @@ const DRAWER_ROLES = [
 ] as const;
 
 const EDGEBAND_CODES_DEFAULT = ["D", "E", "I", "V", "U", "B", "C", "X"] as const;
+const CODE_TO_WHERE_USED: Record<string, string> = {
+  D: "applied_ends_doors_dwr_fronts",
+  E: "cabinet_body_parts",
+  I: "adjustable_shelves",
+  V: "bottom_upper_fe",
+  U: "bottom_upper_unfe",
+  B: "drawer_box_sides",
+  C: "drawer_box_front_back",
+  X: "misc",
+};
 const EDGEBAND_WHERE_USED_OPTIONS = [
   { value: "applied_ends_doors_dwr_fronts", label: "Applied Ends / Doors & Drawer Fronts" },
   { value: "cabinet_body_parts",            label: "Cabinet Body Parts" },
@@ -258,7 +268,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       edgebands.filter((e) => e.finish_group_id === activeFgId),
       EDGEBAND_CODES_DEFAULT.map((c) => ({ code: c })),
       activeFgId,
-      (k) => ({ finish_group_id: activeFgId, code: k, edgeband_id: null, where_used: null, notes: null, sort_order: 0 }),
+      (k) => ({ finish_group_id: activeFgId, code: k, edgeband_id: null, where_used: CODE_TO_WHERE_USED[k] ?? null, notes: null, sort_order: 0 }),
       "code",
     ),
     [edgebands, activeFgId]);
@@ -315,7 +325,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
     });
   }
   function addEdgebandCode(code: string) {
-    setEdgebands((all) => [...all, { finish_group_id: activeFgId, code, edgeband_id: null, where_used: null, notes: null, sort_order: 100 }]);
+    setEdgebands((all) => [...all, { finish_group_id: activeFgId, code, edgeband_id: null, where_used: CODE_TO_WHERE_USED[code] ?? null, notes: null, sort_order: 100 }]);
   }
   function updateHardware(idx: number, patch: Partial<HardwareRowS>) {
     setHardware((all) => {
@@ -407,6 +417,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   const carcassOpts   = catalogs.carcassMaterials.map((c) => ({ id: c.id, name: c.name }));
   const drawerBoxOpts = catalogs.drawerBoxes.map((d) => ({ id: d.id, name: d.name }));
   const edgebandOpts  = catalogs.edgebands.map((e) => ({ id: e.id, name: e.product_name }));
+  const edgebandCatalogMap = useMemo(() => new Map(catalogs.edgebands.map((e) => [e.id, e])), [catalogs.edgebands]);
   const doorStyleOpts = catalogs.doorStyles.map((d) => ({ id: d.id, name: d.name }));
   const doorMatOpts   = catalogs.doorMaterials.map((m) => ({ id: m.id, name: m.name }));
   const cbEdgeOpts    = catalogs.cabDoorEdgeDetails.map((e) => ({ id: e.id, name: e.name }));
@@ -575,7 +586,10 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
         {fgEdgebands.map((e, idx) => (
           <div key={`${e.code}-${idx}`} className="grid grid-cols-12 gap-2 items-center mb-1.5 px-1">
             <div className="col-span-1 text-xs font-bold text-[#f08122]">{e.code}</div>
-            <div className="col-span-4"><CatalogSelect value={e.edgeband_id} onChange={(v) => updateEdgeband(idx, { edgeband_id: v })} options={edgebandOpts} /></div>
+            <div className="col-span-4">
+              <CatalogSelect value={e.edgeband_id} onChange={(v) => updateEdgeband(idx, { edgeband_id: v })} options={edgebandOpts} />
+              {e.edgeband_id && (() => { const cat = edgebandCatalogMap.get(e.edgeband_id); return cat ? <div className="text-[9px] text-white/40 mt-0.5 truncate">{cat.supplier}{cat.thickness_mm ? ` · ${cat.thickness_mm}mm` : ""}</div> : null; })()}
+            </div>
             <div className="col-span-4">
               <select className={SELECT} value={e.where_used ?? ""} onChange={(ev) => updateEdgeband(idx, { where_used: ev.target.value || null })}>
                 <option value="">— select —</option>
@@ -704,20 +718,4 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
             </div>
           </div>
         ))}
-        <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors">+ Add Countertop</button>
-      </div>
-
-      {/* Save */}
-      <div className="flex justify-end pt-4 border-t border-white/10">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-6 py-2.5 rounded transition-colors"
-        >
-          {saving ? "Saving…" : "Save Schedules"}
-        </button>
-      </div>
-      {saveError && <p className="text-red-400 text-xs mt-2 text-right">{saveError}</p>}
-    </div>
-  );
-}
+        <button 

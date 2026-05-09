@@ -25,3 +25,7 @@ PNT-SW-7018,SW,Grays,SW 7018,Dovetail,#8C857D,false,false,Mid-tone gray · Coati
 PNT-SW-7045,SW,Grays,SW 7045,Intellectual Gray,#8C8880,false,false,Cool dark gray · Coating: ML Campbell (ACC standard)
 PNT-SW-SWFULL-PLACEHOLDER,SW,(Full Catalog),—,Full SW catalog ingest pending,,false,true,~1700 SW colors total — load via SW color visualizer export
 PNT-CUSTOM,Custom,Custom Match,—,Other / Custom Match,,true,false,Escape hatch — PM specifies brand + code or sample reference in finish notes
+PNT-SW-6258,SW,Dark Colors,SW 6258,Tricorn Black,#101010,false,false,Very popular dark cabinet color — near-true black. Coating: ML Campbell (ACC standard)
+PNT-SW-7069,SW,Dark Colors,SW 7069,Iron Ore,#3D3B38,false,false,Dark charcoal with warm undertone — very common on kitchen islands. Coating: ML Campbell
+PNT-SW-0065,SW,Greens,SW 0065,Vogue Green,#4A5E4A,false,false,Deep muted green — Bissell Bar cabinetry. Coating: ML Campbell
+PNT-SW-6991,SW,Dark Colors,SW 6991,Black Magic,#1A1A18,false,false,True black — KRIS 10573 Friar job. Coating: ML Campbell

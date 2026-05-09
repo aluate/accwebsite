@@ -147,3 +147,10 @@ MEL-TN-G86,TruNorth,TruNorth (Artica),Solid,G86,Gregio Notte,Artica,true,std,,Tr
 MEL-TN-G87,TruNorth,TruNorth (Artica),Rustik,G87,Cannella Rustik,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
 MEL-TN-G88,TruNorth,TruNorth (Artica),Rustik,G88,Natural Rustik,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
 MEL-TN-G92,TruNorth,TruNorth (Artica),Solid,G92,Drift Loud,Artica,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
+MEL-AGT-3010,AGT,AGT (Solid),Solid,3010,Pearl Black,Matte,false,std,#111111,"AGT Pearl Black 3010 — Pritchette Residence, multiple jobs",false
+MEL-AGT-3002,AGT,AGT (Soft Touch),Soft Touch,3002,Dark Grey Matte Soft Touch,Soft Touch Matte,false,std,#4A4A4A,AGT Dark Grey Matte Soft Touch 3002 — Kenny Debaene,false
+MEL-UNI-K15,Uniboard,Uniboard (Oak),Oak,K15,Cannes Riviera Oak,Wood Matte,true,std,,Uniboard K15 — Stancraft Smith Lake House,false
+MEL-TA-L582K,Tafisa,Tafisa (Melamine),Melamine,L582 (K),Fashionista,Horizontal Grain,true,std,,"Tafisa Fashionista L582 (K) — Kenny Debaene, Woolridge. Horizontal grain.",false
+MEL-TA-L583K,Tafisa,Tafisa (Melamine),Melamine,L583 (K),First Class,Horizontal Grain,true,std,,Tafisa First Class L583 (K) — Atlas Plant 6549. Horizontal grain.,false
+MEL-TA-T581,Tafisa,Tafisa (Melamine),Melamine,T581,Sheer Beauty,Vertical Grain,true,std,,Tafisa Sheer Beauty T581 — Spivey Residence,false
+MEL-TA-T2013,Tafisa,Tafisa (Melamine),Melamine,T2013,Summertime Blues,Vertical Grain,true,std,,Tafisa Summertime Blues T2013 — Spivey Residence,false
