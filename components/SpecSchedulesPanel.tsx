@@ -588,7 +588,12 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
             <div className="col-span-1 text-xs font-bold text-[#f08122]">{e.code}</div>
             <div className="col-span-4">
               <CatalogSelect value={e.edgeband_id} onChange={(v) => updateEdgeband(idx, { edgeband_id: v })} options={edgebandOpts} />
-              {e.edgeband_id && (() => { const cat = edgebandCatalogMap.get(e.edgeband_id); return cat ? <div className="text-[9px] text-white/40 mt-0.5 truncate">{cat.supplier}{cat.thickness_mm ? ` · ${cat.thickness_mm}mm` : ""}</div> : null; })()}
+              {e.edgeband_id && edgebandCatalogMap.get(e.edgeband_id) != null && (
+                <div className="text-[9px] text-white/40 mt-0.5 truncate">
+                  {edgebandCatalogMap.get(e.edgeband_id)?.supplier}
+                  {edgebandCatalogMap.get(e.edgeband_id)?.thickness_mm ? " · " + edgebandCatalogMap.get(e.edgeband_id)?.thickness_mm + "mm" : ""}
+                </div>
+              )}
             </div>
             <div className="col-span-4">
               <select className={SELECT} value={e.where_used ?? ""} onChange={(ev) => updateEdgeband(idx, { where_used: ev.target.value || null })}>
@@ -713,9 +718,4 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
               </div>
               <div className="col-span-12">
                 <label className={LABEL}>Notes</label>
-                <input className={INPUT} value={c.notes ?? ""} onChange={(e) => updateCountertop(idx, { notes: e.target.value || null })} placeholder="Optional…" />
-              </div>
-            </div>
-          </div>
-        ))}
-        <button 
+                <input className={INPUT} value={c.notes ?? ""} onChange={(e) => updateCoun
