@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 }
 
 // PATCH /api/admin/builders — update account
-//   body: { id, active?, password?, must_change_pw?, name?, company?, email?, phone?, role? }
+//   body: { id, username?, active?, password?, must_change_pw?, name?, company?, email?, phone?, role? }
 //   Setting password also sets must_change_pw = 1 (Reset PW flow).
 export async function PATCH(req: NextRequest) {
   const { id, username, active, password, must_change_pw, name, company, email, phone, role } = await req.json();
@@ -88,4 +88,16 @@ export async function PATCH(req: NextRequest) {
     await sql`UPDATE builder_accounts SET email = ${email ?? null} WHERE id = ${id}`;
   }
   if (phone !== undefined) {
-    await sql`UPDATE buil
+    await sql`UPDATE builder_accounts SET phone = ${phone ?? null} WHERE id = ${id}`;
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+// DELETE /api/admin/builders?id=... — remove account
+export async function DELETE(req: NextRequest) {
+  const id = new URL(req.url).searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  await sql`DELETE FROM builder_accounts WHERE id = ${id}`;
+  return NextResponse.json({ ok: true });
+}
