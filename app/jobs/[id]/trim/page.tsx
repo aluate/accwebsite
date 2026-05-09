@@ -59,7 +59,7 @@ export default async function TrimIndexPage({
                   </span>
                 </div>
                 <span className="text-white/30 text-xs font-condensed">
-                  {s.updated_at ? new Date(s.updated_at).toLocaleDateString() : "—"}
+                  {s.updated_at ? new Date(s.updated_at).toLocaleDateString("en-US", { timeZone: "UTC", year: "numeric", month: "short", day: "numeric" }) : "—"}
                 </span>
               </Link>
             </li>

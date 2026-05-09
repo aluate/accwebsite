@@ -325,8 +325,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <div className="space-y-1">
                 {activityLog.map((ev) => (
                   <div key={ev.id} className="flex items-start gap-2 text-xs text-white/50 py-1">
-                    <span className="shrink-0 w-32 text-white/25 tabular-nums">
-                      {new Date(ev.occurred_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    <span className="shrink-0 w-32 text-white/25 tabular-nums" suppressHydrationWarning>
+                      {new Date(ev.occurred_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}{" "}{new Date(ev.occurred_at).toISOString().slice(11, 16)}{" UTC"}
                     </span>
                     <span className="shrink-0 w-20 text-white/30">{ev.actor}</span>
                     <span className="flex-1">
