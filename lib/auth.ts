@@ -61,4 +61,6 @@ export async function requireRole(role: Role | Role[]): Promise<BuilderSession> 
   const builder = await requireBuilder();
   const wanted = Array.isArray(role) ? role : [role];
   if (builder.role === "admin") return builder;
-  if (!wanted.includes(buil
+  if (!wanted.includes(builder.role)) redirect("/jobs");
+  return builder;
+}
