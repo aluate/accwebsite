@@ -23,9 +23,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const fields = Object.keys(body).filter((k) => allowed.includes(k));
   if (fields.length === 0) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
 
-  // Build an object of only the allowed fields for sql(obj) SET clause
+  const MOD_FIELDS = new Set(["mod_residential", "mod_commercial", "mod_trim", "mod_doors"]);
   const updates: Record<string, unknown> = {};
-  for (const f of fields) updates[f] = body[f];
+  for (const f of fields) updates[f] = MOD_FIELDS.has(f) ? (body[f] ? 1 : 0) : body[f];
 
   await sql`UPDATE jobs SET ${sql(updates)} WHERE id = ${id}`;
 
