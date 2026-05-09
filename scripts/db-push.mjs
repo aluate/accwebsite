@@ -370,6 +370,18 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_activity_log_job           ON activity_log(job_id, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_actor         ON activity_log(actor, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_at            ON activity_log(occurred_at);
+
+    CREATE TABLE IF NOT EXISTS job_files (
+      id           TEXT PRIMARY KEY,
+      job_id       TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      kind         TEXT NOT NULL,
+      filename     TEXT NOT NULL,
+      storage_path TEXT NOT NULL,
+      size         INTEGER NOT NULL DEFAULT 0,
+      uploaded_at  TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_job_files_job  ON job_files(job_id);
+    CREATE INDEX IF NOT EXISTS idx_job_files_kind ON job_files(job_id, kind);
   `);
 
   // ── Schedule V2 column additions (idempotent) ──────────────────────────────
