@@ -28,7 +28,7 @@ const KINDS = [
   { key: "13_installation",  label: "13 Installation",        desc: "Install docs, crew notes" },
   { key: "14_prod_docs",     label: "14 Production Documents",desc: "Shop packets, cut lists" },
   { key: "15_contract",      label: "15 Contract",            desc: "Signed contracts, change orders" },
-] as const;
+];
 
 function fmtSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -174,4 +174,5 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
                           <img
                             src={f.url}
                             alt=""
-                            className="w-12 h-12 object-cover rounded border border-white/10 sh
+                            className="w-12 h-12 object-cover rounded border border-white/10 shrink-0"
+ 
