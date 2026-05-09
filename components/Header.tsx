@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -32,7 +33,14 @@ const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engin
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  async function signOut() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isInternal = INTERNAL_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
@@ -70,14 +78,12 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
-              <form action="/api/auth/logout" method="POST">
-                <button
-                  type="submit"
-                  className="px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide text-white/30 hover:text-white/70 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </form>
+              <button
+                onClick={signOut}
+                className="px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide text-white/30 hover:text-white/70 transition-colors"
+              >
+                Sign Out
+              </button>
             </nav>
 
             {/* Mobile */}
@@ -111,14 +117,12 @@ export function Header() {
                     </Link>
                   ))}
                   <div className="mt-4 pt-4 border-t border-white/10">
-                    <form action="/api/auth/logout" method="POST">
-                      <button
-                        type="submit"
-                        className="w-full text-left px-3 py-2.5 text-sm font-condensed uppercase tracking-wide text-white/30 hover:text-white/60 transition-colors"
-                      >
-                        Sign Out
-                      </button>
-                    </form>
+                    <button
+                      onClick={signOut}
+                      className="w-full text-left px-3 py-2.5 text-sm font-condensed uppercase tracking-wide text-white/30 hover:text-white/60 transition-colors"
+                    >
+                      Sign Out
+                    </button>
                   </div>
                 </nav>
               </SheetContent>
