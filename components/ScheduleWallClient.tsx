@@ -126,6 +126,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
   const [showAddForm, setShowAddForm]   = useState(false);
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<JobEventWithJoins | null>(null);
+  const [mobileDay, setMobileDay] = useState<string>(today);
 
   const [draggingId,    setDraggingId]    = useState<string | null>(null);
   const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
@@ -189,6 +190,16 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
   );
 
   const laneMap = useMemo(() => assignLanes(visibleEvents), [visibleEvents]);
+
+  // Mobile agenda: events active on the selected day
+  const mobileDayEvents = useMemo(() =>
+    forwardEvents.filter((e) => {
+      if (!e.date_start) return false;
+      const end = e.date_end ?? e.date_start;
+      return e.date_start <= mobileDay && end >= mobileDay;
+    }),
+    [forwardEvents, mobileDay]
+  );
 
   // ── "1 of N" split labels ─────────────────────────────────────────────────
   const splitLabels = useMemo(() => {
@@ -380,7 +391,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
       )}
 
       {/* Body */}
-      <div className={`flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
+      <div className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
 
         {/* Calendar */}
         <div className="flex-1 p-3 overflow-auto">
@@ -453,6 +464,149 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
             })}
           </aside>
         )}
+      </div>
+
+      {/* ── Mobile agenda (phones only, hidden md+) ─────────────────────── */}
+      <div className="md:hidden flex flex-col min-h-[calc(100vh-64px)]">
+
+        {/* Day navigation */}
+        <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+          <button
+            onClick={() => setMobileDay((d) => isoDateOffset(d, -1))}
+            className="w-10 h-10 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/5 text-xl transition-colors"
+          >
+            ‹
+          </button>
+          <div className="text-center">
+            <p className="font-heading text-base uppercase tracking-wide text-white">
+              {new Date(mobileDay + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+            </p>
+            {mobileDay === today && (
+              <p className="text-[#f08122] text-[10px] font-condensed uppercase tracking-widest">Today</p>
+            )}
+          </div>
+          <button
+            onClick={() => setMobileDay((d) => isoDateOffset(d, 1))}
+            className="w-10 h-10 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/5 text-xl transition-colors"
+          >
+            ›
+          </button>
+        </div>
+
+        {/* Today shortcut + Add */}
+        <div className="px-4 py-2 flex items-center justify-between border-b border-white/5">
+          <button
+            onClick={() => setMobileDay(today)}
+            className={`text-[10px] font-condensed uppercase tracking-widest px-2 py-1 rounded transition-colors ${
+              mobileDay === today ? "text-white/20" : "text-[#f08122] hover:bg-[#f08122]/10"
+            }`}
+          >
+            ← Today
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-3 py-1.5 rounded transition-colors"
+            >
+              + Add Event
+            </button>
+          )}
+        </div>
+
+        {/* Event list for selected day */}
+        <div className="flex-1 overflow-auto p-3 space-y-2">
+          {mobileDayEvents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <p className="text-white/20 text-sm font-condensed uppercase tracking-widest">No events scheduled</p>
+              {isAdmin && (
+                <button
+                  onClick={() => setShowAddForm(true)}
+                  className="mt-4 text-[#f08122] text-xs font-condensed uppercase tracking-widest hover:underline"
+                >
+                  + Add one
+                </button>
+              )}
+            </div>
+          ) : mobileDayEvents.map((ev) => {
+            const isHot = HOT_EVENT_TYPES.has(ev.event_type);
+            const col = isHot
+              ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
+              : crewColor(ev.crew_id, crews);
+            const job = jobs.find((j) => j.id === ev.job_id);
+            const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
+            return (
+              <button
+                key={ev.id}
+                onClick={() => setSelectedEvent(ev)}
+                className="w-full text-left rounded-lg overflow-hidden"
+                style={{ background: col.bg, borderLeft: `4px solid ${col.bar}` }}
+              >
+                <div className="px-4 py-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                      {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+                    </span>
+                    <span className="text-[10px] text-white/30 font-condensed">{ev.job_id}</span>
+                  </div>
+                  <p className="text-white text-sm font-semibold leading-tight">{job?.client_name ?? ev.job_id}</p>
+                  {ev.description && (
+                    <p className="text-white/50 text-xs mt-0.5">{ev.description}</p>
+                  )}
+                  {address && (
+                    <p className="text-white/40 text-xs mt-1 truncate">📍 {address}</p>
+                  )}
+                  {ev.crew_name && (
+                    <p className="text-xs mt-1" style={{ color: col.text }}>👷 {ev.crew_name}</p>
+                  )}
+                  {ev.date_start && (
+                    <p className="text-white/25 text-[10px] font-condensed mt-1">
+                      {ev.date_start}{ev.date_end && ev.date_end !== ev.date_start ? ` → ${ev.date_end}` : ""}
+                    </p>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+
+          {/* On Deck section */}
+          {onDeckEvents.length > 0 && (
+            <div className="mt-4">
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2 px-1">
+                On Deck — {onDeckEvents.length}
+              </p>
+              <div className="space-y-2">
+                {onDeckEvents.map((ev) => {
+                  const isHot = HOT_EVENT_TYPES.has(ev.event_type);
+                  const col = isHot
+                    ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
+                    : crewColor(ev.crew_id, crews);
+                  const job = jobs.find((j) => j.id === ev.job_id);
+                  return (
+                    <button
+                      key={ev.id}
+                      onClick={() => setSelectedEvent(ev)}
+                      className="w-full text-left rounded-lg overflow-hidden opacity-60"
+                      style={{ background: col.bg, borderLeft: `4px solid ${col.bar}` }}
+                    >
+                      <div className="px-4 py-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                            ⏸ {EVENT_TYPE_LABELS[ev.event_type]}
+                          </span>
+                          <span className="text-[10px] text-white/30 font-condensed">{ev.job_id}</span>
+                        </div>
+                        <p className="text-white text-sm leading-tight">{job?.client_name ?? ev.job_id}</p>
+                        {ev.blocked_on && (
+                          <p className="text-white/40 text-xs mt-0.5">{ev.blocked_on}</p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Conflict modal */}
