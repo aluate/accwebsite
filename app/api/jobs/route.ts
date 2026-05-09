@@ -1,5 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { sql, nextJobId } from "@/lib/db";
+import { logActivity } from "@/lib/activity-log";
 
 export async function GET() {
   const jobs = await sql`SELECT * FROM jobs ORDER BY seq DESC`;
@@ -31,6 +34,13 @@ export async function POST(req: NextRequest) {
       ${body.mod_trim ? 1 : 0}, ${body.mod_doors ? 1 : 0}
     )
   `;
+
+  await logActivity({
+    entityType: "job", entityId: id, jobId: id,
+    eventType: "created", toState: "intake",
+    actor: body.pm || "pm", actorRole: "pm",
+    payload: { client_name: body.client_name, site_address: body.site_address },
+  }).catch(() => {});
 
   return NextResponse.json({ id }, { status: 201 });
 }
