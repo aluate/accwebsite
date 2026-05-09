@@ -51,12 +51,16 @@ Turbopack is on by default in Next.js 16. If memory becomes an issue mid-session
 
 | Variable | Purpose |
 |---|---|
+| `DATABASE_URL` | Supabase pooler connection string (port 6543, `prepare: false` required) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL — used for file storage (job files) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key — used for file storage admin ops |
 | `SESSION_SECRET` | Signs builder session cookies (32+ chars) |
 | `GMAIL_USER` | Gmail sender address: `residentialacc2@gmail.com` |
 | `GMAIL_APP_PASSWORD` | 16-char Gmail app password (no spaces) |
-| `PM_EMAIL` | Where orders are emailed: `residential@advancedcabinets.net` |
-| `ORDERS_DIR` | Where PDFs are saved: `./data/orders` |
+| `PM_EMAIL` | Where job emails are sent: `residential@advancedcabinets.net` |
 | `ADMIN_PASSWORD` | Password for `/admin` login: `acc-admin-2026` |
+| `NEXT_PUBLIC_SITE_URL` | Base URL for signoff links (optional — defaults to `https://www.advancedcabinets.org`) |
+| `PORTAL_URL` | Base URL in builder portal emails (optional — defaults to `https://www.advancedcabinets.org`) |
 
 **Critical:** `GMAIL_USER` is `residentialacc2@gmail.com` — the letters in the middle are transposed from what you'd expect. Do not "correct" it.
 
