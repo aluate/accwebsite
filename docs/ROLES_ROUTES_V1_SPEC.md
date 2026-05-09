@@ -169,7 +169,7 @@ Run this inside the same transaction as the `active = 0` update. Do not rely on 
 
 **External surfaces are off by default and must stay that way until ACC signs off.**
 
-The ACC partners have approved internal use only at this stage. `EXPRESS_ENABLED`, `PORTAL_ENABLED`, and the builder-role onboarding flow must remain disabled on the production domain (`accspec.net` / `advancedcabinets.org`) until the system has been validated internally by ACC staff. Do not enable any external-facing surface without explicit sign-off from Karl.
+The ACC partners have approved internal use only at this stage. `EXPRESS_ENABLED`, `PORTAL_ENABLED`, and the builder-role onboarding flow must remain disabled on the production domain (`www.advancedcabinets.org`) until the system has been validated internally by ACC staff. Do not enable any external-facing surface without explicit sign-off from Karl.
 
 This constraint applies even if a feature is technically complete. "Done" means working internally, not visible externally.
 
@@ -195,14 +195,14 @@ Env flags default to `"false"` when absent — new deployments are opt-in, not o
 
 **Does NOT suppress:** `/` (already redirects to `/jobs` in `app/page.tsx`)
 
-**Rationale:** advancedcabinets.net already serves these pages. The new domain (accspec.net) is ops-only for now. When Karl eventually gains access to advancedcabinets.net, the plan is to unify — at that point flip `MARKETING_ENABLED=true` and route the marketing domain here too.
+**Rationale:** advancedcabinets.net already serves these pages. The live domain is `www.advancedcabinets.org` (Vercel). Marketing and ops are both served from this domain.
 
 **proxy.ts addition:**
 
 ```ts
 // Marketing pages feature flag.
 // The public marketing site (advancedcabinets.net) already serves these routes.
-// Suppressed on accspec.net until the two domains are unified.
+// Suppressed on www.advancedcabinets.org — enable when marketing site is ready.
 // Set MARKETING_ENABLED=true to re-enable.
 const MARKETING_PATHS = ["/about", "/team", "/tour", "/projects", "/contact"];
 if (MARKETING_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
@@ -339,7 +339,7 @@ V1 uses existing Gmail SMTP (`residentialacc2@gmail.com`) — same transport con
 New env var:
 
 ```
-APP_URL=https://accspec.net
+APP_URL=https://www.advancedcabinets.org
 ```
 
 Used to construct `/invite/[token]` and `/reset-password/[token]` links in outbound emails. Add to `.env.local` and to Vercel environment variables. No runtime default — omitting it won't throw, but invite emails will contain broken links.
@@ -413,4 +413,200 @@ Installers are included in the initial company invite wave — the calendar view
 
 **Decided 2026-05-07.** This is the right long-term path. The sync agent runs on advserver on a schedule (Windows Task Scheduler), reads the Z drive, diffs against Supabase via a secured REST endpoint, and pushes new/changed records. The app never needs a direct connection to the Z drive.
 
-**Bootstrap path (one-tim
+**Bootstrap path (one-time):** Before the agent is built, Karl exports a job list from TradeSoft as CSV and uploads it via `/admin/import`. This gets existing jobs into the system fast without waiting for the full agent. Option B is the bootstrap, Option A is the ongoing engine.
+
+**Full agent spec:** `scripts/zdrive-sync.mjs` on advserver. Scheduled via Windows Task Scheduler. Pushes to `/api/admin/import/zdrive` (admin API token required, never a cookie). Files stay on the Z drive; the agent pushes metadata only. Supabase Storage receives generated outputs (spec PDFs, Excel) that write back to the Z drive from the app side.
+
+Full agent design lives in the Z Drive Import spec session — this stub is resolved there.
+
+### Source of truth split (must be defined before building)
+
+| Data type | Source of truth |
+|---|---|
+| Job metadata (client, address, status) | App DB |
+| Spec / lifecycle / schedule | App DB |
+| CV drawings (original) | Z drive |
+| Generated spec PDFs | App (Supabase Storage) |
+| TradeSoft order data | TradeSoft (not synced) |
+
+---
+
+## Feature 6: Installer Role & Photo Uploads
+
+### What installers can do
+
+Installers are field crew. They need two things from the app: see the schedule (so they know what's coming) and upload site photos after install (so the PM has a record without chasing them down).
+
+| Area | Installer access |
+|---|---|
+| `/installer` — landing/placeholder | ✓ Own page (not `/jobs`) |
+| `/schedule` — wall calendar | ✓ Read-only (same as partner — no drag, no Add Event) |
+| `/jobs/[id]` — job detail | ✓ Read (no Edit, no lifecycle controls) |
+| Photo upload on a job | ✓ Upload only — their own uploads, tagged to job/room/finish-group |
+| Spec form | ✗ No access — redirect to `/installer` |
+| `/admin/**` | ✗ No access |
+| File delete | ✗ Cannot delete any file (own or others') |
+| Lifecycle transitions | ✗ Blocked at API level |
+
+### Placeholder page
+
+`app/installer/page.tsx` — shown immediately after login and whenever an installer hits a route they can't use.
+
+V1 content: job name + scheduled install date for any jobs currently in the `installing` stage (pulled from `schedule_events`). No editing. A "Photos" button per job opens the upload panel.
+
+This gives installers immediate value (they can see what they're working on today) without building a full punch loop.
+
+### Photo uploads — design
+
+Reuses the existing `media` table (or Supabase Storage equivalent — whichever is live). Installer uploads are tagged identically to PM uploads:
+
+| Field | Value |
+|---|---|
+| `job_id` | required |
+| `room_id` | optional (installer picks from room list for the job) |
+| `finish_group_id` | optional (installer picks from finish group list) |
+| `uploaded_by` | `builder_accounts.id` of the installer |
+| `upload_type` | `"site_photo"` (new type constant — distinguishes from PM uploads which are `"drawing"`, `"spec"`, etc.) |
+| `visible_to_partner` | `true` by default — partners can see site photos |
+
+**Upload surface:** A simple drag-or-tap upload panel, accessible from:
+1. The installer placeholder page (per-job Photos button)
+2. `/jobs/[id]` job detail page (existing file panel — installers see an "Add Photos" button, PMs see full file management)
+
+**File size limit:** Same as existing uploads (cap defined in the existing route handler).
+
+**No delete:** Installers cannot delete files. If a wrong photo is uploaded, PM handles removal via the standard file management UI.
+
+### API-level enforcement
+
+Installer uploads go through the existing `/api/jobs/[id]/files` POST endpoint. Add a check:
+
+```ts
+// Installers can POST but only with upload_type = "site_photo"
+if (session.role === "installer" && body.upload_type !== "site_photo") {
+  return NextResponse.json({ error: "Installers may only upload site photos" }, { status: 403 });
+}
+// Installers cannot DELETE
+if (session.role === "installer" && request.method === "DELETE") {
+  return NextResponse.json({ error: "Read-only access" }, { status: 403 });
+}
+```
+
+### `canEdit()` update
+
+```ts
+// lib/permissions.ts
+export function canEdit(role: Role): boolean {
+  return role !== "partner" && role !== "installer";
+}
+
+export function canUploadSitePhotos(role: Role): boolean {
+  return role === "installer" || role === "user" || role === "admin";
+}
+```
+
+### Schema addition
+
+```sql
+-- No new table needed — reuses existing media/files table.
+-- Add upload_type column if not already present:
+ALTER TABLE job_files ADD COLUMN upload_type TEXT DEFAULT 'file';
+-- Values: 'file' (generic), 'drawing', 'spec', 'site_photo'
+-- Use safe migration pattern from ARCHITECTURE.md.
+```
+
+### Build note
+
+The installer placeholder page and photo upload surface are independent of the punch loop spec. The punch loop (room sign-off, issue flagging, warranty trigger) is a separate feature tracked under Phase 3. This feature delivers the calendar view + site photos; the punch loop delivers the workflow.
+
+---
+
+## Login Consolidation
+
+**Decision:** Everyone logs in at a single `/login` page. Role determines what they see after login, not which login page they use.
+
+### New `/login` page
+
+`app/login/page.tsx` — replaces `/express/login` as the single entry point for all `builder_accounts` (PM, engineer, partner, installer, admin-role users).
+
+- Label: "Email" (not "Username") — aligns with Feature 4's username-as-email change.
+- On success: redirect to `/jobs` by default, or to `?next=` param if present.
+- On failure: same "Invalid credentials" message for all roles (no role enumeration).
+
+### Old login routes
+
+- `/express/login` → 301 redirect to `/login` (keep the route in place to avoid broken bookmarks; remove redirect after 3 months post-launch)
+- `/admin/login` → **stays as-is**. This is the break-glass admin backdoor using `ADMIN_PASSWORD` (env var, not a `builder_accounts` row). It is intentionally separate. Admins with `role = "admin"` in `builder_accounts` log in at `/login` like everyone else; `/admin/login` is only for the shared emergency password.
+
+### Post-login redirect by role
+
+| Role | Default redirect after login |
+|---|---|
+| `admin` | `/jobs` |
+| `user` (PM) | `/jobs` |
+| `engineer` | `/jobs` |
+| `partner` | `/jobs` |
+| `installer` | `/installer` (placeholder page) |
+
+Installers land on the placeholder rather than `/jobs` to avoid confusion — `/jobs` has edit controls they can't use and no context for what they're meant to do.
+
+### `requireBuilder()` redirect target
+
+Update the redirect in `lib/auth.ts` from `/express/login` to `/login` so all auth bounces go to the right place.
+
+### `proxy.ts` matcher update
+
+Add `/login` to the public allowlist and the matcher. Remove any special-casing of `/express/login` (it stays as a redirect, not a real page).
+
+---
+
+## Build Order (updated)
+
+Tracks 1–4 are independent. Suggested sequence based on blast radius and launch dependencies:
+
+1. **Route suppression** (Feature 3) — proxy.ts + env flags only. No DB changes. Lowest risk, immediate value.
+2. **Login consolidation** — new `/login` page, redirect `/express/login`, update `requireBuilder()` target. Prerequisite for all role-based login to work.
+3. **Partner + installer roles** (Feature 1 + 6 partial) — auth type + `ROLES` constant, `canEdit()` + `canUploadSitePhotos()`, API blocks, UI rendering changes, selftest update. Installer placeholder page.
+4. **Account management UI** (Feature 2) — role dropdown, role badges, PATCH endpoint, deactivate + session kill, invite status column.
+5. **Invite / onboarding flow** (Feature 4) — schema additions, invite email, `/invite/[token]` page, forgot-password flow. **Prerequisite for launch email.**
+6. **Installer photo uploads** (Feature 6) — upload panel on job detail + installer placeholder, `upload_type` schema addition, API enforcement.
+7. **Z drive import** (Feature 5) — do not start until open questions above are answered. One-time CSV import (Option B) can ship independently of the ongoing sync agent (Option A).
+
+---
+
+## DAC / TT Findings (2026-05-07)
+
+Recorded here so a build session inherits the reasoning.
+
+**Devil's Advocate findings:**
+- Email-as-username requires username to be mutable — PATCH endpoint must include it (designed in).
+- `residentialacc2@gmail.com` as the invite sender carries some spam-filter risk. **Karl has accepted this risk for V1** — IT access to a proper Outlook/Google Workspace address is blocked and not worth waiting on. Post-launch polish item.
+- 72h invite expiry + no resend = support burden. Resend designed in.
+- Installers will get the launch email before their UI exists. Placeholder page designed in.
+- Last-admin safety: need ≥ 2 admin accounts live before the launch email. `npm run rotate-admin-pw` is the emergency fallback — document it in `KARL_TODO.md`.
+
+**Tahiti Test findings (light — nothing built yet):**
+- Password reset only works if domain is live and email is sending. Admin reset is the human fallback — requires a second admin to be available when Karl is unreachable.
+- Z drive sync agent is non-critical path by design — app functions without it, just doesn't pull new file data.
+- Invite resend must be usable by any admin, not just Karl.
+
+---
+
+## Unauthenticated Landing Behavior
+
+Currently `app/page.tsx` redirects `/` → `/jobs`, which then hits an auth check and bounces the user somewhere undefined. With the unified `/login` page (Feature 2 / login consolidation), the correct behavior is:
+
+- Unauthenticated user hits any protected route → redirect to `/login?next=<original-path>`
+- After successful login, redirect to `next` param if present, otherwise to `/jobs`
+- `app/page.tsx` should redirect to `/login` (not `/jobs`) for unauthenticated visitors, or let `requireBuilder()` handle the bounce
+
+This is a small change to `app/page.tsx` and the `requireBuilder()` redirect target — both currently point to `/express/login`.
+
+---
+
+## What This Does NOT Change
+
+- Express Wizard suppression — already handled by `EXPRESS_ENABLED`. No changes needed.
+- The `/admin/jobs/[id]/portal` config page — internal admin UI, NOT suppressed by `PORTAL_ENABLED`. Stays accessible to admins.
+- Any existing role gates — `requireRole("admin")` and `requireRole("engineer")` calls are unchanged. `partner` simply cannot reach those routes.
+- Login flow — `/login` is always reachable. All roles log in the same way.

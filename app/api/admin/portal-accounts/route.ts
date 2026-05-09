@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
         builder_company: company,
         username,
         temp_password: password,
-        portal_url: process.env.PORTAL_URL ?? "https://accspec.net",
+        portal_url: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
         job_id: "(any)",
       },
     });
@@ -74,7 +76,7 @@ export async function PATCH(req: NextRequest) {
           display_name: acct.display_name,
           username: acct.username,
           temp_password: String(b.password),
-          portal_url: process.env.PORTAL_URL ?? "https://accspec.net",
+          portal_url: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
         },
       });
     }

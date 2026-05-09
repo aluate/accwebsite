@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { transitionApproval, type ApprovalState } from "@/lib/approvals";
 import { sql, uid } from "@/lib/db";
@@ -26,7 +28,7 @@ async function logWebhookError(source: string, event: string | undefined, payloa
 //        DOCUSIGN_BASE_PATH=https://demo.docusign.net/restapi  (use account-d for prod)
 //        DOCUSIGN_HMAC_KEY=...  (optional, for webhook signature verification)
 //   3. In DocuSign admin, point Connect (webhook) at:
-//        https://accspec.net/api/docusign/webhook
+//        https://www.advancedcabinets.org/api/docusign/webhook
 //      Subscribe to envelope events: sent, delivered, completed, declined, voided.
 //
 // Without DOCUSIGN_INTEGRATION_KEY set, this endpoint returns 503. Once set,
