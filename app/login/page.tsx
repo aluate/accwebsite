@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,17 +17,28 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const res = await fetch("/api/auth/login", {
+
+    const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username: email, password }),
     });
+
     setLoading(false);
-    if (res.ok) {
-      router.push("/jobs");
-      router.refresh();
+
+    if (!res.ok) {
+      setError("Email or password incorrect.");
+      return;
+    }
+
+    const { role } = await res.json();
+
+    if (next) {
+      router.push(next);
+    } else if (role === "installer") {
+      router.push("/installer");
     } else {
-      setError("Username or password incorrect.");
+      router.push("/jobs");
     }
   }
 
@@ -43,14 +57,15 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-white/50 font-condensed uppercase tracking-widest text-xs mb-1">
-              Username
+              Email
             </label>
             <input
-              type="text"
+              type="email"
               autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              placeholder="you@advancedcabinets.net"
               className="w-full bg-white/5 border border-white/15 rounded px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#f08122]/60"
             />
           </div>
@@ -80,9 +95,17 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-8 text-center text-white/20 text-xs font-condensed">
-          Need access? Contact the residential admin.
+          Need access? Contact your ACC project manager.
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#111]" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

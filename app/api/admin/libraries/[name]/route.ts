@@ -5,6 +5,9 @@ import { spawnSync } from "child_process";
 import { requireRole } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
+// Force dynamic so Next.js/webpack doesn't statically analyze child_process args
+export const dynamic = "force-dynamic";
+
 // /api/admin/libraries/[name]
 // GET   → returns the CSV text (admin-only).
 //          ?download=1 sets Content-Disposition: attachment.
@@ -145,7 +148,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ name
   fs.writeFileSync(file, newText, "utf-8");
 
   // Re-sync JSON. spawnSync is sync — completes before the response goes out.
-  const sync = spawnSync("node", ["scripts/sync-catalogs.mjs"], {
+  // Note: path is built at runtime to prevent Next.js webpack from treating it
+  // as a static module import and failing at build time.
+  const syncScript = ["scripts", "sync-catalogs.mjs"].join("/");
+  const sync = spawnSync("node", [syncScript], {
     cwd: process.cwd(),
     encoding: "utf-8",
   });

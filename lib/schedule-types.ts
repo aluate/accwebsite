@@ -2,13 +2,7 @@
  * Client-safe shared types, constants, and pure utilities for the schedule
  * dashboard. NO DB imports here — anything that touches the DB belongs
  * in lib/schedule.ts (server-only).
- *
- * Both server (lib/schedule.ts) and client (components/ScheduleWallClient,
- * AddEventForm, etc.) import from this file. lib/schedule.ts re-exports the
- * types and constants for back-compat with code that already imports from it.
  */
-
-// ── Constants ───────────────────────────────────────────────────────────────
 
 export const EVENT_TYPES = [
   "cab_delivery",
@@ -50,8 +44,6 @@ export function isCrewKind(s: string): s is CrewKind {
   return (CREW_KINDS as readonly string[]).includes(s);
 }
 
-// ── Row types (mirror table shape) ─────────────────────────────────────────
-
 export type Crew = {
   id: string;
   name: string;
@@ -81,6 +73,8 @@ export type JobEvent = {
   created_by: string | null;
   updated_at: string;
   updated_by: string | null;
+  actual_start?: string | null;
+  actual_end?:   string | null;
 };
 
 export type JobEventWithJoins = JobEvent & {
@@ -101,26 +95,43 @@ export type JobEventAuditRow = {
   changed_by: string | null;
 };
 
-// ── Pure date utilities (no DB) ────────────────────────────────────────────
+export type CrewPto = {
+  id: string;
+  crew_id: string;
+  date_start: string;
+  date_end: string;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+};
 
-/**
- * Add `days` to an ISO date string (YYYY-MM-DD) and return the new ISO date.
- * Stays in UTC to avoid DST drift on the wall TV which may run in a
- * different tz than the dev box.
- */
+export type EventPhaseLabel = {
+  id: number;
+  label: string;
+  sort_order: number;
+  active: number;
+};
+
+export type ScheduleChangeRequest = {
+  id: string;
+  job_event_id: string;
+  requested_by: string;
+  reason: string;
+  status: "pending" | "approved" | "denied";
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
+
 export function isoDateOffset(iso: string, days: number): string {
   const d = new Date(iso + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
-/**
- * Return the ISO Monday for the week containing the given date. Used by
- * the weekly verification flow + the wall calendar grid.
- */
 export function isoWeekStart(iso: string): string {
   const d = new Date(iso + "T00:00:00Z");
-  const day = d.getUTCDay();           // 0 = Sun, 1 = Mon, ..., 6 = Sat
+  const day = d.getUTCDay();
   const offset = day === 0 ? -6 : 1 - day;
   d.setUTCDate(d.getUTCDate() + offset);
   return d.toISOString().slice(0, 10);

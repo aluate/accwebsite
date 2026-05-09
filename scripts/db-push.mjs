@@ -305,6 +305,35 @@ async function main() {
       verified_at TEXT, verified_by TEXT, notes TEXT
     );
 
+    -- Schedule V2 additions
+    CREATE TABLE IF NOT EXISTS crew_pto (
+      id         TEXT PRIMARY KEY,
+      crew_id    TEXT NOT NULL REFERENCES crews(id) ON DELETE CASCADE,
+      date_start TEXT NOT NULL,
+      date_end   TEXT NOT NULL,
+      note       TEXT,
+      created_by TEXT REFERENCES builder_accounts(id),
+      created_at TEXT NOT NULL DEFAULT to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+    );
+
+    CREATE TABLE IF NOT EXISTS event_phase_labels (
+      id         SERIAL PRIMARY KEY,
+      label      TEXT NOT NULL UNIQUE,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      active     INTEGER NOT NULL DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS schedule_change_requests (
+      id           TEXT PRIMARY KEY,
+      job_event_id TEXT NOT NULL REFERENCES job_events(id) ON DELETE CASCADE,
+      requested_by TEXT NOT NULL REFERENCES builder_accounts(id),
+      reason       TEXT NOT NULL,
+      status       TEXT NOT NULL DEFAULT 'pending',
+      reviewed_by  TEXT REFERENCES builder_accounts(id),
+      reviewed_at  TEXT,
+      created_at   TEXT NOT NULL DEFAULT to_char(NOW() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+    );
+
     CREATE TABLE IF NOT EXISTS activity_log (
       id TEXT PRIMARY KEY, entity_type TEXT NOT NULL, entity_id TEXT NOT NULL,
       job_id TEXT, event_type TEXT NOT NULL,
@@ -329,6 +358,10 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_job_events_date_start      ON job_events(date_start);
     CREATE INDEX IF NOT EXISTS idx_job_events_crew            ON job_events(crew_id);
     CREATE INDEX IF NOT EXISTS idx_job_events_status          ON job_events(status);
+    CREATE INDEX IF NOT EXISTS idx_crew_pto_crew              ON crew_pto(crew_id);
+    CREATE INDEX IF NOT EXISTS idx_crew_pto_dates             ON crew_pto(date_start, date_end);
+    CREATE INDEX IF NOT EXISTS idx_scr_event                  ON schedule_change_requests(job_event_id);
+    CREATE INDEX IF NOT EXISTS idx_scr_status                 ON schedule_change_requests(status);
     CREATE INDEX IF NOT EXISTS idx_job_event_audit_event      ON job_event_audit(event_id);
     CREATE INDEX IF NOT EXISTS idx_job_event_audit_job        ON job_event_audit(job_id);
     CREATE INDEX IF NOT EXISTS idx_job_event_audit_at         ON job_event_audit(changed_at);
@@ -337,34 +370,35 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_activity_log_job           ON activity_log(job_id, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_actor         ON activity_log(actor, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_at            ON activity_log(occurred_at);
-    CREATE INDEX IF NOT EXISTS idx_fg_materials_fg            ON finish_group_materials(finish_group_id);
-    CREATE INDEX IF NOT EXISTS idx_fg_door_fronts_fg          ON finish_group_door_fronts(finish_group_id);
-    CREATE INDEX IF NOT EXISTS idx_fg_drawers_fg              ON finish_group_drawers(finish_group_id);
-    CREATE INDEX IF NOT EXISTS idx_fg_edgebands_fg            ON finish_group_edgebands(finish_group_id);
-    CREATE INDEX IF NOT EXISTS idx_fg_hardware_fg             ON finish_group_hardware(finish_group_id);
-    CREATE INDEX IF NOT EXISTS idx_fg_countertops_fg          ON finish_group_countertops(finish_group_id);
   `);
 
-  console.log("✅ Schema applied.");
-
-  // Bootstrap admin account if none exists
-  const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM builder_accounts WHERE role = 'admin' AND active = 1`;
-  if (n === 0) {
-    const bcrypt = (await import("bcryptjs")).default;
-    const hash = await bcrypt.hash("1234", 12);
-    const id = Math.random().toString(36).slice(2, 10);
-    const now = new Date().toISOString();
-    const username = "residential@advancedcabinets.net";
-    await sql`
-      INSERT INTO builder_accounts (id, username, password_hash, name, company, email, phone, active, created_at, role)
-      VALUES (${id}, ${username}, ${hash}, 'Residential Admin', 'ACC', ${username}, null, 1, ${now}, 'admin')
-      ON CONFLICT (username) DO NOTHING
-    `;
-    console.log("✅ Bootstrapped admin user:", username);
+  // ── Schedule V2 column additions (idempotent) ──────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_start TEXT`,
+    `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_end   TEXT`,
+    `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
+  // ── Seed event_phase_labels (idempotent) ───────────────────────────────────
+  const defaultLabels = [
+    { label: "Ladder Bases",   sort_order: 1 },
+    { label: "Casework",       sort_order: 2 },
+    { label: "Pulls & Panels", sort_order: 3 },
+    { label: "Post Tops",      sort_order: 4 },
+    { label: "Other",          sort_order: 99 },
+  ];
+  for (const { label, sort_order } of defaultLabels) {
+    await sql`
+      INSERT INTO event_phase_labels (label, sort_order, active)
+      VALUES (${label}, ${sort_order}, 1)
+      ON CONFLICT (label) DO NOTHING
+    `;
+  }
+
+  console.log("Schema push complete.");
   await sql.end();
-  console.log("Done.");
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

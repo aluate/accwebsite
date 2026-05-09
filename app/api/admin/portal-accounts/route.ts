@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   const id = uid();
   await sql`
     INSERT INTO builder_portal_accounts (id, username, password_hash, display_name, builder_company, contact_email, active, created_at, must_change_pw)
-    VALUES (${id}, ${username}, ${hash}, ${displayName}, ${company}, ${email}, true, ${new Date().toISOString()}, true)
+    VALUES (${id}, ${username}, ${hash}, ${displayName}, ${company}, ${email}, 1, ${new Date().toISOString()}, 1)
   `;
 
   // Welcome email with the temp password (preview-mode safe — falls back to console if SMTP not configured).
@@ -58,11 +58,11 @@ export async function PATCH(req: NextRequest) {
   const id = String(b.id ?? "");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
   if (typeof b.active === "number") {
-    await sql`UPDATE builder_portal_accounts SET active = ${b.active === 1} WHERE id = ${id}`;
+    await sql`UPDATE builder_portal_accounts SET active = ${b.active} WHERE id = ${id}`;
   }
   if (b.password && String(b.password).length >= 8) {
     const hash = await hashPassword(String(b.password));
-    await sql`UPDATE builder_portal_accounts SET password_hash = ${hash}, must_change_pw = true WHERE id = ${id}`;
+    await sql`UPDATE builder_portal_accounts SET password_hash = ${hash}, must_change_pw = 1 WHERE id = ${id}`;
     const [acct] = await sql<{ username: string; display_name: string; contact_email: string | null }[]>`
       SELECT username, display_name, contact_email FROM builder_portal_accounts WHERE id = ${id}
     `;

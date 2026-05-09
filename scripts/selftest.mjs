@@ -418,4 +418,155 @@ if (db) {
       // Splits should always link to a parent on the same job.
       const crossJob = local.prepare(`
         SELECT je.id, je.job_id, p.job_id AS parent_job
-        FROM jo
+        FROM job_events je
+        JOIN job_events p ON p.id = je.parent_event_id
+        WHERE p.job_id <> je.job_id
+      `).all();
+      assert(crossJob.length === 0, `${crossJob.length} parent_event_id rows link across jobs`);
+
+      const linked = local.prepare("SELECT COUNT(*) AS n FROM job_events WHERE parent_event_id IS NOT NULL").get().n;
+      return `${linked} parent-linked events · all valid`;
+    } finally {
+      local.close();
+    }
+  });
+
+  check("schedule v3: at least one crew exists (run npm run seed-crews if not)", () => {
+    if (!migrationsApplied) throw new Error(dbHint);
+    const local = new DatabaseSync(DB_PATH);
+    try {
+      const row = local.prepare("SELECT COUNT(*) AS n FROM crews WHERE active = 1").get();
+      assert(row.n >= 1, "no active crews — run npm run seed-crews");
+      const names = local.prepare("SELECT name FROM crews WHERE active = 1 ORDER BY name").all().map((r) => r.name);
+      return `${row.n} active crew(s): ${names.join(", ")}`;
+    } finally {
+      local.close();
+    }
+  });
+
+  db.close();
+}
+
+
+
+// ── Lifecycle state machine (in-memory) ──────────────────────────────────────
+check("lifecycle: 11/11 transition cases (in-memory)", () => {
+  const STATES = ["DRAFT","CLIENT_APPROVED","RELEASED_TO_ENG","ENGINEERED","RELEASED_TO_SHOP"];
+  const m = new DatabaseSync(":memory:");
+  m.exec(`
+    CREATE TABLE residential_specs (id TEXT PRIMARY KEY, lifecycle_state TEXT NOT NULL DEFAULT 'DRAFT');
+    CREATE TABLE spec_lifecycle_transitions (id TEXT PRIMARY KEY, spec_id TEXT, from_state TEXT, to_state TEXT, transitioned_at TEXT, transitioned_by TEXT, reason TEXT, notes TEXT);
+    INSERT INTO residential_specs(id, lifecycle_state) VALUES ('s1','DRAFT'), ('s2','DRAFT');
+  `);
+  function transition(specId, to, actor, reason) {
+    const cur = m.prepare("SELECT lifecycle_state FROM residential_specs WHERE id = ?").get(specId);
+    if (!cur) return { ok: false, error: "Spec not found" };
+    const from = cur.lifecycle_state;
+    if (!STATES.includes(to)) return { ok: false, error: `Invalid: ${to}` };
+    if (from === to) return { ok: false, error: `Already in ${to}` };
+    const fi = STATES.indexOf(from), ti = STATES.indexOf(to);
+    const fwd = ti === fi + 1, bwd = ti < fi;
+    if (!fwd && !bwd) return { ok: false, error: `Cannot skip ${from} -> ${to}` };
+    if (bwd && !reason) return { ok: false, error: "Backwards needs reason" };
+    m.prepare("UPDATE residential_specs SET lifecycle_state = ? WHERE id = ?").run(to, specId);
+    m.prepare("INSERT INTO spec_lifecycle_transitions VALUES (?,?,?,?,?,?,?,?)")
+      .run(Math.random().toString(36).slice(2,8), specId, from, to, new Date().toISOString(), actor, reason ?? null, null);
+    return { ok: true, from, to };
+  }
+  const cases = [
+    ["forward DRAFT→CLIENT_APPROVED", transition("s1","CLIENT_APPROVED","karl"), { ok: true }],
+    ["forward →RELEASED_TO_ENG",       transition("s1","RELEASED_TO_ENG","karl"),  { ok: true }],
+    ["forward →ENGINEERED",            transition("s1","ENGINEERED","karl"),       { ok: true }],
+    ["forward →RELEASED_TO_SHOP",      transition("s1","RELEASED_TO_SHOP","karl"), { ok: true }],
+    ["backward at terminal w/o reason",transition("s1","ENGINEERED","karl"),       { ok: false, contains: "needs reason" }],
+    ["backward WITH reason",           transition("s1","ENGINEERED","karl","shop flag"), { ok: true }],
+    ["forward back to terminal",       transition("s1","RELEASED_TO_SHOP","karl"), { ok: true }],
+    ["skip 2 forward DRAFT→ENG",       transition("s2","RELEASED_TO_ENG","karl"),  { ok: false, contains: "skip" }],
+    ["same state",                     transition("s2","DRAFT","karl"),            { ok: false, contains: "Already" }],
+    ["invalid state name",             transition("s2","BOGUS","karl"),            { ok: false, contains: "Invalid" }],
+    ["unknown spec",                   transition("nonexistent","DRAFT","karl"),   { ok: false, contains: "not found" }],
+  ];
+  let pass = 0, fail = 0;
+  const failures = [];
+  for (const [name, got, want] of cases) {
+    const okMatch  = got.ok === want.ok;
+    const errMatch = !want.contains || (got.error && got.error.toLowerCase().includes(want.contains.toLowerCase()));
+    if (okMatch && errMatch) pass++;
+    else { fail++; failures.push(`${name}: got ${JSON.stringify(got)}`); }
+  }
+  m.close();
+  assert(fail === 0, `${fail}/${cases.length} failed:\n  ${failures.slice(0,3).join("\n  ")}`);
+  return `${pass}/${cases.length} passed`;
+});
+
+
+// ── Approval state machine (in-memory) ──────────────────────────────────────
+check("approvals: edge legality + happy-path", () => {
+  // Mirror the EDGES map from lib/approvals.ts so this test stays standalone.
+  const EDGES = {
+    DRAFT:     ["SENT","VOIDED"],
+    SENT:      ["VIEWED","SIGNED","DECLINED","VOIDED","EXPIRED"],
+    VIEWED:    ["SIGNED","DECLINED","VOIDED","EXPIRED"],
+    SIGNED:    ["COMPLETED","VOIDED"],
+    COMPLETED: [],
+    DECLINED:  [],
+    VOIDED:    [],
+    EXPIRED:   [],
+  };
+  function canTransition(from, to) {
+    return EDGES[from] && EDGES[from].includes(to);
+  }
+  const cases = [
+    ["DRAFT→SENT",       canTransition("DRAFT","SENT"),       true],
+    ["DRAFT→VOIDED",     canTransition("DRAFT","VOIDED"),     true],
+    ["DRAFT→SIGNED skip",canTransition("DRAFT","SIGNED"),     false],
+    ["SENT→VIEWED",      canTransition("SENT","VIEWED"),      true],
+    ["SENT→SIGNED",      canTransition("SENT","SIGNED"),      true],
+    ["SENT→DECLINED",    canTransition("SENT","DECLINED"),    true],
+    ["SENT→COMPLETED skip", canTransition("SENT","COMPLETED"), false],
+    ["VIEWED→SIGNED",    canTransition("VIEWED","SIGNED"),    true],
+    ["SIGNED→COMPLETED", canTransition("SIGNED","COMPLETED"), true],
+    ["COMPLETED→anywhere",canTransition("COMPLETED","SENT"),  false],
+    ["DECLINED is terminal", canTransition("DECLINED","SIGNED"), false],
+    ["VOIDED is terminal", canTransition("VOIDED","SENT"),    false],
+    ["unknown→anything", canTransition("BOGUS","SENT"),       false],
+  ];
+  let pass = 0, fail = 0, failures = [];
+  for (const [name, got, want] of cases) {
+    if ((got === true) === (want === true)) pass++;
+    else { fail++; failures.push(`${name}: got ${got}, want ${want}`); }
+  }
+  assert(fail === 0, `${fail}/${cases.length} edge tests failed: ${failures.slice(0,3).join("; ")}`);
+  return `${pass}/${cases.length} edge legality cases pass`;
+});
+
+// ── TypeScript compile ───────────────────────────────────────────────────────
+check("typescript: tsc --noEmit", () => {
+  // Windows: npx is a .cmd shim that doesn't always return clean exit codes
+  // through spawnSync. Call tsc directly via node_modules/.bin for reliability.
+  const tscBin = process.platform === "win32"
+    ? join(REPO, "node_modules", ".bin", "tsc.cmd")
+    : join(REPO, "node_modules", ".bin", "tsc");
+  const r = spawnSync(tscBin, ["--noEmit"], { cwd: REPO, encoding: "utf-8", shell: process.platform === "win32" });
+  if (r.status !== 0) {
+    // Show ALL output (stdout + stderr) trimmed to first 8 lines so root cause
+    // is visible. Without this, "tsc failed" gives nothing actionable.
+    const all = ((r.stdout || "") + "\n" + (r.stderr || "")).split("\n").filter(Boolean).slice(0, 8);
+    throw new Error(all.length ? all.join(" | ") : `tsc exited ${r.status}`);
+  }
+  return "no type errors";
+});
+
+// ── Report ───────────────────────────────────────────────────────────────────
+const COLS = { PASS: "\x1b[32m", FAIL: "\x1b[31m", SKIP: "\x1b[33m", reset: "\x1b[0m" };
+console.log("\nACC self-test\n=============");
+let nPass = 0, nFail = 0, nSkip = 0;
+for (const r of results) {
+  const tag = `${COLS[r.status]}${r.status}${COLS.reset}`;
+  console.log(`  ${tag.padEnd(6)} ${r.name}${r.detail ? "  ·  " + r.detail : ""}`);
+  if (r.status === "PASS") nPass++;
+  else if (r.status === "FAIL") nFail++;
+  else nSkip++;
+}
+console.log(`\n${nPass} pass · ${nFail} fail · ${nSkip} skip`);
+process.exit(nFail > 0 ? 1 : 0);

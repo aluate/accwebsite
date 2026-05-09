@@ -1,0 +1,264 @@
+/**
+ * /installer — Mobile-first dashboard for installers.
+ *
+ * Shows install-type schedule events grouped into TODAY / UPCOMING / RECENT.
+ * Tapping a card opens the job detail page where photos can be uploaded.
+ *
+ * V1: shows all install-type events (not yet filtered by crew assignment).
+ * Crew assignment per installer is a follow-up sprint item.
+ */
+
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { getBuilder } from "@/lib/auth";
+import { sql } from "@/lib/db";
+
+export const runtime = "nodejs";
+
+type InstallEvent = {
+  id: string;
+  job_id: string;
+  event_type: string;
+  description: string | null;
+  date_start: string | null;
+  date_end: string | null;
+  status: string;
+  note: string | null;
+  crew_name: string | null;
+  client_name: string;
+  site_address: string;
+  city: string | null;
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  cab_delivery:      "Cab Delivery",
+  top_delivery:      "Top Delivery",
+  install:           "Install",
+  punch:             "Punch",
+  final_walkthrough: "Final Walkthrough",
+  service:           "Service",
+};
+
+const TYPE_COLORS: Record<string, string> = {
+  cab_delivery:      "bg-blue-900/60 text-blue-300",
+  top_delivery:      "bg-indigo-900/60 text-indigo-300",
+  install:           "bg-orange-900/60 text-[#f08122]",
+  punch:             "bg-yellow-900/60 text-yellow-300",
+  final_walkthrough: "bg-green-900/60 text-green-300",
+  service:           "bg-purple-900/60 text-purple-300",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  scheduled:  "text-white/40",
+  confirmed:  "text-green-400",
+  on_hold:    "text-yellow-400",
+  complete:   "text-white/25",
+};
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "TBD";
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+function formatDateRange(start: string | null, end: string | null): string {
+  if (!start) return "TBD";
+  if (!end || end === start) return formatDate(start);
+  return `${formatDate(start)} – ${formatDate(end)}`;
+}
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function fetchEvents(): Promise<InstallEvent[]> {
+  const today = todayIso();
+  const windowBack  = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+  const windowAhead = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+
+  return sql<InstallEvent[]>`
+    SELECT
+      je.id,
+      je.job_id,
+      je.event_type,
+      je.description,
+      je.date_start,
+      je.date_end,
+      je.status,
+      je.note,
+      c.name   AS crew_name,
+      j.client_name,
+      j.site_address,
+      j.city
+    FROM job_events je
+    JOIN jobs j ON j.id = je.job_id
+    LEFT JOIN crews c ON c.id = je.crew_id
+    WHERE je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
+      AND (
+        je.date_start IS NULL
+        OR (
+          COALESCE(je.date_end, je.date_start) >= ${windowBack}
+          AND je.date_start <= ${windowAhead}
+        )
+      )
+    ORDER BY
+      CASE WHEN je.date_start IS NULL THEN 1 ELSE 0 END,
+      je.date_start,
+      je.event_type
+  `;
+}
+
+function groupEvents(events: InstallEvent[], today: string) {
+  const past: InstallEvent[]     = [];
+  const todayEvts: InstallEvent[] = [];
+  const upcoming: InstallEvent[] = [];
+  const undated: InstallEvent[]  = [];
+
+  for (const ev of events) {
+    if (!ev.date_start) { undated.push(ev); continue; }
+    const end = ev.date_end ?? ev.date_start;
+    if (end < today)         { past.push(ev); }
+    else if (ev.date_start <= today && end >= today) { todayEvts.push(ev); }
+    else                     { upcoming.push(ev); }
+  }
+
+  return { past: past.slice(-5).reverse(), todayEvts, upcoming, undated };
+}
+
+function EventCard({ ev }: { ev: InstallEvent }) {
+  const typeLabel  = TYPE_LABELS[ev.event_type]  ?? ev.event_type;
+  const typeCls    = TYPE_COLORS[ev.event_type]  ?? "bg-white/10 text-white/60";
+  const statusCls  = STATUS_COLORS[ev.status]    ?? "text-white/40";
+  const location   = [ev.site_address, ev.city].filter(Boolean).join(", ");
+
+  return (
+    <Link
+      href={`/jobs/${ev.job_id}`}
+      className="block bg-white/5 border border-white/10 rounded-xl p-4 active:bg-white/10 transition-colors"
+    >
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <span className={`text-xs font-condensed uppercase tracking-wider px-2 py-0.5 rounded ${typeCls}`}>
+          {typeLabel}
+        </span>
+        <span className={`text-xs font-condensed ${statusCls}`}>
+          {ev.status}
+        </span>
+      </div>
+
+      <p className="text-white font-medium text-base leading-tight">
+        {ev.client_name}
+      </p>
+      {location && (
+        <p className="text-white/50 text-sm mt-0.5">{location}</p>
+      )}
+      {ev.description && (
+        <p className="text-white/40 text-xs mt-1">{ev.description}</p>
+      )}
+
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-white/60 text-sm">
+          {formatDateRange(ev.date_start, ev.date_end)}
+        </span>
+        {ev.crew_name && (
+          <span className="text-white/30 text-xs font-condensed">
+            {ev.crew_name}
+          </span>
+        )}
+      </div>
+
+      {ev.note && (
+        <p className="mt-2 text-yellow-300/70 text-xs border-l-2 border-yellow-500/40 pl-2">
+          {ev.note}
+        </p>
+      )}
+
+      <p className="mt-3 text-[#f08122] text-xs font-condensed uppercase tracking-wider">
+        View job + upload photos →
+      </p>
+    </Link>
+  );
+}
+
+function Section({ title, events }: { title: string; events: InstallEvent[] }) {
+  if (events.length === 0) return null;
+  return (
+    <section>
+      <h2 className="text-white/30 font-condensed uppercase tracking-[0.2em] text-xs mb-3 px-1">
+        {title}
+      </h2>
+      <div className="space-y-3">
+        {events.map((ev) => <EventCard key={ev.id} ev={ev} />)}
+      </div>
+    </section>
+  );
+}
+
+export default async function InstallerPage() {
+  const session = await getBuilder();
+  if (!session) redirect("/login");
+
+  const events = await fetchEvents();
+  const today  = todayIso();
+  const { past, todayEvts, upcoming, undated } = groupEvents(events, today);
+
+  return (
+    <div className="min-h-screen bg-[#111] text-white">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-[#111]/95 backdrop-blur border-b border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[#f08122] font-condensed uppercase tracking-[0.2em] text-xs">
+              Advanced Custom Cabinets
+            </p>
+            <p className="text-white text-sm font-medium">{session.name}</p>
+          </div>
+          <Link
+            href="/schedule"
+            className="text-white/40 text-xs font-condensed uppercase tracking-wider border border-white/15 rounded px-3 py-1.5 hover:border-white/30 transition-colors"
+          >
+            Full Calendar
+          </Link>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-4 py-5 space-y-7 max-w-lg mx-auto">
+        {events.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-white/20 font-condensed uppercase tracking-wider text-sm">
+              No scheduled jobs
+            </p>
+            <p className="text-white/10 text-xs mt-2">
+              Check back when jobs are added to the schedule.
+            </p>
+          </div>
+        ) : (
+          <>
+            <Section title="Today"    events={todayEvts} />
+            <Section title="Upcoming" events={upcoming}  />
+            <Section title="Not Yet Scheduled" events={undated} />
+            <Section title="Recently Completed" events={past}  />
+          </>
+        )}
+
+        {/* Footer links */}
+        <div className="pt-4 border-t border-white/10 space-y-2">
+          <Link
+            href="/jobs"
+            className="block text-center text-white/30 text-xs font-condensed uppercase tracking-wider py-2"
+          >
+            All Jobs
+          </Link>
+          <form action="/api/auth/logout" method="POST">
+            <button
+              type="submit"
+              className="w-full text-center text-white/20 text-xs font-condensed uppercase tracking-wider py-2"
+            >
+              Sign Out
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

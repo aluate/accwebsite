@@ -27,8 +27,8 @@ export async function POST(req: NextRequest) {
       ${body.pm ?? ""}, ${body.builder_name ?? ""}, ${body.builder_email ?? ""},
       ${body.builder_phone ?? ""}, ${body.builder_company ?? ""},
       ${body.delivery_date ?? ""}, ${body.notes ?? ""},
-      ${body.mod_residential ?? false}, ${body.mod_commercial ?? false},
-      ${body.mod_trim ?? false}, ${body.mod_doors ?? false}
+      ${body.mod_residential ? 1 : 0}, ${body.mod_commercial ? 1 : 0},
+      ${body.mod_trim ? 1 : 0}, ${body.mod_doors ? 1 : 0}
     )
   `;
 
