@@ -5,6 +5,7 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
+import { ReleaseToProductionButton } from "@/components/ReleaseToProductionButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -301,12 +302,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             >
               Send DocuSign
             </button>
-            <button
-              disabled
-              className="bg-white/5 text-white/20 font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded cursor-not-allowed"
-            >
-              Release to Production
-            </button>
+            <ReleaseToProductionButton jobId={id} currentStatus={job.status} />
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5">
