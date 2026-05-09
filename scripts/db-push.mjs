@@ -398,4 +398,8 @@ async function main() {
     `;
   }
 
-  console.log("Schem
+  console.log("Schema push complete.");
+  await sql.end();
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
