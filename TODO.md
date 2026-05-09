@@ -74,30 +74,9 @@ If Karl knocks these out in order, several phases below open up at once.
 
 ---
 
-## Pre-launch Checklist (accspec.net via Cloudflare Tunnel)
+## ~~Pre-launch Checklist (accspec.net via Cloudflare Tunnel)~~ — SUPERSEDED
 
-### Done
-
-- [x] `.gitignore` excludes EXAMPLE DRAWINGS, data/jobs, data/archives, Cab Door PDFs
-- [x] `/jobs/**` gated behind login (was zero-auth before)
-- [x] Unified login at `/login` (admin + user roles)
-- [x] Bootstrap admin: `residential@advancedcabinets.net` / `1234`
-- [x] Root `/` redirects to `/jobs`
-
-### Pending
-
-- [x] **[KARL]** Rotate `1234` → `Summer2026!` via `node scripts/rotate-admin-pw.mjs`
-- [ ] **[KARL]** Confirm `EXPRESS_ENABLED="false"` in production `.env.local`.
-- [ ] **[KARL]** Buy `accspec.net` on Cloudflare ($11.86).
-- [ ] **[KARL]** `winget install --id Cloudflare.cloudflared` on advserver.
-- [ ] **[KARL]** `cloudflared tunnel login` (browser auth flow).
-- [ ] **[KARL]** `cloudflared tunnel create acc-spec`.
-- [ ] **[KARL]** `cloudflared tunnel route dns acc-spec accspec.net`.
-- [ ] **[KARL]** `cloudflared service install` (survives reboot).
-- [ ] **[KARL]** Run prod build: `npm run build && npx next start --port 3000`.
-- [ ] **[KARL]** Configure tunnel ingress: `localhost:3000` → `accspec.net`.
-- [ ] **[KARL]** Test from phone off-WiFi: hit `accspec.net` → `/login` reachable.
-- [ ] Optional: Cloudflare Access (email-OTP) on top of the password auth.
+> **Archived 2026-05-09.** This checklist was for the original self-hosted plan (advserver + Cloudflare Tunnel + accspec.net). The deployment decision changed to Vercel + advancedcabinets.org (2026-05-06). The site has been live at `www.advancedcabinets.org` since 2026-05-08. This section is kept for historical reference only.
 
 ---
 
@@ -456,3 +435,4 @@ of the only active admin.
 **2026-05-04** — Cab Door inside profiles + panels auto-extracted from the
 2024 Patterns Guide PDF via pypdf. 51 + 51 entries. Edge details, mitre
 patterns, and named presets still placeholder.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      

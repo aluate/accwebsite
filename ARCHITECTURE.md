@@ -17,11 +17,13 @@ treats as authoritative.
 - **Next.js 16 App Router + Turbopack** — chosen because Karl already runs it
   for other internal tools, and it gives us file-based routing for the
   admin/engineering/spec pages without a separate API server.
-- **SQLite via better-sqlite3 with WAL mode** — chosen for zero-ops, file-
-  based persistence on Karl's Windows host. WAL mode lets the dev server +
-  CLI scripts (migrate, backup, rotate-pw, selftest) coexist without lock
-  contention. Hard ceiling around 5-10 concurrent writers; revisit when ACC
-  has more than 3 PMs editing simultaneously (Phase 4 Postgres migration).
+- **Supabase Postgres** *(migrated from SQLite, 2026-05-06)* — hosted on
+  Supabase free tier, accessed via PgBouncer pooler (port 6543, transaction
+  mode). Connection requires `prepare: false` in the `postgres` npm package
+  config — PgBouncer transaction mode cannot use prepared statements.
+  Deployed on Vercel; `lib/db.ts` exports a tagged-template `sql` helper.
+  ~~SQLite via better-sqlite3~~ is gone — all `migrate.mjs` and
+  `better-sqlite3` references are dead code if they still exist.
 - **CSV→JSON catalog pipeline** — `data/catalogs/*.csv` is the source of
   truth, `scripts/sync-catalogs.mjs` regenerates JSON used at runtime. CSV
   was chosen over a "real" database for catalogs because Karl can edit them
@@ -41,13 +43,11 @@ treats as authoritative.
 
 ## Data model
 
-Single SQLite file at `data/acc-jobs.db`. Schema lives in TWO places that
-must stay in sync:
-
-1. `lib/db.ts` — runs on first import (i.e. first request to the dev server).
-2. `scripts/migrate.mjs` — runs via `npm run migrate` for CLI/deploy paths.
-
-The selftest's "required tables/columns" check fails loudly if drift occurs.
+Supabase Postgres. Schema is applied via the Supabase SQL Editor
+(`CREATE TABLE IF NOT EXISTS …` statements run manually as needed).
+`lib/db.ts` exports `sql` (a tagged-template helper from the `postgres` npm
+package) and `uid()` (a `nanoid`-based ID generator). There is no local
+migration runner — schema changes go straight to Supabase.
 
 ### Core tables
 
@@ -192,5 +192,3 @@ references exist.
 
 - `npm run selftest` is the canary. Green = system is internally consistent.
 - `data/backups/{latest}.tar.gz` restores everything.
-- Karl's `KARL_TODO.md` is the ledger of "things only Karl can do."
-- The `EOD_*.md` files at the repo root are end-of-day status snapshots.
