@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { sql, nextJobId, uid } from "@/lib/db";
 import { getBuilder } from "@/lib/auth";

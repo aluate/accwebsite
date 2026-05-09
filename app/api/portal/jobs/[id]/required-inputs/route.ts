@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { requirePortalAccessToJob } from "@/lib/portal-auth";
 import { listRequiredInputs, markInputReceived, summarize } from "@/lib/portal-required-inputs";
