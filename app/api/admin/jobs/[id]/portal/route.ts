@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const b = await req.json();
 
   if (typeof b.builder_portal_enabled === "number") {
-    await sql`UPDATE jobs SET builder_portal_enabled = ${b.builder_portal_enabled === 1} WHERE id = ${id}`;
+    await sql`UPDATE jobs SET builder_portal_enabled = ${b.builder_portal_enabled} WHERE id = ${id}`;
     if (b.builder_portal_enabled === 1) {
       await seedDefaultRequiredInputs(id); // idempotent
     }

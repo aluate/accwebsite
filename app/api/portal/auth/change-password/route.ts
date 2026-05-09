@@ -17,6 +17,6 @@ export async function POST(req: NextRequest) {
   if (!ok) return NextResponse.json({ error: "Current password incorrect" }, { status: 401 });
 
   const hash = await hashPassword(String(next));
-  await sql`UPDATE builder_portal_accounts SET password_hash = ${hash}, must_change_pw = false WHERE id = ${user.id}`;
+  await sql`UPDATE builder_portal_accounts SET password_hash = ${hash}, must_change_pw = 0 WHERE id = ${user.id}`;
   return NextResponse.json({ ok: true });
 }

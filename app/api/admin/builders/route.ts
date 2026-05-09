@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   await sql`
     INSERT INTO builder_accounts (id, username, password_hash, name, company, email, phone, active, created_at, role)
-    VALUES (${id}, ${username.trim().toLowerCase()}, ${hash}, ${name.trim()}, ${company ?? null}, ${email ?? null}, ${phone ?? null}, true, ${now}, ${safeRole})
+    VALUES (${id}, ${username.trim().toLowerCase()}, ${hash}, ${name.trim()}, ${company ?? null}, ${email ?? null}, ${phone ?? null}, 1, ${now}, ${safeRole})
   `;
 
   return NextResponse.json({ id, role: safeRole }, { status: 201 });
@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
   if (typeof active === "number") {
-    await sql`UPDATE builder_accounts SET active = ${active === 1} WHERE id = ${id}`;
+    await sql`UPDATE builder_accounts SET active = ${active} WHERE id = ${id}`;
   }
   if (password) {
     const hash = await bcrypt.hash(password, 12);
