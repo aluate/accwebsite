@@ -336,6 +336,23 @@ export default function BuildersAdminPage() {
               </div>
               <div className="flex gap-3">
                 <button
-                  type="submit"
-                  disabled={resetSaving || !resetPw}
-                  class
+                  className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-5 py-2 rounded transition-colors"
+                >
+                  {resetSaving ? "Saving…" : "Reset Password"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setResetId(null); setResetPw(""); }}
+                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
