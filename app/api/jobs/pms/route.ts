@@ -3,14 +3,13 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
-// GET /api/jobs/pms — returns active accounts with role='pm', ordered by name.
+// GET /api/jobs/pms — returns active accounts with role in ('pm','admin'), ordered by name.
 // Used by IntakeForm to populate the PM dropdown from the DB instead of site.ts.
 export async function GET() {
   const rows = await sql<{ name: string; email: string | null }[]>`
     SELECT name, email
     FROM builder_accounts
-    WHERE role = 'pm' AND active = 1
+    WHERE role IN ('pm', 'admin') AND active = 1
     ORDER BY name ASC
   `;
-  return NextResponse.json(rows);
-}
+  return Ne
