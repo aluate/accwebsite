@@ -65,7 +65,6 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       ac.addListener("place_changed", () => {
         const place = ac.getPlace();
         if (!place.address_components) return;
-        // Extract city from address components
         const city = place.address_components.find((c: { types: string[]; long_name: string }) =>
           c.types.includes("locality")
         )?.long_name ?? "";
@@ -76,7 +75,6 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
 
     (window as typeof window & { __initGooglePlaces?: () => void }).__initGooglePlaces = initAutocomplete;
 
-    // If script already loaded
     if (window.google?.maps?.places) {
       initAutocomplete();
     }
@@ -299,5 +297,75 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
         </div>
       </div>
 
-      {/* Phase 1B (2026-05) -- Build Notes split by audience.
-  
+      {/* Build Notes -- each section routes to a different team */}
+      <div className={SECTION}>
+        <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-4">Build Notes</p>
+        <p className="text-white/30 text-xs mb-4 font-condensed uppercase tracking-widest">
+          Each note routes to a different audience -- Install team, Finishing dept, Shop floor, or the Client. Leave blank if not applicable.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={LABEL}>Install Instructions</label>
+            <textarea
+              name="notes_install"
+              rows={3}
+              defaultValue={initial?.notes_install ?? ""}
+              placeholder="Floor conditions, install order, scribe-to-wall, ceiling height quirks..."
+              className={INPUT + " resize-none"}
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Finishing Dept</label>
+            <textarea
+              name="notes_finishing"
+              rows={3}
+              defaultValue={initial?.notes_finishing ?? ""}
+              placeholder="Sheen, custom paint match, hardwood edge to paint, glaze details..."
+              className={INPUT + " resize-none"}
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Shop Build Notes</label>
+            <textarea
+              name="notes_shop"
+              rows={3}
+              defaultValue={initial?.notes_shop ?? ""}
+              placeholder="Box construction quirks, applied panels, hood enclosures, special joinery..."
+              className={INPUT + " resize-none"}
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Client-Facing Notes</label>
+            <textarea
+              name="notes_client"
+              rows={3}
+              defaultValue={initial?.notes_client ?? ""}
+              placeholder="What the client should see on the spec -- included scope, exclusions, callouts..."
+              className={INPUT + " resize-none"}
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <p className="text-red-400 text-sm">{error}</p>
+      )}
+
+      <div className="flex gap-4 pt-2">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-3 px-8 rounded transition-colors disabled:opacity-50"
+        >
+          {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Job"}
+        </button>
+        <a
+          href="/jobs"
+          className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm py-3 px-4 transition-colors"
+        >
+          Cancel
+        </a>
+      </div>
+    </form>
+  );
+}
