@@ -370,6 +370,18 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_activity_log_job           ON activity_log(job_id, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_actor         ON activity_log(actor, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_at            ON activity_log(occurred_at);
+
+    CREATE TABLE IF NOT EXISTS job_files (
+      id           TEXT PRIMARY KEY,
+      job_id       TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      kind         TEXT NOT NULL,
+      filename     TEXT NOT NULL,
+      storage_path TEXT NOT NULL,
+      size         INTEGER NOT NULL DEFAULT 0,
+      uploaded_at  TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_job_files_job  ON job_files(job_id);
+    CREATE INDEX IF NOT EXISTS idx_job_files_kind ON job_files(job_id, kind);
   `);
 
   // ── Schedule V2 column additions (idempotent) ──────────────────────────────
@@ -377,9 +389,51 @@ async function main() {
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_start TEXT`,
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_end   TEXT`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS must_change_pw INTEGER NOT NULL DEFAULT 0`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
+
+  // ── Job number (TradeSoft) column addition (idempotent) ────────────────────
+  for (const stmt of [
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS job_number TEXT`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_job_number ON jobs(job_number) WHERE job_number IS NOT NULL`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // ── Work orders (idempotent) ───────────────────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS work_orders (
+      id          TEXT PRIMARY KEY,
+      job_id      TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      wo_number   TEXT NOT NULL,
+      wo_type     TEXT NOT NULL DEFAULT 'wo',
+      file_id     TEXT REFERENCES job_files(id) ON DELETE SET NULL,
+      label       TEXT,
+      created_at  TEXT NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_work_orders_job_wo
+      ON work_orders(job_id, wo_number);
+    CREATE INDEX IF NOT EXISTS idx_work_orders_job
+      ON work_orders(job_id);
+  `);
+
+  // ── Transition emails table (idempotent) ───────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS transition_emails (
+      id            TEXT PRIMARY KEY,
+      job_id        TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      to_status     TEXT NOT NULL,
+      recipient     TEXT NOT NULL,
+      subject       TEXT NOT NULL,
+      sent_at       TEXT,
+      error         TEXT,
+      created_at    TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_transition_emails_job
+      ON transition_emails(job_id);
+  `);
 
   // ── Seed event_phase_labels (idempotent) ───────────────────────────────────
   const defaultLabels = [

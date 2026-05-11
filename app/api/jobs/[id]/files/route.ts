@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
@@ -8,7 +6,30 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
-const VALID_KINDS = new Set(["plans", "appliances", "site", "drawings"]);
+
+// Z drive mirror — 17 folders in sort order
+const VALID_KINDS = new Set([
+  "00_field_dims",
+  "01_plan",
+  "02_quote",
+  "03_job_specs",
+  "04_appliances",
+  "05_drawings",
+  "05a_redlines",
+  "06_as_builts",
+  "07_correspondence",
+  "08_project_mgmt",
+  "09_site_photos",
+  "10_billing",
+  "11_punch_list",
+  "12_cost_quality",
+  "13_installation",
+  "14_prod_docs",
+  "14_wo_pdfs",
+  "14_ship_ticket",
+  "14_install_drawings",
+  "15_contract",
+]);
 
 function supabaseAdmin() {
   return createClient(
@@ -33,7 +54,7 @@ async function jobExists(id: string): Promise<boolean> {
 
 // POST /api/jobs/[id]/files  multipart/form-data
 //   file: File
-//   kind: 'plans' | 'appliances' | 'site' | 'drawings'
+//   kind: one of the 17 Z-drive folder keys
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!(await jobExists(id))) return NextResponse.json({ error: "Job not found" }, { status: 404 });
@@ -42,8 +63,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const file = form.get("file") as File | null;
   const kind = String(form.get("kind") ?? "");
 
-  if (!file)                  return NextResponse.json({ error: "Missing file" }, { status: 400 });
-  if (!VALID_KINDS.has(kind)) return NextResponse.json({ error: `Invalid kind. Must be one of: ${[...VALID_KINDS].join(", ")}` }, { status: 400 });
+  if (!file)                   return NextResponse.json({ error: "Missing file" }, { status: 400 });
+  if (!VALID_KINDS.has(kind))  return NextResponse.json({ error: `Invalid kind. Must be one of: ${[...VALID_KINDS].join(", ")}` }, { status: 400 });
 
   const safeName = safeFilename(file.name);
   const path = storagePath(id, kind, safeName);
@@ -71,8 +92,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 // GET /api/jobs/[id]/files
-//   List mode (no query params): { files: { plans:[], appliances:[], site:[], drawings:[] } }
-//   Stream mode (?kind=X&file_id=Y): returns signed download URL redirect
+//   List mode: { files: { [kind]: FileEntry[] } }  — all 17 folders always present
+//   Stream mode (?file_id=Y): returns signed download URL redirect
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!(await jobExists(id))) return NextResponse.json({ error: "Job not found" }, { status: 404 });
@@ -90,14 +111,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const supabase = supabaseAdmin();
     const { data, error } = await supabase.storage
       .from(BUCKET)
-      .createSignedUrl(row.storage_path, 300); // 5-min signed URL
+      .createSignedUrl(row.storage_path, 300);
 
     if (error || !data) return NextResponse.json({ error: "Could not generate download URL" }, { status: 500 });
-
     return NextResponse.redirect(data.signedUrl);
   }
 
-  // List all files grouped by kind
+  // List all files grouped by kind — initialise all 17 folders empty
   const out: Record<string, Array<{ id: string; filename: string; size: number; uploaded_at: string; url: string }>> = {};
   for (const k of VALID_KINDS) out[k] = [];
 
@@ -140,10 +160,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { error: deleteError } = await supabase.storage.from(BUCKET).remove([row.storage_path]);
   if (deleteError) {
     console.error("[files/delete] Storage error:", deleteError);
-    // Continue to remove the DB row even if storage delete fails (orphan cleanup)
   }
 
-  await sql`DELETE FROM job_files WHERE id = ${fileId} AND job_id = ${id}`;
-
-  return NextResponse.json({ ok: true });
-}
+  await sql`DELETE FROM job_files WHERE id = ${fileId} AND 
