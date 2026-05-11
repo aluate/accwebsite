@@ -11,7 +11,7 @@ type BuilderAccount = {
   phone: string | null;
   active: number;
   created_at: string;
-  role: "admin" | "user" | "engineer" | "pm" | "installer" | "partner";
+  role: "admin" | "pm" | "engineer" | "shop" | "installer";
 };
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -37,14 +37,13 @@ function TextIn({
   );
 }
 
-const EMPTY_FORM = { username: "", password: "", name: "", company: "", email: "", phone: "", role: "user" as "user" | "admin" | "engineer" | "pm" | "installer" | "partner" };
+const EMPTY_FORM = { username: "", password: "", name: "", company: "", email: "", phone: "", role: "pm" as "admin" | "pm" | "engineer" | "shop" | "installer" };
 const ROLE_LABELS: Record<string, string> = {
-  pm:        "PM (job assignment dropdown)",
-  user:      "User (Express portal)",
-  engineer:  "Engineer (spec edits)",
-  admin:     "Admin (manage accounts)",
+  admin:     "Admin",
+  pm:        "PM",
+  engineer:  "Engineer",
+  shop:      "Shop",
   installer: "Installer",
-  partner:   "Partner / Builder",
 };
 
 export default function BuildersAdminPage() {
@@ -202,12 +201,11 @@ export default function BuildersAdminPage() {
                 onChange={(e) => setForm({ ...form, role: e.target.value as "user" | "admin" })}
                 className="w-full bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/60"
               >
-                  <option value="pm">PM (job assignment dropdown)</option>
-                <option value="user">User (Express portal)</option>
-                <option value="engineer">Engineer (spec edits)</option>
-                <option value="admin">Admin (manage accounts)</option>
+                  <option value="admin">Admin</option>
+                <option value="pm">PM</option>
+                <option value="engineer">Engineer</option>
+                <option value="shop">Shop</option>
                 <option value="installer">Installer</option>
-                <option value="partner">Partner / Builder</option>
               </select>
             </div>
             <div>
@@ -261,15 +259,14 @@ export default function BuildersAdminPage() {
                         {a.name}
                       </span>
                       <span className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded ${
-                        a.role === "admin"
-                          ? "text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/30"
-                          : a.role === "pm"
-                          ? "text-blue-300 bg-blue-900/30 border border-blue-400/30"
-                          : a.role === "engineer"
-                          ? "text-purple-300 bg-purple-900/30 border border-purple-400/30"
-                          : "text-white/40 bg-white/5 border border-white/10"
+                        a.role === "admin"     ? "text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/30" :
+                        a.role === "pm"        ? "text-blue-300 bg-blue-900/30 border border-blue-400/30" :
+                        a.role === "engineer"  ? "text-purple-300 bg-purple-900/30 border border-purple-400/30" :
+                        a.role === "shop"      ? "text-green-300 bg-green-900/30 border border-green-400/30" :
+                        a.role === "installer" ? "text-yellow-300 bg-yellow-900/30 border border-yellow-400/30" :
+                                                 "text-white/40 bg-white/5 border border-white/10"
                       }`}>
-                        {a.role}
+                        {ROLE_LABELS[a.role] ?? a.role}
                       </span>
                       <span className="text-white/30 text-xs font-mono">{a.username}</span>
                       {a.active !== 1 && (
@@ -288,12 +285,11 @@ export default function BuildersAdminPage() {
                       onChange={(e) => setRole(a, e.target.value)}
                       className="bg-white/5 border border-white/15 rounded px-2 py-1.5 text-white text-xs font-condensed focus:outline-none focus:border-[#f08122]/60"
                     >
-                      <option value="pm">PM</option>
-                      <option value="user">User</option>
-                      <option value="engineer">Engineer</option>
                       <option value="admin">Admin</option>
+                      <option value="pm">PM</option>
+                      <option value="engineer">Engineer</option>
+                      <option value="shop">Shop</option>
                       <option value="installer">Installer</option>
-                      <option value="partner">Partner</option>
                     </select>
                     <button
                       onClick={() => { setResetId(a.id); setResetPw(""); setSuccess(""); }}
@@ -338,4 +334,8 @@ export default function BuildersAdminPage() {
                 <Label>New Password</Label>
                 <TextIn value={resetPw} onChange={setResetPw} type="password" placeholder="New password" />
               </div>
-              <div className="flex gap
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={resetSaving || !resetPw}
+                  class
