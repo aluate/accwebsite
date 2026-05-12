@@ -371,4 +371,100 @@ export default function BuildersAdminPage() {
                       onClick={() => handleDelete(a.id, a.name, a.role)}
                       className="text-red-400/50 hover:text-red-400 font-condensed uppercase tracking-widest text-xs px-3 py-1.5 border border-red-400/10 rounded transition-colors"
                     >
-           
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Edit account modal */}
+        {editAccount && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+            <form
+              onSubmit={handleEdit}
+              className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-sm space-y-4"
+            >
+              <p className="font-condensed uppercase tracking-widest text-xs text-[#f08122]">
+                Edit Account
+              </p>
+              <div>
+                <Label>Full Name</Label>
+                <TextIn value={editForm.name} onChange={(v) => setEditForm({ ...editForm, name: v })} placeholder="Full name" />
+              </div>
+              <div>
+                <Label>Username</Label>
+                <TextIn value={editForm.username} onChange={(v) => setEditForm({ ...editForm, username: v })} placeholder="Username" />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <TextIn value={editForm.email} onChange={(v) => setEditForm({ ...editForm, email: v })} type="email" placeholder="email@advancedcabinets.net" />
+              </div>
+              <div>
+                <Label>Phone</Label>
+                <TextIn value={editForm.phone} onChange={(v) => setEditForm({ ...editForm, phone: v })} placeholder="555-123-4567" />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={editSaving}
+                  className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-5 py-2 rounded transition-colors"
+                >
+                  {editSaving ? "Saving…" : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditAccount(null)}
+                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Reset password modal */}
+        {resetId && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+            <form
+              onSubmit={handleResetPassword}
+              className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-sm space-y-4"
+            >
+              <p className="font-condensed uppercase tracking-widest text-xs text-[#f08122]">
+                Reset Password
+              </p>
+              <p className="text-white/50 text-xs">
+                {accounts.find((a) => a.id === resetId)?.name}{" "}-{" "}
+                {accounts.find((a) => a.id === resetId)?.username}
+              </p>
+              <div>
+                <Label>New Password</Label>
+                <TextIn value={resetPw} onChange={setResetPw} type="password" placeholder="New password" />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={resetSaving}
+                  className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-5 py-2 rounded transition-colors"
+                >
+                  {resetSaving ? "Saving…" : "Reset Password"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setResetId(null); setResetPw(""); }}
+                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}

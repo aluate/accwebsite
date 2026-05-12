@@ -12,4 +12,5 @@ export async function GET() {
     WHERE role IN ('pm', 'admin') AND active = 1
     ORDER BY name ASC
   `;
-  return Ne
+  return NextResponse.json(rows);
+}

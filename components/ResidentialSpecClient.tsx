@@ -1231,4 +1231,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           })}
         </div>
       )}
-    </di
+    </div>
+  );
+}
