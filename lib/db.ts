@@ -19,12 +19,18 @@ function createSql() {
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
     ssl: "require",
-    max: 10,
-    idle_timeout: 20,
-    connect_timeout: 10,
+    max: 3,               // keep pool small — Supabase free tier has ~10 total; reserve headroom
+    idle_timeout: 10,
+    connect_timeout: 15,  // give cold PgBouncer up to 15s to hand us a connection
     // Required for PgBouncer transaction-mode pooling (Supabase Shared Pooler).
     // Prepared statements are stateful and incompatible with transaction poolers.
     prepare: false,
+    // Kill stalled queries so orphaned locks never block forever.
+    // PgBouncer passes these as startup GUC params.
+    connection: {
+      statement_timeout: "20000",  // 20s per statement
+      lock_timeout: "8000",        // 8s to acquire a lock
+    },
   });
 }
 
@@ -47,20 +53,4 @@ const sql = new Proxy(getSql as unknown as ReturnType<typeof postgres>, {
 }) as ReturnType<typeof postgres>;
 
 export default sql;
-export { sql };
-
-export function uid(): string {
-  return randomBytes(8).toString("hex");
-}
-
-export async function nextJobId(): Promise<{ id: string; seq: number }> {
-  const [row] = await sql`
-    UPDATE seq SET val = val + 1 WHERE id = 1 RETURNING val
-  `;
-  const seq = row.val as number;
-  const year = new Date().getFullYear();
-  return {
-    id: `ACC-${year}-${String(seq).padStart(4, "0")}`,
-    seq,
-  };
-}
+export { s

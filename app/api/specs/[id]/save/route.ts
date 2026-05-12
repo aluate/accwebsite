@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
@@ -169,138 +168,131 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const now = new Date().toISOString();
 
+  // NOTE: We intentionally do NOT use sql.begin() here.
+  // sql.begin() holds a single PgBouncer connection open for the entire
+  // multi-statement sequence. On Vercel+Supabase, if the Lambda is killed
+  // mid-transaction the connection is orphaned and blocks subsequent requests
+  // for minutes. Using individual autocommit statements avoids that — each
+  // query gets and releases a connection immediately.
+  //
+  // Trade-off: not atomic. If the Lambda dies between DELETE and INSERT the
+  // spec will be empty. The user can re-save from the UI — acceptable.
   try {
-    await sql.begin(async (tx) => {
-      // Clear child tables in FK-safe order
-      await tx`
-        DELETE FROM finish_molding_rooms
-        WHERE molding_id IN (
-          SELECT id FROM finish_moldings
-          WHERE finish_group_id IN (
-            SELECT id FROM finish_groups WHERE spec_id = ${id}
-          )
-        )
-      `;
-      await tx`
-        DELETE FROM finish_moldings
+    // Clear child tables in FK-safe order (each statement = its own mini-tx)
+    await sql`
+      DELETE FROM finish_molding_rooms
+      WHERE molding_id IN (
+        SELECT id FROM finish_moldings
         WHERE finish_group_id IN (
           SELECT id FROM finish_groups WHERE spec_id = ${id}
         )
-      `;
-      await tx`
-        DELETE FROM finish_group_materials
-        WHERE finish_group_id IN (
-          SELECT id FROM finish_groups WHERE spec_id = ${id}
-        )
-      `;
-      await tx`
-        DELETE FROM room_finishes
-        WHERE finish_group_id IN (
-          SELECT id FROM finish_groups WHERE spec_id = ${id}
-        )
-      `;
-      await tx`DELETE FROM cabinet_line_items WHERE spec_id = ${id}`;
-      await tx`DELETE FROM finish_groups WHERE spec_id = ${id}`;
-      await tx`DELETE FROM rooms WHERE spec_id = ${id}`;
+      )
+    `;
+    await sql`
+      DELETE FROM finish_moldings
+      WHERE finish_group_id IN (
+        SELECT id FROM finish_groups WHERE spec_id = ${id}
+      )
+    `;
+    await sql`
+      DELETE FROM finish_group_materials
+      WHERE finish_group_id IN (
+        SELECT id FROM finish_groups WHERE spec_id = ${id}
+      )
+    `;
+    await sql`
+      DELETE FROM room_finishes
+      WHERE room_id IN (SELECT id FROM rooms WHERE spec_id = ${id})
+    `;
+    await sql`DELETE FROM cabinet_line_items WHERE spec_id = ${id}`;
+    await sql`DELETE FROM room_accessories WHERE room_id IN (SELECT id FROM rooms WHERE spec_id = ${id})`;
+    await sql`DELETE FROM rooms WHERE spec_id = ${id}`;
+    await sql`DELETE FROM finish_groups WHERE spec_id = ${id}`;
 
-      // Insert finish groups
-      for (const g of finish_groups) {
-        await tx`
-          INSERT INTO finish_groups
-            (id, spec_id, label, finish_type, color_id, color_name,
-             door_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-             notes, sort_order)
+    // Insert finish groups
+    for (const g of finish_groups) {
+      await sql`
+        INSERT INTO finish_groups
+          (id, spec_id, label, finish_type, color_id, color_name,
+           door_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
+           notes, sort_order)
+        VALUES
+          (${g.id}, ${id}, ${g.label}, ${g.finish_type},
+           ${g.color_id || null}, ${g.color_name || null},
+           ${g.door_style_id || null}, ${g.pull_id || null},
+           ${g.box_material || "melamine"},
+           ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
+           ${g.notes || null}, ${g.sort_order ?? 0})
+      `;
+    }
+
+    // Insert rooms + accessories + cabinets
+    for (const r of rooms) {
+      await sql`
+        INSERT INTO rooms (id, spec_id, name, finish_group_id, notes, sort_order)
+        VALUES (${r.id}, ${id}, ${r.name}, ${r.finish_group_id || null},
+                ${r.notes || null}, ${r.sort_order ?? 0})
+      `;
+
+      // Multi-finish links
+      for (let fi = 0; fi < (r.finishes ?? []).length; fi++) {
+        const f = r.finishes[fi];
+        await sql`
+          INSERT INTO room_finishes (id, room_id, finish_group_id, zone, sort_order)
+          VALUES (${uid()}, ${r.id}, ${f.finish_group_id}, ${f.zone ?? null}, ${f.sort_order ?? fi})
+        `;
+      }
+
+      // Accessories
+      for (const acc of r.accessories ?? []) {
+        await sql`
+          INSERT INTO room_accessories (id, room_id, acc_id, qty)
+          VALUES (${uid()}, ${r.id}, ${acc.acc_id}, ${acc.qty ?? 1})
+        `;
+      }
+
+      // Cabinets
+      for (const cab of r.cabinets ?? []) {
+        await sql`
+          INSERT INTO cabinet_line_items
+            (id, room_id, spec_id, family_code, width_in, height_in, depth_in, qty,
+             hinge_side, rollout_trays_qty, trash_kit, applied_panels, special_instructions, sort_order)
           VALUES
-            (${g.id}, ${id}, ${g.label}, ${g.finish_type},
-             ${g.color_id || null}, ${g.color_name || null},
-             ${g.door_style_id || null}, ${g.pull_id || null},
-             ${g.box_material || "melamine"},
-             ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-             ${g.notes || null}, ${g.sort_order ?? 0})
+            (${cab.id}, ${r.id}, ${id}, ${cab.family_code},
+             ${cab.width_in ?? null}, ${cab.height_in ?? null}, ${cab.depth_in ?? null},
+             ${cab.qty ?? 1}, ${cab.hinge_side || null},
+             ${cab.rollout_trays_qty ?? 0}, ${cab.trash_kit || null},
+             ${cab.applied_panels ?? false},
+             ${cab.special_instructions || null}, ${cab.sort_order ?? 0})
         `;
       }
+    }
 
-      // Insert rooms + accessories + cabinets
-      for (const r of rooms) {
-        await tx`
-          INSERT INTO rooms (id, spec_id, name, finish_group_id, notes, sort_order)
-          VALUES (${r.id}, ${id}, ${r.name}, ${r.finish_group_id || null},
-                  ${r.notes || null}, ${r.sort_order ?? 0})
-        `;
-
-        // Multi-finish links
-        for (let fi = 0; fi < (r.finishes ?? []).length; fi++) {
-          const f = r.finishes[fi];
-          await tx`
-            INSERT INTO room_finishes (id, room_id, finish_group_id, zone, sort_order)
-            VALUES (${uid()}, ${r.id}, ${f.finish_group_id}, ${f.zone ?? null}, ${f.sort_order ?? fi})
-          `;
-        }
-
-        // Accessories
-        for (const acc of r.accessories ?? []) {
-          await tx`
-            INSERT INTO room_accessories (id, room_id, acc_id, qty)
-            VALUES (${uid()}, ${r.id}, ${acc.acc_id}, ${acc.qty ?? 1})
-          `;
-        }
-
-        // Cabinets
-        for (const cab of r.cabinets ?? []) {
-          await tx`
-            INSERT INTO cabinet_line_items
-              (id, room_id, spec_id, family_code, width_in, height_in, depth_in, qty,
-               hinge_side, rollout_trays_qty, trash_kit, applied_panels, special_instructions, sort_order)
-            VALUES
-              (${cab.id}, ${r.id}, ${id}, ${cab.family_code},
-               ${cab.width_in ?? null}, ${cab.height_in ?? null}, ${cab.depth_in ?? null},
-               ${cab.qty ?? 1}, ${cab.hinge_side || null},
-               ${cab.rollout_trays_qty ?? 0}, ${cab.trash_kit || null},
-               ${cab.applied_panels ?? false},
-               ${cab.special_instructions || null}, ${cab.sort_order ?? 0})
-          `;
-        }
-      }
-
-      // Insert moldings + room links
-      for (const m of moldings) {
-        await tx`
-          INSERT INTO finish_moldings
-            (id, finish_group_id, molding_type, molding_profile_id, qty_lf,
-             size_in, material_id, material_other, notes, sort_order)
-          VALUES
-            (${m.id}, ${m.finish_group_id}, ${m.molding_type},
-             ${m.molding_profile_id ?? null}, ${m.qty_lf ?? null},
-             ${m.size_in ?? null}, ${m.material_id ?? null},
-             ${m.material_other ?? null}, ${m.notes || null}, ${m.sort_order ?? 0})
-        `;
-        for (const rid of m.where_used_room_ids ?? []) {
-          await tx`
-            INSERT INTO finish_molding_rooms (id, molding_id, room_id)
-            VALUES (${uid()}, ${m.id}, ${rid})
-          `;
-        }
-      }
-
-      // Insert materials (finish_group_materials via save payload — legacy path)
-      for (const mat of materials) {
-        await tx`
-          INSERT INTO finish_group_materials
-            (id, finish_group_id, role, material_id, where_used, notes)
-          VALUES
-            (${mat.id || uid()}, ${mat.finish_group_id}, ${mat.role},
-             ${mat.material_id || null}, ${mat.where_used || null}, ${mat.notes || null})
-        `;
-      }
-
-      // Update spec updated_at
-      await tx`
-        UPDATE residential_specs SET updated_at = ${now} WHERE id = ${id}
+    // Insert moldings + room links
+    for (const m of moldings) {
+      await sql`
+        INSERT INTO finish_moldings
+          (id, finish_group_id, molding_type, molding_profile_id, qty_lf,
+           size_in, material_id, material_other, notes, sort_order)
+        VALUES
+          (${m.id}, ${m.finish_group_id}, ${m.molding_type},
+           ${m.molding_profile_id ?? null}, ${m.qty_lf ?? null},
+           ${m.size_in ?? null}, ${m.material_id ?? null},
+           ${m.material_other ?? null}, ${m.notes || null}, ${m.sort_order ?? 0})
       `;
-    });
-  } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
-  }
+      for (const rid of m.where_used_room_ids ?? []) {
+        await sql`
+          INSERT INTO finish_molding_rooms (id, molding_id, room_id)
+          VALUES (${uid()}, ${m.id}, ${rid})
+        `;
+      }
+    }
 
-  return NextResponse.json({ ok: true });
-}
+    // Insert materials
+    for (const mat of materials) {
+      await sql`
+        INSERT INTO finish_group_materials
+          (id, finish_group_id, role, material_id, where_used, notes)
+        VALUES
+          (${mat.id || uid()}, ${mat.finish_group_id}, ${mat.role},
+           ${mat.mat
