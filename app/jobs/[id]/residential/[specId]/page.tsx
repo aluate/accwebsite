@@ -6,27 +6,15 @@ import { sql } from "@/lib/db";
 import { catalogs } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
 
-type SpecRow    = { id: string; job_id: string; name: string; status: string; updated_at: string };
-type FGRow      = {
-  id: string; label: string; finish_type: "paint"|"stain"|"melamine";
-  color_id: string; color_name: string;
-  door_style_id: string; pull_id: string;
-  box_material: "melamine"|"plywood";
-  carcass_id: string | null; drawer_box_id: string | null; edgeband_id: string | null;
-  notes: string; sort_order: number;
-};
-type RoomRow    = { id: string; name: string; finish_group_id: string; notes: string; sort_order: number };
+type SpecRow       = { id: string; job_id: string; name: string; status: string; updated_at: string };
+type FGRow         = { id: string; label: string; finish_type: "paint"|"stain"|"melamine"; color_id: string; color_name: string; door_style_id: string; pull_id: string; box_material: "melamine"|"plywood"; carcass_id: string | null; drawer_box_id: string | null; edgeband_id: string | null; notes: string; sort_order: number };
+type RoomRow       = { id: string; name: string; finish_group_id: string; notes: string; sort_order: number };
 type RoomFinishRow = { id: string; room_id: string; finish_group_id: string; zone: string | null; sort_order: number };
-type AccRow     = { id: string; room_id: string; acc_id: string; qty: number };
-type CabinetRow = { id: string; room_id: string; family_code: string; width_in: number|null; height_in: number|null; depth_in: number|null; qty: number; hinge_side: string|null; rollout_trays_qty: number; trash_kit: string; applied_panels: boolean; special_instructions: string|null; sort_order: number };
-type MoldingRow = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; size_in: number | null; material_id: string | null; material_other: string | null; notes: string | null; sort_order: number };
+type AccRow        = { id: string; room_id: string; acc_id: string; qty: number };
+type CabinetRow    = { id: string; room_id: string; family_code: string; width_in: number|null; height_in: number|null; depth_in: number|null; qty: number; hinge_side: string|null; rollout_trays_qty: number; trash_kit: string; applied_panels: boolean; special_instructions: string|null; sort_order: number };
+type MoldingRow    = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; size_in: number | null; material_id: string | null; material_other: string | null; notes: string | null; sort_order: number };
 type MoldingRoomRow = { molding_id: string; room_id: string };
-
-// Spec form expansion v2 (2026-05-06): finish-group child tables. Loaded once
-// per page render, grouped by finish_group_id, then handed to the client as
-// per-finish state. Material is the first sub-section to land — others follow
-// the same pattern (door fronts, drawers, edgebands, hardware, countertops).
-type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
+type MaterialRow   = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 
 export default async function SpecEditorPage({
   params,
@@ -35,48 +23,34 @@ export default async function SpecEditorPage({
 }) {
   const { id, specId } = await params;
 
+  // Round 1: verify spec exists (must be serial — drives notFound())
   const [spec] = await sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as SpecRow[];
   if (!spec) notFound();
 
-  const finish_groups = await sql`
-    SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order
-  ` as FGRow[];
+  // Round 2: all child data in parallel using subqueries — no serial dependency chain.
+  // Queries that previously needed roomIds/fgIds now use correlated subqueries so
+  // they can all fire at once. Total: 2 DB round-trips regardless of data volume.
+  const [
+    finish_groups,
+    rooms,
+    accessories,
+    cabinets,
+    roomFinishes,
+    moldingRows,
+    materialRows,
+    moldingRoomRows,
+  ] = await Promise.all([
+    sql`SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<FGRow[]>,
+    sql`SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<RoomRow[]>,
+    sql`SELECT * FROM room_accessories WHERE room_id IN (SELECT id FROM rooms WHERE spec_id = ${specId})` as Promise<AccRow[]>,
+    sql`SELECT * FROM cabinet_line_items WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<CabinetRow[]>,
+    sql`SELECT * FROM room_finishes WHERE room_id IN (SELECT id FROM rooms WHERE spec_id = ${specId}) ORDER BY room_id, sort_order` as Promise<RoomFinishRow[]>,
+    sql`SELECT * FROM finish_moldings WHERE finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${specId}) ORDER BY finish_group_id, sort_order` as Promise<MoldingRow[]>,
+    sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${specId}) ORDER BY finish_group_id, role` as Promise<MaterialRow[]>,
+    sql`SELECT fmr.molding_id, fmr.room_id FROM finish_molding_rooms fmr JOIN finish_moldings fm ON fm.id = fmr.molding_id JOIN finish_groups fg ON fg.id = fm.finish_group_id WHERE fg.spec_id = ${specId}` as Promise<MoldingRoomRow[]>,
+  ]);
 
-  const rooms = await sql`
-    SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order
-  ` as RoomRow[];
-
-  const roomIds = rooms.map((r) => r.id);
-
-  const accessories: AccRow[] = roomIds.length
-    ? await sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as AccRow[]
-    : [];
-
-  const cabinets: CabinetRow[] = roomIds.length
-    ? await sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as CabinetRow[]
-    : [];
-
-  const roomFinishes: RoomFinishRow[] = roomIds.length
-    ? await sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as RoomFinishRow[]
-    : [];
-
-  // Phase 1B (2026-05): per-finish moldings with where-used rooms.
-  const fgIds = finish_groups.map((g) => g.id);
-
-  const moldingRows: MoldingRow[] = fgIds.length
-    ? await sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as MoldingRow[]
-    : [];
-
-  // Spec form v2 child tables (2026-05-06). Material first; others next.
-  const materialRows: MaterialRow[] = fgIds.length
-    ? await sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as MaterialRow[]
-    : [];
-
-  const moldingIds = moldingRows.map((m) => m.id);
-
-  const moldingRoomRows: MoldingRoomRow[] = moldingIds.length
-    ? await sql`SELECT * FROM finish_molding_rooms WHERE molding_id IN ${sql(moldingIds)}` as MoldingRoomRow[]
-    : [];
+  // ── Shape data for client component ──────────────────────────────────────────
 
   const moldings = moldingRows.map((m) => ({
     id: m.id,
@@ -95,11 +69,7 @@ export default async function SpecEditorPage({
   const roomsWithAcc = rooms.map((r) => {
     const finishes = roomFinishes
       .filter((f) => f.room_id === r.id)
-      .map((f) => ({
-        finish_group_id: f.finish_group_id,
-        zone: f.zone ?? "",
-        sort_order: f.sort_order,
-      }));
+      .map((f) => ({ finish_group_id: f.finish_group_id, zone: f.zone ?? "", sort_order: f.sort_order }));
 
     const seededFinishes = finishes.length === 0 && r.finish_group_id
       ? [{ finish_group_id: r.finish_group_id, zone: "", sort_order: 0 }]
@@ -137,11 +107,6 @@ export default async function SpecEditorPage({
     edgeband_id:   g.edgeband_id   ?? "",
   }));
 
-  // Materials hydrated as {finish_group_id, role, material_id, where_used, notes}.
-  // Empty arrays for groups that have no rows yet — the client renders blank
-  // dropdowns so Karl can fill them in (forced-dropdown discipline).
-  // Filter to the 4 valid roles + cast role to the strict union type the
-  // client component expects. Defensive against catalog drift.
   const VALID_MATERIAL_ROLES = ["cab_ext", "cab_int", "cab_ext2", "cab_int2"] as const;
   type MaterialRole = (typeof VALID_MATERIAL_ROLES)[number];
   const materialsHydrated = materialRows
