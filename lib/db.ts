@@ -53,4 +53,20 @@ const sql = new Proxy(getSql as unknown as ReturnType<typeof postgres>, {
 }) as ReturnType<typeof postgres>;
 
 export default sql;
-export { s
+export { sql };
+
+export function uid(): string {
+  return randomBytes(8).toString("hex");
+}
+
+export async function nextJobId(): Promise<{ id: string; seq: number }> {
+  const [row] = await sql`
+    UPDATE seq SET val = val + 1 WHERE id = 1 RETURNING val
+  `;
+  const seq = row.val as number;
+  const year = new Date().getFullYear();
+  return {
+    id: `ACC-${year}-${String(seq).padStart(4, "0")}`,
+    seq,
+  };
+}
