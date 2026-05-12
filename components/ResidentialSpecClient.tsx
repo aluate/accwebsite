@@ -250,9 +250,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     try {
       const res = await fetch(`/api/specs/${specId}/generate`, { method: "POST" });
       if (!res.ok) { setGenState("error"); return; }
-      const body = await res.json();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
       setGenState("done");
-      if (body.downloadUrl) window.open(body.downloadUrl, "_blank");
     } catch {
       setGenState("error");
     }
@@ -1022,6 +1023,4 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           })}
         </div>
       )}
-    </div>
-  );
-}
+    </di
