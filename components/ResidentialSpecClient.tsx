@@ -216,52 +216,6 @@ function ColorPicker({
           ✓ {selected.brand}  {selected.code}  ·  {selected.name}
         </p>
       )}
-      {/* ── Residential Disclosure Modal ──────────────────────────────────── */}
-      {showDisclosureModal && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-md space-y-5">
-            <div>
-              <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-1">
-                Build Contract
-              </p>
-              <p className="text-white font-condensed uppercase tracking-widest text-sm">
-                Include Residential Disclosure?
-              </p>
-            </div>
-            <p className="text-white/50 text-xs leading-relaxed">
-              The Residential Disclosure Agreement covers the right of rescission, Idaho contractor
-              license disclosure, lien rights notice, payment terms, and warranty scope. It should
-              be included for all direct residential clients.
-            </p>
-            <p className="text-white/30 text-[11px]">
-              The disclosure PDF must be uploaded to Supabase Storage at{" "}
-              <span className="font-mono text-white/50">templates/residential-disclosure.pdf</span>.
-              If it hasn&apos;t been uploaded yet, the contract will be built without it.
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              <button
-                onClick={() => buildContract(true)}
-                className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
-              >
-                Yes — Include Disclosure
-              </button>
-              <button
-                onClick={() => buildContract(false)}
-                className="bg-white/10 hover:bg-white/15 text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
-              >
-                No — Skip
-              </button>
-              <button
-                onClick={() => setShowDisclosureModal(false)}
-                className="text-white/30 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2.5 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
@@ -707,6 +661,52 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   return (
     <div>
+      {/* ── Residential Disclosure Modal ──────────────────────────────────── */}
+      {showDisclosureModal && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-md space-y-5">
+            <div>
+              <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-1">
+                Build Contract
+              </p>
+              <p className="text-white font-condensed uppercase tracking-widest text-sm">
+                Include Residential Disclosure?
+              </p>
+            </div>
+            <p className="text-white/50 text-xs leading-relaxed">
+              The Residential Disclosure Agreement covers the right of rescission, Idaho contractor
+              license disclosure, lien rights notice, payment terms, and warranty scope. It should
+              be included for all direct residential clients.
+            </p>
+            <p className="text-white/30 text-[11px]">
+              The disclosure PDF must be uploaded to Supabase Storage at{" "}
+              <span className="font-mono text-white/50">templates/residential-disclosure.pdf</span>.
+              If it hasn&apos;t been uploaded yet, the contract will be built without it.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => buildContract(true)}
+                className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
+              >
+                Yes — Include Disclosure
+              </button>
+              <button
+                onClick={() => buildContract(false)}
+                className="bg-white/10 hover:bg-white/15 text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
+              >
+                No — Skip
+              </button>
+              <button
+                onClick={() => setShowDisclosureModal(false)}
+                className="text-white/30 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2.5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <datalist id="room-name-suggestions">
         {catalogs.rooms.map((r) => <option key={r.id} value={r.name} />)}
       </datalist>
