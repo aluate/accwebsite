@@ -1,25 +1,17 @@
 /**
- * DocuSign envelope builder + sender.
+ * DocuSign envelope builder + (eventually) sender.
  *
- * Uses JWT User Token grant (RS256) — no OAuth redirect required.
- * Drawings come from Supabase Storage via the job_files table.
- * Disclosure PDF is stored at "templates/residential-disclosure.pdf".
- *
- * Required env vars:
- *   DOCUSIGN_INTEGRATION_KEY  – app integration key (UUID)
- *   DOCUSIGN_USER_ID          – impersonated user ID (UUID)
- *   DOCUSIGN_ACCOUNT_ID       – eSign account ID (UUID)
- *   DOCUSIGN_BASE_URL         – https://demo.docusign.net (sandbox) or https://na3.docusign.net (prod)
- *   DOCUSIGN_PRIVATE_KEY      – RSA private key (PEM), newlines as \n or literal
+ * NOTE (Vercel migration): Local filesystem reads removed. Drawings come from
+ * Supabase Storage via the job_files table. Disclosure PDF is stored as a
+ * Supabase Storage object at "templates/residential-disclosure.pdf".
  */
 
-import crypto from "crypto";
 import { sql } from "@/lib/db";
-import { renderSpecPDF } from "@/lib/pdf-spec";
+import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 import { createClient } from "@supabase/supabase-js";
 
-// ── Supabase ──────────────────────────────────────────────────────────────────
+// Lazy-init: avoid module-level throw when env vars are missing at build time.
 let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
 function getSupabaseAdmin() {
   if (!_supabaseAdmin) {
@@ -38,7 +30,6 @@ function isResidentialJob(builder_company: string | null | undefined): boolean {
   return !builder_company || builder_company.trim() === "";
 }
 
-// ── Envelope PDF builder ──────────────────────────────────────────────────────
 export type EnvelopeBuildResult = {
   buffer: Buffer;
   bytes: number;
@@ -50,14 +41,17 @@ export type EnvelopeBuildResult = {
 export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildResult> {
   const data = await loadSpecPDFData(specId);
 
-  const specBuf = await renderSpecPDF(data);
+  // 1. Spec PDF (fresh render).
+  const specBuf = await renderSpecPDFBuffer(data);
 
+  // 2. Drawings — most-recent drawing file from Supabase Storage.
+  //    kind = '05_drawings' matches the files API VALID_KINDS.
   const [jobRow] = await sql`SELECT builder_company FROM jobs WHERE id = ${data.job_id}`;
   const job = jobRow as { builder_company: string | null } | undefined;
 
   const drawingRows = await sql`
     SELECT storage_path, filename FROM job_files
-    WHERE job_id = ${data.job_id} AND kind = 'drawings'
+    WHERE job_id = ${data.job_id} AND kind = '05_drawings'
     ORDER BY uploaded_at DESC LIMIT 1
   `;
 
@@ -76,9 +70,10 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   }
 
   if (!drawingsBuf) {
-    throw new Error("No drawings PDF for this job. Upload kind=drawings on the job page first.");
+    throw new Error("No drawings PDF for this job. Upload drawings (kind=05_drawings) on the job page first.");
   }
 
+  // 3. Disclosure (residential customers only).
   const wantsDisclosure = isResidentialJob(job?.builder_company);
   let disclosureBuf: Buffer | null = null;
   if (wantsDisclosure) {
@@ -92,6 +87,7 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
     }
   }
 
+  // 4. Merge via pdf-lib.
   const { PDFDocument } = await import("pdf-lib");
   const out = await PDFDocument.create();
 
@@ -116,66 +112,6 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   };
 }
 
-// ── JWT helpers ───────────────────────────────────────────────────────────────
-function b64url(buf: Buffer | string): string {
-  const b = typeof buf === "string" ? Buffer.from(buf) : buf;
-  return b.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-}
-
-function makeJWT(integrationKey: string, userId: string, audience: string, privateKeyPem: string): string {
-  const header  = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const now     = Math.floor(Date.now() / 1000);
-  const payload = b64url(JSON.stringify({
-    iss: integrationKey,
-    sub: userId,
-    aud: audience,
-    iat: now,
-    exp: now + 3600,
-    scope: "signature impersonation",
-  }));
-  const sign = crypto.createSign("RSA-SHA256");
-  sign.update(`${header}.${payload}`);
-  const sig = b64url(sign.sign(privateKeyPem));
-  return `${header}.${payload}.${sig}`;
-}
-
-async function getAccessToken(
-  integrationKey: string,
-  userId: string,
-  privateKeyPem: string,
-  oauthHost: string
-): Promise<string> {
-  const jwt = makeJWT(integrationKey, userId, oauthHost, privateKeyPem);
-  const res = await fetch(`https://${oauthHost}/oauth/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
-    }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    // consent_required means the user hasn't granted access yet
-    if (text.includes("consent_required") || text.includes("consent required")) {
-      throw new ConsentRequiredError(integrationKey, oauthHost);
-    }
-    throw new Error(`DocuSign token error ${res.status}: ${text}`);
-  }
-  const data = await res.json() as { access_token: string };
-  return data.access_token;
-}
-
-class ConsentRequiredError extends Error {
-  consentUrl: string;
-  constructor(integrationKey: string, oauthHost: string) {
-    const url = `https://${oauthHost}/oauth/auth?response_type=code&scope=signature+impersonation&client_id=${integrationKey}&redirect_uri=https://www.advancedcabinets.org`;
-    super(`DocuSign consent required. Visit: ${url}`);
-    this.consentUrl = url;
-  }
-}
-
-// ── Envelope sender ───────────────────────────────────────────────────────────
 export type SendEnvelopeInput = {
   approvalRequestId: string;
   recipientName: string;
@@ -186,110 +122,20 @@ export type SendEnvelopeInput = {
 
 export type SendEnvelopeResult =
   | { ok: true; envelopeId: string }
-  | { ok: false; error: string; needsProvisioning?: boolean; consentUrl?: string };
+  | { ok: false; error: string; needsProvisioning?: boolean };
 
-export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelopeResult> {
-  const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY;
-  const userId         = process.env.DOCUSIGN_USER_ID;
-  const accountId      = process.env.DOCUSIGN_ACCOUNT_ID;
-  const rawKey         = process.env.DOCUSIGN_PRIVATE_KEY;
-  const baseUrl        = (process.env.DOCUSIGN_BASE_URL ?? "https://demo.docusign.net").replace(/\/$/, "");
-
-  if (!integrationKey || !userId || !accountId || !rawKey) {
+export async function sendEnvelope(_input: SendEnvelopeInput): Promise<SendEnvelopeResult> {
+  if (!process.env.DOCUSIGN_INTEGRATION_KEY) {
     return {
       ok: false,
-      error: "DocuSign not configured. Set DOCUSIGN_INTEGRATION_KEY, DOCUSIGN_USER_ID, DOCUSIGN_ACCOUNT_ID, DOCUSIGN_PRIVATE_KEY in Vercel env vars.",
+      error: "DocuSign not provisioned. Set DOCUSIGN_INTEGRATION_KEY etc. in .env.local — see app/api/docusign/webhook/route.ts header for the full list.",
       needsProvisioning: true,
     };
   }
-
-  // Handle \n literal escaping (Vercel env vars can't store real newlines in some UIs)
-  const privateKeyPem = rawKey.replace(/\\n/g, "\n");
-
-  const isSandbox  = baseUrl.includes("demo.docusign");
-  const oauthHost  = isSandbox ? "account-d.docusign.com" : "account.docusign.com";
-  const restApiUrl = `${baseUrl}/restapi/v2.1`;
-
-  // Get access token
-  let accessToken: string;
-  try {
-    accessToken = await getAccessToken(integrationKey, userId, privateKeyPem, oauthHost);
-  } catch (err) {
-    if (err instanceof ConsentRequiredError) {
-      return { ok: false, error: err.message, needsProvisioning: true, consentUrl: err.consentUrl };
-    }
-    const msg = err instanceof Error ? err.message : String(err);
-    return { ok: false, error: `DocuSign auth failed: ${msg}` };
-  }
-
-  // Build envelope PDF
-  let envelopePdf: EnvelopeBuildResult;
-  try {
-    const [approval] = await sql<{ spec_id: string }[]>`
-      SELECT spec_id FROM approval_requests WHERE id = ${input.approvalRequestId}
-    `;
-    if (!approval) return { ok: false, error: "Approval request not found" };
-    envelopePdf = await buildEnvelopePDF(approval.spec_id);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return { ok: false, error: `Failed to build envelope PDF: ${msg}` };
-  }
-
-  const docBase64 = envelopePdf.buffer.toString("base64");
-
-  // Build and send envelope via REST API
-  const envelope = {
-    emailSubject: input.emailSubject ?? "Advanced Custom Cabinets — Please Review & Sign",
-    emailBlurb:   input.emailMessage ?? "Please review and sign the attached cabinet specification and contract.",
-    documents: [{
-      documentBase64: docBase64,
-      name: "ACC Cabinet Contract",
-      fileExtension: "pdf",
-      documentId: "1",
-    }],
-    recipients: {
-      signers: [{
-        email:       input.recipientEmail,
-        name:        input.recipientName,
-        recipientId: "1",
-        routingOrder: "1",
-        tabs: {
-          signHereTabs: [{
-            documentId:  "1",
-            pageNumber:  "1",
-            xPosition:   "72",
-            yPosition:   "650",
-            tabLabel:    "ClientSignature",
-          }],
-          dateSignedTabs: [{
-            documentId: "1",
-            pageNumber:  "1",
-            xPosition:   "340",
-            yPosition:   "650",
-            tabLabel:    "ClientDate",
-          }],
-        },
-      }],
-    },
-    status: "sent",
+  return {
+    ok: false,
+    error: "DocuSign env vars present but live integration not yet implemented.",
   };
-
-  const envelopeRes = await fetch(`${restApiUrl}/accounts/${accountId}/envelopes`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type":  "application/json",
-    },
-    body: JSON.stringify(envelope),
-  });
-
-  if (!envelopeRes.ok) {
-    const text = await envelopeRes.text();
-    return { ok: false, error: `DocuSign envelope creation failed ${envelopeRes.status}: ${text}` };
-  }
-
-  const result = await envelopeRes.json() as { envelopeId: string };
-  return { ok: true, envelopeId: result.envelopeId };
 }
 
 export { SpecDataError };

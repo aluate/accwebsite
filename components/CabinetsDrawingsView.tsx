@@ -47,7 +47,7 @@ export function CabinetsDrawingsView({
       const res = await fetch(`/api/jobs/${jobId}/files`, { cache: "no-store" });
       if (!res.ok) { setDrawings([]); return; }
       const body = await res.json();
-      setDrawings(body.files?.drawings ?? []);
+      setDrawings(body.files?.["05_drawings"] ?? []);
     } catch {
       setDrawings([]);
     } finally {
