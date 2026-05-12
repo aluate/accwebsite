@@ -216,6 +216,52 @@ function ColorPicker({
           ✓ {selected.brand}  {selected.code}  ·  {selected.name}
         </p>
       )}
+      {/* ── Residential Disclosure Modal ──────────────────────────────────── */}
+      {showDisclosureModal && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-md space-y-5">
+            <div>
+              <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-1">
+                Build Contract
+              </p>
+              <p className="text-white font-condensed uppercase tracking-widest text-sm">
+                Include Residential Disclosure?
+              </p>
+            </div>
+            <p className="text-white/50 text-xs leading-relaxed">
+              The Residential Disclosure Agreement covers the right of rescission, Idaho contractor
+              license disclosure, lien rights notice, payment terms, and warranty scope. It should
+              be included for all direct residential clients.
+            </p>
+            <p className="text-white/30 text-[11px]">
+              The disclosure PDF must be uploaded to Supabase Storage at{" "}
+              <span className="font-mono text-white/50">templates/residential-disclosure.pdf</span>.
+              If it hasn&apos;t been uploaded yet, the contract will be built without it.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => buildContract(true)}
+                className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
+              >
+                Yes — Include Disclosure
+              </button>
+              <button
+                onClick={() => buildContract(false)}
+                className="bg-white/10 hover:bg-white/15 text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
+              >
+                No — Skip
+              </button>
+              <button
+                onClick={() => setShowDisclosureModal(false)}
+                className="text-white/30 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2.5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -375,6 +421,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [combineErr, setCombineErr] = useState<string>("");
   const [contractState, setContractState] = useState<"idle"|"working"|"done"|"error">("idle");
   const [contractFileId, setContractFileId] = useState<string>("");
+  const [showDisclosureModal, setShowDisclosureModal] = useState(false);
   const generateCombined = useCallback(async () => {
     if (violations.length > 0) { setShowViolations(true); return; }
     if (dirty) {
@@ -501,16 +548,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   }
 
 
-  const generateContract = useCallback(async () => {
-    if (violations.length > 0) { setShowViolations(true); return; }
-    if (dirty) {
-      const ok = await save();
-      if (!ok) return;
-    }
+  // Called from disclosure modal with user's choice
+  const buildContract = useCallback(async (includeDisclosure: boolean) => {
+    setShowDisclosureModal(false);
     setContractState("working");
     setContractFileId("");
     try {
-      const res = await fetch(`/api/specs/${specId}/contract`, { method: "POST" });
+      const res = await fetch(`/api/specs/${specId}/contract`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ includeDisclosure }),
+      });
       const body = await res.json();
       if (!res.ok) {
         setContractState("error");
@@ -518,11 +566,20 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       }
       setContractState("done");
       setContractFileId(body.file_id ?? "");
-      // open the saved PDF
       if (body.download_url) window.open(body.download_url, "_blank");
     } catch {
       setContractState("error");
     }
+  }, [specId]);
+
+  const generateContract = useCallback(async () => {
+    if (violations.length > 0) { setShowViolations(true); return; }
+    if (dirty) {
+      const ok = await save();
+      if (!ok) return;
+    }
+    // Show disclosure modal before building
+    setShowDisclosureModal(true);
   }, [specId, dirty, violations.length, save]);
 
   // ── Rooms ─────────────────────────────────────────────────────────────────

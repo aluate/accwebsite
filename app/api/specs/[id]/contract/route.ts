@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/mailer";
 import { createClient } from "@supabase/supabase-js";
 
 const BUCKET = "job-files";
+const DISCLOSURE_PATH = "templates/residential-disclosure.pdf";
 
 function supabaseAdmin() {
   return createClient(
@@ -23,17 +24,28 @@ async function downloadFile(storagePath: string): Promise<Buffer | null> {
   return Buffer.from(await data.arrayBuffer());
 }
 
+async function downloadTemplate(storagePath: string): Promise<Buffer | null> {
+  // Templates live in the root of the job-files bucket, not under jobs/
+  const { data, error } = await supabaseAdmin().storage.from(BUCKET).download(storagePath);
+  if (error || !data) {
+    console.warn(`[contract] Template not found at ${storagePath}: ${error?.message}`);
+    return null;
+  }
+  return Buffer.from(await data.arrayBuffer());
+}
+
 // POST /api/specs/[id]/contract
 //
-// Builds a "contract" PDF:
-//   1. Fresh spec render
-//   2. Latest quote from 02_quote (if uploaded)
-//   3. Latest drawings from 05_drawings (if uploaded)
+// Body: { includeDisclosure?: boolean }
 //
-// Saves result to 15_contract folder, inserts job_files row,
-// emails the PM with the PDF attached, returns { file_id, download_url }.
-export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+// Merges: spec PDF → quote (02_quote, if uploaded) → drawings (05_drawings, if uploaded)
+//         → disclosure (templates/residential-disclosure.pdf, if includeDisclosure=true)
+//
+// Saves to 15_contract, emails PM with attachment, returns { file_id, download_url }.
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: specId } = await params;
+  const body = await req.json().catch(() => ({}));
+  const includeDisclosure: boolean = body.includeDisclosure === true;
 
   let data;
   try {
@@ -45,10 +57,10 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
   const jobId = data.job_id;
 
-  // 1. Spec PDF
+  // 1. Fresh spec render
   const specBuf = await renderSpecPDF(data);
 
-  // 2. Latest quote (02_quote) — optional
+  // 2. Latest quote — optional
   const [quoteRow] = await sql<{ storage_path: string; filename: string }[]>`
     SELECT storage_path, filename FROM job_files
     WHERE job_id = ${jobId} AND kind = '02_quote'
@@ -56,7 +68,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   `;
   const quoteBuf = quoteRow ? await downloadFile(quoteRow.storage_path) : null;
 
-  // 3. Latest drawings (05_drawings) — optional
+  // 3. Latest drawings — optional
   const [drawingRow] = await sql<{ storage_path: string; filename: string }[]>`
     SELECT storage_path, filename FROM job_files
     WHERE job_id = ${jobId} AND kind = '05_drawings'
@@ -64,7 +76,15 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   `;
   const drawingsBuf = drawingRow ? await downloadFile(drawingRow.storage_path) : null;
 
-  // 4. Merge with pdf-lib: spec → quote → drawings
+  // 4. Residential disclosure — only if requested
+  const disclosureBuf = includeDisclosure ? await downloadTemplate(DISCLOSURE_PATH) : null;
+  const disclosureAttached = disclosureBuf !== null;
+
+  if (includeDisclosure && !disclosureBuf) {
+    console.warn("[contract] Disclosure requested but not found at templates/residential-disclosure.pdf — continuing without it.");
+  }
+
+  // 5. Merge: spec → quote → drawings → disclosure
   const { PDFDocument } = await import("pdf-lib");
   const out = await PDFDocument.create();
 
@@ -75,12 +95,13 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   }
 
   await appendBuf(specBuf);
-  if (quoteBuf)    await appendBuf(quoteBuf);
-  if (drawingsBuf) await appendBuf(drawingsBuf);
+  if (quoteBuf)      await appendBuf(quoteBuf);
+  if (drawingsBuf)   await appendBuf(drawingsBuf);
+  if (disclosureBuf) await appendBuf(disclosureBuf);
 
   const merged = Buffer.from(await out.save());
 
-  // 5. Save to Supabase Storage → 15_contract
+  // 6. Save to 15_contract
   const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const filename = `contract-${ts}.pdf`;
   const storagePath = `jobs/${jobId}/15_contract/${filename}`;
@@ -90,7 +111,6 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     .upload(storagePath, merged, { contentType: "application/pdf", upsert: false });
 
   if (upErr) {
-    console.error("[contract] Storage upload error:", upErr.message);
     return NextResponse.json({ error: "Failed to save contract: " + upErr.message }, { status: 500 });
   }
 
@@ -100,16 +120,22 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     VALUES (${fileId}, ${jobId}, '15_contract', ${filename}, ${storagePath}, ${merged.length}, ${new Date().toISOString()})
   `;
 
-  // 6. Email PM
+  // 7. Email PM
   const [job] = await sql<{ client_name: string; pm: string | null }[]>`
     SELECT client_name, pm FROM jobs WHERE id = ${jobId}
   `;
   const pmEmail = process.env.PM_EMAIL ?? "residential@advancedcabinets.net";
+
   const components = [
     "Spec",
-    quoteRow ? "Quote" : null,
-    drawingRow ? "Drawings" : null,
+    quoteRow        ? "Quote"       : null,
+    drawingRow      ? "Drawings"    : null,
+    disclosureAttached ? "Disclosure" : null,
   ].filter(Boolean).join(" + ");
+
+  const disclosureNote = includeDisclosure && !disclosureAttached
+    ? "\n\nNote: Disclosure was requested but the PDF was not found at templates/residential-disclosure.pdf in Supabase Storage. Upload it there to include it automatically."
+    : "";
 
   await sendEmail({
     to: pmEmail,
@@ -119,20 +145,21 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       `Included: ${components}`,
       ``,
       `Job ID: ${jobId}`,
-      `Spec ID: ${specId}`,
       ``,
-      `Print for analog signature or send via Adobe Sign / DocuSign.`,
-    ].join("\n"),
+      `Print for wet signature, or send via Adobe Sign / DocuSign.`,
+    ].join("\n") + disclosureNote,
     attachments: [{ filename, content: merged }],
   });
-
-  const downloadUrl = `/api/jobs/${jobId}/files?file_id=${fileId}`;
 
   return NextResponse.json({
     ok: true,
     file_id: fileId,
-    download_url: downloadUrl,
+    download_url: `/api/jobs/${jobId}/files?file_id=${fileId}`,
     components,
     pages: out.getPageCount(),
+    disclosure_attached: disclosureAttached,
+    disclosure_warning: includeDisclosure && !disclosureAttached
+      ? "Disclosure PDF not found at templates/residential-disclosure.pdf — not included."
+      : null,
   });
 }
