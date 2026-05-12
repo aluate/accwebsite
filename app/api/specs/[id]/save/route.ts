@@ -295,4 +295,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           (id, finish_group_id, role, material_id, where_used, notes)
         VALUES
           (${mat.id || uid()}, ${mat.finish_group_id}, ${mat.role},
-           ${mat.mat
+           ${mat.material_id || null}, ${mat.where_used || null}, ${mat.notes || null})
+      `;
+    }
+
+    // Update spec updated_at
+    await sql`UPDATE residential_specs SET updated_at = ${now} WHERE id = ${id}`;
+
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true });
+}
