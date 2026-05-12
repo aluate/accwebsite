@@ -19,18 +19,16 @@ function createSql() {
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
     ssl: "require",
-    max: 3,               // keep pool small — Supabase free tier has ~10 total; reserve headroom
-    idle_timeout: 10,
+    max: 3,               // keep pool small — Supabase free tier ~10 total; reserve headroom
+    idle_timeout: 20,
     connect_timeout: 15,  // give cold PgBouncer up to 15s to hand us a connection
     // Required for PgBouncer transaction-mode pooling (Supabase Shared Pooler).
     // Prepared statements are stateful and incompatible with transaction poolers.
     prepare: false,
-    // Kill stalled queries so orphaned locks never block forever.
-    // PgBouncer passes these as startup GUC params.
-    connection: {
-      statement_timeout: "20000",  // 20s per statement
-      lock_timeout: "8000",        // 8s to acquire a lock
-    },
+    // NOTE: Do NOT add `connection: { statement_timeout, lock_timeout }` here.
+    // PgBouncer in transaction mode sends connection options as startup parameters
+    // and rejects unknown ones (including statement_timeout / lock_timeout),
+    // which breaks every connection with a 500 error on the first query.
   });
 }
 
