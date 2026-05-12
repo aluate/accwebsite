@@ -2,8 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { renderToBuffer } from "@react-pdf/renderer";
-import { renderSpecPDF } from "@/lib/pdf-spec";
+import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 
 export const runtime = 'nodejs';
@@ -27,8 +26,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     throw e;
   }
 
-  const element = renderSpecPDF(data);
-  const buffer = await renderToBuffer(element);
+  const buffer = await renderSpecPDFBuffer(data);
   const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const filename = `spec-${ts}.pdf`;
 
@@ -49,4 +47,5 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const [spec] = await sql<{ id: string }[]>`SELECT id FROM residential_specs WHERE id = ${specId}`;
   if (!spec) return NextResponse.json({ error: "Spec not found" }, { status: 404 });
   return NextResponse.json(
-    { error: "Saved PDF files are not availabl
+    { error: "Saved PDF files are not available in this deployment. Use POST to generate a fresh PDF inline." },
+    { status: 410 }
