@@ -111,11 +111,11 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
   return v;
 }
 
-
-// ── ColorPicker ───────────────────────────────────────────────────────────
-// Two-level selector: brand/supplier filter buttons + code-or-name search
-// Works for paint (brand: SW/BM/ML), stain (brand: ACC/ML), and melamine
-// (supplier: Stevenswood/TruNorth/Egger/Tafisa).
+// ── ColorPicker ────────────────────────────────────────────────────────────
+// Brand/supplier filter pills + code-or-name text search. Works for:
+//   paint   → brand: SW | BM | ML | Custom
+//   stain   → brand: ACC | ML | Custom
+//   melamine → supplier: Stevenswood | TruNorth | Egger | Tafisa | Custom
 type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null };
 
 function ColorPicker({
@@ -140,7 +140,6 @@ function ColorPicker({
         .filter((c) => !c.placeholder)
         .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name }));
     }
-    // melamine
     return catalogs.melamineColors
       .filter((c) => !c.placeholder)
       .map((c) => ({ id: c.id, brand: c.supplier, code: c.code && c.code !== "—" ? c.code : "", name: c.name, hex: c.hex_approx }));
@@ -158,6 +157,7 @@ function ColorPicker({
   }, [all, filterBrand, search]);
 
   const selected = all.find((c) => c.id === value);
+  const isCustom = value === "PNT-CUSTOM" || value === "STN-CUSTOM" || value === "MEL-CUSTOM";
 
   function makeLabel(c: CPEntry) {
     return `${c.code ? c.code + " · " : ""}${c.name} — ${c.brand}`;
@@ -176,7 +176,7 @@ function ColorPicker({
           >{b}</button>
         ))}
       </div>
-      {/* Search + select row */}
+      {/* Code search + dropdown */}
       <div className="flex gap-2 items-center">
         <input
           type="text"
@@ -195,16 +195,23 @@ function ColorPicker({
         >
           <option value="">-- Select Color --</option>
           {filtered.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.code ? `${c.code}  ` : ""}{c.name}
-            </option>
+            <option key={c.id} value={c.id}>{c.code ? `${c.code}  ` : ""}{c.name}</option>
           ))}
         </select>
-        {selected?.hex && (
-          <span className="w-6 h-6 rounded-full shrink-0 border border-white/20 block" style={{ background: selected.hex }} />
+        {selected?.hex && !isCustom && (
+          <span className="w-6 h-6 rounded-full shrink-0 border border-white/20" style={{ background: selected.hex }} />
         )}
       </div>
-      {selected && (
+      {/* Free-text for Custom Match */}
+      {isCustom && (
+        <input
+          type="text"
+          placeholder="Type brand + code + name  (e.g. SW 7757 High Reflective White)"
+          onChange={(e) => onChange(value, e.target.value || "Other / Custom Match")}
+          className="w-full bg-[#1a1a1a] border border-[#f08122]/40 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors"
+        />
+      )}
+      {selected && !isCustom && (
         <p className="text-white/30 text-[11px] font-condensed">
           ✓ {selected.brand}  {selected.code}  ·  {selected.name}
         </p>
@@ -356,6 +363,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       setGenState("done");
+      // File was saved to job folder — show link if file_id came back
+      const savedId = res.headers.get("X-File-Id");
+      if (savedId) setContractFileId("");  // don't clobber a contract link
     } catch {
       setGenState("error");
     }
@@ -363,6 +373,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   const [combineState, setCombineState] = useState<"idle"|"working"|"done"|"error">("idle");
   const [combineErr, setCombineErr] = useState<string>("");
+  const [contractState, setContractState] = useState<"idle"|"working"|"done"|"error">("idle");
+  const [contractFileId, setContractFileId] = useState<string>("");
   const generateCombined = useCallback(async () => {
     if (violations.length > 0) { setShowViolations(true); return; }
     if (dirty) {
@@ -487,6 +499,31 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     });
     markDirty();
   }
+
+
+  const generateContract = useCallback(async () => {
+    if (violations.length > 0) { setShowViolations(true); return; }
+    if (dirty) {
+      const ok = await save();
+      if (!ok) return;
+    }
+    setContractState("working");
+    setContractFileId("");
+    try {
+      const res = await fetch(`/api/specs/${specId}/contract`, { method: "POST" });
+      const body = await res.json();
+      if (!res.ok) {
+        setContractState("error");
+        return;
+      }
+      setContractState("done");
+      setContractFileId(body.file_id ?? "");
+      // open the saved PDF
+      if (body.download_url) window.open(body.download_url, "_blank");
+    } catch {
+      setContractState("error");
+    }
+  }, [specId, dirty, violations.length, save]);
 
   // ── Rooms ─────────────────────────────────────────────────────────────────
   function addRoom() {
@@ -700,6 +737,28 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             {combineState === "working" ? "Combining..." : combineState === "error" ? "Combine - retry" : "Spec + Drawings"}
           </button>
           {combineErr && <span className="text-red-400 text-[10px] font-condensed uppercase tracking-widest" title={combineErr}>{combineErr.length > 40 ? combineErr.slice(0,40) + "..." : combineErr}</span>}
+          <button
+            onClick={generateContract}
+            disabled={!canGen || contractState === "working"}
+            title={canGen ? "Merge spec + drawings + quote into one PDF, save to job folder, and email to PM" : blockedReason}
+            className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
+              canGen && contractState !== "working"
+                ? "bg-[#f08122] hover:bg-[#d9711e] text-white border border-[#f08122]"
+                : "bg-white/5 text-white/20 cursor-not-allowed border border-transparent"
+            }`}
+          >
+            {contractState === "working" ? "Building..." : contractState === "error" ? "Contract - retry" : contractState === "done" ? "✓ Contract Sent" : "Send Contract"}
+          </button>
+          {contractState === "done" && contractFileId && (
+            <a
+              href={`/api/jobs/${jobId}/files?file_id=${contractFileId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-green-400 text-[10px] font-condensed uppercase tracking-widest hover:text-green-300 transition-colors"
+            >
+              View in job folder →
+            </a>
+          )}
           <button
             onClick={generateExcel}
             disabled={!canGen || excelState === "working"}
