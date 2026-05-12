@@ -111,6 +111,108 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
   return v;
 }
 
+
+// ── ColorPicker ───────────────────────────────────────────────────────────
+// Two-level selector: brand/supplier filter buttons + code-or-name search
+// Works for paint (brand: SW/BM/ML), stain (brand: ACC/ML), and melamine
+// (supplier: Stevenswood/TruNorth/Egger/Tafisa).
+type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null };
+
+function ColorPicker({
+  type, value, catalogs, onChange,
+}: {
+  type: FinishType;
+  value: string;
+  catalogs: Props["catalogs"];
+  onChange: (id: string, label: string) => void;
+}) {
+  const [filterBrand, setFilterBrand] = useState("");
+  const [search, setSearch] = useState("");
+
+  const all: CPEntry[] = useMemo(() => {
+    if (type === "paint") {
+      return catalogs.paintColors
+        .filter((c) => !c.placeholder)
+        .map((c) => ({ id: c.id, brand: c.brand, code: c.code ?? "", name: c.name, hex: c.hex_approx }));
+    }
+    if (type === "stain") {
+      return catalogs.stainColors
+        .filter((c) => !c.placeholder)
+        .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name }));
+    }
+    // melamine
+    return catalogs.melamineColors
+      .filter((c) => !c.placeholder)
+      .map((c) => ({ id: c.id, brand: c.supplier, code: c.code && c.code !== "—" ? c.code : "", name: c.name, hex: c.hex_approx }));
+  }, [type, catalogs]);
+
+  const brands = useMemo(() => [...new Set(all.map((c) => c.brand))].sort(), [all]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return all.filter((c) => {
+      if (filterBrand && c.brand !== filterBrand) return false;
+      if (q) return c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+      return true;
+    });
+  }, [all, filterBrand, search]);
+
+  const selected = all.find((c) => c.id === value);
+
+  function makeLabel(c: CPEntry) {
+    return `${c.code ? c.code + " · " : ""}${c.name} — ${c.brand}`;
+  }
+
+  return (
+    <div className="space-y-2">
+      {/* Brand / supplier filter pills */}
+      <div className="flex gap-1 flex-wrap">
+        <button type="button" onClick={() => setFilterBrand("")}
+          className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border transition-colors ${filterBrand === "" ? "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]" : "border-white/10 text-white/30 hover:text-white hover:border-white/30"}`}
+        >All</button>
+        {brands.map((b) => (
+          <button key={b} type="button" onClick={() => setFilterBrand(filterBrand === b ? "" : b)}
+            className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border transition-colors ${filterBrand === b ? "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]" : "border-white/10 text-white/30 hover:text-white hover:border-white/30"}`}
+          >{b}</button>
+        ))}
+      </div>
+      {/* Search + select row */}
+      <div className="flex gap-2 items-center">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Code # or name…"
+          className="w-32 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors font-mono"
+        />
+        <select
+          value={value}
+          onChange={(e) => {
+            const c = all.find((x) => x.id === e.target.value);
+            onChange(e.target.value, c ? makeLabel(c) : "");
+          }}
+          className="flex-1 bg-[#1a1a1a] border border-white/15 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors min-w-0"
+        >
+          <option value="">-- Select Color --</option>
+          {filtered.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.code ? `${c.code}  ` : ""}{c.name}
+            </option>
+          ))}
+        </select>
+        {selected?.hex && (
+          <span className="w-6 h-6 rounded-full shrink-0 border border-white/20 block" style={{ background: selected.hex }} />
+        )}
+      </div>
+      {selected && (
+        <p className="text-white/30 text-[11px] font-condensed">
+          ✓ {selected.brand}  {selected.code}  ·  {selected.name}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
@@ -385,11 +487,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     });
     markDirty();
   }
-  function colorOptions(type: FinishType) {
-    if (type === "paint")    return catalogs.paintColors.map((c) => ({ id: c.id, label: `${c.name} - ${c.brand} ${c.code ?? ""}`.trim(), hex: c.hex_approx }));
-    if (type === "stain")    return catalogs.stainColors.map((c) => ({ id: c.id, label: `${c.name} - ${c.brand}${c.code ? " " + c.code : ""}`, hex: null }));
-    return catalogs.melamineColors.map((c) => ({ id: c.id, label: `${c.name} - ${c.supplier} ${c.code ?? ""}`.trim(), hex: null }));
-  }
 
   // ── Rooms ─────────────────────────────────────────────────────────────────
   function addRoom() {
@@ -660,7 +757,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             Each group defines one finish + door + pull + carcass + drawer box. Every required dropdown must be picked before save.
           </p>
           {groups.map((g) => {
-            const opts = colorOptions(g.finish_type);
             const carcass = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
             const drawerBox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
             const requiresEdgebandPick = g.finish_type === "paint" || g.finish_type === "stain";
@@ -692,18 +788,14 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <option value="melamine">Melamine / TFL</option>
                     </select>
                   </div>
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className={LABEL}>Color *</label>
-                    <div className="flex flex-wrap gap-2 items-center">
-                      {g.finish_type === "paint" && g.color_id && (() => {
-                        const c = catalogs.paintColors.find((p) => p.id === g.color_id);
-                        return c?.hex_approx ? <span className="w-5 h-5 rounded-full shrink-0 border border-white/20" style={{ background: c.hex_approx }} /> : null;
-                      })()}
-                      <select value={g.color_id} onChange={(e) => { const opt = opts.find((o) => o.id === e.target.value); updateGroup(g.id, { color_id: e.target.value, color_name: opt?.label ?? "" }); }} className={SELECT}>
-                        <option value="">-- Select Color --</option>
-                        {opts.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                      </select>
-                    </div>
+                    <ColorPicker
+                      type={g.finish_type}
+                      value={g.color_id}
+                      catalogs={catalogs}
+                      onChange={(id, label) => updateGroup(g.id, { color_id: id, color_name: label })}
+                    />
                   </div>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
