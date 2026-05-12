@@ -264,6 +264,28 @@
     "notes": "Cool dark gray · Coating: ML Campbell (ACC standard)"
   },
   {
+    "id": "PNT-SW-7757",
+    "brand": "SW",
+    "collection": "Whites & Neutrals",
+    "code": "SW 7757",
+    "name": "High Reflective White",
+    "hex_approx": "#F5F5F2",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "SW's brightest near-pure white — very clean and bright. Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-SW-6208",
+    "brand": "SW",
+    "collection": "Naturals",
+    "code": "SW 6208",
+    "name": "Latte",
+    "hex_approx": "#C4B5A0",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Warm creamy beige — mid-tone neutral. Coating: ML Campbell (ACC standard)"
+  },
+  {
     "id": "PNT-SW-SWFULL-PLACEHOLDER",
     "brand": "SW",
     "collection": "(Full Catalog)",
@@ -284,5 +306,27 @@
     "is_custom_match": true,
     "placeholder": false,
     "notes": "Escape hatch — PM specifies brand + code or sample reference in finish notes"
+  },
+  {
+    "id": "PNT-SW-6258",
+    "brand": "SW",
+    "collection": "Dark Colors",
+    "code": "SW 6258",
+    "name": "Tricorn Black",
+    "hex_approx": "#101010",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Very popular dark cabinet color — near-true black. Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-SW-7069",
+    "brand": "SW",
+    "collection": "Dark Colors",
+    "code": "SW 7069",
+    "name": "Iron Ore",
+    "hex_approx": "#3D3B38",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Dark charcoal with warm undertone"
   }
 ]
