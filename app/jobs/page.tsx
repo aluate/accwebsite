@@ -85,6 +85,18 @@ export default async function JobsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/search"
+            className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
+          >
+            Search
+          </Link>
+          <Link
+            href="/dashboard"
+            className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/schedule"
             className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
           >

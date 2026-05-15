@@ -5,6 +5,7 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
+import { WarrantyPanel } from "@/components/WarrantyPanel";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
@@ -371,6 +372,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           <div className="mt-6 pt-4 border-t border-white/5">
             <PunchListPanel jobId={internalId} role={session.role} />
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-white/5">
+            <p className="text-[10px] font-condensed uppercase tracking-widest text-white/30 mb-3">Warranty / Callbacks</p>
+            <WarrantyPanel jobId={internalId} />
           </div>
 
           {/* Activity Feed */}

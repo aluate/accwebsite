@@ -342,6 +342,21 @@ async function main() {
       payload TEXT, occurred_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS warranty_items (
+      id            TEXT PRIMARY KEY,
+      job_id        TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      reported_at   TEXT NOT NULL,
+      reported_by   TEXT NOT NULL,
+      category      TEXT NOT NULL DEFAULT 'general',
+      description   TEXT NOT NULL,
+      status        TEXT NOT NULL DEFAULT 'open',
+      priority      TEXT NOT NULL DEFAULT 'normal',
+      resolved_at   TEXT,
+      resolved_by   TEXT,
+      resolution    TEXT,
+      notes         TEXT
+    );
+
     -- Indexes
     CREATE INDEX IF NOT EXISTS idx_spec_lifecycle_transitions_spec ON spec_lifecycle_transitions(spec_id);
     CREATE INDEX IF NOT EXISTS idx_approval_requests_spec     ON approval_requests(spec_id);
@@ -370,6 +385,8 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_activity_log_job           ON activity_log(job_id, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_actor         ON activity_log(actor, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_at            ON activity_log(occurred_at);
+    CREATE INDEX IF NOT EXISTS idx_warranty_items_job         ON warranty_items(job_id);
+    CREATE INDEX IF NOT EXISTS idx_warranty_items_status      ON warranty_items(status);
 
     CREATE TABLE IF NOT EXISTS job_files (
       id           TEXT PRIMARY KEY,
@@ -394,24 +411,68 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
-  // ── Seed event_phase_labels (idempotent) ───────────────────────────────────
-  const defaultLabels = [
-    { label: "Ladder Bases",   sort_order: 1 },
-    { label: "Casework",       sort_order: 2 },
-    { label: "Pulls & Panels", sort_order: 3 },
-    { label: "Post Tops",      sort_order: 4 },
-    { label: "Other",          sort_order: 99 },
-  ];
-  for (const { label, sort_order } of defaultLabels) {
-    await sql`
-      INSERT INTO event_phase_labels (label, sort_order, active)
-      VALUES (${label}, ${sort_order}, 1)
-      ON CONFLICT (label) DO NOTHING
-    `;
+  // ── Job number (TradeSoft) column addition (idempotent) ────────────────────
+  for (const stmt of [
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS job_number TEXT`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_job_number ON jobs(job_number) WHERE job_number IS NOT NULL`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
-  console.log("Schema push complete.");
-  await sql.end();
-}
+  // ── Work orders (idempotent) ───────────────────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS work_orders (
+      id          TEXT PRIMARY KEY,
+      job_id      TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      wo_number   TEXT NOT NULL,
+      wo_type     TEXT NOT NULL DEFAULT 'wo',
+      file_id     TEXT REFERENCES job_files(id) ON DELETE SET NULL,
+      label       TEXT,
+      created_at  TEXT NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_work_orders_job_wo
+      ON work_orders(job_id, wo_number);
+    CREATE INDEX IF NOT EXISTS idx_work_orders_job
+      ON work_orders(job_id);
+  `);
 
-main().catch((e) => { console.error(e); process.exit(1); });
+  // ── Punch list items (idempotent) ─────────────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS punch_list_items (
+      id                 TEXT PRIMARY KEY,
+      job_id             TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      room_id            TEXT REFERENCES rooms(id) ON DELETE SET NULL,
+      general_location   TEXT,
+      item_description   TEXT NOT NULL,
+      type_code          TEXT NOT NULL DEFAULT 'S',
+      status             TEXT NOT NULL DEFAULT 'open',
+      before_photo_path  TEXT,
+      after_photo_path   TEXT,
+      created_by         TEXT NOT NULL DEFAULT 'pm',
+      created_at         TEXT NOT NULL,
+      completed_by       TEXT,
+      completed_at       TEXT,
+      sort_order         INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_punch_items_job    ON punch_list_items(job_id);
+    CREATE INDEX IF NOT EXISTS idx_punch_items_room   ON punch_list_items(room_id);
+    CREATE INDEX IF NOT EXISTS idx_punch_items_status ON punch_list_items(job_id, status);
+  `);
+
+  // ── Transition emails table (idempotent) ───────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS transition_emails (
+      id            TEXT PRIMARY KEY,
+      job_id        TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      to_status     TEXT NOT NULL,
+      recipient     TEXT NOT NULL,
+      subject       TEXT NOT NULL,
+      sent_at       TEXT,
+      error         TEXT,
+      created_at    TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_transition_emails_job
+      ON transition_emails(job_id);
+  `);
+
+  // ── Seed event_phase_labels (idempotent) ──────�
