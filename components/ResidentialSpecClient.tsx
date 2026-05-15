@@ -876,6 +876,13 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             const carcass = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
             const drawerBox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
             const requiresEdgebandPick = g.finish_type === "paint" || g.finish_type === "stain";
+            // Melamine edgeband auto-match: look up color name → edgeband.color_match
+            const matchedEdgeband = g.finish_type === "melamine" && g.color_id
+              ? (() => {
+                  const mc = catalogs.melamineColors.find((c) => c.id === g.color_id);
+                  return mc ? catalogs.edgebands.find((e) => e.color_match === mc.name && !e.placeholder) : undefined;
+                })()
+              : undefined;
             const edgebandOptions = catalogs.edgebands.filter((e) => {
               // sync-catalogs.mjs auto-arrays semicolon-separated values, so the
               // runtime is sometimes string and sometimes string[]. Handle both.
@@ -910,7 +917,18 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       type={g.finish_type}
                       value={g.color_id}
                       catalogs={catalogs}
-                      onChange={(id, label) => updateGroup(g.id, { color_id: id, color_name: label })}
+                      onChange={(id, label) => {
+                        const updates: Partial<FinishGroup> = { color_id: id, color_name: label };
+                        // Auto-derive edgeband when a melamine color is picked
+                        if (g.finish_type === "melamine" && id) {
+                          const mc = catalogs.melamineColors.find((c) => c.id === id);
+                          if (mc) {
+                            const eb = catalogs.edgebands.find((e) => e.color_match === mc.name && !e.placeholder);
+                            if (eb) updates.edgeband_id = eb.id;
+                          }
+                        }
+                        updateGroup(g.id, updates);
+                      }}
                     />
                   </div>
                 </div>
@@ -969,9 +987,22 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                           <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
                         ))}
                       </select>
+                    ) : matchedEdgeband ? (
+                      <div className={INPUT + " text-green-400/80 text-xs"}>
+                        ✓ {matchedEdgeband.product_name} — {matchedEdgeband.supplier}
+                        <span className="text-white/30 ml-1.5">(auto-matched)</span>
+                      </div>
+                    ) : g.color_id ? (
+                      // Color is picked but catalog has no match — let PM select manually
+                      <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
+                        <option value="">-- No catalog match — pick edgeband --</option>
+                        {edgebandOptions.map((e) => (
+                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
+                        ))}
+                      </select>
                     ) : (
-                      <div className={INPUT + " text-white/40 italic"}>
-                        Auto-derived from melamine choice (Phase 1.5)
+                      <div className={INPUT + " text-white/30 text-xs italic"}>
+                        Pick a melamine color first
                       </div>
                     )}
                   </div>
