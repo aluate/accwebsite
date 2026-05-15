@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
+import { QuickUploadDrawing } from "@/components/QuickUploadDrawing";
 
 type SpecRow = {
   id: string;
@@ -106,31 +107,43 @@ function QueueSection({ title, count, specs, dimmed = false }: {
       </p>
       <div className="space-y-3">
         {specs.map((s) => (
-          <Link
-            key={s.id}
-            href={`/engineering/${s.id}`}
-            className="block bg-[#2d2d2d] hover:bg-[#353535] rounded-lg p-4 transition-colors group"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-[#f08122] font-condensed text-xs uppercase tracking-widest">{s.job_id}</span>
-                  <span className={`text-[10px] font-condensed uppercase tracking-widest px-2 py-0.5 rounded border ${STATE_COLOR[s.lifecycle_state] ?? "text-white/40 bg-white/5 border-white/10"}`}>
-                    {STATE_LABEL[s.lifecycle_state] ?? s.lifecycle_state}
-                  </span>
+          <div key={s.id} className="bg-[#2d2d2d] rounded-lg overflow-hidden">
+            <Link
+              href={`/engineering/${s.id}`}
+              className="block p-4 hover:bg-[#353535] transition-colors group"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-[#f08122] font-condensed text-xs uppercase tracking-widest">{s.job_id}</span>
+                    <span className={`text-[10px] font-condensed uppercase tracking-widest px-2 py-0.5 rounded border ${STATE_COLOR[s.lifecycle_state] ?? "text-white/40 bg-white/5 border-white/10"}`}>
+                      {STATE_LABEL[s.lifecycle_state] ?? s.lifecycle_state}
+                    </span>
+                  </div>
+                  <p className="text-white font-medium text-base leading-tight">{s.client_name}</p>
+                  <p className="text-white/40 text-xs mt-0.5">
+                    {s.name}{s.site_address ? ` · ${s.site_address}${s.city ? `, ${s.city}` : ""}` : ""}
+                  </p>
+                  <div className="flex items-center gap-3 mt-2">
+                    {s.pm && <span className="text-white/30 text-[10px] font-condensed">PM: {s.pm}</span>}
+                    <span className="text-white/20 text-[10px] font-condensed">Updated {fmtDate(s.updated_at)}</span>
+                  </div>
                 </div>
-                <p className="text-white font-medium text-base leading-tight">{s.client_name}</p>
-                <p className="text-white/40 text-xs mt-0.5">
-                  {s.name}{s.site_address ? ` · ${s.site_address}${s.city ? `, ${s.city}` : ""}` : ""}
-                </p>
-                <div className="flex items-center gap-3 mt-2">
-                  {s.pm && <span className="text-white/30 text-[10px] font-condensed">PM: {s.pm}</span>}
-                  <span className="text-white/20 text-[10px] font-condensed">Updated {fmtDate(s.updated_at)}</span>
-                </div>
+                <span className="text-white/20 group-hover:text-[#f08122] transition-colors text-lg shrink-0 mt-1">→</span>
               </div>
-              <span className="text-white/20 group-hover:text-[#f08122] transition-colors text-lg shrink-0 mt-1">→</span>
-            </div>
-          </Link>
+            </Link>
+            {!dimmed && (
+              <div className="px-4 pb-3 pt-0 flex items-center gap-4 border-t border-white/5">
+                <QuickUploadDrawing jobId={s.job_id} />
+                <Link
+                  href={`/jobs/${s.job_id}`}
+                  className="text-white/25 hover:text-white/50 text-[10px] font-condensed uppercase tracking-wider transition-colors"
+                >
+                  View Job
+                </Link>
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </div>

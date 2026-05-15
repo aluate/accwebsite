@@ -4,20 +4,47 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
-import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
-import { ReleaseToProductionButton } from "@/components/ReleaseToProductionButton";
-import { SendSignoffButton } from "@/components/SendSignoffButton";
+import { PunchListPanel } from "@/components/PunchListPanel";
+import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
-const STATUS_STEPS = ["intake", "active", "production", "complete"];
+const STATUS_STEPS = [
+  "intake", "bid", "design", "field_dims",
+  "engineering", "procurement",
+  "production", "delivery",
+  "install", "punch", "complete",
+];
+
+// Responsible party labels shown on the detail page badge
+const STATUS_OWNER: Record<string, string> = {
+  intake:      "PM",
+  bid:         "PM",
+  design:      "PM",
+  field_dims:  "PM",
+  engineering: "ENG",
+  procurement: "ENG",
+  production:  "PROD",
+  delivery:    "DEL",
+  install:     "INST",
+  punch:       "PM",
+  complete:    "PM",
+  on_hold:     "—",
+};
 
 const STATUS_COLOR: Record<string, string> = {
-  intake:     "text-white/50 bg-white/10",
-  active:     "text-blue-300 bg-blue-900/40",
-  production: "text-yellow-300 bg-yellow-900/40",
-  complete:   "text-green-300 bg-green-900/40",
-  on_hold:    "text-orange-300 bg-orange-900/40",
+  intake:      "text-white/50 bg-white/10",
+  bid:         "text-sky-300 bg-sky-900/40",
+  design:      "text-sky-300 bg-sky-900/40",
+  field_dims:  "text-sky-300 bg-sky-900/40",
+  engineering: "text-blue-300 bg-blue-900/40",
+  procurement: "text-blue-300 bg-blue-900/40",
+  production:  "text-yellow-300 bg-yellow-900/40",
+  delivery:    "text-amber-300 bg-amber-900/40",
+  install:     "text-purple-300 bg-purple-900/40",
+  punch:       "text-pink-300 bg-pink-900/40",
+  complete:    "text-green-300 bg-green-900/40",
+  on_hold:     "text-orange-300 bg-orange-900/40",
 };
 
 const MODULE_DEFS = [
@@ -29,6 +56,7 @@ const MODULE_DEFS = [
 
 type Job = {
   id: string; seq: number; created_at: string; status: string; job_type: string;
+  job_number: string | null;
   client_name: string; client_email: string; client_phone: string;
   site_address: string; city: string;
   pm: string; builder_name: string; builder_email: string;
@@ -53,12 +81,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const isAdmin = session.role === "admin";
   const isInstaller = session.role === "installer";
 
-  const [job] = await sql`SELECT * FROM jobs WHERE id = ${id}` as Job[];
+  const [job] = await sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Job[];
   if (!job) notFound();
+  const internalId = job.id; // always use internal PK for subsequent queries
 
   // Activity feed — best-effort (may be empty on first use, catches if table not yet in DB)
   let activityLog: ActivityRow[] = [];
-  try { activityLog = await listActivityForJob(id, 30); } catch {}
+  try { activityLog = await listActivityForJob(internalId, 30); } catch {}
 
   // ── Installer view — stripped down to essentials ──────────────────────────
   if (isInstaller) {
@@ -68,14 +97,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
              c.name AS crew_name
       FROM job_events je
       LEFT JOIN crews c ON c.id = je.crew_id
-      WHERE je.job_id = ${id}
+      WHERE je.job_id = ${internalId}
         AND je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
         AND (je.date_end IS NULL OR je.date_end >= ${today})
       ORDER BY je.date_start NULLS LAST
     `;
 
-    const mapsUrl = `https://maps.apple.com/?q=${encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "))}`;
-    const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "))}`;
+    const mapsUrl = "https://maps.apple.com/?q=" + encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "));
+    const gmapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "));
 
     return (
       <div className="min-h-screen bg-[#111] text-white">
@@ -85,7 +114,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             ← My Jobs
           </Link>
           <span className="text-white/15">|</span>
-          <span className="text-[#f08122] font-condensed uppercase tracking-widest text-xs">{job.id}</span>
+          <span className="text-[#f08122] font-condensed uppercase tracking-widest text-xs">Job #{job.job_number ?? job.id}</span>
         </div>
 
         <div className="px-4 py-5 max-w-lg mx-auto space-y-5">
@@ -119,7 +148,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 {events.map((ev) => {
                   const dateStr = ev.date_start
                     ? ev.date_end && ev.date_end !== ev.date_start
-                      ? `${ev.date_start} – ${ev.date_end}`
+                      ? ev.date_start + " – " + ev.date_end
                       : ev.date_start
                     : "TBD";
                   const TYPE_LABELS: Record<string, string> = {
@@ -147,6 +176,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </div>
           )}
 
+          {/* Punch list — all active items this installer can action */}
+          <PunchListPanel jobId={internalId} role={session.role} />
+
           {/* Photo upload — site kind pre-selected */}
           <JobFilesPanel jobId={id} isAdmin={false} defaultKind="09_site_photos" />
         </div>
@@ -168,11 +200,34 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         ← All Jobs
       </Link>
 
+      {/* B.2 — Engineering in-app indicator */}
+      {(job.status === "engineering" || job.status === "procurement") && (
+        <div className="mb-6 flex items-center justify-between gap-4 bg-blue-900/20 border border-blue-700/30 rounded-lg px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-blue-400 text-xs font-condensed uppercase tracking-widest">
+              {job.status === "engineering" ? "Waiting for Engineering" : "In Procurement"}
+            </span>
+            <span className="text-white/20 text-xs">·</span>
+            <span className="text-white/40 text-xs">
+              {job.status === "engineering"
+                ? "Spec released — engineer queue has this job."
+                : "WO placed — awaiting materials."}
+            </span>
+          </div>
+          <Link
+            href="/engineer"
+            className="text-blue-400 hover:text-blue-300 text-xs font-condensed uppercase tracking-wider transition-colors shrink-0"
+          >
+            Engineering Queue →
+          </Link>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
-          <p className="font-condensed text-[#f08122] uppercase tracking-widest text-sm mb-1">{job.id}</p>
+          <p className="font-condensed text-[#f08122] uppercase tracking-widest text-sm mb-1">Job #{job.job_number ?? job.id}</p>
           <h1 className="font-heading text-3xl uppercase tracking-wide text-white">{job.client_name}</h1>
-          <p className="text-white/50 text-sm mt-1">{job.site_address}{job.city ? `, ${job.city}` : ""}</p>
+          <p className="text-white/50 text-sm mt-1">{job.site_address}{job.city ? ", " + job.city : ""}</p>
         </div>
         {isAdmin && (
           <div className="flex flex-wrap items-center gap-2">
@@ -181,17 +236,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 Express
               </span>
             )}
-            <span className={`text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 ${STATUS_COLOR[job.status] ?? STATUS_COLOR.intake}`}>
-              {job.status}
+            <span className={"text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 " + (STATUS_COLOR[job.status] ?? STATUS_COLOR.intake)}>
+              {job.status?.replace(/_/g, " ")}
+              {STATUS_OWNER[job.status] && <span className="ml-1 opacity-60">· {STATUS_OWNER[job.status]}</span>}
             </span>
             <Link
-              href={`/admin/jobs/${id}/portal`}
+              href={"/admin/jobs/" + id + "/portal"}
               className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/15 hover:border-[#f08122] rounded px-3 py-1.5 transition-colors"
             >
               Portal
             </Link>
             <Link
-              href={`/jobs/${id}/edit`}
+              href={"/jobs/" + id + "/edit"}
               className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1.5 transition-colors"
             >
               Edit
@@ -205,11 +261,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 Express
               </span>
             )}
-            <span className={`text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 ${STATUS_COLOR[job.status] ?? STATUS_COLOR.intake}`}>
-              {job.status}
+            <span className={"text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 " + (STATUS_COLOR[job.status] ?? STATUS_COLOR.intake)}>
+              {job.status?.replace(/_/g, " ")}
+              {STATUS_OWNER[job.status] && <span className="ml-1 opacity-60">· {STATUS_OWNER[job.status]}</span>}
             </span>
             <Link
-              href={`/jobs/${id}/edit`}
+              href={"/jobs/" + id + "/edit"}
               className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1.5 transition-colors"
             >
               Edit
@@ -224,12 +281,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           const isCurrent = job.status === s;
           const isPast = STATUS_STEPS.indexOf(job.status) > i;
           return (
-            <div key={s} className={`flex-1 py-2 px-4 text-center text-[10px] font-condensed uppercase tracking-widest border-b-2 ${
+            <div key={s} className={"flex-1 py-2 px-4 text-center text-[10px] font-condensed uppercase tracking-widest border-b-2 " + (
               isCurrent ? "border-[#f08122] text-[#f08122]" :
               isPast    ? "border-white/20 text-white/20" :
                           "border-white/10 text-white/15"
-            }`}>
-              {s}
+            )}>
+              {s.replace(/_/g, " ")}
             </div>
           );
         })}
@@ -239,8 +296,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
         <div className="md:col-span-1 space-y-6">
           <DetailCard title="Client">
-            <Row label="Email"   value={job.client_email} href={`mailto:${job.client_email}`} />
-            <Row label="Phone"   value={job.client_phone} href={`tel:${job.client_phone}`} />
+            <Row label="Email"   value={job.client_email} href={"mailto:" + job.client_email} />
+            <Row label="Phone"   value={job.client_phone} href={"tel:" + job.client_phone} />
             <Row label="Address" value={job.site_address} />
           </DetailCard>
 
@@ -251,8 +308,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <DetailCard title="Builder">
             <Row label="Name"    value={job.builder_name} />
             <Row label="Company" value={job.builder_company} />
-            <Row label="Email"   value={job.builder_email} href={`mailto:${job.builder_email}`} />
-            <Row label="Phone"   value={job.builder_phone} href={`tel:${job.builder_phone}`} />
+            <Row label="Email"   value={job.builder_email} href={"mailto:" + job.builder_email} />
+            <Row label="Phone"   value={job.builder_phone} href={"tel:" + job.builder_phone} />
           </DetailCard>
 
           {(job.delivery_date || job.notes) && (
@@ -271,7 +328,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               {activeModules.map((m) => (
                 <Link
                   key={m.key}
-                  href={`/jobs/${id}/${m.href}`}
+                  href={"/jobs/" + id + "/" + m.href}
                   className="flex items-center justify-between bg-[#2d2d2d] hover:bg-[#353535] rounded p-4 transition-colors group"
                 >
                   <div>
@@ -296,22 +353,24 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           )}
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3">
-            <ReadyToScheduleButton jobId={id} />
-            <SendSignoffButton jobId={id} />
-            <ReleaseToProductionButton jobId={id} currentStatus={job.status} />
+            <StatusAdvanceButton jobId={id} currentStatus={job.status} />
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5">
             <Link
-              href={`/jobs/${id}/schedule`}
+              href={"/jobs/" + id + "/schedule"}
               className="inline-flex items-center gap-2 text-xs font-condensed uppercase tracking-widest text-white/40 hover:text-[#f08122] border border-white/10 hover:border-[#f08122]/30 px-3 py-2 rounded transition-colors"
             >
-              📅 Install Phases &amp; Schedule
+              📅 Install Phases & Schedule
             </Link>
           </div>
 
           <div className="mt-6">
             <JobFilesPanel jobId={id} isAdmin={isAdmin} />
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-white/5">
+            <PunchListPanel jobId={internalId} role={session.role} />
           </div>
 
           {/* Activity Feed */}
