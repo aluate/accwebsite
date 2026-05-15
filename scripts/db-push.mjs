@@ -411,6 +411,13 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
+  // ── Job files uploaded_by column (idempotent) ─────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE job_files ADD COLUMN IF NOT EXISTS uploaded_by TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
   // ── Job number (TradeSoft) column addition (idempotent) ────────────────────
   for (const stmt of [
     `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS job_number TEXT`,
@@ -465,14 +472,4 @@ async function main() {
       id            TEXT PRIMARY KEY,
       job_id        TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
       to_status     TEXT NOT NULL,
-      recipient     TEXT NOT NULL,
-      subject       TEXT NOT NULL,
-      sent_at       TEXT,
-      error         TEXT,
-      created_at    TEXT NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS idx_transition_emails_job
-      ON transition_emails(job_id);
-  `);
-
-  // ── Seed event_phase_labels (idempotent) ──────�
+      recipie

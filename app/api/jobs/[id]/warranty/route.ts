@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = "force-dynamic";
 
@@ -28,5 +29,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     VALUES (${uid()}, ${jobId}, ${now}, ${session.name ?? session.username}, ${body.category ?? "general"}, ${body.description.trim()}, ${body.priority ?? "normal"}, ${body.notes ?? null})
     RETURNING *
   `;
+  logActivity({ entityType: "warranty", entityId: item[0].id as string, jobId,
+    eventType: "created", actor: session.name ?? session.username, actorRole: session.role,
+    payload: { category: body.category ?? "general", priority: body.priority ?? "normal" } }).catch(() => {});
+
   return NextResponse.json(item[0], { status: 201 });
 }

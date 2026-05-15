@@ -8,6 +8,7 @@ type StageCount = { status: string; cnt: number };
 type AgingJob   = { id: string; job_number: string | null; client_name: string; site_address: string; pm: string | null; status: string; days_in_stage: number };
 type PunchJob   = { id: string; job_number: string | null; client_name: string; open_count: number };
 type ActivityRow = { id: string; job_id: string | null; event_type: string; actor: string; from_state: string | null; to_state: string | null; occurred_at: string };
+type WarrantyCounts = { open_count: number; in_progress_count: number };
 
 const STATUS_LABEL: Record<string, string> = {
   intake: "Intake", bid: "Bid", design: "Design", field_dims: "Field Dims",
@@ -43,7 +44,7 @@ function fmtTime(iso: string) {
 export default async function DashboardPage() {
   await requireRole(["admin", "pm"]);
 
-  const [stageCounts, agingJobs, punchJobs, recentActivity, totalJobs] = await Promise.all([
+  const [stageCounts, agingJobs, punchJobs, recentActivity, totalJobs, warrantyCounts] = await Promise.all([
     sql`
       SELECT status, COUNT(*)::int AS cnt FROM jobs
       WHERE status NOT IN ('complete') GROUP BY status ORDER BY cnt DESC
@@ -74,11 +75,18 @@ export default async function DashboardPage() {
       FROM activity_log ORDER BY occurred_at DESC LIMIT 20
     ` as Promise<ActivityRow[]>,
     sql`SELECT COUNT(*)::int AS n FROM jobs WHERE status NOT IN ('complete')` as Promise<{ n: number }[]>,
+    sql`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'open')::int AS open_count,
+        COUNT(*) FILTER (WHERE status = 'in_progress')::int AS in_progress_count
+      FROM warranty_items
+    ` as Promise<WarrantyCounts[]>,
   ]);
 
   const total = totalJobs[0]?.n ?? 0;
   const stuckCount = agingJobs.length;
   const openPunch = punchJobs.reduce((s, j) => s + j.open_count, 0);
+  const openWarranty = (warrantyCounts[0]?.open_count ?? 0) + (warrantyCounts[0]?.in_progress_count ?? 0);
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
@@ -94,7 +102,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <div className="bg-[#2d2d2d] rounded-lg p-4 text-center">
           <p className="text-3xl font-heading text-white">{total}</p>
           <p className="text-white/40 text-xs font-condensed uppercase tracking-widest mt-1">Active Jobs</p>
@@ -103,10 +111,14 @@ export default async function DashboardPage() {
           <p className={"text-3xl font-heading " + (stuckCount > 0 ? "text-amber-400" : "text-white")}>{stuckCount}</p>
           <p className="text-white/40 text-xs font-condensed uppercase tracking-widest mt-1">Stuck &gt;10 Days</p>
         </div>
-        <div className={"bg-[#2d2d2d] rounded-lg p-4 text-center " + (openPunch > 0 ? "border border-pink-700/40" : "")}>
+        <Link href="/punch" className={"bg-[#2d2d2d] rounded-lg p-4 text-center hover:bg-[#333] transition-colors " + (openPunch > 0 ? "border border-pink-700/40" : "")}>
           <p className={"text-3xl font-heading " + (openPunch > 0 ? "text-pink-400" : "text-white")}>{openPunch}</p>
           <p className="text-white/40 text-xs font-condensed uppercase tracking-widest mt-1">Open Punch Items</p>
-        </div>
+        </Link>
+        <Link href="/warranty" className={"bg-[#2d2d2d] rounded-lg p-4 text-center hover:bg-[#333] transition-colors " + (openWarranty > 0 ? "border border-orange-700/40" : "")}>
+          <p className={"text-3xl font-heading " + (openWarranty > 0 ? "text-orange-400" : "text-white")}>{openWarranty}</p>
+          <p className="text-white/40 text-xs font-condensed uppercase tracking-widest mt-1">Open Warranty</p>
+        </Link>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
