@@ -7,7 +7,7 @@
  */
 
 import { sql } from "@/lib/db";
-import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
+import { renderSpecPDF } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 import { createClient } from "@supabase/supabase-js";
 
@@ -42,16 +42,15 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   const data = await loadSpecPDFData(specId);
 
   // 1. Spec PDF (fresh render).
-  const specBuf = await renderSpecPDFBuffer(data);
+  const specBuf = await renderSpecPDF(data);
 
   // 2. Drawings — most-recent drawing file from Supabase Storage.
-  //    kind = '05_drawings' matches the files API VALID_KINDS.
   const [jobRow] = await sql`SELECT builder_company FROM jobs WHERE id = ${data.job_id}`;
   const job = jobRow as { builder_company: string | null } | undefined;
 
   const drawingRows = await sql`
     SELECT storage_path, filename FROM job_files
-    WHERE job_id = ${data.job_id} AND kind = '05_drawings'
+    WHERE job_id = ${data.job_id} AND kind = 'drawings'
     ORDER BY uploaded_at DESC LIMIT 1
   `;
 
@@ -70,7 +69,7 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   }
 
   if (!drawingsBuf) {
-    throw new Error("No drawings PDF for this job. Upload drawings (kind=05_drawings) on the job page first.");
+    throw new Error("No drawings PDF for this job. Upload kind=drawings on the job page first.");
   }
 
   // 3. Disclosure (residential customers only).
