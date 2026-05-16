@@ -472,4 +472,34 @@ async function main() {
       id            TEXT PRIMARY KEY,
       job_id        TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
       to_status     TEXT NOT NULL,
-      recipie
+      recipient     TEXT NOT NULL,
+      subject       TEXT NOT NULL,
+      sent_at       TEXT,
+      error         TEXT,
+      created_at    TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_transition_emails_job
+      ON transition_emails(job_id);
+  `);
+
+  // ── Seed event_phase_labels (idempotent) ─────────────────────────────────────────────
+  const defaultLabels = [
+    { label: "Ladder Bases",   sort_order: 1 },
+    { label: "Casework",       sort_order: 2 },
+    { label: "Pulls & Panels", sort_order: 3 },
+    { label: "Post Tops",      sort_order: 4 },
+    { label: "Other",          sort_order: 99 },
+  ];
+  for (const { label, sort_order } of defaultLabels) {
+    await sql`
+      INSERT INTO event_phase_labels (label, sort_order, active)
+      VALUES (${label}, ${sort_order}, 1)
+      ON CONFLICT (label) DO NOTHING
+    `;
+  }
+
+  console.log("Schema push complete.");
+  await sql.end();
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
