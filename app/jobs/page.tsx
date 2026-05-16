@@ -138,6 +138,14 @@ export default async function JobsPage() {
           </Link>
           {session && ["admin", "pm"].includes(session.role) && (
             <Link
+              href="/jobs/pm-hours"
+              className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
+            >
+              My Hours
+            </Link>
+          )}
+          {session && ["admin", "pm"].includes(session.role) && (
+            <Link
               href="/jobs/new"
               className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded transition-colors"
             >

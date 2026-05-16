@@ -560,7 +560,45 @@ async function main() {
 
 
 
-  // ── Seed event_phase_labels (idempotent) ─────────────────────────────────────────────
+  // ── gate_checkins ────────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS gate_checkins (
+      id          TEXT PRIMARY KEY,
+      job_id      TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      stage       TEXT NOT NULL,
+      outcome     TEXT NOT NULL,
+      notes       TEXT,
+      created_by  TEXT NOT NULL,
+      created_at  TEXT NOT NULL
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_gate_checkins_job
+      ON gate_checkins(job_id, created_at)
+  `;
+
+  // ── pm_time_entries ───────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS pm_time_entries (
+      id          TEXT PRIMARY KEY,
+      week_start  TEXT NOT NULL,
+      pm_name     TEXT NOT NULL,
+      job_id      TEXT,
+      hours       REAL NOT NULL DEFAULT 0,
+      notes       TEXT,
+      updated_at  TEXT NOT NULL
+    )
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_pm_time_entries_unique
+      ON pm_time_entries(week_start, pm_name, COALESCE(job_id, ''))
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_pm_time_entries_week
+      ON pm_time_entries(week_start, pm_name)
+  `;
+
+    // ── Seed event_phase_labels (idempotent) ─────────────────────────────────────────────
   const defaultLabels = [
     { label: "Ladder Bases",   sort_order: 1 },
     { label: "Casework",       sort_order: 2 },

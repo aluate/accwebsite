@@ -9,6 +9,7 @@ import { WarrantyPanel } from "@/components/WarrantyPanel";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { SignoffButton } from "@/components/SignoffButton";
 import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
+import { GateCheckinButton } from "@/components/GateCheckinButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -355,10 +356,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </div>
           )}
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3">
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3 items-start">
             <StatusAdvanceButton jobId={id} currentStatus={job.status} />
             {(session.role === "admin" || session.role === "pm") && (
               <SignoffButton jobId={internalId} />
+            )}
+            {(session.role === "admin" || session.role === "pm") && (
+              <GateCheckinButton jobId={internalId} currentStage={job.status} />
             )}
           </div>
 
