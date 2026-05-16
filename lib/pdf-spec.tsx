@@ -599,7 +599,3 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
 export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
   return renderToBuffer(renderSpecPDF(data));
 }
-
-export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
-  return renderToBuffer(renderSpecPDF(data));
-}
