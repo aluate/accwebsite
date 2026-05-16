@@ -934,14 +934,14 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
-                    <label className={LABEL}>Door Style *</label>
+                    <label className={LABEL}>Door Style <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
                     <select value={g.door_style_id} onChange={(e) => updateGroup(g.id, { door_style_id: e.target.value })} className={SELECT}>
                       <option value="">-- Select Door --</option>
-                      {catalogs.doorStyles.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                      {catalogs.doorStyles.filter((d) => !d.placeholder).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={LABEL}>Hardware Pull *</label>
+                    <label className={LABEL}>Hardware Pull <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
                     <select value={g.pull_id} onChange={(e) => updateGroup(g.id, { pull_id: e.target.value })} className={SELECT}>
                       <option value="">-- Select Pull --</option>
                       {catalogs.hardwarePulls.map((p) => <option key={p.id} value={p.id}>{p.name} - {p.brand}</option>)}

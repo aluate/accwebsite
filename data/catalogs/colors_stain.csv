@@ -3,6 +3,7 @@ STN-ACC-BELLINI,ACC,BELLINI,Bellini,true,false,ACC in-house stain — warm peach
 STN-ACC-GIMLET,ACC,GIMLET,Gimlet,true,false,ACC in-house stain — used on RC White Oak veneer (Bush Legacy),false
 STN-ACC-AMARETTO,ACC,AMARETTO,Amaretto,true,false,ACC in-house stain — warm amber (Bissell showroom reference),false
 STN-ACC-MANHATTAN,ACC,MANHATTAN,Manhattan,true,false,"ACC in-house stain — dark warm brown, classic wood tone",false
+STN-ACC-NATURAL,ACC,NATURAL,Natural,true,false,ACC in-house — clear/natural finish on RC White Oak and other species; no pigment,false
 STN-ACC-PENDING,ACC,—,ACC In-House (other — Karl to add),true,false,Placeholder for remaining cocktail-name stains not yet listed,true
 STN-ML-PLACEHOLDER,ML,—,ML Campbell stains — populate from rep,false,false,Need ML Campbell stain catalog,true
-STN-CUSTOM,Custom,—,Other / Custom Match,false,true,Escape hatch — PM specifies brand + code or sample reference in finish notes,false
+ST
