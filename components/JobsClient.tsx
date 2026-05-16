@@ -5,8 +5,6 @@ import Link from "next/link";
 import type { PipelineJob } from "@/app/jobs/page";
 import type { BuilderSession } from "@/lib/auth";
 
-// ── Status color map ────────────────────────────────────────────────────────
-
 const STATUS_COLOR: Record<string, string> = {
   intake:      "text-white/40 bg-white/10",
   bid:         "text-sky-300 bg-sky-900/30",
@@ -33,6 +31,7 @@ const STATUS_LABEL: Record<string, string> = {
   delivery:    "Delivery",
   install:     "Install",
   punch:       "Punch",
+  complete:    "Complete",
   on_hold:     "On Hold",
 };
 
@@ -53,19 +52,38 @@ const STATUSES = [
   "intake", "bid", "design", "field_dims",
   "engineering", "procurement",
   "production", "delivery",
-  "install", "punch", "complete",
-  "on_hold",
+  "install", "punch", "complete", "on_hold",
 ];
 
 type Job = Record<string, unknown>;
-type SortKey = "newest" | "oldest" | "client_az" | "client_za";
+type SortKey = "newest" | "oldest" | "client_az" | "client_za" | "delivery_asc";
 
-// ── All Jobs tab ─────────────────────────────────────────────────────────────
+function distinctPMs(jobs: Job[]): string[] {
+  const set = new Set<string>();
+  for (const j of jobs) {
+    const pm = j.pm as string | null;
+    if (pm?.trim()) set.add(pm.trim());
+  }
+  return [...set].sort();
+}
+
+function distinctPMsPipeline(jobs: PipelineJob[]): string[] {
+  const set = new Set<string>();
+  for (const j of jobs) {
+    if (j.pm?.trim()) set.add(j.pm.trim());
+  }
+  return [...set].sort();
+}
+
+// ── All Jobs tab ──────────────────────────────────────────────────────────────
 
 function AllJobsTab({ jobs }: { jobs: Job[] }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [pmFilter, setPmFilter] = useState("all");
   const [sort, setSort] = useState<SortKey>("newest");
+
+  const pms = useMemo(() => distinctPMs(jobs), [jobs]);
 
   const filtered = useMemo(() => {
     let result = [...jobs];
@@ -85,19 +103,31 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
     if (statusFilter !== "all") {
       result = result.filter((job) => job.status === statusFilter);
     }
+    if (pmFilter === "__none__") {
+      result = result.filter((job) => !(job.pm as string)?.trim());
+    } else if (pmFilter !== "all") {
+      result = result.filter((job) => (job.pm as string)?.trim() === pmFilter);
+    }
     result.sort((a, b) => {
-      if (sort === "newest")    return (b.seq as number) - (a.seq as number);
-      if (sort === "oldest")    return (a.seq as number) - (b.seq as number);
-      if (sort === "client_az") return ((a.client_name as string) || "").localeCompare((b.client_name as string) || "");
-      if (sort === "client_za") return ((b.client_name as string) || "").localeCompare((a.client_name as string) || "");
+      if (sort === "newest")       return (b.seq as number) - (a.seq as number);
+      if (sort === "oldest")       return (a.seq as number) - (b.seq as number);
+      if (sort === "client_az")    return ((a.client_name as string) || "").localeCompare((b.client_name as string) || "");
+      if (sort === "client_za")    return ((b.client_name as string) || "").localeCompare((a.client_name as string) || "");
+      if (sort === "delivery_asc") {
+        const da = (a.delivery_date as string) || "9999";
+        const db = (b.delivery_date as string) || "9999";
+        return da.localeCompare(db);
+      }
       return 0;
     });
     return result;
-  }, [jobs, search, statusFilter, sort]);
+  }, [jobs, search, statusFilter, pmFilter, sort]);
+
+  const isFiltered = search || statusFilter !== "all" || pmFilter !== "all";
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <input
           type="text"
           value={search}
@@ -105,15 +135,28 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
           placeholder="Search job #, client, address, builder, PM..."
           className="flex-1 bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#f08122]/60"
         />
+      </div>
+      <div className="flex flex-wrap gap-2 mb-6">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
         >
-          <option value="all">All Statuses</option>
+          <option value="all">All Phases</option>
           {STATUSES.map((s) => (
-            <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+            <option key={s} value={s}>{STATUS_LABEL[s] ?? s.replace(/_/g, " ")}</option>
           ))}
+        </select>
+        <select
+          value={pmFilter}
+          onChange={(e) => setPmFilter(e.target.value)}
+          className="bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
+        >
+          <option value="all">All PMs</option>
+          {pms.map((pm) => (
+            <option key={pm} value={pm}>{pm}</option>
+          ))}
+          <option value="__none__">No PM assigned</option>
         </select>
         <select
           value={sort}
@@ -124,15 +167,22 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
           <option value="oldest">Oldest First</option>
           <option value="client_az">Client A to Z</option>
           <option value="client_za">Client Z to A</option>
+          <option value="delivery_asc">Delivery Date</option>
         </select>
+        {isFiltered && (
+          <button
+            onClick={() => { setSearch(""); setStatusFilter("all"); setPmFilter("all"); }}
+            className="text-white/30 hover:text-[#f08122] text-xs font-condensed uppercase tracking-wider transition-colors px-2"
+          >
+            Clear
+          </button>
+        )}
       </div>
-
-      {(search || statusFilter !== "all") && (
+      {isFiltered && (
         <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-4">
           {filtered.length} of {jobs.length} jobs
         </p>
       )}
-
       {filtered.length === 0 ? (
         <div className="text-center py-24 text-white/20 font-condensed uppercase tracking-widest text-sm">
           {jobs.length === 0 ? "No jobs yet." : "No jobs match your filters."}
@@ -141,7 +191,7 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
         <div className="space-y-2">
           {filtered.map((job) => {
             const statusCls = STATUS_COLOR[job.status as string] ?? "text-white/40 bg-white/10";
-            const statusTxt = (job.status as string)?.replace(/_/g, " ");
+            const statusTxt = STATUS_LABEL[job.status as string] ?? (job.status as string)?.replace(/_/g, " ");
             const location = [job.site_address, job.city].filter(Boolean).join(", ");
             return (
               <Link
@@ -176,8 +226,10 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
                 <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 shrink-0 " + statusCls}>
                   {statusTxt}
                 </span>
-                <span className="text-white/30 text-xs hidden lg:block w-24 shrink-0 text-right">
-                  {new Date(job.created_at as string).toLocaleDateString()}
+                <span className="text-white/30 text-xs hidden lg:block w-28 shrink-0 text-right">
+                  {job.delivery_date
+                    ? new Date(job.delivery_date as string).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
+                    : new Date(job.created_at as string).toLocaleDateString()}
                 </span>
               </Link>
             );
@@ -188,7 +240,7 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
   );
 }
 
-// ── Pipeline tab ─────────────────────────────────────────────────────────────
+// ── Pipeline tab ──────────────────────────────────────────────────────────────
 
 function daysLabel(days: number | null): string {
   if (days === null) return "";
@@ -243,15 +295,25 @@ function PipelineCard({ job }: { job: PipelineJob }) {
 }
 
 function PipelineTab({ jobs }: { jobs: PipelineJob[] }) {
+  const [pmFilter, setPmFilter] = useState("all");
+
+  const pms = useMemo(() => distinctPMsPipeline(jobs), [jobs]);
+
+  const filtered = useMemo(() => {
+    if (pmFilter === "all") return jobs;
+    if (pmFilter === "__none__") return jobs.filter((j) => !j.pm?.trim());
+    return jobs.filter((j) => j.pm?.trim() === pmFilter);
+  }, [jobs, pmFilter]);
+
   const grouped = useMemo(() => {
     const map = new Map<string, PipelineJob[]>();
     for (const s of PIPELINE_ORDER) map.set(s, []);
-    for (const job of jobs) {
+    for (const job of filtered) {
       const bucket = map.get(job.status);
       if (bucket) bucket.push(job);
     }
     return map;
-  }, [jobs]);
+  }, [filtered]);
 
   const activeStages = PIPELINE_ORDER.filter((s) => (grouped.get(s)?.length ?? 0) > 0);
 
@@ -265,18 +327,37 @@ function PipelineTab({ jobs }: { jobs: PipelineJob[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        {activeStages.map((s) => {
-          const count = grouped.get(s)?.length ?? 0;
-          const cls   = STATUS_COLOR[s] ?? "text-white/40 bg-white/10";
-          return (
-            <span key={s} className={"text-[10px] font-condensed uppercase tracking-wider px-2 py-1 rounded " + cls}>
-              {STATUS_LABEL[s] ?? s} · {count}
-            </span>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-3">
+        {pms.length > 1 && (
+          <select
+            value={pmFilter}
+            onChange={(e) => setPmFilter(e.target.value)}
+            className="bg-white/5 border border-white/15 rounded px-3 py-1.5 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
+          >
+            <option value="all">All PMs</option>
+            {pms.map((pm) => (
+              <option key={pm} value={pm}>{pm}</option>
+            ))}
+            <option value="__none__">No PM assigned</option>
+          </select>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {activeStages.map((s) => {
+            const count = grouped.get(s)?.length ?? 0;
+            const cls   = STATUS_COLOR[s] ?? "text-white/40 bg-white/10";
+            return (
+              <span key={s} className={"text-[10px] font-condensed uppercase tracking-wider px-2 py-1 rounded " + cls}>
+                {STATUS_LABEL[s] ?? s} · {count}
+              </span>
+            );
+          })}
+        </div>
       </div>
-
+      {activeStages.length === 0 && (
+        <div className="text-center py-12 text-white/20 font-condensed uppercase tracking-widest text-sm">
+          No jobs match this filter.
+        </div>
+      )}
       {activeStages.map((stage) => {
         const stageJobs = grouped.get(stage) ?? [];
         const headerCls = STATUS_COLOR[stage] ?? "text-white/40 bg-white/10";
@@ -343,7 +424,6 @@ export function JobsClient({
             )}
           </button>
         </div>
-
         {session && (
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-white/40 text-xs font-condensed hidden sm:block">
@@ -360,7 +440,6 @@ export function JobsClient({
           </div>
         )}
       </div>
-
       {tab === "all"
         ? <AllJobsTab jobs={jobs} />
         : <PipelineTab jobs={pipelineJobs} />
