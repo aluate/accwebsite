@@ -482,6 +482,32 @@ async function main() {
       ON transition_emails(job_id);
   `);
 
+  // ── client_signoffs ──────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS client_signoffs (
+      id                TEXT PRIMARY KEY,
+      job_id            TEXT NOT NULL REFERENCES jobs(id),
+      token             TEXT NOT NULL UNIQUE,
+      token_expires_at  TEXT NOT NULL,
+      status            TEXT NOT NULL,
+      pm_note           TEXT,
+      created_by        TEXT,
+      signer_name       TEXT,
+      signature_data    TEXT,
+      signed_at         TEXT,
+      signer_ip         TEXT,
+      created_at        TEXT NOT NULL
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_client_signoffs_job
+      ON client_signoffs(job_id)
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_client_signoffs_token
+      ON client_signoffs(token)
+  `;
+
   // ── Seed event_phase_labels (idempotent) ─────────────────────────────────────────────
   const defaultLabels = [
     { label: "Ladder Bases",   sort_order: 1 },

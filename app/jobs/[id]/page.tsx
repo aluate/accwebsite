@@ -7,6 +7,7 @@ import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
+import { SignoffButton } from "@/components/SignoffButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -355,6 +356,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3">
             <StatusAdvanceButton jobId={id} currentStatus={job.status} />
+            {(session.role === "admin" || session.role === "pm") && (
+              <SignoffButton jobId={internalId} />
+            )}
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5">
