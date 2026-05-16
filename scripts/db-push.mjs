@@ -508,6 +508,58 @@ async function main() {
       ON client_signoffs(token)
   `;
 
+  // ── change_orders ─────────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS change_orders (
+      id              TEXT PRIMARY KEY,
+      job_id          TEXT NOT NULL REFERENCES jobs(id),
+      co_number       INTEGER NOT NULL,
+      title           TEXT NOT NULL,
+      description     TEXT,
+      co_type         TEXT NOT NULL DEFAULT 'client_add',
+      status          TEXT NOT NULL DEFAULT 'draft',
+      total_products  REAL NOT NULL DEFAULT 0,
+      total_labor     REAL NOT NULL DEFAULT 0,
+      total_amount    REAL NOT NULL DEFAULT 0,
+      created_by      TEXT,
+      created_at      TEXT NOT NULL,
+      signed_at       TEXT,
+      signoff_id      TEXT,
+      voided_at       TEXT,
+      voided_reason   TEXT
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_change_orders_job
+      ON change_orders(job_id)
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS change_order_items (
+      id          TEXT PRIMARY KEY,
+      co_id       TEXT NOT NULL REFERENCES change_orders(id) ON DELETE CASCADE,
+      item_type   TEXT NOT NULL,
+      description TEXT NOT NULL,
+      quantity    REAL,
+      unit        TEXT,
+      unit_price  REAL,
+      total       REAL NOT NULL DEFAULT 0,
+      sort_order  INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_co_items_co
+      ON change_order_items(co_id)
+  `;
+
+  // ── Add change_order_id to client_signoffs if not present ────────────────────
+  await sql`
+    ALTER TABLE client_signoffs
+      ADD COLUMN IF NOT EXISTS change_order_id TEXT
+  `;
+
+
+
   // ── Seed event_phase_labels (idempotent) ─────────────────────────────────────────────
   const defaultLabels = [
     { label: "Ladder Bases",   sort_order: 1 },
