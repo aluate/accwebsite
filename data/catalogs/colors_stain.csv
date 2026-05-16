@@ -6,4 +6,4 @@ STN-ACC-MANHATTAN,ACC,MANHATTAN,Manhattan,true,false,"ACC in-house stain — dar
 STN-ACC-NATURAL,ACC,NATURAL,Natural,true,false,ACC in-house — clear/natural finish on RC White Oak and other species; no pigment,false
 STN-ACC-PENDING,ACC,—,ACC In-House (other — Karl to add),true,false,Placeholder for remaining cocktail-name stains not yet listed,true
 STN-ML-PLACEHOLDER,ML,—,ML Campbell stains — populate from rep,false,false,Need ML Campbell stain catalog,true
-ST
+STN-CUSTOM,Custom,—,Other / Custom Match,false,true,Escape hatch — PM specifies brand + code or sample reference in finish notes,false

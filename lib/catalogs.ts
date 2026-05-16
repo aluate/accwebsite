@@ -399,4 +399,6 @@ export const catalogs = {
   cabinetFamilies: (): CabinetFamily[] => {
     const file = path.join(DIR, "cabinets_catalog.json");
     const raw = JSON.parse(fs.readFileSync(file, "utf-8")) as Record<string, Omit<CabinetFamily, "family_code">>;
-    return Object.entries(raw).map(([family_code, data]) => ({ family_cod
+    return Object.entries(raw).map(([family_code, data]) => ({ family_code, ...data }));
+  },
+};
