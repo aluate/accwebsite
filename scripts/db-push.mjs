@@ -577,6 +577,33 @@ async function main() {
       ON gate_checkins(job_id, created_at)
   `;
 
+  // ── engineering_release_checklists ───────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS engineering_release_checklists (
+      job_id     TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
+      checklist  JSONB NOT NULL DEFAULT '{}'::jsonb,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // ── engineering_releases (FIFO log) ──────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS engineering_releases (
+      id               TEXT PRIMARY KEY,
+      job_id           TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      released_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      released_by      TEXT NOT NULL DEFAULT 'PM',
+      notes            TEXT,
+      drawing_file_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+      email_to         TEXT NOT NULL,
+      email_cc         TEXT
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_engineering_releases_job
+      ON engineering_releases(job_id, released_at DESC)
+  `;
+
   // ── pm_time_entries ───────────────────────────────────────────────────────────
   await sql`
     CREATE TABLE IF NOT EXISTS pm_time_entries (
