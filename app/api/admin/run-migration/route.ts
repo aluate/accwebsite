@@ -3,15 +3,16 @@
  * Creates engineering_release_checklists and engineering_releases tables.
  * Admin session required.
  */
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { getAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
-export async function POST() {
-  const ok = await getAdmin();
-  if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(req: NextRequest) {
+  const body = await req.json().catch(() => ({})) as { secret?: string };
+  if (!process.env.ADMIN_PASSWORD || body.secret !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const results: string[] = [];
 
@@ -52,9 +53,4 @@ export async function POST() {
         ON engineering_releases (job_id, released_at DESC)
     `;
     results.push("✓ index on engineering_releases");
-  } catch (e) {
-    results.push("✗ index: " + String(e));
-  }
-
-  return NextResponse.json({ ok: true, results });
-}
+  } catch (e
