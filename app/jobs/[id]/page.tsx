@@ -10,6 +10,7 @@ import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { SignoffButton } from "@/components/SignoffButton";
 import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
 import { GateCheckinButton } from "@/components/GateCheckinButton";
+import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -374,6 +375,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               📅 Install Phases & Schedule
             </Link>
           </div>
+
+          {(session.role === "admin" || session.role === "pm") && (
+            <EngineeringReleasePanel jobId={internalId} />
+          )}
 
           <div className="mt-6">
             <JobFilesPanel jobId={id} isAdmin={isAdmin} />

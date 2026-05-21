@@ -30,6 +30,7 @@ const VALID_KINDS = new Set([
   "14_ship_ticket",
   "14_install_drawings",
   "15_contract",
+  "16_eng_drawings", // approved drawings for engineering release
 ]);
 
 function supabaseAdmin() {
