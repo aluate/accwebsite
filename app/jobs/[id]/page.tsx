@@ -11,6 +11,7 @@ import { SignoffButton } from "@/components/SignoffButton";
 import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
 import { GateCheckinButton } from "@/components/GateCheckinButton";
 import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
+import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -364,6 +365,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             )}
             {(session.role === "admin" || session.role === "pm") && (
               <GateCheckinButton jobId={internalId} currentStage={job.status} />
+            )}
+            {(session.role === "admin" || session.role === "user") && (
+              <ReadyToScheduleButton jobId={internalId} />
             )}
           </div>
 
