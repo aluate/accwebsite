@@ -111,6 +111,115 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
   return v;
 }
 
+// ── ColorPicker ────────────────────────────────────────────────────────────
+// Brand/supplier filter pills + code-or-name text search. Works for:
+//   paint   → brand: SW | BM | ML | Custom
+//   stain   → brand: ACC | ML | Custom
+//   melamine → supplier: Stevenswood | TruNorth | Egger | Tafisa | Custom
+type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null };
+
+function ColorPicker({
+  type, value, catalogs, onChange,
+}: {
+  type: FinishType;
+  value: string;
+  catalogs: Props["catalogs"];
+  onChange: (id: string, label: string) => void;
+}) {
+  const [filterBrand, setFilterBrand] = useState("");
+  const [search, setSearch] = useState("");
+
+  const all: CPEntry[] = useMemo(() => {
+    if (type === "paint") {
+      return catalogs.paintColors
+        .filter((c) => !c.placeholder)
+        .map((c) => ({ id: c.id, brand: c.brand, code: c.code ?? "", name: c.name, hex: c.hex_approx }));
+    }
+    if (type === "stain") {
+      return catalogs.stainColors
+        .filter((c) => !c.placeholder)
+        .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name }));
+    }
+    return catalogs.melamineColors
+      .filter((c) => !c.placeholder)
+      .map((c) => ({ id: c.id, brand: c.supplier, code: c.code && c.code !== "—" ? c.code : "", name: c.name, hex: c.hex_approx }));
+  }, [type, catalogs]);
+
+  const brands = useMemo(() => [...new Set(all.map((c) => c.brand))].sort(), [all]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return all.filter((c) => {
+      if (filterBrand && c.brand !== filterBrand) return false;
+      if (q) return c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+      return true;
+    });
+  }, [all, filterBrand, search]);
+
+  const selected = all.find((c) => c.id === value);
+  const isCustom = value === "PNT-CUSTOM" || value === "STN-CUSTOM" || value === "MEL-CUSTOM";
+
+  function makeLabel(c: CPEntry) {
+    return `${c.code ? c.code + " · " : ""}${c.name} — ${c.brand}`;
+  }
+
+  return (
+    <div className="space-y-2">
+      {/* Brand / supplier filter pills */}
+      <div className="flex gap-1 flex-wrap">
+        <button type="button" onClick={() => setFilterBrand("")}
+          className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border transition-colors ${filterBrand === "" ? "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]" : "border-white/10 text-white/30 hover:text-white hover:border-white/30"}`}
+        >All</button>
+        {brands.map((b) => (
+          <button key={b} type="button" onClick={() => setFilterBrand(filterBrand === b ? "" : b)}
+            className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border transition-colors ${filterBrand === b ? "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]" : "border-white/10 text-white/30 hover:text-white hover:border-white/30"}`}
+          >{b}</button>
+        ))}
+      </div>
+      {/* Code search + dropdown */}
+      <div className="flex gap-2 items-center">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Code # or name…"
+          className="w-32 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors font-mono"
+        />
+        <select
+          value={value}
+          onChange={(e) => {
+            const c = all.find((x) => x.id === e.target.value);
+            onChange(e.target.value, c ? makeLabel(c) : "");
+          }}
+          className="flex-1 bg-[#1a1a1a] border border-white/15 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors min-w-0"
+        >
+          <option value="">-- Select Color --</option>
+          {filtered.map((c) => (
+            <option key={c.id} value={c.id}>{c.code ? `${c.code}  ` : ""}{c.name}</option>
+          ))}
+        </select>
+        {selected?.hex && !isCustom && (
+          <span className="w-6 h-6 rounded-full shrink-0 border border-white/20" style={{ background: selected.hex }} />
+        )}
+      </div>
+      {/* Free-text for Custom Match */}
+      {isCustom && (
+        <input
+          type="text"
+          placeholder="Type brand + code + name  (e.g. SW 7757 High Reflective White)"
+          onChange={(e) => onChange(value, e.target.value || "Other / Custom Match")}
+          className="w-full bg-[#1a1a1a] border border-[#f08122]/40 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors"
+        />
+      )}
+      {selected && !isCustom && (
+        <p className="text-white/30 text-[11px] font-condensed">
+          ✓ {selected.brand}  {selected.code}  ·  {selected.name}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
@@ -250,9 +359,13 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     try {
       const res = await fetch(`/api/specs/${specId}/generate`, { method: "POST" });
       if (!res.ok) { setGenState("error"); return; }
-      const body = await res.json();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
       setGenState("done");
-      if (body.downloadUrl) window.open(body.downloadUrl, "_blank");
+      // File was saved to job folder — show link if file_id came back
+      const savedId = res.headers.get("X-File-Id");
+      if (savedId) setContractFileId("");  // don't clobber a contract link
     } catch {
       setGenState("error");
     }
@@ -260,6 +373,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   const [combineState, setCombineState] = useState<"idle"|"working"|"done"|"error">("idle");
   const [combineErr, setCombineErr] = useState<string>("");
+  const [contractState, setContractState] = useState<"idle"|"working"|"done"|"error">("idle");
+  const [contractFileId, setContractFileId] = useState<string>("");
+  const [showDisclosureModal, setShowDisclosureModal] = useState(false);
   const generateCombined = useCallback(async () => {
     if (violations.length > 0) { setShowViolations(true); return; }
     if (dirty) {
@@ -384,11 +500,41 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     });
     markDirty();
   }
-  function colorOptions(type: FinishType) {
-    if (type === "paint")    return catalogs.paintColors.map((c) => ({ id: c.id, label: `${c.name} - ${c.brand} ${c.code ?? ""}`.trim(), hex: c.hex_approx }));
-    if (type === "stain")    return catalogs.stainColors.map((c) => ({ id: c.id, label: `${c.name} - ${c.brand}${c.code ? " " + c.code : ""}`, hex: null }));
-    return catalogs.melamineColors.map((c) => ({ id: c.id, label: `${c.name} - ${c.supplier} ${c.code ?? ""}`.trim(), hex: null }));
-  }
+
+
+  // Called from disclosure modal with user's choice
+  const buildContract = useCallback(async (includeDisclosure: boolean) => {
+    setShowDisclosureModal(false);
+    setContractState("working");
+    setContractFileId("");
+    try {
+      const res = await fetch(`/api/specs/${specId}/contract`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ includeDisclosure }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setContractState("error");
+        return;
+      }
+      setContractState("done");
+      setContractFileId(body.file_id ?? "");
+      if (body.download_url) window.open(body.download_url, "_blank");
+    } catch {
+      setContractState("error");
+    }
+  }, [specId]);
+
+  const generateContract = useCallback(async () => {
+    if (violations.length > 0) { setShowViolations(true); return; }
+    if (dirty) {
+      const ok = await save();
+      if (!ok) return;
+    }
+    // Show disclosure modal before building
+    setShowDisclosureModal(true);
+  }, [specId, dirty, violations.length, save]);
 
   // ── Rooms ─────────────────────────────────────────────────────────────────
   function addRoom() {
@@ -515,6 +661,52 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   return (
     <div>
+      {/* ── Residential Disclosure Modal ──────────────────────────────────── */}
+      {showDisclosureModal && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-md space-y-5">
+            <div>
+              <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-1">
+                Build Contract
+              </p>
+              <p className="text-white font-condensed uppercase tracking-widest text-sm">
+                Include Residential Disclosure?
+              </p>
+            </div>
+            <p className="text-white/50 text-xs leading-relaxed">
+              The Residential Disclosure Agreement covers the right of rescission, Idaho contractor
+              license disclosure, lien rights notice, payment terms, and warranty scope. It should
+              be included for all direct residential clients.
+            </p>
+            <p className="text-white/30 text-[11px]">
+              The disclosure PDF must be uploaded to Supabase Storage at{" "}
+              <span className="font-mono text-white/50">templates/residential-disclosure.pdf</span>.
+              If it hasn&apos;t been uploaded yet, the contract will be built without it.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => buildContract(true)}
+                className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
+              >
+                Yes — Include Disclosure
+              </button>
+              <button
+                onClick={() => buildContract(false)}
+                className="bg-white/10 hover:bg-white/15 text-white font-condensed uppercase tracking-widest text-xs px-5 py-2.5 rounded transition-colors"
+              >
+                No — Skip
+              </button>
+              <button
+                onClick={() => setShowDisclosureModal(false)}
+                className="text-white/30 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2.5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <datalist id="room-name-suggestions">
         {catalogs.rooms.map((r) => <option key={r.id} value={r.name} />)}
       </datalist>
@@ -603,6 +795,28 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           </button>
           {combineErr && <span className="text-red-400 text-[10px] font-condensed uppercase tracking-widest" title={combineErr}>{combineErr.length > 40 ? combineErr.slice(0,40) + "..." : combineErr}</span>}
           <button
+            onClick={generateContract}
+            disabled={!canGen || contractState === "working"}
+            title={canGen ? "Merge spec + drawings + quote into one PDF, save to job folder, and email to PM" : blockedReason}
+            className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
+              canGen && contractState !== "working"
+                ? "bg-[#f08122] hover:bg-[#d9711e] text-white border border-[#f08122]"
+                : "bg-white/5 text-white/20 cursor-not-allowed border border-transparent"
+            }`}
+          >
+            {contractState === "working" ? "Building..." : contractState === "error" ? "Contract - retry" : contractState === "done" ? "✓ Contract Sent" : "Send Contract"}
+          </button>
+          {contractState === "done" && contractFileId && (
+            <a
+              href={`/api/jobs/${jobId}/files?file_id=${contractFileId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-green-400 text-[10px] font-condensed uppercase tracking-widest hover:text-green-300 transition-colors"
+            >
+              View in job folder →
+            </a>
+          )}
+          <button
             onClick={generateExcel}
             disabled={!canGen || excelState === "working"}
             title={canGen ? "Render the Artifex spec template (.xlsx) and download" : blockedReason}
@@ -659,10 +873,16 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             Each group defines one finish + door + pull + carcass + drawer box. Every required dropdown must be picked before save.
           </p>
           {groups.map((g) => {
-            const opts = colorOptions(g.finish_type);
             const carcass = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
             const drawerBox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
             const requiresEdgebandPick = g.finish_type === "paint" || g.finish_type === "stain";
+            // Melamine edgeband auto-match: look up color name → edgeband.color_match
+            const matchedEdgeband = g.finish_type === "melamine" && g.color_id
+              ? (() => {
+                  const mc = catalogs.melamineColors.find((c) => c.id === g.color_id);
+                  return mc ? catalogs.edgebands.find((e) => e.color_match === mc.name && !e.placeholder) : undefined;
+                })()
+              : undefined;
             const edgebandOptions = catalogs.edgebands.filter((e) => {
               // sync-catalogs.mjs auto-arrays semicolon-separated values, so the
               // runtime is sometimes string and sometimes string[]. Handle both.
@@ -691,30 +911,37 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <option value="melamine">Melamine / TFL</option>
                     </select>
                   </div>
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className={LABEL}>Color *</label>
-                    <div className="flex flex-wrap gap-2 items-center">
-                      {g.finish_type === "paint" && g.color_id && (() => {
-                        const c = catalogs.paintColors.find((p) => p.id === g.color_id);
-                        return c?.hex_approx ? <span className="w-5 h-5 rounded-full shrink-0 border border-white/20" style={{ background: c.hex_approx }} /> : null;
-                      })()}
-                      <select value={g.color_id} onChange={(e) => { const opt = opts.find((o) => o.id === e.target.value); updateGroup(g.id, { color_id: e.target.value, color_name: opt?.label ?? "" }); }} className={SELECT}>
-                        <option value="">-- Select Color --</option>
-                        {opts.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                      </select>
-                    </div>
+                    <ColorPicker
+                      type={g.finish_type}
+                      value={g.color_id}
+                      catalogs={catalogs}
+                      onChange={(id, label) => {
+                        const updates: Partial<FinishGroup> = { color_id: id, color_name: label };
+                        // Auto-derive edgeband when a melamine color is picked
+                        if (g.finish_type === "melamine" && id) {
+                          const mc = catalogs.melamineColors.find((c) => c.id === id);
+                          if (mc) {
+                            const eb = catalogs.edgebands.find((e) => e.color_match === mc.name && !e.placeholder);
+                            if (eb) updates.edgeband_id = eb.id;
+                          }
+                        }
+                        updateGroup(g.id, updates);
+                      }}
+                    />
                   </div>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
-                    <label className={LABEL}>Door Style *</label>
+                    <label className={LABEL}>Door Style <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
                     <select value={g.door_style_id} onChange={(e) => updateGroup(g.id, { door_style_id: e.target.value })} className={SELECT}>
                       <option value="">-- Select Door --</option>
-                      {catalogs.doorStyles.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                      {catalogs.doorStyles.filter((d) => !d.placeholder).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={LABEL}>Hardware Pull *</label>
+                    <label className={LABEL}>Hardware Pull <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
                     <select value={g.pull_id} onChange={(e) => updateGroup(g.id, { pull_id: e.target.value })} className={SELECT}>
                       <option value="">-- Select Pull --</option>
                       {catalogs.hardwarePulls.map((p) => <option key={p.id} value={p.id}>{p.name} - {p.brand}</option>)}
@@ -760,9 +987,22 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                           <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
                         ))}
                       </select>
+                    ) : matchedEdgeband ? (
+                      <div className={INPUT + " text-green-400/80 text-xs"}>
+                        ✓ {matchedEdgeband.product_name} — {matchedEdgeband.supplier}
+                        <span className="text-white/30 ml-1.5">(auto-matched)</span>
+                      </div>
+                    ) : g.color_id ? (
+                      // Color is picked but catalog has no match — let PM select manually
+                      <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
+                        <option value="">-- No catalog match — pick edgeband --</option>
+                        {edgebandOptions.map((e) => (
+                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
+                        ))}
+                      </select>
                     ) : (
-                      <div className={INPUT + " text-white/40 italic"}>
-                        Auto-derived from melamine choice (Phase 1.5)
+                      <div className={INPUT + " text-white/30 text-xs italic"}>
+                        Pick a melamine color first
                       </div>
                     )}
                   </div>

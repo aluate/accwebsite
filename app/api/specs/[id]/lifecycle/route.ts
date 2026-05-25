@@ -13,17 +13,20 @@ import {
 } from "@/lib/lifecycle";
 
 // DAC #4: role-based transition guards
-function transitionAllowed(role: "admin" | "user" | "engineer", from: LifecycleState, to: LifecycleState): boolean {
+function transitionAllowed(role: string, from: LifecycleState, to: LifecycleState): boolean {
   if (role === "admin") return true;
   const fi = LIFECYCLE_STATES.indexOf(from), ti = LIFECYCLE_STATES.indexOf(to);
   const isForward  = ti > fi;
   const isBackward = ti < fi;
-  if (role === "user") {
+  if (role === "pm") {
+    // PMs can advance DRAFT -> CLIENT_APPROVED only
     return isForward && from === "DRAFT" && to === "CLIENT_APPROVED";
   }
   if (role === "engineer") {
+    // Engineers can move forward or backward (re-spin with reason)
     return isForward || isBackward;
   }
+  // shop / installer: read-only
   return false;
 }
 
@@ -63,8 +66,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const from = cur.lifecycle_state as LifecycleState;
   if (!transitionAllowed(session.role, from, to)) {
     return NextResponse.json({
-      error: `Role ${session.role} cannot transition ${from} → ${to}. Need engineer or admin role.`,
+      error: `Role '${session.role}' cannot transition ${from} -> ${to}. Need engineer or admin role.`,
     }, { status: 403 });
+  }
+
+  // Gate: before CLIENT_APPROVED or RELEASED_TO_ENG, Schedules tab must have
+  // at least one door-front row — proof the PM completed the spec.
+  if (to === "CLIENT_APPROVED" || to === "RELEASED_TO_ENG") {
+    const [doorFrontCheck] = await sql`
+      SELECT COUNT(*)::int AS cnt
+      FROM finish_group_door_fronts df
+      JOIN finish_groups fg ON fg.id = df.finish_group_id
+      JOIN residential_specs rs ON rs.id = fg.spec_id
+      WHERE rs.id = ${id}
+    ` as Array<{ cnt: number }>;
+
+    if (!doorFrontCheck || doorFrontCheck.cnt === 0) {
+      return NextResponse.json({
+        error: "Schedules tab incomplete — door fronts must be specified before advancing. Open the spec, go to the Schedules tab, and fill in door front details.",
+      }, { status: 400 });
+    }
   }
 
   const r = await transitionLifecycle({

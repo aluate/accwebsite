@@ -57,7 +57,7 @@ export type DrawerView = {
 };
 
 export type EdgebandView = {
-  code: string; edgeband_name: string;
+  code: string; edgeband_name: string; supplier: string; thickness: string;
   where_used_label: string; notes: string;
 };
 
@@ -516,13 +516,28 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
           <Band title="Edgebands" />
           {fg.edgebands.length === 0 ? (
             <Text style={S.empty}>No edgebands specified.</Text>
-          ) : fg.edgebands.map((e, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 0.6 }]}>{e.code}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{e.edgeband_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{e.where_used || "—"}</Text>
-            </View>
-          ))}
+          ) : (
+            <>
+              <View style={[S.tRow, { backgroundColor: "#e8e8e8" }]}>
+                <Text style={[S.tCell, { flex: 0.5, fontWeight: "bold" }]}>ID</Text>
+                <Text style={[S.tCell, { flex: 0.8, fontWeight: "bold" }]}>Thickness</Text>
+                <Text style={[S.tCell, { flex: 1.2, fontWeight: "bold" }]}>Mfr #</Text>
+                <Text style={[S.tCell, { flex: 2, fontWeight: "bold" }]}>Description</Text>
+                <Text style={[S.tCell, { flex: 2, fontWeight: "bold" }]}>Where Used</Text>
+                <Text style={[S.tCell, { flex: 1.5, fontWeight: "bold" }]}>Notes</Text>
+              </View>
+              {fg.edgebands.map((e, i) => (
+                <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
+                  <Text style={[S.tCell, { flex: 0.5 }]}>{e.code}</Text>
+                  <Text style={[S.tCell, { flex: 0.8 }]}>{e.thickness || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 1.2 }]}>{e.supplier || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 2 }]}>{e.edgeband_name || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 2 }]}>{e.where_used_label || "—"}</Text>
+                  <Text style={[S.tCell, { flex: 1.5 }]}>{e.notes || ""}</Text>
+                </View>
+              ))}
+            </>
+          )}
         </View>
 
         <View style={S.colRight}>
@@ -579,4 +594,8 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
       ))}
     </Document>
   );
+}
+
+export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
+  return renderToBuffer(renderSpecPDF(data));
 }

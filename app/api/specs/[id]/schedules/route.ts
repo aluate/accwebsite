@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 /**
  * Schedules API for spec form expansion v2.
  *
@@ -8,6 +6,7 @@ export const dynamic = "force-dynamic";
  */
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
+import { logActivity } from "@/lib/activity-log";
 import { requireBuilder } from "@/lib/auth";
 
 // ── Payload types ──────────────────────────────────────────────────────────
@@ -144,7 +143,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await requireBuilder();
   const { id: specId } = await params;
-  const [spec] = await sql`SELECT id FROM residential_specs WHERE id = ${specId}`;
+  const [spec] = await sql`SELECT id, job_id FROM residential_specs WHERE id = ${specId}` as Array<{id:string;job_id:string}>;
   if (!spec) return NextResponse.json({ error: "Spec not found" }, { status: 404 });
 
   const payload = await req.json() as SchedulesPayload;
@@ -321,6 +320,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
   }
+
+  await logActivity({
+    entityType: "spec", entityId: specId, jobId: (spec as {id:string;job_id:string}).job_id,
+    eventType: "updated", actor: "pm", actorRole: "pm",
+    payload: { sections: Object.keys(payload).filter(k => k !== "finish_updates") },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true, warnings });
 }
