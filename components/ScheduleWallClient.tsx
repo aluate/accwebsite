@@ -7,7 +7,14 @@ import { getHolidaysForYear, type Holiday } from "@/lib/schedule-holidays";
 import { calculateDuration, calculateEndDate, addWorkingDays, HOT_EVENT_TYPES, DEFAULT_DURATION } from "@/lib/schedule-utils";
 import { AddEventForm } from "@/components/AddEventForm";
 
-type JobMini = { id: string; client_name: string; site_address: string };
+type JobMini = {
+  id: string;
+  client_name: string;
+  site_address: string;
+  city: string | null;
+  client_phone: string | null;
+  client_email: string | null;
+};
 
 export type ScheduleWallProps = {
   today: string;
@@ -118,6 +125,8 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
 
   const [showAddForm, setShowAddForm]   = useState(false);
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<JobEventWithJoins | null>(null);
+  const [mobileWeekStart, setMobileWeekStart] = useState<string>(() => isoWeekStart(today));
 
   const [draggingId,    setDraggingId]    = useState<string | null>(null);
   const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
@@ -181,6 +190,24 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
   );
 
   const laneMap = useMemo(() => assignLanes(visibleEvents), [visibleEvents]);
+
+  // Mobile agenda: week days Mon-Fri for the selected week
+  const mobileWeekDays = useMemo(() => {
+    const days: { day: string; events: typeof forwardEvents }[] = [];
+    for (let i = 0; i < 5; i++) {
+      const day = isoDateOffset(mobileWeekStart, i);
+      const events = forwardEvents.filter((e) => {
+        if (!e.date_start) return false;
+        const end = e.date_end ?? e.date_start;
+        return e.date_start <= day && end >= day;
+      });
+      days.push({ day, events });
+    }
+    return days;
+  }, [forwardEvents, mobileWeekStart]);
+
+  const mobileWeekEnd = isoDateOffset(mobileWeekStart, 4);
+  const mobileWeekHasToday = today >= mobileWeekStart && today <= mobileWeekEnd;
 
   // ── "1 of N" split labels ─────────────────────────────────────────────────
   const splitLabels = useMemo(() => {
@@ -372,7 +399,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
       )}
 
       {/* Body */}
-      <div className={`flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
+      <div className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
 
         {/* Calendar */}
         <div className="flex-1 p-3 overflow-auto">
@@ -393,6 +420,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
             onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
             onDragOverCell={(iso) => setDropTargetKey(iso)}
             onDrop={(id, iso) => handleDrop(id, iso)}
+            onEventClick={setSelectedEvent}
           />
         </div>
 
@@ -447,6 +475,174 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
         )}
       </div>
 
+      {/* ── Mobile agenda (phones only, hidden md+) — week view ─────────── */}
+      <div className="md:hidden flex flex-col min-h-[calc(100vh-64px)]">
+
+        {/* Week navigation header */}
+        <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+          <button
+            onClick={() => setMobileWeekStart((w) => isoDateOffset(w, -7))}
+            className="w-10 h-10 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/5 text-xl transition-colors"
+          >
+            ‹
+          </button>
+          <div className="text-center">
+            <p className="font-heading text-sm uppercase tracking-wide text-white">
+              {(() => {
+                const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                const [sy, sm, sd] = mobileWeekStart.split("-").map(Number);
+                const [ey, em, ed] = mobileWeekEnd.split("-").map(Number);
+                const start = `${MON[sm-1]} ${sd}`;
+                const end   = sm === em ? `${ed}` : `${MON[em-1]} ${ed}`;
+                return `${start} – ${end}`;
+              })()}
+            </p>
+            {mobileWeekHasToday && (
+              <p className="text-[#f08122] text-[10px] font-condensed uppercase tracking-widest">This Week</p>
+            )}
+          </div>
+          <button
+            onClick={() => setMobileWeekStart((w) => isoDateOffset(w, 7))}
+            className="w-10 h-10 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/5 text-xl transition-colors"
+          >
+            ›
+          </button>
+        </div>
+
+        {/* This Week shortcut + Add */}
+        <div className="px-4 py-2 flex items-center justify-between border-b border-white/5">
+          <button
+            onClick={() => setMobileWeekStart(isoWeekStart(today))}
+            className={`text-[10px] font-condensed uppercase tracking-widest px-2 py-1 rounded transition-colors ${
+              mobileWeekHasToday ? "text-white/20" : "text-[#f08122] hover:bg-[#f08122]/10"
+            }`}
+          >
+            ← This Week
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-3 py-1.5 rounded transition-colors"
+            >
+              + Add Event
+            </button>
+          )}
+        </div>
+
+        {/* Week days stacked */}
+        <div className="flex-1 overflow-auto">
+          {mobileWeekDays.map(({ day, events: dayEvents }) => {
+            const [y, m, d] = day.split("-").map(Number);
+            const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            const dow = new Date(y, m - 1, d).getDay();
+            const isToday = day === today;
+            return (
+              <div key={day} className={`border-b border-white/5 ${isToday ? "bg-white/[0.03]" : ""}`}>
+                {/* Day header */}
+                <div className={`px-4 py-2 flex items-center gap-2 ${isToday ? "border-l-2 border-[#f08122]" : "border-l-2 border-transparent"}`}>
+                  <span className={`text-xs font-condensed uppercase tracking-widest ${isToday ? "text-[#f08122]" : "text-white/40"}`}>
+                    {DOW[dow]}
+                  </span>
+                  <span className={`text-sm font-semibold ${isToday ? "text-white" : "text-white/50"}`}>
+                    {MON[m - 1]} {d}
+                  </span>
+                  {isToday && (
+                    <span className="ml-1 text-[9px] font-condensed uppercase tracking-widest text-[#f08122] bg-[#f08122]/10 px-1.5 py-0.5 rounded">Today</span>
+                  )}
+                  {dayEvents.length > 0 && (
+                    <span className="ml-auto text-[10px] text-white/25 font-condensed">{dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}</span>
+                  )}
+                </div>
+                {/* Events for this day */}
+                {dayEvents.length === 0 ? (
+                  <div className="px-4 pb-3">
+                    <p className="text-white/15 text-[11px] font-condensed italic">No events</p>
+                  </div>
+                ) : (
+                  <div className="px-3 pb-3 space-y-1.5">
+                    {dayEvents.map((ev) => {
+                      const isHot = HOT_EVENT_TYPES.has(ev.event_type);
+                      const col = isHot
+                        ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
+                        : crewColor(ev.crew_id, crews);
+                      const job = jobs.find((j) => j.id === ev.job_id);
+                      const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
+                      return (
+                        <button
+                          key={ev.id}
+                          onClick={() => setSelectedEvent(ev)}
+                          className="w-full text-left rounded-lg overflow-hidden"
+                          style={{ background: col.bg, borderLeft: `4px solid ${col.bar}` }}
+                        >
+                          <div className="px-3 py-2.5">
+                            <div className="flex items-center justify-between mb-0.5">
+                              <span className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                                {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+                              </span>
+                              <span className="text-[10px] text-white/30 font-condensed">{ev.job_id}</span>
+                            </div>
+                            <p className="text-white text-sm font-semibold leading-tight">{job?.client_name ?? ev.job_id}</p>
+                            {ev.description && (
+                              <p className="text-white/50 text-xs mt-0.5">{ev.description}</p>
+                            )}
+                            {address && (
+                              <p className="text-white/40 text-xs mt-1 truncate">📍 {address}</p>
+                            )}
+                            {ev.crew_name && (
+                              <p className="text-xs mt-0.5" style={{ color: col.text }}>👷 {ev.crew_name}</p>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* On Deck section */}
+          {onDeckEvents.length > 0 && (
+            <div className="p-3">
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2 px-1">
+                On Deck — {onDeckEvents.length}
+              </p>
+              <div className="space-y-1.5">
+                {onDeckEvents.map((ev) => {
+                  const isHot = HOT_EVENT_TYPES.has(ev.event_type);
+                  const col = isHot
+                    ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
+                    : crewColor(ev.crew_id, crews);
+                  const job = jobs.find((j) => j.id === ev.job_id);
+                  return (
+                    <button
+                      key={ev.id}
+                      onClick={() => setSelectedEvent(ev)}
+                      className="w-full text-left rounded-lg overflow-hidden opacity-60"
+                      style={{ background: col.bg, borderLeft: `4px solid ${col.bar}` }}
+                    >
+                      <div className="px-3 py-2.5">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                            ⏸ {EVENT_TYPE_LABELS[ev.event_type]}
+                          </span>
+                          <span className="text-[10px] text-white/30 font-condensed">{ev.job_id}</span>
+                        </div>
+                        <p className="text-white text-sm leading-tight">{job?.client_name ?? ev.job_id}</p>
+                        {ev.blocked_on && (
+                          <p className="text-white/40 text-xs mt-0.5">{ev.blocked_on}</p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Conflict modal */}
       {conflictPrompt && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -498,6 +694,111 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
           }}
         />
       )}
+{/* ── Job detail modal ─────────────────────────────────────────────── */}
+{selectedEvent && (() => {
+  const ev  = selectedEvent;
+  const job = jobs.find((j) => j.id === ev.job_id);
+  const col = crewColor(ev.crew_id, crews);
+  const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
+      onClick={() => setSelectedEvent(null)}
+    >
+      <div
+        className="bg-[#1a1a1a] border border-white/10 rounded-xl w-full max-w-sm shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="h-1.5 w-full" style={{ background: col.bar }} />
+        <div className="p-5 space-y-4">
+          <div>
+            <p className="text-[#f08122] text-xs font-condensed uppercase tracking-widest mb-0.5">{ev.job_id}</p>
+            <p className="text-white text-xl font-heading uppercase tracking-wide leading-tight">
+              {ev.job_client_name ?? ev.job_id}
+            </p>
+            {ev.description && (
+              <p className="text-white/50 text-xs font-condensed mt-1 italic">{ev.description}</p>
+            )}
+          </div>
+          <div className="bg-[#111] rounded-lg px-4 py-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Type</span>
+              <span className="text-white text-xs font-condensed uppercase tracking-widest">
+                {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+              </span>
+            </div>
+            {ev.crew_name && (
+              <div className="flex items-center justify-between">
+                <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Crew</span>
+                <span className="text-xs font-condensed" style={{ color: col.text }}>{ev.crew_name}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Dates</span>
+              <span className="text-white text-xs font-condensed">
+                {ev.date_start}{ev.date_end && ev.date_end !== ev.date_start ? ` → ${ev.date_end}` : ""}
+              </span>
+            </div>
+          </div>
+          {address && (
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
+            >
+              <span className="text-white/30 text-base mt-0.5">📍</span>
+              <div>
+                <p className="text-white text-sm leading-snug group-hover:text-[#f08122] transition-colors">{address}</p>
+                <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to open in Maps</p>
+              </div>
+            </a>
+          )}
+          {(job?.client_phone || job?.client_email) && (
+            <div className="space-y-2">
+              {job?.client_phone && (
+                <a
+                  href={`tel:${job.client_phone}`}
+                  className="flex items-center gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-white/30 text-base">📞</span>
+                  <div>
+                    <p className="text-white text-sm group-hover:text-[#f08122] transition-colors">{job.client_phone}</p>
+                    <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to call</p>
+                  </div>
+                </a>
+              )}
+              {job?.client_email && (
+                <a
+                  href={`mailto:${job.client_email}`}
+                  className="flex items-center gap-3 bg-[#111] rounded-lg px-4 py-3 hover:bg-white/5 transition-colors group"
+                >
+                  <span className="text-white/30 text-base">✉️</span>
+                  <div>
+                    <p className="text-white text-sm group-hover:text-[#f08122] transition-colors">{job.client_email}</p>
+                    <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mt-0.5">Tap to email</p>
+                  </div>
+                </a>
+              )}
+            </div>
+          )}
+          <a
+            href={`/jobs/${ev.job_id}`}
+            className="flex items-center justify-center gap-2 w-full bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-3 rounded-lg transition-colors"
+          >
+            Open Job File →
+          </a>
+          <button
+            onClick={() => setSelectedEvent(null)}
+            className="w-full text-white/30 hover:text-white/60 font-condensed uppercase tracking-widest text-xs py-2 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+})()}
     </section>
   );
 }
@@ -529,12 +830,13 @@ type SpanningCalendarProps = {
   onDragEnd: () => void;
   onDragOverCell: (iso: string) => void;
   onDrop: (id: string, iso: string) => void;
+  onEventClick: (ev: JobEventWithJoins) => void;
 };
 
 function SpanningCalendar({
   weeks, today, events, laneMap, crews, splitLabels, holidayMap,
   draggingId, dropTargetKey, isAdmin,
-  onDragStart, onDragEnd, onDragOverCell, onDrop,
+  onDragStart, onDragEnd, onDragOverCell, onDrop, onEventClick,
 }: SpanningCalendarProps) {
 
   const maxLanes = useMemo(() => {
@@ -652,8 +954,9 @@ function SpanningCalendar({
                   draggable={isAdmin}
                   onDragStart={(e) => { e.stopPropagation(); if (isAdmin) onDragStart(ev.id); }}
                   onDragEnd={onDragEnd}
+                  onClick={(e) => { e.stopPropagation(); if (!draggingId) onEventClick(ev); }}
                   className={`absolute flex items-center overflow-hidden text-[9px] font-condensed ${
-                    isAdmin ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+                    isAdmin ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                   }`}
                   style={{
                     top:        ROW_HEADER_H + lane * LANE_H + 1,
@@ -697,5 +1000,6 @@ function SpanningCalendar({
         );
       })}
     </div>
+
   );
 }
