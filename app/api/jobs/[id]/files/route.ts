@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
-import { requireRole } from "@/lib/auth";
+import { getBuilder, requireRole } from "@/lib/auth";
+import { logActivity } from "@/lib/activity-log";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -29,6 +30,7 @@ const VALID_KINDS = new Set([
   "14_ship_ticket",
   "14_install_drawings",
   "15_contract",
+  "16_eng_drawings", // approved drawings for engineering release
 ]);
 
 function supabaseAdmin() {
@@ -56,6 +58,7 @@ async function jobExists(id: string): Promise<boolean> {
 //   file: File
 //   kind: one of the 17 Z-drive folder keys
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getBuilder();
   const { id } = await params;
   if (!(await jobExists(id))) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
@@ -83,12 +86,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const fileId = uid();
   const now = new Date().toISOString();
+  const uploader = session?.name ?? session?.username ?? "unknown";
   await sql`
-    INSERT INTO job_files (id, job_id, kind, filename, storage_path, size, uploaded_at)
-    VALUES (${fileId}, ${id}, ${kind}, ${safeName}, ${path}, ${buffer.length}, ${now})
+    INSERT INTO job_files (id, job_id, kind, filename, storage_path, size, uploaded_at, uploaded_by)
+    VALUES (${fileId}, ${id}, ${kind}, ${safeName}, ${path}, ${buffer.length}, ${now}, ${uploader})
   `;
 
-  return NextResponse.json({ ok: true, id: fileId, filename: safeName, kind, size: buffer.length }, { status: 201 });
+  // Log the upload to the activity feed
+  logActivity({
+    entityType: "media", entityId: fileId, jobId: id,
+    eventType: "file_uploaded", actor: uploader,
+    actorRole: session?.role ?? null,
+    payload: { kind, filename: safeName, size: buffer.length },
+  }).catch(() => {});
+
+  return NextResponse.json({ ok: true, id: fileId, filename: safeName, kind, size: buffer.length, uploaded_by: uploader }, { status: 201 });
 }
 
 // GET /api/jobs/[id]/files
@@ -118,15 +130,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   // List all files grouped by kind — initialise all 17 folders empty
-  const out: Record<string, Array<{ id: string; filename: string; size: number; uploaded_at: string; url: string }>> = {};
+  const out: Record<string, Array<{ id: string; filename: string; size: number; uploaded_at: string; uploaded_by: string | null; url: string }>> = {};
   for (const k of VALID_KINDS) out[k] = [];
 
   const rows = await sql`
-    SELECT id, kind, filename, size, uploaded_at
+    SELECT id, kind, filename, size, uploaded_at, uploaded_by
     FROM job_files
     WHERE job_id = ${id}
     ORDER BY kind, uploaded_at DESC
-  ` as Array<{ id: string; kind: string; filename: string; size: number; uploaded_at: string }>;
+  ` as Array<{ id: string; kind: string; filename: string; size: number; uploaded_at: string; uploaded_by: string | null }>;
 
   for (const row of rows) {
     if (!VALID_KINDS.has(row.kind)) continue;
@@ -135,6 +147,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       filename: row.filename,
       size: row.size,
       uploaded_at: row.uploaded_at,
+      uploaded_by: row.uploaded_by ?? null,
       url: `/api/jobs/${id}/files?file_id=${encodeURIComponent(row.id)}`,
     });
   }
@@ -162,4 +175,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     console.error("[files/delete] Storage error:", deleteError);
   }
 
-  await sql`DELETE FROM job_files WHERE id = ${fileId} AND 
+  await sql`DELETE FROM job_files WHERE id = ${fileId} AND job_id = ${id}`;
+  return NextResponse.json({ ok: true });
+}

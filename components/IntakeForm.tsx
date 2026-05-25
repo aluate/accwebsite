@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SITE } from "@/data/site";
 
-const ALL_PMS = [...SITE.staff.commercial, ...SITE.staff.residential].map((s) => s.name);
+type PmOption = { name: string; email: string | null };
 
 const SECTION = "mb-8";
 const LABEL = "block text-xs font-condensed uppercase tracking-widest text-white/50 mb-1.5";
@@ -12,6 +11,7 @@ const INPUT = "w-full bg-[#1d1d1d] border border-white/15 rounded px-3 py-2 text
 const SELECT = INPUT + " appearance-none";
 
 type InitialValues = Partial<{
+  job_number: string;
   job_type: string; client_name: string; client_email: string; client_phone: string;
   site_address: string; city: string; pm: string;
   builder_name: string; builder_email: string; builder_phone: string; builder_company: string;
@@ -26,6 +26,59 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const isEdit = !!initial?.id;
+  const [pms, setPms] = useState<PmOption[]>([]);
+
+  // Address autocomplete state
+  const addressRef = useRef<HTMLInputElement>(null);
+  const [addressValue, setAddressValue] = useState(initial?.site_address ?? "");
+  const [cityValue, setCityValue] = useState(initial?.city ?? "");
+
+  // Load PM list from DB
+  useEffect(() => {
+    fetch("/api/jobs/pms")
+      .then((r) => r.json())
+      .then((data: PmOption[]) => setPms(data))
+      .catch(() => {/* leave empty, form still works */});
+  }, []);
+
+  // Load Google Places autocomplete
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!key || !addressRef.current) return;
+
+    const scriptId = "google-maps-script";
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=__initGooglePlaces`;
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    function initAutocomplete() {
+      if (!addressRef.current || !window.google) return;
+      const ac = new window.google.maps.places.Autocomplete(addressRef.current, {
+        types: ["address"],
+        componentRestrictions: { country: "us" },
+        fields: ["formatted_address", "address_components"],
+      });
+      ac.addListener("place_changed", () => {
+        const place = ac.getPlace();
+        if (!place.address_components) return;
+        const city = place.address_components.find((c: { types: string[]; long_name: string }) =>
+          c.types.includes("locality")
+        )?.long_name ?? "";
+        setAddressValue(place.formatted_address ?? "");
+        setCityValue(city);
+      });
+    }
+
+    (window as typeof window & { __initGooglePlaces?: () => void }).__initGooglePlaces = initAutocomplete;
+
+    if (window.google?.maps?.places) {
+      initAutocomplete();
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,12 +87,13 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
 
     const fd = new FormData(e.currentTarget);
     const body = {
+      job_number:       fd.get("job_number"),
       job_type:         fd.get("job_type"),
       client_name:      fd.get("client_name"),
       client_email:     fd.get("client_email"),
       client_phone:     fd.get("client_phone"),
-      site_address:     fd.get("site_address"),
-      city:             fd.get("city"),
+      site_address:     addressValue || fd.get("site_address"),
+      city:             cityValue || fd.get("city"),
       pm:               fd.get("pm"),
       builder_name:     fd.get("builder_name"),
       builder_email:    fd.get("builder_email"),
@@ -75,7 +129,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
         });
         if (!res.ok) throw new Error("Server error");
         const data = await res.json();
-        jobId = data.id;
+        jobId = data.job_number || data.id;
       }
       router.push(`/jobs/${jobId}`);
       router.refresh();
@@ -87,6 +141,22 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-0">
+
+      {/* Job Number */}
+      <div className={SECTION}>
+        <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-4">Job Number</p>
+        <div className="max-w-xs">
+          <label className={LABEL}>TradeSoft Job # *</label>
+          <input
+            type="text"
+            name="job_number"
+            defaultValue={initial?.job_number ?? ""}
+            placeholder="e.g. 26162"
+            required={!isEdit}
+            className={INPUT}
+          />
+        </div>
+      </div>
 
       {/* Job Type */}
       <div className={SECTION}>
@@ -125,11 +195,24 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
           </div>
           <div>
             <label className={LABEL}>City</label>
-            <input name="city" defaultValue={initial?.city ?? ""} className={INPUT} />
+            <input
+              name="city"
+              value={cityValue}
+              onChange={(e) => setCityValue(e.target.value)}
+              className={INPUT}
+            />
           </div>
           <div className="sm:col-span-2">
             <label className={LABEL}>Site Address *</label>
-            <input name="site_address" required defaultValue={initial?.site_address ?? ""} className={INPUT} />
+            <input
+              ref={addressRef}
+              name="site_address"
+              required
+              value={addressValue}
+              onChange={(e) => setAddressValue(e.target.value)}
+              placeholder="Start typing to search addresses…"
+              className={INPUT}
+            />
           </div>
         </div>
       </div>
@@ -141,8 +224,8 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
           <label className={LABEL}>Assigned PM</label>
           <select name="pm" defaultValue={initial?.pm ?? ""} className={SELECT}>
             <option value="">-- Select PM --</option>
-            {ALL_PMS.map((name) => (
-              <option key={name} value={name}>{name}</option>
+            {pms.map((pm) => (
+              <option key={pm.name} value={pm.name}>{pm.name}</option>
             ))}
           </select>
         </div>
@@ -214,9 +297,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
         </div>
       </div>
 
-      {/* Phase 1B (2026-05) -- Build Notes split by audience.
-          Each goes to a different team. Keep them separate so the wrong dept
-          doesn't have to wade through context that isn't theirs. */}
+      {/* Build Notes -- each section routes to a different team */}
       <div className={SECTION}>
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-4">Build Notes</p>
         <p className="text-white/30 text-xs mb-4 font-condensed uppercase tracking-widest">

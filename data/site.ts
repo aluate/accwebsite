@@ -20,6 +20,8 @@ export const SITE = {
     residential: [
       { name: "Nicole Diedrich", title: "Residential Project Manager", email: "Nicoled@advancedcabinets.net" },
       { name: "Jenny Supp", title: "Residential Project Manager", email: "Jennys@advancedcabinets.net" },
+      { name: "Lisa Duer", title: "Residential Project Manager", email: "Lisad@advancedcabinets.net" },
+      { name: "Karl Vaage", title: "Residential Project Manager", email: "karlv@advancedcabinets.net" },
     ],
     estimating: [
       { name: "Norm Buescher", title: "Estimating" },

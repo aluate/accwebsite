@@ -8,7 +8,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,22 +21,26 @@ function LoginForm() {
     const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: email, password }),
+      body: JSON.stringify({ username, password }),
     });
 
     setLoading(false);
 
     if (!res.ok) {
-      setError("Email or password incorrect.");
+      setError("Username or password incorrect.");
       return;
     }
 
-    const { role } = await res.json();
+    const { role, must_change_pw } = await res.json();
 
-    if (next) {
+    if (must_change_pw) {
+      router.push("/change-password");
+    } else if (next) {
       router.push(next);
     } else if (role === "installer") {
       router.push("/installer");
+    } else if (role === "engineer") {
+      router.push("/engineer");
     } else {
       router.push("/jobs");
     }
@@ -57,15 +61,15 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-white/50 font-condensed uppercase tracking-widest text-xs mb-1">
-              Email
+              Username
             </label>
             <input
-              type="email"
+              type="text"
               autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="you@advancedcabinets.net"
+              placeholder="username or email"
               className="w-full bg-white/5 border border-white/15 rounded px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#f08122]/60"
             />
           </div>

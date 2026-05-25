@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+type Role = "admin" | "pm" | "engineer" | "shop" | "installer";
+
 type BuilderAccount = {
   id: string;
   username: string;
@@ -11,7 +13,34 @@ type BuilderAccount = {
   phone: string | null;
   active: number;
   created_at: string;
-  role: "admin" | "user" | "engineer";
+  role: Role;
+};
+
+const ROLES: Role[] = ["admin", "pm", "engineer", "shop", "installer"];
+
+const ROLE_LABELS: Record<Role, string> = {
+  admin:     "Admin",
+  pm:        "PM",
+  engineer:  "Engineer",
+  shop:      "Shop",
+  installer: "Installer",
+};
+
+// What each role can access — shown in the role description
+const ROLE_DESC: Record<Role, string> = {
+  admin:     "Full access: jobs, schedule, admin panel",
+  pm:        "Jobs, schedule, spec editing",
+  engineer:  "Engineering queue + job detail",
+  shop:      "Jobs + schedule (read-only)",
+  installer: "Mobile install calendar",
+};
+
+const ROLE_BADGE: Record<Role, string> = {
+  admin:     "text-[#f08122] bg-[#f08122]/15 border-[#f08122]/30",
+  pm:        "text-blue-300 bg-blue-900/30 border-blue-400/30",
+  engineer:  "text-purple-300 bg-purple-900/30 border-purple-400/30",
+  shop:      "text-green-300 bg-green-900/30 border-green-400/30",
+  installer: "text-yellow-300 bg-yellow-900/30 border-yellow-400/30",
 };
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -21,6 +50,7 @@ function Label({ children }: { children: React.ReactNode }) {
     </label>
   );
 }
+
 function TextIn({
   value, onChange, placeholder, type = "text",
 }: {
@@ -37,18 +67,28 @@ function TextIn({
   );
 }
 
-const EMPTY_FORM = { username: "", password: "", name: "", company: "", email: "", phone: "", role: "user" as "user" | "admin" | "engineer" };
+const EMPTY_FORM = {
+  username: "", password: "", name: "", company: "",
+  email: "", phone: "", role: "pm" as Role,
+};
 
 export default function BuildersAdminPage() {
   const [accounts, setAccounts] = useState<BuilderAccount[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [resetId, setResetId] = useState<string | null>(null);
-  const [resetPw, setResetPw] = useState("");
+  const [loading, setLoading]   = useState(true);
+  const [form, setForm]         = useState(EMPTY_FORM);
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState("");
+  const [success, setSuccess]   = useState("");
+
+  // Reset password modal
+  const [resetId, setResetId]     = useState<string | null>(null);
+  const [resetPw, setResetPw]     = useState("");
   const [resetSaving, setResetSaving] = useState(false);
+
+  // Edit account modal
+  const [editAccount, setEditAccount] = useState<BuilderAccount | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", email: "", phone: "", username: "" });
+  const [editSaving, setEditSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -70,7 +110,7 @@ export default function BuildersAdminPage() {
       body: JSON.stringify(form),
     });
     if (res.ok) {
-      setSuccess(`Account created (role: ${form.role}).`);
+      setSuccess(`Account created — ${form.name} (${ROLE_LABELS[form.role]}). They'll be prompted to change their password on first login.`);
       setForm(EMPTY_FORM);
       load();
     } else {
@@ -89,22 +129,21 @@ export default function BuildersAdminPage() {
     load();
   }
 
-  async function toggleRole(account: BuilderAccount) {
-    const next = account.role === "admin" ? "user" : "admin";
-    if (account.role === "admin") {
+  async function setRole(account: BuilderAccount, newRole: string) {
+    if (account.role === "admin" && newRole !== "admin") {
       const adminCount = accounts.filter((a) => a.role === "admin" && a.active === 1).length;
       if (adminCount <= 1) {
-        alert("Cannot demote the last admin. Promote another user to admin first.");
+        alert("Cannot change the last admin's role. Promote another user to admin first.");
         return;
       }
-      if (!confirm(`Demote ${account.name} from admin to user? They will lose access to /admin/**.`)) return;
+      if (!confirm(`Change ${account.name} from Admin to ${ROLE_LABELS[newRole as Role] ?? newRole}? They will lose admin panel access.`)) return;
     }
     await fetch("/api/admin/builders", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: account.id, role: next }),
+      body: JSON.stringify({ id: account.id, role: newRole }),
     });
-    setSuccess(`${account.name} is now ${next}.`);
+    setSuccess(`${account.name} → ${ROLE_LABELS[newRole as Role] ?? newRole}`);
     load();
   }
 
@@ -133,12 +172,43 @@ export default function BuildersAdminPage() {
     setResetId(null);
     setResetPw("");
     setResetSaving(false);
-    setSuccess("Password updated.");
+    setSuccess("Password updated. They'll be prompted to change it on next login.");
+  }
+
+  function openEdit(a: BuilderAccount) {
+    setEditAccount(a);
+    setEditForm({ name: a.name, email: a.email ?? "", phone: a.phone ?? "", username: a.username });
+  }
+
+  async function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editAccount) return;
+    setEditSaving(true);
+    const res = await fetch("/api/admin/builders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: editAccount.id,
+        name:     editForm.name     || undefined,
+        email:    editForm.email    || null,
+        phone:    editForm.phone    || null,
+        username: editForm.username || undefined,
+      }),
+    });
+    if (res.ok) {
+      setSuccess(`${editForm.name} updated.`);
+      setEditAccount(null);
+      load();
+    } else {
+      const { error: msg } = await res.json();
+      alert(msg ?? "Failed to update account.");
+    }
+    setEditSaving(false);
   }
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
-      <header className="border-b border-white/10 px-6 py-4">
+      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between gap-6">
         <div>
           <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs">
             Advanced Custom Cabinets
@@ -170,19 +240,29 @@ export default function BuildersAdminPage() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-12">
 
-        {/* New User account form */}
+        {/* Role legend */}
+        <section className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          {ROLES.map((r) => (
+            <div key={r} className={`rounded border px-3 py-2 ${ROLE_BADGE[r]}`}>
+              <p className="font-condensed uppercase tracking-widest text-[10px]">{ROLE_LABELS[r]}</p>
+              <p className="text-[10px] mt-0.5 opacity-70">{ROLE_DESC[r]}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* New account form */}
         <section>
           <h2 className="font-condensed uppercase tracking-widest text-xs text-[#f08122] mb-6 pb-1 border-b border-white/10">
-            New User Account
+            New Account
           </h2>
           <form onSubmit={handleCreate} className="grid grid-cols-2 gap-4">
             <div>
               <Label>Username *</Label>
-              <TextIn value={form.username} onChange={(v) => setForm({ ...form, username: v })} placeholder="e.g. jsmith or jsmith@advancedcabinets.net" />
+              <TextIn value={form.username} onChange={(v) => setForm({ ...form, username: v })} placeholder="e.g. jsmith" />
             </div>
             <div>
-              <Label>Password *</Label>
-              <TextIn value={form.password} onChange={(v) => setForm({ ...form, password: v })} type="password" placeholder="Temporary password" />
+              <Label>Temporary Password *</Label>
+              <TextIn value={form.password} onChange={(v) => setForm({ ...form, password: v })} type="password" placeholder="They'll change it on first login" />
             </div>
             <div>
               <Label>Full Name *</Label>
@@ -192,21 +272,17 @@ export default function BuildersAdminPage() {
               <Label>Role *</Label>
               <select
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value as "user" | "admin" })}
+                onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
                 className="w-full bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/60"
               >
-                <option value="user">User (PM)</option>
-                <option value="engineer">Engineer (engineering view + spec edits)</option>
-                <option value="admin">Admin (can manage user accounts)</option>
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>{ROLE_LABELS[r]} — {ROLE_DESC[r]}</option>
+                ))}
               </select>
             </div>
             <div>
-              <Label>Company</Label>
-              <TextIn value={form.company} onChange={(v) => setForm({ ...form, company: v })} placeholder="ACC, Smith Builders LLC..." />
-            </div>
-            <div>
               <Label>Email</Label>
-              <TextIn value={form.email} onChange={(v) => setForm({ ...form, email: v })} type="email" placeholder="john@example.com" />
+              <TextIn value={form.email} onChange={(v) => setForm({ ...form, email: v })} type="email" placeholder="john@advancedcabinets.net" />
             </div>
             <div>
               <Label>Phone</Label>
@@ -250,12 +326,8 @@ export default function BuildersAdminPage() {
                       <span className="font-condensed uppercase tracking-widest text-sm text-white">
                         {a.name}
                       </span>
-                      <span className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded ${
-                        a.role === "admin"
-                          ? "text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/30"
-                          : "text-white/40 bg-white/5 border border-white/10"
-                      }`}>
-                        {a.role}
+                      <span className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border ${ROLE_BADGE[a.role] ?? "text-white/40 bg-white/5 border-white/10"}`}>
+                        {ROLE_LABELS[a.role] ?? a.role}
                       </span>
                       <span className="text-white/30 text-xs font-mono">{a.username}</span>
                       {a.active !== 1 && (
@@ -263,22 +335,25 @@ export default function BuildersAdminPage() {
                       )}
                     </div>
                     <div className="text-white/40 text-xs mt-0.5 space-x-3">
-                      {a.company && <span>{a.company}</span>}
-                      {a.email   && <span>{a.email}</span>}
-                      {a.phone   && <span>{a.phone}</span>}
+                      {a.email && <span>{a.email}</span>}
+                      {a.phone && <span>{a.phone}</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                    <button
-                      onClick={() => toggleRole(a)}
-                      title={a.role === "admin" ? "Demote to user" : "Promote to admin"}
-                      className={`font-condensed uppercase tracking-widest text-xs px-3 py-1.5 border rounded transition-colors ${
-                        a.role === "admin"
-                          ? "text-[#f08122]/70 hover:text-[#f08122] border-[#f08122]/20 hover:border-[#f08122]/50"
-                          : "text-white/40 hover:text-[#f08122] border-white/10 hover:border-[#f08122]/30"
-                      }`}
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                    <select
+                      value={a.role}
+                      onChange={(e) => setRole(a, e.target.value)}
+                      className="bg-white/5 border border-white/15 rounded px-2 py-1.5 text-white text-xs font-condensed focus:outline-none focus:border-[#f08122]/60"
                     >
-                      {a.role === "admin" ? "Demote" : "Make Admin"}
+                      {ROLES.map((r) => (
+                        <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => openEdit(a)}
+                      className="text-white/30 hover:text-white font-condensed uppercase tracking-widest text-xs px-3 py-1.5 border border-white/10 rounded transition-colors"
+                    >
+                      Edit
                     </button>
                     <button
                       onClick={() => { setResetId(a.id); setResetPw(""); setSuccess(""); }}
@@ -305,6 +380,52 @@ export default function BuildersAdminPage() {
           )}
         </section>
 
+        {/* Edit account modal */}
+        {editAccount && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+            <form
+              onSubmit={handleEdit}
+              className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-sm space-y-4"
+            >
+              <p className="font-condensed uppercase tracking-widest text-xs text-[#f08122]">
+                Edit Account
+              </p>
+              <div>
+                <Label>Full Name</Label>
+                <TextIn value={editForm.name} onChange={(v) => setEditForm({ ...editForm, name: v })} placeholder="Full name" />
+              </div>
+              <div>
+                <Label>Username</Label>
+                <TextIn value={editForm.username} onChange={(v) => setEditForm({ ...editForm, username: v })} placeholder="Username" />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <TextIn value={editForm.email} onChange={(v) => setEditForm({ ...editForm, email: v })} type="email" placeholder="email@advancedcabinets.net" />
+              </div>
+              <div>
+                <Label>Phone</Label>
+                <TextIn value={editForm.phone} onChange={(v) => setEditForm({ ...editForm, phone: v })} placeholder="555-123-4567" />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={editSaving}
+                  className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-5 py-2 rounded transition-colors"
+                >
+                  {editSaving ? "Saving…" : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditAccount(null)}
+                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Reset password modal */}
         {resetId && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
@@ -326,15 +447,15 @@ export default function BuildersAdminPage() {
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  disabled={resetSaving || !resetPw}
-                  className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-2 px-5 rounded transition-colors disabled:opacity-40"
+                  disabled={resetSaving}
+                  className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-5 py-2 rounded transition-colors"
                 >
-                  {resetSaving ? "Saving..." : "Save"}
+                  {resetSaving ? "Saving…" : "Reset Password"}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setResetId(null); setResetPw(""); }}
-                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs py-2 px-5"
+                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 transition-colors"
                 >
                   Cancel
                 </button>

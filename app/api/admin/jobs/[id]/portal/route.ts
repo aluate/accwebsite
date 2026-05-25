@@ -83,7 +83,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           `Hi ${acct.display_name},\n\n` +
           `We've confirmed receipt of "${inp?.label ?? "(item)"}" for job ${job.id} (${job.client_name}).\n\n` +
           `${outstandingSummary}\n\n` +
-          `View your portal: ${process.env.PORTAL_URL ?? "https://accspec.net"}\n`,
+          `View your portal: ${process.env.PORTAL_URL ?? "https://www.advancedcabinets.org"}\n`,
       });
     }
   }
@@ -163,7 +163,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           `${session.username} added a comment on your job ${job.id} (${job.client_name})` +
           `${cabinetRef ? ` — ${cabinetRef}${pageRef}` : ""}:\n\n` +
           `"${String(b.acc_comment_reply.body)}"\n\n` +
-          `View your portal: ${process.env.PORTAL_URL ?? "https://accspec.net"}\n`,
+          `View your portal: ${process.env.PORTAL_URL ?? "https://www.advancedcabinets.org"}\n`,
       });
     }
   }

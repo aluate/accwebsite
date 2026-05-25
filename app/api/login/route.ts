@@ -11,11 +11,11 @@ type AccountRow = {
   password_hash: string;
   active: boolean;
   role: string;
+  must_change_pw: number;
 };
 
 // POST /api/login  { username, password }
-// Returns { ok: true, role } on success. Sets session cookie.
-// Not under /express/ so always reachable regardless of EXPRESS_ENABLED.
+// Returns { ok: true, role, must_change_pw } on success. Sets session cookie.
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   const [account] = await sql<AccountRow[]>`
-    SELECT id, username, name, password_hash, active, role
+    SELECT id, username, name, password_hash, active, role, must_change_pw
     FROM builder_accounts
     WHERE username = ${String(username).trim().toLowerCase()}
   `;
@@ -40,7 +40,11 @@ export async function POST(req: NextRequest) {
 
   const token = await createSession(account.id);
 
-  const res = NextResponse.json({ ok: true, role: account.role });
+  const res = NextResponse.json({
+    ok: true,
+    role: account.role,
+    must_change_pw: account.must_change_pw === 1,
+  });
   res.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "strict",

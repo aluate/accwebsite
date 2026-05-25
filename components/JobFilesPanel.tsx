@@ -11,11 +11,24 @@ type FileEntry = {
 type FilesByKind = Record<string, FileEntry[]>;
 
 const KINDS = [
-  { key: "plans",      label: "Architectural Plans", desc: "Floor plans, elevations, section drawings" },
-  { key: "appliances", label: "Appliance Specs",     desc: "Cut sheets, install templates" },
-  { key: "site",       label: "Site Photos / Video", desc: "Walk-through, measurements, conditions" },
-  { key: "drawings",   label: "Cabinet Drawings",    desc: "CV exports — PM stage and engineered (WO#)" },
-] as const;
+  { key: "00_field_dims",    label: "00 Field Dimensions",    desc: "Site measurements, field dims" },
+  { key: "01_plan",          label: "01 Plan",                desc: "Floor plans, elevations, section drawings" },
+  { key: "02_quote",         label: "02 Quote",               desc: "Bid documents, estimates" },
+  { key: "03_job_specs",     label: "03 Job Specs",           desc: "Cabinet spec sheets" },
+  { key: "04_appliances",    label: "04 Appliances",          desc: "Cut sheets, install templates" },
+  { key: "05_drawings",      label: "05 Drawings",            desc: "CV exports, shop drawings" },
+  { key: "05a_redlines",     label: "05a Redlines",           desc: "Marked-up drawings" },
+  { key: "06_as_builts",     label: "06 As Builts",           desc: "Final installed drawings" },
+  { key: "07_correspondence",label: "07 Correspondence",      desc: "Emails, letters, RFIs" },
+  { key: "08_project_mgmt",  label: "08 Project Management",  desc: "Schedules, meeting notes" },
+  { key: "09_site_photos",   label: "09 Job Site Pictures",   desc: "Walk-through, measurements, conditions" },
+  { key: "10_billing",       label: "10 Billing",             desc: "Invoices, POs" },
+  { key: "11_punch_list",    label: "11 Punch List",          desc: "Outstanding items" },
+  { key: "12_cost_quality",  label: "12 Cost of Quality",     desc: "Defect and rework tracking" },
+  { key: "13_installation",  label: "13 Installation",        desc: "Install docs, crew notes" },
+  { key: "14_prod_docs",     label: "14 Production Documents",desc: "Shop packets, cut lists" },
+  { key: "15_contract",      label: "15 Contract",            desc: "Signed contracts, change orders" },
+];
 
 function fmtSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -23,9 +36,9 @@ function fmtSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function JobFilesPanel({ jobId, isAdmin = false }: { jobId: string; isAdmin?: boolean }) {
+export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_dims" }: { jobId: string; isAdmin?: boolean; defaultKind?: string }) {
   const [files, setFiles] = useState<FilesByKind>({});
-  const [kind, setKind] = useState<string>("plans");
+  const [kind, setKind] = useState<string>(defaultKind);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -107,25 +120,24 @@ export function JobFilesPanel({ jobId, isAdmin = false }: { jobId: string; isAdm
           </div>
           <div className="flex-1 min-w-[220px]">
             <label className="block text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">Add file</label>
-            <input
-              type="file"
-              onChange={onUpload}
-              disabled={uploading}
-              accept={kind === "site" ? "image/*,video/*" : undefined}
-              className="block w-full text-xs text-white/70 file:bg-[#f08122] file:hover:bg-[#d9711e] file:text-white file:font-condensed file:uppercase file:tracking-widest file:text-xs file:py-1.5 file:px-3 file:rounded file:border-0 file:cursor-pointer"
-            />
-            {kind === "site" && (
-              <label className="block text-center bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white file:hidden font-condensed uppercase tracking-widest text-xs py-1.5 px-3 rounded cursor-pointer mt-2 sm:mt-0 sm:ml-2">
-                Take photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={onUpload}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
+            {kind === "09_site_photos" ? (
+              <div className="flex gap-2">
+                <label className="flex-1 flex items-center justify-center gap-1.5 bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded cursor-pointer transition-colors">
+                  Camera
+                  <input type="file" accept="image/*" capture="environment" onChange={onUpload} disabled={uploading} className="hidden" />
+                </label>
+                <label className="flex-1 flex items-center justify-center gap-1.5 bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded cursor-pointer transition-colors">
+                  Gallery
+                  <input type="file" accept="image/*,video/*" onChange={onUpload} disabled={uploading} className="hidden" />
+                </label>
+              </div>
+            ) : (
+              <input
+                type="file"
+                onChange={onUpload}
+                disabled={uploading}
+                className="block w-full text-xs text-white/70 file:bg-[#f08122] file:hover:bg-[#d9711e] file:text-white file:font-condensed file:uppercase file:tracking-widest file:text-xs file:py-1.5 file:px-3 file:rounded file:border-0 file:cursor-pointer"
+              />
             )}
           </div>
         </div>

@@ -19,12 +19,22 @@ function createSql() {
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
     ssl: "require",
-    max: 10,
-    idle_timeout: 20,
-    connect_timeout: 10,
+    // max: 1 — Supabase free tier has only ~10 connections total.
+    // Each Vercel Lambda is its own process with its own pool.
+    // Sequential queries never need more than 1 connection at a time,
+    // so max: 1 prevents multiple warm Lambdas from exhausting the pool.
+    max: 1,
+    // idle_timeout: 2 — release connections to PgBouncer quickly after use,
+    // so other Lambda invocations can acquire them. 20s idle keeps connections
+    // tied up unnecessarily across requests.
+    idle_timeout: 2,
+    connect_timeout: 10,  // fail fast if PgBouncer pool is exhausted
     // Required for PgBouncer transaction-mode pooling (Supabase Shared Pooler).
     // Prepared statements are stateful and incompatible with transaction poolers.
     prepare: false,
+    // NOTE: Do NOT add `connection: { statement_timeout, lock_timeout }` here.
+    // PgBouncer in transaction mode treats connection options as startup parameters
+    // and rejects unknown ones, breaking every connection with a 500 error.
   });
 }
 
@@ -57,4 +67,10 @@ export async function nextJobId(): Promise<{ id: string; seq: number }> {
   const [row] = await sql`
     UPDATE seq SET val = val + 1 WHERE id = 1 RETURNING val
   `;
-  const seq = row.val as
+  const seq = row.val as number;
+  const year = new Date().getFullYear();
+  return {
+    id: `ACC-${year}-${String(seq).padStart(4, "0")}`,
+    seq,
+  };
+}
