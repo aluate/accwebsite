@@ -342,6 +342,21 @@ async function main() {
       payload TEXT, occurred_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS warranty_items (
+      id            TEXT PRIMARY KEY,
+      job_id        TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      reported_at   TEXT NOT NULL,
+      reported_by   TEXT NOT NULL,
+      category      TEXT NOT NULL DEFAULT 'general',
+      description   TEXT NOT NULL,
+      status        TEXT NOT NULL DEFAULT 'open',
+      priority      TEXT NOT NULL DEFAULT 'normal',
+      resolved_at   TEXT,
+      resolved_by   TEXT,
+      resolution    TEXT,
+      notes         TEXT
+    );
+
     -- Indexes
     CREATE INDEX IF NOT EXISTS idx_spec_lifecycle_transitions_spec ON spec_lifecycle_transitions(spec_id);
     CREATE INDEX IF NOT EXISTS idx_approval_requests_spec     ON approval_requests(spec_id);
@@ -370,6 +385,8 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_activity_log_job           ON activity_log(job_id, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_actor         ON activity_log(actor, occurred_at);
     CREATE INDEX IF NOT EXISTS idx_activity_log_at            ON activity_log(occurred_at);
+    CREATE INDEX IF NOT EXISTS idx_warranty_items_job         ON warranty_items(job_id);
+    CREATE INDEX IF NOT EXISTS idx_warranty_items_status      ON warranty_items(status);
 
     CREATE TABLE IF NOT EXISTS job_files (
       id           TEXT PRIMARY KEY,
@@ -390,6 +407,13 @@ async function main() {
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_end   TEXT`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS must_change_pw INTEGER NOT NULL DEFAULT 0`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // ── Job files uploaded_by column (idempotent) ─────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE job_files ADD COLUMN IF NOT EXISTS uploaded_by TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
@@ -419,6 +443,29 @@ async function main() {
       ON work_orders(job_id);
   `);
 
+  // ── Punch list items (idempotent) ─────────────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS punch_list_items (
+      id                 TEXT PRIMARY KEY,
+      job_id             TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      room_id            TEXT REFERENCES rooms(id) ON DELETE SET NULL,
+      general_location   TEXT,
+      item_description   TEXT NOT NULL,
+      type_code          TEXT NOT NULL DEFAULT 'S',
+      status             TEXT NOT NULL DEFAULT 'open',
+      before_photo_path  TEXT,
+      after_photo_path   TEXT,
+      created_by         TEXT NOT NULL DEFAULT 'pm',
+      created_at         TEXT NOT NULL,
+      completed_by       TEXT,
+      completed_at       TEXT,
+      sort_order         INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_punch_items_job    ON punch_list_items(job_id);
+    CREATE INDEX IF NOT EXISTS idx_punch_items_room   ON punch_list_items(room_id);
+    CREATE INDEX IF NOT EXISTS idx_punch_items_status ON punch_list_items(job_id, status);
+  `);
+
   // ── Transition emails table (idempotent) ───────────────────────────────────
   await sql.unsafe(`
     CREATE TABLE IF NOT EXISTS transition_emails (
@@ -435,7 +482,150 @@ async function main() {
       ON transition_emails(job_id);
   `);
 
-  // ── Seed event_phase_labels (idempotent) ───────────────────────────────────
+  // ── client_signoffs ──────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS client_signoffs (
+      id                TEXT PRIMARY KEY,
+      job_id            TEXT NOT NULL REFERENCES jobs(id),
+      token             TEXT NOT NULL UNIQUE,
+      token_expires_at  TEXT NOT NULL,
+      status            TEXT NOT NULL,
+      pm_note           TEXT,
+      created_by        TEXT,
+      signer_name       TEXT,
+      signature_data    TEXT,
+      signed_at         TEXT,
+      signer_ip         TEXT,
+      created_at        TEXT NOT NULL
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_client_signoffs_job
+      ON client_signoffs(job_id)
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_client_signoffs_token
+      ON client_signoffs(token)
+  `;
+
+  // ── change_orders ─────────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS change_orders (
+      id              TEXT PRIMARY KEY,
+      job_id          TEXT NOT NULL REFERENCES jobs(id),
+      co_number       INTEGER NOT NULL,
+      title           TEXT NOT NULL,
+      description     TEXT,
+      co_type         TEXT NOT NULL DEFAULT 'client_add',
+      status          TEXT NOT NULL DEFAULT 'draft',
+      total_products  REAL NOT NULL DEFAULT 0,
+      total_labor     REAL NOT NULL DEFAULT 0,
+      total_amount    REAL NOT NULL DEFAULT 0,
+      created_by      TEXT,
+      created_at      TEXT NOT NULL,
+      signed_at       TEXT,
+      signoff_id      TEXT,
+      voided_at       TEXT,
+      voided_reason   TEXT
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_change_orders_job
+      ON change_orders(job_id)
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS change_order_items (
+      id          TEXT PRIMARY KEY,
+      co_id       TEXT NOT NULL REFERENCES change_orders(id) ON DELETE CASCADE,
+      item_type   TEXT NOT NULL,
+      description TEXT NOT NULL,
+      quantity    REAL,
+      unit        TEXT,
+      unit_price  REAL,
+      total       REAL NOT NULL DEFAULT 0,
+      sort_order  INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_co_items_co
+      ON change_order_items(co_id)
+  `;
+
+  // ── Add change_order_id to client_signoffs if not present ────────────────────
+  await sql`
+    ALTER TABLE client_signoffs
+      ADD COLUMN IF NOT EXISTS change_order_id TEXT
+  `;
+
+
+
+  // ── gate_checkins ────────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS gate_checkins (
+      id          TEXT PRIMARY KEY,
+      job_id      TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      stage       TEXT NOT NULL,
+      outcome     TEXT NOT NULL,
+      notes       TEXT,
+      created_by  TEXT NOT NULL,
+      created_at  TEXT NOT NULL
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_gate_checkins_job
+      ON gate_checkins(job_id, created_at)
+  `;
+
+  // ── engineering_release_checklists ───────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS engineering_release_checklists (
+      job_id     TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
+      checklist  JSONB NOT NULL DEFAULT '{}'::jsonb,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // ── engineering_releases (FIFO log) ──────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS engineering_releases (
+      id               TEXT PRIMARY KEY,
+      job_id           TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      released_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      released_by      TEXT NOT NULL DEFAULT 'PM',
+      notes            TEXT,
+      drawing_file_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+      email_to         TEXT NOT NULL,
+      email_cc         TEXT
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_engineering_releases_job
+      ON engineering_releases(job_id, released_at DESC)
+  `;
+
+  // ── pm_time_entries ───────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS pm_time_entries (
+      id          TEXT PRIMARY KEY,
+      week_start  TEXT NOT NULL,
+      pm_name     TEXT NOT NULL,
+      job_id      TEXT,
+      hours       REAL NOT NULL DEFAULT 0,
+      notes       TEXT,
+      updated_at  TEXT NOT NULL
+    )
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_pm_time_entries_unique
+      ON pm_time_entries(week_start, pm_name, COALESCE(job_id, ''))
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_pm_time_entries_week
+      ON pm_time_entries(week_start, pm_name)
+  `;
+
+    // ── Seed event_phase_labels (idempotent) ─────────────────────────────────────────────
   const defaultLabels = [
     { label: "Ladder Bases",   sort_order: 1 },
     { label: "Casework",       sort_order: 2 },
