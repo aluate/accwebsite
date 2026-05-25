@@ -1,16 +1,16 @@
 [
   {
-    "id": "DS-CD-001",
-    "name": "Shaker Classic",
+    "id": "DS-CD-116",
+    "name": "Cab Door #116 — Standard Shaker",
     "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-SHAKER-CLASSIC",
+    "cabdoor_preset_id": "116",
     "construction": "frame_and_panel",
     "compatible_finish": [
       "paint",
       "stain"
     ],
-    "placeholder": true,
-    "notes": "Cab Door's most-requested shaker"
+    "placeholder": false,
+    "notes": "ACC default shaker. 2.25\" stile/rail, 1/8\" radius on edge and profile, flat panel. Drawing label: CAB DOOR #116 or CAB DOOR #116 STANDARD SHAKER"
   },
   {
     "id": "DS-CD-002",
@@ -183,12 +183,96 @@
   },
   {
     "id": "DS-CD-015",
-    "name": "Brookhaven Rosewo",
+    "name": "Brookhaven Rosewood",
+    "vendor": "Cab Door",
+    "cabdoor_preset_id": "PRESET-MITRE-BROOKHAVEN-P15",
+    "construction": "frame_and_panel",
+    "compatible_finish": [
+      "paint",
+      "stain"
+    ],
+    "placeholder": true,
+    "notes": "Rosewood mitre edge"
+  },
+  {
+    "id": "DS-SLAB-MDF",
+    "name": "Slab MDF",
+    "vendor": [
+      "In-house",
+      "Cab Door"
+    ],
+    "cabdoor_preset_id": null,
+    "construction": "slab",
+    "compatible_finish": [
+      "paint",
+      "melamine"
+    ],
+    "placeholder": true,
+    "notes": "Modern slab — paint or melamine"
+  },
+  {
+    "id": "DS-SLAB-VENEER",
+    "name": "Slab Veneer",
+    "vendor": [
+      "In-house",
+      "Cab Door"
+    ],
+    "cabdoor_preset_id": null,
+    "construction": "slab",
+    "compatible_finish": "stain",
+    "placeholder": true,
+    "notes": "Slab door with wood veneer face"
+  },
+  {
+    "id": "DS-GLASS-CLEAR",
+    "name": "Glass Insert (Clear)",
+    "vendor": [
+      "Cab Door",
+      "Other"
+    ],
+    "cabdoor_preset_id": null,
+    "construction": "frame_and_glass",
+    "compatible_finish": [
+      "paint",
+      "stain"
+    ],
+    "placeholder": true,
+    "notes": "Frame only; glass supplied separately"
+  },
+  {
+    "id": "DS-GLASS-SEEDED",
+    "name": "Glass Insert (Seeded)",
+    "vendor": [
+      "Cab Door",
+      "Other"
+    ],
+    "cabdoor_preset_id": null,
+    "construction": "frame_and_glass",
+    "compatible_finish": [
+      "paint",
+      "stain"
+    ],
+    "placeholder": true,
+    "notes": "Traditional character glass"
+  },
+  {
+    "id": "DS-OPEN-SHELF",
+    "name": "Open Shelf",
     "vendor": null,
     "cabdoor_preset_id": null,
-    "construction": null,
+    "construction": "none",
     "compatible_finish": null,
-    "placeholder": null,
-    "notes": null
+    "placeholder": true,
+    "notes": "No door ordered — open cabinet"
+  },
+  {
+    "id": "DS-099",
+    "name": "Other / Custom",
+    "vendor": null,
+    "cabdoor_preset_id": null,
+    "construction": "custom",
+    "compatible_finish": null,
+    "placeholder": true,
+    "notes": "Specify full detail in notes"
   }
 ]

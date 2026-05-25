@@ -1,5 +1,5 @@
 id,name,vendor,cabdoor_preset_id,construction,compatible_finish,placeholder,notes
-DS-CD-001,Shaker Classic,Cab Door,PRESET-SHAKER-CLASSIC,frame_and_panel,paint;stain,true,Cab Door's most-requested shaker
+DS-CD-116,Cab Door #116 — Standard Shaker,Cab Door,116,frame_and_panel,paint;stain,false,"ACC default shaker. 2.25"" stile/rail, 1/8"" radius on edge and profile, flat panel. Drawing label: CAB DOOR #116 or CAB DOOR #116 STANDARD SHAKER"
 DS-CD-002,Shaker Flat-Back,Cab Door,PRESET-SHAKER-FLAT,frame_and_panel,paint;stain,true,Slab inside look with flat raised panel
 DS-CD-003,Classic Raised Panel,Cab Door,PRESET-RAISED-A,frame_and_panel,paint;stain,true,Glazed-friendly raised panel
 DS-CD-004,Beaded Inset,Cab Door,PRESET-BEADED-A,frame_and_panel,paint;stain,true,Bead detail for traditional kitchens

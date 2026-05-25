@@ -110,6 +110,61 @@
     "notes": "Creamy off-white · Coating: ML Campbell (ACC standard)"
   },
   {
+    "id": "PNT-BM-OC57",
+    "brand": "BM",
+    "collection": "Off-White",
+    "code": "OC-57",
+    "name": "White Heron",
+    "hex_approx": "#F0EBE1",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Clean warm white · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-OC152",
+    "brand": "BM",
+    "collection": "Off-White",
+    "code": "OC-152",
+    "name": "White Opulence",
+    "hex_approx": "#EEE9E0",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Soft warm white · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-PM1",
+    "brand": "BM",
+    "collection": "Color Trends",
+    "code": "PM-1",
+    "name": "Simply White",
+    "hex_approx": "#F3EEE4",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "BM 2016 Color of the Year; popular clean white · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-OC51",
+    "brand": "BM",
+    "collection": "Off-White",
+    "code": "OC-51",
+    "name": "White Dove (Ultra Pure White base)",
+    "hex_approx": "#F5F0E8",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Bright warm white · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-2126-10",
+    "brand": "BM",
+    "collection": "Classic Colors",
+    "code": "2126-10",
+    "name": "Onyx",
+    "hex_approx": "#353535",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Deep near-black · Coating: ML Campbell (ACC standard)"
+  },
+  {
     "id": "PNT-BM-HC154",
     "brand": "BM",
     "collection": "Historical Collection",
@@ -143,6 +198,50 @@
     "notes": "Sophisticated dark gray · Coating: ML Campbell (ACC standard)"
   },
   {
+    "id": "PNT-BM-HC168",
+    "brand": "BM",
+    "collection": "Historical Collection",
+    "code": "HC-168",
+    "name": "Chelsea Gray",
+    "hex_approx": "#878880",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Classic mid-tone gray · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-HC170",
+    "brand": "BM",
+    "collection": "Historical Collection",
+    "code": "HC-170",
+    "name": "Revere Pewter",
+    "hex_approx": "#C2BAA8",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Very popular warm greige · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-HC172",
+    "brand": "BM",
+    "collection": "Historical Collection",
+    "code": "HC-172",
+    "name": "Pale Oak",
+    "hex_approx": "#D9D0BF",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Warm pale neutral · Coating: ML Campbell (ACC standard)"
+  },
+  {
+    "id": "PNT-BM-HC173",
+    "brand": "BM",
+    "collection": "Historical Collection",
+    "code": "HC-173",
+    "name": "Sea Salt",
+    "hex_approx": "#B8C4BD",
+    "is_custom_match": false,
+    "placeholder": false,
+    "notes": "Soft sage green · Coating: ML Campbell (ACC standard)"
+  },
+  {
     "id": "PNT-BM-2124-10",
     "brand": "BM",
     "collection": "Classic Colors",
@@ -165,124 +264,80 @@
     "notes": "True black · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-BM-BMFULL-PLACEHOLDER",
+    "id": "PNT-BM-2163-40",
     "brand": "BM",
-    "collection": "(Full Catalog)",
-    "code": null,
-    "name": "Full BM catalog ingest pending",
-    "hex_approx": null,
-    "is_custom_match": false,
-    "placeholder": true,
-    "notes": "~3500 BM colors total — load via fan deck export"
-  },
-  {
-    "id": "PNT-SW-7008",
-    "brand": "SW",
-    "collection": "Whites & Neutrals",
-    "code": "SW 7008",
-    "name": "Alabaster",
-    "hex_approx": "#EDE3D5",
+    "collection": "Classic Colors",
+    "code": "2163-40",
+    "name": "Gray Owl",
+    "hex_approx": "#D2CDC5",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "2016 Color of the Year; popular cabinet white · Coating: ML Campbell (ACC standard)"
+    "notes": "Clean cool gray · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-SW-7004",
-    "brand": "SW",
-    "collection": "Whites & Neutrals",
-    "code": "SW 7004",
-    "name": "Snowbound",
-    "hex_approx": "#EBE7DF",
+    "id": "PNT-BM-2119-70",
+    "brand": "BM",
+    "collection": "Classic Colors",
+    "code": "2119-70",
+    "name": "White Ice",
+    "hex_approx": "#EBE9E4",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "Cool off-white · Coating: ML Campbell (ACC standard)"
+    "notes": "Very light cool white · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-SW-7005",
-    "brand": "SW",
-    "collection": "Whites & Neutrals",
-    "code": "SW 7005",
-    "name": "Pure White",
-    "hex_approx": "#EDE8DF",
+    "id": "PNT-BM-CSP-5",
+    "brand": "BM",
+    "collection": "Color Stories",
+    "code": "CSP-5",
+    "name": "Chantilly Lace",
+    "hex_approx": "#F7F4EE",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "Clean true white · Coating: ML Campbell (ACC standard)"
+    "notes": "Bright white · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-SW-7551",
-    "brand": "SW",
-    "collection": "Naturals",
-    "code": "SW 7551",
-    "name": "Greek Villa",
-    "hex_approx": "#EBE0CE",
+    "id": "PNT-BM-AF-20",
+    "brand": "BM",
+    "collection": "Affinity",
+    "code": "AF-20",
+    "name": "Mascarpone",
+    "hex_approx": "#EDE3CF",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "Warm cream · Coating: ML Campbell (ACC standard)"
+    "notes": "Rich cream · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-SW-7015",
-    "brand": "SW",
-    "collection": "Neutrals",
-    "code": "SW 7015",
-    "name": "Repose Gray",
-    "hex_approx": "#C2BDB5",
+    "id": "PNT-BM-AF-100",
+    "brand": "BM",
+    "collection": "Affinity",
+    "code": "AF-100",
+    "name": "Pale Straw",
+    "hex_approx": "#E8DCCA",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "Popular greige · Coating: ML Campbell (ACC standard)"
+    "notes": "Warm straw beige · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-SW-7029",
-    "brand": "SW",
-    "collection": "Neutrals",
-    "code": "SW 7029",
-    "name": "Agreeable Gray",
-    "hex_approx": "#CABFB1",
+    "id": "PNT-BM-AF-685",
+    "brand": "BM",
+    "collection": "Affinity",
+    "code": "AF-685",
+    "name": "Onyx",
+    "hex_approx": "#2B2B2B",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "Warm versatile gray · Coating: ML Campbell (ACC standard)"
+    "notes": "Deep black · Coating: ML Campbell (ACC standard)"
   },
   {
-    "id": "PNT-SW-7018",
-    "brand": "SW",
-    "collection": "Grays",
-    "code": "SW 7018",
-    "name": "Dovetail",
-    "hex_approx": "#8C857D",
+    "id": "PNT-BM-2167-10",
+    "brand": "BM",
+    "collection": "Classic Colors",
+    "code": "2167-10",
+    "name": "Soot",
+    "hex_approx": "#2D2D2C",
     "is_custom_match": false,
     "placeholder": false,
-    "notes": "Mid-tone gray · Coating: ML Campbell (ACC standard)"
-  },
-  {
-    "id": "PNT-SW-7045",
-    "brand": "SW",
-    "collection": "Grays",
-    "code": "SW 7045",
-    "name": "Intellectual Gray",
-    "hex_approx": "#8C8880",
-    "is_custom_match": false,
-    "placeholder": false,
-    "notes": "Cool dark gray · Coating: ML Campbell (ACC standard)"
-  },
-  {
-    "id": "PNT-SW-SWFULL-PLACEHOLDER",
-    "brand": "SW",
-    "collection": "(Full Catalog)",
-    "code": null,
-    "name": "Full SW catalog ingest pending",
-    "hex_approx": null,
-    "is_custom_match": false,
-    "placeholder": true,
-    "notes": "~1700 SW colors total — load via SW color visualizer export"
-  },
-  {
-    "id": "PNT-CUSTOM",
-    "brand": "Custom",
-    "collection": "Custom Match",
-    "code": null,
-    "name": "Other / Custom Match",
-    "hex_approx": null,
-    "is_custom_match": true,
-    "placeholder": false,
-    "notes": "Escape hatch — PM specifies brand + code or sample reference in finish notes"
+    "notes": "Soft matte black · Coating: ML Campbell (ACC standa"
   }
 ]
