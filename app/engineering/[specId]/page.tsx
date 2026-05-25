@@ -50,12 +50,21 @@ export default async function EngineeringSpecPage({ params }: { params: Promise<
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-      <Link
-        href="/jobs"
-        className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors mb-8 block"
-      >
-        ← Jobs
-      </Link>
+      <div className="flex items-center gap-4 mb-8">
+        <Link
+          href="/engineer"
+          className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors"
+        >
+          ← Engineering Queue
+        </Link>
+        <span className="text-white/15 text-xs">·</span>
+        <Link
+          href={`/jobs/${spec.job_id}`}
+          className="font-condensed uppercase tracking-widest text-xs text-white/20 hover:text-white/50 transition-colors"
+        >
+          View Full Job
+        </Link>
+      </div>
 
       <div className="flex flex-wrap items-start justify-between gap-4 mb-10">
         <div>
