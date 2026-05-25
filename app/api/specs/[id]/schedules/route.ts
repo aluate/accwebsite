@@ -171,6 +171,37 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
   }
 
+  // ── Server-side: required hardware role validation ─────────────────────────
+  // Belt-and-suspenders check that mirrors client-side validation.
+  // The four required roles must have a non-null hardware_id — this is a hard
+  // block (422), not a warning. Protects against API callers that bypass the UI.
+  const REQUIRED_HW_ROLES = ["hinges", "drawer_slides", "door_pulls", "drawer_pulls"] as const;
+  const hwByFg = new Map<string, HardwarePayload[]>();
+  for (const h of payload.hardware ?? []) {
+    const arr = hwByFg.get(h.finish_group_id) ?? [];
+    arr.push(h);
+    hwByFg.set(h.finish_group_id, arr);
+  }
+  // Collect all finish_group_ids that appear in ANY part of the payload
+  const allFgIds = new Set<string>();
+  for (const arr of [payload.materials, payload.door_fronts, payload.drawers,
+                     payload.edgebands, payload.hardware, payload.countertops]) {
+    for (const r of arr ?? []) allFgIds.add(r.finish_group_id);
+  }
+  for (const u of payload.finish_updates ?? []) allFgIds.add(u.finish_group_id);
+  for (const fgId of allFgIds) {
+    const hwRows = hwByFg.get(fgId) ?? [];
+    for (const role of REQUIRED_HW_ROLES) {
+      const row = hwRows.find((h) => h.role === role);
+      if (!row?.hardware_id) {
+        return NextResponse.json(
+          { error: `finish_group ${fgId}: ${role} is required — select one before saving` },
+          { status: 422 }
+        );
+      }
+    }
+  }
+
   const warnings: string[] = [];
 
   try {
@@ -185,6 +216,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             warnings.push(`finish_group "${fg.label}": paint type but stain_id is set`);
           if (fg.finish_type === "stain" && u.paint_id)
             warnings.push(`finish_group "${fg.label}": stain type but paint_id is set`);
+          // DAC-1: melamine groups should not have a paint or stain color set
+          if (fg.finish_type === "melamine" && u.paint_id)
+            warnings.push(`finish_group "${fg.label}": melamine type but paint_id is set — clear it`);
+          if (fg.finish_type === "melamine" && u.stain_id)
+            warnings.push(`finish_group "${fg.label}": melamine type but stain_id is set — clear it`);
         }
         await tx`
           UPDATE finish_groups
@@ -193,7 +229,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
               glaze_id   = ${u.glaze_id},
               topcoat_id = ${u.topcoat_id},
               sheen_id   = ${u.sheen_id},
-              notes      = COALESCE(${u.notes}, notes)
+              notes      = ${u.notes}
           WHERE id = ${u.finish_group_id}
         `;
       }
@@ -281,51 +317,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       for (const fgId of ctGroups) {
         await tx`DELETE FROM finish_group_countertops WHERE finish_group_id = ${fgId}`;
       }
-      for (const c of payload.countertops ?? []) {
-        await tx`
-          INSERT INTO finish_group_countertops
-            (id, finish_group_id, location, style_id, edge_id, splash_style,
-             splash_edge_id, material_id, buildup_in, core_substrate, brackets,
-             notes, sort_order)
-          VALUES
-            (${uid()}, ${c.finish_group_id}, ${c.location}, ${c.style_id},
-             ${c.edge_id}, ${c.splash_style}, ${c.splash_edge_id}, ${c.material_id},
-             ${c.buildup_in}, ${c.core_substrate}, ${c.brackets},
-             ${c.notes}, ${c.sort_order})
-        `;
-      }
-
-      // 3. Molding extras — UPDATE in place
-      for (const m of payload.molding_extras ?? []) {
-        await tx`
-          UPDATE finish_moldings SET size_in = ${m.size_in}, material_id = ${m.material_id}
-          WHERE id = ${m.id}
-        `;
-      }
-
-      // 4. Soft-warn: cab_ext2/int2 without where_used (DAC #11)
-      const ext2warns = await tx`
-        SELECT fg.label, m.role
-        FROM finish_group_materials m
-        JOIN finish_groups fg ON fg.id = m.finish_group_id
-        WHERE fg.spec_id = ${specId}
-          AND m.role IN ('cab_ext2', 'cab_int2')
-          AND m.material_id IS NOT NULL
-          AND (m.where_used IS NULL OR m.where_used = '')
-      ` as { label: string; role: string }[];
-      for (const w of ext2warns) {
-        warnings.push(`finish_group "${w.label}": ${w.role} has a material but no where_used note`);
-      }
-    });
-  } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
-  }
-
-  await logActivity({
-    entityType: "spec", entityId: specId, jobId: (spec as {id:string;job_id:string}).job_id,
-    eventType: "updated", actor: "pm", actorRole: "pm",
-    payload: { sections: Object.keys(payload).filter(k => k !== "finish_updates") },
-  }).catch(() => {});
-
-  return NextResponse.json({ ok: true, warnings });
-}
+      for (const c of payload.counterto
