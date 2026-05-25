@@ -103,6 +103,22 @@ export async function POST(
     );
   }
 
+  // Hard gate: cannot advance to "complete" with open punch items
+  if (toStatus === "complete") {
+    const [punchCheck] = await sql<Array<{ open_count: number }>>`
+      SELECT COUNT(*) AS open_count
+      FROM punch_list_items
+      WHERE job_id = ${internalId} AND status = 'open'
+    `;
+    const openCount = Number(punchCheck?.open_count ?? 0);
+    if (openCount > 0) {
+      return NextResponse.json(
+        { error: `Cannot mark complete — ${openCount} punch item${openCount !== 1 ? "s" : ""} still open.` },
+        { status: 422 }
+      );
+    }
+  }
+
   // ── 4. Update job status ───────────────────────────────────────────────────
   const now = new Date().toISOString();
   await sql`UPDATE jobs SET status = ${toStatus} WHERE id = ${internalId}`;
