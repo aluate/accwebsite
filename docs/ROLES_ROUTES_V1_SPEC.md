@@ -169,7 +169,7 @@ Run this inside the same transaction as the `active = 0` update. Do not rely on 
 
 **External surfaces are off by default and must stay that way until ACC signs off.**
 
-The ACC partners have approved internal use only at this stage. `EXPRESS_ENABLED`, `PORTAL_ENABLED`, and the builder-role onboarding flow must remain disabled on the production domain (`accspec.net` / `advancedcabinets.org`) until the system has been validated internally by ACC staff. Do not enable any external-facing surface without explicit sign-off from Karl.
+The ACC partners have approved internal use only at this stage. `EXPRESS_ENABLED`, `PORTAL_ENABLED`, and the builder-role onboarding flow must remain disabled on the production domain (`www.advancedcabinets.org`) until the system has been validated internally by ACC staff. Do not enable any external-facing surface without explicit sign-off from Karl.
 
 This constraint applies even if a feature is technically complete. "Done" means working internally, not visible externally.
 
@@ -195,14 +195,14 @@ Env flags default to `"false"` when absent — new deployments are opt-in, not o
 
 **Does NOT suppress:** `/` (already redirects to `/jobs` in `app/page.tsx`)
 
-**Rationale:** advancedcabinets.net already serves these pages. The new domain (accspec.net) is ops-only for now. When Karl eventually gains access to advancedcabinets.net, the plan is to unify — at that point flip `MARKETING_ENABLED=true` and route the marketing domain here too.
+**Rationale:** advancedcabinets.net already serves these pages. The live domain is `www.advancedcabinets.org` (Vercel). Marketing and ops are both served from this domain.
 
 **proxy.ts addition:**
 
 ```ts
 // Marketing pages feature flag.
 // The public marketing site (advancedcabinets.net) already serves these routes.
-// Suppressed on accspec.net until the two domains are unified.
+// Suppressed on www.advancedcabinets.org — enable when marketing site is ready.
 // Set MARKETING_ENABLED=true to re-enable.
 const MARKETING_PATHS = ["/about", "/team", "/tour", "/projects", "/contact"];
 if (MARKETING_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
@@ -339,7 +339,7 @@ V1 uses existing Gmail SMTP (`residentialacc2@gmail.com`) — same transport con
 New env var:
 
 ```
-APP_URL=https://accspec.net
+APP_URL=https://www.advancedcabinets.org
 ```
 
 Used to construct `/invite/[token]` and `/reset-password/[token]` links in outbound emails. Add to `.env.local` and to Vercel environment variables. No runtime default — omitting it won't throw, but invite emails will contain broken links.

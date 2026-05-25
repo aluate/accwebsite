@@ -1,6 +1,6 @@
 # Karl's To-Do — Inputs Queue
 
-> **Updated 2026-05-08.** Big cleanup pass — archived resolved items, folded in all answers from this session.
+> **Updated 2026-05-09.** Archived item E (in-house e-sig — shipped as Phase 2.3, 2026-05-09).
 
 ---
 
@@ -33,12 +33,8 @@ Easiest: phone photo of fan deck pages, or ask the rep for a PDF.
 
 ---
 
-### E. In-house e-signature — design session needed
-**Background:** DocuSign is archived per your direction (2026-05-08). The original goal was: combine most recent quote + most recent drawings + residential disclosure → send to client for approval, capture name/timestamp/signature.
-
-The approval flow schema + state machine is already scaffolded in the app. What's needed is a design session to spec the in-house version — basically a token URL (like the invite flow) that the client clicks, reviews a PDF, and signs with a typed name or drawn signature. No third-party dependency.
-
-When ready: tell me "e-sig spec session" and we'll lock it.
+### ~~E. In-house e-signature~~ ✅ SHIPPED 2026-05-09
+Token URL → public signoff page → HTML5 canvas signature → signer name / IP / timestamp stored in `client_signoffs` table → PM email on completion. Live at `/signoff/[token]`. "Send for Signoff" button on every job page.
 
 ---
 

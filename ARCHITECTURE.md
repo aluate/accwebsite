@@ -17,11 +17,13 @@ treats as authoritative.
 - **Next.js 16 App Router + Turbopack** — chosen because Karl already runs it
   for other internal tools, and it gives us file-based routing for the
   admin/engineering/spec pages without a separate API server.
-- **SQLite via better-sqlite3 with WAL mode** — chosen for zero-ops, file-
-  based persistence on Karl's Windows host. WAL mode lets the dev server +
-  CLI scripts (migrate, backup, rotate-pw, selftest) coexist without lock
-  contention. Hard ceiling around 5-10 concurrent writers; revisit when ACC
-  has more than 3 PMs editing simultaneously (Phase 4 Postgres migration).
+- **Supabase Postgres** *(migrated from SQLite, 2026-05-06)* — hosted on
+  Supabase free tier, accessed via PgBouncer pooler (port 6543, transaction
+  mode). Connection requires `prepare: false` in the `postgres` npm package
+  config — PgBouncer transaction mode cannot use prepared statements.
+  Deployed on Vercel; `lib/db.ts` exports a tagged-template `sql` helper.
+  ~~SQLite via better-sqlite3~~ is gone — all `migrate.mjs` and
+  `better-sqlite3` references are dead code if they still exist.
 - **CSV→JSON catalog pipeline** — `data/catalogs/*.csv` is the source of
   truth, `scripts/sync-catalogs.mjs` regenerates JSON used at runtime. CSV
   was chosen over a "real" database for catalogs because Karl can edit them
@@ -41,13 +43,11 @@ treats as authoritative.
 
 ## Data model
 
-Single SQLite file at `data/acc-jobs.db`. Schema lives in TWO places that
-must stay in sync:
-
-1. `lib/db.ts` — runs on first import (i.e. first request to the dev server).
-2. `scripts/migrate.mjs` — runs via `npm run migrate` for CLI/deploy paths.
-
-The selftest's "required tables/columns" check fails loudly if drift occurs.
+Supabase Postgres. Schema is applied via the Supabase SQL Editor
+(`CREATE TABLE IF NOT EXISTS …` statements run manually as needed).
+`lib/db.ts` exports `sql` (a tagged-template helper from the `postgres` npm
+package) and `uid()` (a `nanoid`-based ID generator). There is no local
+migration runner — schema changes go straight to Supabase.
 
 ### Core tables
 
@@ -155,42 +155,56 @@ references exist.
 
 ## Tradeoffs we explicitly accepted
 
-- **SQLite + filesystem instead of Postgres + S3** — fewer moving parts on
-  Karl's host. Trade: no off-site replication; backups are critical.
+- **Supabase Postgres + Vercel instead of local SQLite + self-host** —
+  migrated 2026-05-06. Trade: depends on Supabase free tier (10 connection
+  limit on pooler; burst load can cause transient 503s). Backups via
+  `npm run backup` are still important for `data/` (catalogs, uploads).
 - **CSV catalogs instead of DB-backed** — 10-year-old-easy edit story. Trade:
   no FK enforcement at the catalog level; the libraries editor warns on
-  delete instead.
-- **NOT NULL not enforced at SQL level on $70k cols** — SQLite can't ALTER
-  to add NOT NULL on existing columns without a table rebuild. We rely on
-  server-side validation + selftest. Real fix is Postgres migration.
-- **Schema mirrored in lib/db.ts and migrate.mjs** — single source of truth
-  would be cleaner. Pragmatic choice: schemas are short, drift is caught by
-  selftest. Refactor candidate: extract to a `.sql` file both files load.
+  delete instead. On Vercel the filesystem is read-only after deploy — edit
+  CSVs locally and redeploy; the `/admin/libraries` PUT endpoint is
+  disabled on Vercel.
+- **NOT NULL not enforced at SQL level on $70k cols** — pragmatic call;
+  adding NOT NULL to existing Postgres columns requires careful migration.
+  We rely on server-side validation + selftest catalog checks instead.
+- **Schema applied manually via Supabase SQL Editor** — no local migration
+  runner. `lib/db.ts` is the authoritative schema reference; `migrate.mjs`
+  is a stub that prints a deprecation notice.
 - **Webhook handler returns 200 on transition errors** — we don't want
-  DocuSign's retry storm hammering us, but we DO need to know when it
-  fails. We persist to `webhook_errors` and selftest fails when non-empty.
+  retry storms hammering the endpoint. Failures persist to `webhook_errors`
+  so they surface on investigation (selftest DB checks skip this on Supabase
+  since `selftest.mjs` is SQLite-based and all DB checks SKIP when no local
+  `acc-jobs.db` exists).
 - **Excel render hard-blocks 3+ finish groups** — instead of silently under-
   filling. The Artifex template needs to be extended (or a different
   approach taken — e.g. a multi-page schedule layout) before we lift the
   block.
+- **DocuSign archived in favour of in-house e-sig** — Phase 2.3 (2026-05-09)
+  ships token URL → canvas signature → PM email. The DocuSign webhook route
+  remains in the codebase but returns 503 unless `DOCUSIGN_INTEGRATION_KEY`
+  is set. `lib/approvals.ts` and `lib/docusign.ts` are retained as scaffolding.
 
 ## Known limitations / future work
 
 - **No CI** — selftest runs only when manually invoked. CI scaffolding is
   in `.github/workflows/selftest.yml` ready for when Karl pushes to GitHub.
+- **selftest DB checks skip on Supabase** — `scripts/selftest.mjs` is
+  SQLite-based and gracefully SKIPs all DB checks when no local `acc-jobs.db`
+  exists. Catalog and TypeScript checks still run. Rewriting selftest for
+  async Postgres is a future task.
 - **No mobile intake rewrite** — basic responsive pass shipped, but the
   rooms/finishes tabs aren't accordion-style for iPhone-narrow viewports.
   Phase 7 in the road map.
-- **No off-site backup** — `npm run backup` writes to `data/backups/` on the
-  same disk. A daily Wasabi/S3 sync is recommended.
+- **No off-site backup** — `npm run backup` writes to `data/backups/` on
+  local disk. A daily Wasabi/S3 sync is recommended.
 - **Engineer role not fully populated** — schema + UI ready, but no engineer
   accounts seeded. Karl creates via `/admin/builders` once needed.
-- **DocuSign live integration** — webhook handler is wired; envelope-create
-  call is not. Pending Karl provisioning DocuSign account + integration key.
+- **Combine PDF (spec + drawings merge) not wired** — `POST /api/specs/[id]/combine`
+  returns 501 until Supabase Storage is set up for drawings. Spec-only PDF
+  (`/generate`) works fine.
 
 ## When in doubt
 
-- `npm run selftest` is the canary. Green = system is internally consistent.
-- `data/backups/{latest}.tar.gz` restores everything.
-- Karl's `KARL_TODO.md` is the ledger of "things only Karl can do."
-- The `EOD_*.md` files at the repo root are end-of-day status snapshots.
+- `npm run selftest` checks catalogs + TypeScript. DB checks SKIP on Vercel
+  (no local SQLite). Green on catalog + tsc = system is structurally sound.
+- `data/backups/{latest}.tar.gz` restores catalog and upload data.
