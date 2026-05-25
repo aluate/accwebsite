@@ -1,11 +1,13 @@
 /**
  * /installer — Mobile-first dashboard for installers.
  *
- * Shows install-type schedule events grouped into TODAY / UPCOMING / RECENT.
- * Tapping a card opens the job detail page where photos can be uploaded.
+ * Two sections:
+ *   1. Schedule events (TODAY / UPCOMING / RECENT) — install-type events from the calendar.
+ *   2. Active Jobs board — ALL jobs in production/delivery/install/punch stage that
+ *      are not yet complete. Installers frequently work jobs that aren't assigned to them.
  *
- * V1: shows all install-type events (not yet filtered by crew assignment).
- * Crew assignment per installer is a follow-up sprint item.
+ * Tapping a card opens the job detail page (installer view) which includes
+ * the punch list for that job.
  */
 
 import { redirect } from "next/navigation";
@@ -14,6 +16,16 @@ import { getBuilder } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 export const runtime = "nodejs";
+
+type ActiveJob = {
+  id: string;
+  job_number: string | null;
+  client_name: string;
+  site_address: string;
+  city: string | null;
+  status: string;
+  open_punch_count: number;
+};
 
 type InstallEvent = {
   id: string;
@@ -69,6 +81,30 @@ function formatDateRange(start: string | null, end: string | null): string {
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+async function fetchActiveJobs(): Promise<ActiveJob[]> {
+  return sql<ActiveJob[]>`
+    SELECT
+      j.id, j.job_number, j.client_name, j.site_address, j.city, j.status,
+      COALESCE(p.open_count, 0) AS open_punch_count
+    FROM jobs j
+    LEFT JOIN (
+      SELECT job_id, COUNT(*) AS open_count
+      FROM punch_list_items
+      WHERE status = 'open'
+      GROUP BY job_id
+    ) p ON p.job_id = j.id
+    WHERE j.status IN ('production', 'delivery', 'install', 'punch')
+    ORDER BY
+      CASE j.status
+        WHEN 'punch'      THEN 1
+        WHEN 'install'    THEN 2
+        WHEN 'delivery'   THEN 3
+        WHEN 'production' THEN 4
+      END,
+      j.client_name
+  `;
 }
 
 async function fetchEvents(): Promise<InstallEvent[]> {
@@ -193,11 +229,25 @@ function Section({ title, events }: { title: string; events: InstallEvent[] }) {
   );
 }
 
+const STATUS_STAGE: Record<string, string> = {
+  production: "In Production",
+  delivery:   "Out for Delivery",
+  install:    "Install",
+  punch:      "Punch",
+};
+
+const STAGE_COLORS: Record<string, string> = {
+  production: "text-yellow-300 bg-yellow-900/30",
+  delivery:   "text-amber-300 bg-amber-900/30",
+  install:    "text-purple-300 bg-purple-900/30",
+  punch:      "text-pink-300 bg-pink-900/30",
+};
+
 export default async function InstallerPage() {
   const session = await getBuilder();
   if (!session) redirect("/login");
 
-  const events = await fetchEvents();
+  const [events, activeJobs] = await Promise.all([fetchEvents(), fetchActiveJobs()]);
   const today  = todayIso();
   const { past, todayEvts, upcoming, undated } = groupEvents(events, today);
 
@@ -223,13 +273,56 @@ export default async function InstallerPage() {
 
       {/* Content */}
       <div className="px-4 py-5 space-y-7 max-w-lg mx-auto">
-        {events.length === 0 ? (
+        {/* ── Active jobs board — all on-floor jobs ── */}
+        {activeJobs.length > 0 && (
+          <section>
+            <h2 className="text-white/30 font-condensed uppercase tracking-[0.2em] text-xs mb-3 px-1">
+              Active Jobs
+            </h2>
+            <div className="space-y-2">
+              {activeJobs.map((job) => {
+                const stageCls = STAGE_COLORS[job.status] ?? "text-white/40 bg-white/10";
+                const stageLabel = STATUS_STAGE[job.status] ?? job.status;
+                const location = [job.site_address, job.city].filter(Boolean).join(", ");
+                return (
+                  <Link
+                    key={job.id}
+                    href={`/jobs/${job.id}`}
+                    className="block bg-white/5 border border-white/10 rounded-xl p-4 active:bg-white/10 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className={`text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded ${stageCls}`}>
+                        {stageLabel}
+                      </span>
+                      {job.open_punch_count > 0 && (
+                        <span className="text-[10px] font-condensed text-pink-400">
+                          {job.open_punch_count} punch open
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-white font-medium text-base leading-tight">{job.client_name}</p>
+                    {location && <p className="text-white/50 text-sm mt-0.5">{location}</p>}
+                    {job.job_number && (
+                      <p className="text-white/25 text-xs mt-1 font-condensed">#{job.job_number}</p>
+                    )}
+                    <p className="mt-2 text-[#f08122] text-xs font-condensed uppercase tracking-wider">
+                      Open job →
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── Schedule events ── */}
+        {events.length === 0 && activeJobs.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-white/20 font-condensed uppercase tracking-wider text-sm">
-              No scheduled jobs
+              No active jobs
             </p>
             <p className="text-white/10 text-xs mt-2">
-              Check back when jobs are added to the schedule.
+              Check back when jobs are on the floor.
             </p>
           </div>
         ) : (

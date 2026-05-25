@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         display_name: user.display_name,
         job_id: id,
         comment_body: text,
-        portal_url: process.env.PORTAL_URL ?? "https://accspec.net",
+        portal_url: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
       },
     });
   }

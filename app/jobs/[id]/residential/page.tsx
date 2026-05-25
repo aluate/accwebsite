@@ -84,7 +84,7 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
               <div>
                 <p className="text-white text-sm font-medium">{spec.name}</p>
                 <p className="text-white/30 text-xs mt-0.5">
-                  Updated {new Date(spec.updated_at).toLocaleDateString()}
+                  Updated {new Date(spec.updated_at).toLocaleDateString("en-US", { timeZone: "UTC", year: "numeric", month: "short", day: "numeric" })}
                 </p>
               </div>
               <div className="flex items-center gap-3">
