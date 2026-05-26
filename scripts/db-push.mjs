@@ -644,5 +644,4 @@ async function main() {
   console.log("Schema push complete.");
   await sql.end();
 }
-
-main().catch((e) => { console.error(e); proce
+main().catch((e) => { console.error(e); process.exit(1); });
