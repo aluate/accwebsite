@@ -16,7 +16,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: "require", max: 1 });
+const sql = postgres(DATABASE_URL, { ssl: "require", max: 1, prepare: false });
 
 async function main() {
   console.log("Pushing schema to Supabase...");
@@ -645,4 +645,4 @@ async function main() {
   await sql.end();
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => { console.error(e); proce
