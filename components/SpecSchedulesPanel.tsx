@@ -903,5 +903,22 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
               </div>
             </div>
           </div>
-        ))}
-        <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors
+        <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors">+ Add Countertop</button>
+      </div>
+
+      {/* Save (bottom) */}
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+        {saveState === "error" && warnings.length > 0 && (
+          <p className="text-red-400 text-xs">✗ {warnings[0]}{warnings.length > 1 ? ` (+${warnings.length - 1} more — see above)` : ""}</p>
+        )}
+        <button
+          onClick={save}
+          disabled={saveState === "saving"}
+          className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-6 py-2.5 rounded transition-colors"
+        >
+          {saveState === "saving" ? "Saving…" : "Save Schedules"}
+        </button>
+      </div>
+    </div>
+  );
+}
