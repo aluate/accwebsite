@@ -317,4 +317,51 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       for (const fgId of ctGroups) {
         await tx`DELETE FROM finish_group_countertops WHERE finish_group_id = ${fgId}`;
       }
-      for (const c of payload.counterto
+      for (const c of payload.countertops ?? []) {
+        await tx`
+          INSERT INTO finish_group_countertops
+            (id, finish_group_id, location, style_id, edge_id, splash_style,
+             splash_edge_id, material_id, buildup_in, core_substrate, brackets,
+             notes, sort_order)
+          VALUES
+            (${uid()}, ${c.finish_group_id}, ${c.location}, ${c.style_id},
+             ${c.edge_id}, ${c.splash_style}, ${c.splash_edge_id}, ${c.material_id},
+             ${c.buildup_in}, ${c.core_substrate}, ${c.brackets},
+             ${c.notes}, ${c.sort_order})
+        `;
+      }
+
+      // 3. Molding extras — UPDATE in place
+      for (const m of payload.molding_extras ?? []) {
+        await tx`
+          UPDATE finish_moldings SET size_in = ${m.size_in}, material_id = ${m.material_id}
+          WHERE id = ${m.id}
+        `;
+      }
+
+      // 4. Soft-warn: cab_ext2/int2 without where_used (DAC #11)
+      const ext2warns = await tx`
+        SELECT fg.label, m.role
+        FROM finish_group_materials m
+        JOIN finish_groups fg ON fg.id = m.finish_group_id
+        WHERE fg.spec_id = ${specId}
+          AND m.role IN ('cab_ext2', 'cab_int2')
+          AND m.material_id IS NOT NULL
+          AND (m.where_used IS NULL OR m.where_used = '')
+      ` as { label: string; role: string }[];
+      for (const w of ext2warns) {
+        warnings.push(`finish_group "${w.label}": ${w.role} has a material but no where_used note`);
+      }
+    });
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+  }
+
+  await logActivity({
+    entityType: "spec", entityId: specId, jobId: (spec as {id:string;job_id:string}).job_id,
+    eventType: "updated", actor: "pm", actorRole: "pm",
+    payload: { sections: Object.keys(payload).filter(k => k !== "finish_updates") },
+  }).catch(() => {});
+
+  return NextResponse.json({ ok: true, warnings });
+}
