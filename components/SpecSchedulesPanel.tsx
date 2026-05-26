@@ -903,6 +903,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
               </div>
             </div>
           </div>
+        ))}
         <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors">+ Add Countertop</button>
       </div>
 
