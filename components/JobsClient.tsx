@@ -197,6 +197,7 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
               <Link
                 key={job.id as string}
                 href={"/jobs/" + ((job.job_number as string) || (job.id as string))}
+                prefetch={false}
                 className="flex items-center gap-4 bg-[#2d2d2d] hover:bg-[#353535] rounded px-5 py-4 transition-colors group"
               >
                 <span className="font-condensed text-[#f08122] text-sm w-24 shrink-0">
@@ -268,6 +269,7 @@ function PipelineCard({ job }: { job: PipelineJob }) {
   return (
     <Link
       href={"/jobs/" + (job.job_number ?? job.id)}
+      prefetch={false}
       className="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-lg px-4 py-3 transition-colors"
     >
       <span className={"text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded shrink-0 " + stageCls}>
@@ -442,8 +444,4 @@ export function JobsClient({
       </div>
       {tab === "all"
         ? <AllJobsTab jobs={jobs} />
-        : <PipelineTab jobs={pipelineJobs} />
-      }
-    </>
-  );
-}
+        : <Pi
