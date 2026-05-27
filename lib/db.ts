@@ -88,21 +88,31 @@ export async function withDbTimeout<T>(
   ms = 8000,
 ): Promise<T> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error(
-    `Database timed out after ${ms / 1000}s — pool may be busy`,
-  )), ms);
+
+  // A promise that rejects exactly when the timeout fires.
+  // Promise.race() ensures we return in ≤ ms even when postgres.js cannot
+  // cancel a locally-queued (not-yet-executing) query on AbortSignal, e.g.
+  // when all max:1 connections are held by another pending query.
+  let rejectTimeout!: (e: Error) => void;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    rejectTimeout = reject;
+  });
+
+  const timer = setTimeout(() => {
+    const err = new Error(`Database timed out after ${ms / 1000}s — pool may be busy`);
+    controller.abort(err);   // cancel any running postgres.js query
+    rejectTimeout(err);      // also reject the race so we always return fast
+  }, ms);
+
   try {
-    return await fn(controller.signal);
+    return await Promise.race([fn(controller.signal), timeoutPromise]);
   } catch (err) {
-    // Re-throw as a recognisable timeout error so error.tsx can show the right message.
     if (controller.signal.aborted) {
       throw new Error(`Database timed out after ${ms / 1000}s — pool may be busy`);
     }
     throw err;
   } finally {
     clearTimeout(timer);
-    // If fn finished before the deadline, abort so postgres.js doesn't
-    // keep the signal pending.
     if (!controller.signal.aborted) controller.abort();
   }
 }
