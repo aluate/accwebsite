@@ -17,10 +17,8 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const LC_COLOR: Record<string, string> = {
-  DRAFT: "text-white/40 bg-white/10",
-  CLIENT_APPROVED: "text-blue-300 bg-blue-900/30",
-  RELEASED_TO_ENG: "text-indigo-300 bg-indigo-900/30",
-  ENGINEERED: "text-purple-300 bg-purple-900/30",
+  DRAFT: "text-white/40 bg-white/10", CLIENT_APPROVED: "text-blue-300 bg-blue-900/30",
+  RELEASED_TO_ENG: "text-indigo-300 bg-indigo-900/30", ENGINEERED: "text-purple-300 bg-purple-900/30",
   RELEASED_TO_SHOP: "text-green-300 bg-green-900/30",
 };
 
@@ -28,16 +26,26 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Results | null>(null);
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.trim().length < 2) { setResults(null); return; }
+    if (query.trim().length < 2) { setResults(null); setApiError(false); return; }
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
+      setApiError(false);
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) setResults(await res.json());
+        if (res.ok) {
+          setResults(await res.json());
+        } else {
+          setApiError(true);
+          setResults(null);
+        }
+      } catch {
+        setApiError(true);
+        setResults(null);
       } finally {
         setLoading(false);
       }
@@ -72,9 +80,15 @@ export default function SearchPage() {
         )}
       </div>
 
-      {!results && query.trim().length < 2 && (
+      {!results && !apiError && query.trim().length < 2 && (
         <p className="text-white/20 text-sm font-condensed uppercase tracking-widest text-center py-16">
           Type at least 2 characters to search
+        </p>
+      )}
+
+      {apiError && (
+        <p className="text-[#f08122]/60 text-sm font-condensed uppercase tracking-widest text-center py-16">
+          Database busy — try again in a moment
         </p>
       )}
 
@@ -88,9 +102,7 @@ export default function SearchPage() {
         <div className="space-y-8">
           {results.jobs.length > 0 && (
             <div>
-              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">
-                Jobs — {results.jobs.length}
-              </p>
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">Jobs — {results.jobs.length}</p>
               <div className="space-y-1.5">
                 {results.jobs.map((j) => {
                   const loc = [j.site_address, j.city].filter(Boolean).join(", ");
@@ -113,12 +125,9 @@ export default function SearchPage() {
               </div>
             </div>
           )}
-
           {results.specs.length > 0 && (
             <div>
-              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">
-                Specs — {results.specs.length}
-              </p>
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">Specs — {results.specs.length}</p>
               <div className="space-y-1.5">
                 {results.specs.map((s) => {
                   const lc = LC_COLOR[s.lifecycle_state] ?? "text-white/40 bg-white/10";

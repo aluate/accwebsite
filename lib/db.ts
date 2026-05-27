@@ -8,9 +8,9 @@
  *   sql        — tagged template function for all queries
  *   uid()      — random hex ID generator
  *   nextJobId() — async, atomically increments seq table, returns ACC-YYYY-NNNN
- *   withDbTimeout() — wraps any promise with a JS-level timeout so pages fail
- *                     fast (8 s default) instead of hanging 300 s in PgBouncer's
- *                     internal queue when the connection pool is exhausted.
+ *   withDbTimeout() — wraps a sql factory fn with AbortSignal so the query is
+ *                     actually cancelled when the deadline fires (not just raced
+ *                     past), freeing the PgBouncer slot immediately.
  */
 import postgres from "postgres";
 import { randomBytes } from "crypto";
@@ -67,28 +67,43 @@ export default sql;
 export { sql };
 
 /**
- * Wrap a DB promise with a JS-level deadline.
+ * Run a DB query with an AbortSignal deadline so the query is actually
+ * CANCELLED when the timeout fires — freeing the PgBouncer slot immediately
+ * rather than leaving a pending Lambda holding the queue slot.
  *
- * When Supabase's PgBouncer pool is exhausted it accepts the TCP connection
- * but internally queues the query — no bytes come back to the Lambda, so
- * connect_timeout never fires. This wrapper races the query against a
- * setTimeout so pages throw quickly and Next.js shows the error boundary
- * instead of hanging for Vercel's 300-second Lambda timeout.
+ * Usage:
+ *   const rows = await withDbTimeout((signal) =>
+ *     sql({ signal })`SELECT ...`
+ *   );
  *
- * Default: 9 000 ms (leaves a margin before Vercel's 10 s hobby limit).
+ *   // For Promise.all:
+ *   const [a, b] = await withDbTimeout((signal) =>
+ *     Promise.all([sql({ signal })`...`, sql({ signal })`...`])
+ *   );
+ *
+ * Default: 8 000 ms.
  */
-export async function withDbTimeout<T>(promise: Promise<T>, ms = 9000): Promise<T> {
-  let timer: ReturnType<typeof setTimeout>;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`Database timed out after ${ms / 1000}s — pool may be busy`)),
-      ms,
-    );
-  });
+export async function withDbTimeout<T>(
+  fn: (signal: AbortSignal) => Promise<T>,
+  ms = 8000,
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(new Error(
+    `Database timed out after ${ms / 1000}s — pool may be busy`,
+  )), ms);
   try {
-    return await Promise.race([promise, timeout]);
+    return await fn(controller.signal);
+  } catch (err) {
+    // Re-throw as a recognisable timeout error so error.tsx can show the right message.
+    if (controller.signal.aborted) {
+      throw new Error(`Database timed out after ${ms / 1000}s — pool may be busy`);
+    }
+    throw err;
   } finally {
-    clearTimeout(timer!);
+    clearTimeout(timer);
+    // If fn finished before the deadline, abort so postgres.js doesn't
+    // keep the signal pending.
+    if (!controller.signal.aborted) controller.abort();
   }
 }
 
