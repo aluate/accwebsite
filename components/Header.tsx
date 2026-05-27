@@ -29,7 +29,7 @@ const INTERNAL_NAV = [
   { label: "Engineering", href: "/engineer" },
 ];
 
-const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password"];
+const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password", "/search", "/punch", "/warranty", "/dashboard"];
 
 export function Header() {
   const pathname = usePathname();

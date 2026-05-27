@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { QuickUploadDrawing } from "@/components/QuickUploadDrawing";
 
@@ -42,25 +42,27 @@ function fmtDate(iso: string): string {
 export default async function EngineerPage() {
   const session = await requireRole(["engineer", "admin"]);
 
-  const specs = await sql<SpecRow[]>`
-    SELECT
-      rs.id, rs.name, rs.lifecycle_state, rs.updated_at,
-      j.id AS job_id, j.client_name, j.site_address, j.city, j.pm
-    FROM residential_specs rs
-    JOIN jobs j ON j.id = rs.job_id
-    WHERE rs.lifecycle_state IN ('RELEASED_TO_ENG', 'ENGINEERED', 'PM_REVIEW')
-    ORDER BY
-      CASE rs.lifecycle_state
-        WHEN 'RELEASED_TO_ENG' THEN 0
-        WHEN 'PM_REVIEW'       THEN 1
-        WHEN 'ENGINEERED'      THEN 2
-        ELSE 3
-      END,
-      rs.updated_at DESC
-  `;
+  const specs = await withDbTimeout(
+    sql<SpecRow[]>`
+      SELECT
+        rs.id, rs.name, rs.lifecycle_state, rs.updated_at,
+        j.id AS job_id, j.client_name, j.site_address, j.city, j.pm
+      FROM residential_specs rs
+      JOIN jobs j ON j.id = rs.job_id
+      WHERE rs.lifecycle_state IN ('RELEASED_TO_ENG', 'ENGINEERED', 'PM_REVIEW')
+      ORDER BY
+        CASE rs.lifecycle_state
+          WHEN 'RELEASED_TO_ENG' THEN 0
+          WHEN 'PM_REVIEW'       THEN 1
+          WHEN 'ENGINEERED'      THEN 2
+          ELSE 3
+        END,
+        rs.updated_at DESC
+    `,
+  );
 
-  const queue     = specs.filter((s) => s.lifecycle_state === "RELEASED_TO_ENG");
-  const review    = specs.filter((s) => s.lifecycle_state === "PM_REVIEW");
+  const queue      = specs.filter((s) => s.lifecycle_state === "RELEASED_TO_ENG");
+  const review     = specs.filter((s) => s.lifecycle_state === "PM_REVIEW");
   const engineered = specs.filter((s) => s.lifecycle_state === "ENGINEERED");
 
   return (

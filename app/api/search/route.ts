@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -12,31 +12,37 @@ export async function GET(req: NextRequest) {
 
   const pattern = `%${q.replace(/[%_]/g, "\\$&")}%`;
 
-  const [jobs, specs] = await Promise.all([
-    sql`
-      SELECT id, job_number, client_name, site_address, city, pm, status
-      FROM jobs
-      WHERE
-        client_name    ILIKE ${pattern} OR
-        site_address   ILIKE ${pattern} OR
-        city           ILIKE ${pattern} OR
-        pm             ILIKE ${pattern} OR
-        job_number     ILIKE ${pattern} OR
-        builder_name   ILIKE ${pattern} OR
-        builder_company ILIKE ${pattern} OR
-        notes          ILIKE ${pattern}
-      ORDER BY client_name
-      LIMIT 20
-    ` as Promise<JobHit[]>,
-    sql`
-      SELECT rs.id, rs.job_id, rs.name, rs.lifecycle_state, j.client_name
-      FROM residential_specs rs
-      JOIN jobs j ON j.id = rs.job_id
-      WHERE rs.name ILIKE ${pattern} OR rs.notes ILIKE ${pattern}
-      ORDER BY j.client_name
-      LIMIT 10
-    ` as Promise<SpecHit[]>,
-  ]);
+  try {
+    const [jobs, specs] = await withDbTimeout(
+      Promise.all([
+        sql`
+          SELECT id, job_number, client_name, site_address, city, pm, status
+          FROM jobs
+          WHERE
+            client_name     ILIKE ${pattern} OR
+            site_address    ILIKE ${pattern} OR
+            city            ILIKE ${pattern} OR
+            pm              ILIKE ${pattern} OR
+            job_number      ILIKE ${pattern} OR
+            builder_name    ILIKE ${pattern} OR
+            builder_company ILIKE ${pattern} OR
+            notes           ILIKE ${pattern}
+          ORDER BY client_name
+          LIMIT 20
+        ` as Promise<JobHit[]>,
+        sql`
+          SELECT rs.id, rs.job_id, rs.name, rs.lifecycle_state, j.client_name
+          FROM residential_specs rs
+          JOIN jobs j ON j.id = rs.job_id
+          WHERE rs.name ILIKE ${pattern} OR rs.notes ILIKE ${pattern}
+          ORDER BY j.client_name
+          LIMIT 10
+        ` as Promise<SpecHit[]>,
+      ]),
+    );
 
-  return NextResponse.json({ jobs, specs });
+    return NextResponse.json({ jobs, specs });
+  } catch {
+    return NextResponse.json({ jobs: [], specs: [], error: "Database busy — try again" }, { status: 503 });
+  }
 }
