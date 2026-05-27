@@ -203,8 +203,8 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
                   {(job.job_number as string) || <span className="text-white/20 italic">no #</span>}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">{job.client_name as string}</p>
-                  <p className="text-white/40 text-xs truncate">{location}</p>
+                  <p className="text-white text-sm font-medium truncate">{location}</p>
+                  <p className="text-white/40 text-xs truncate">{job.client_name as string}</p>
                 </div>
                 <span className="text-white/50 text-xs hidden md:block w-32 shrink-0 truncate">
                   {(job.pm as string) || "—"}
@@ -274,8 +274,8 @@ function PipelineCard({ job }: { job: PipelineJob }) {
         {stageLabel}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium truncate leading-tight">{job.client_name}</p>
-        {location && <p className="text-white/40 text-xs truncate">{location}</p>}
+        <p className="text-white text-sm font-medium truncate leading-tight">{location}</p>
+        {location && <p className="text-white/40 text-xs truncate">{job.client_name}</p>}
       </div>
       <span className="text-white/40 text-xs hidden md:block shrink-0 w-28 truncate text-right">
         {job.pm ?? "—"}
