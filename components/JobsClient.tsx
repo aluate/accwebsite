@@ -444,4 +444,8 @@ export function JobsClient({
       </div>
       {tab === "all"
         ? <AllJobsTab jobs={jobs} />
-        : <Pi
+        : <PipelineTab jobs={pipelineJobs} />
+      }
+    </>
+  );
+}
