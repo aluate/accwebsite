@@ -1,23 +1,14 @@
 /**
  * PDF generator for residential cabinet specs.
  *
- * Rebuilt 2026-05-06 for the spec form expansion v2 (cover sheet redesign).
+ * Rebuilt 2026-05-28 — faithful to RESIDENTIAL COVER SHEET.xlsx layout.
  * Page sequence:
- *   C.1   Room-matrix coversheet (landscape)
- *           - Project header
- *           - Finish-group key
- *           - Room x Finish Group matrix
- *           - Accessories rollup (job-total — purchasing view)
- *           - Moldings rollup (job-total — purchasing view)
- *   F.x   Per-finish-group cover (landscape, faithful to RESIDENTIAL COVER SHEET.xlsx)
- *           - Header strip with Job#/PM/Engineer/Finish + Notes
- *           - Material / Door / Drawer / Edgeband / Hardware schedules
+ *   F.x   Per-finish-group cover (landscape, matches RESIDENTIAL COVER SHEET.xlsx)
+ *           - Header strip: Job# / WO# / Date / PM / Engineer / Finish / Notes
+ *           - Left column: Material / Door / Drawer / Edgeband / Hardware schedules
  *           - Right column: Finish / Moldings / Countertops
- *   N.1   Notes (landscape, audience-split: install / finishing / shop / client)
- *
- * H.1, A.1, M.1 (the old global hardware/accessories/moldings pages) are gone.
- * Their content lives on either the per-finish covers (shop/install view) or
- * the C.1 coversheet rollups (engineer purchasing view).
+ *   R.1   Room matrix (landscape) — rows=rooms, cols=finish groups, ✓ if FG applies
+ *   N.1   Notes (landscape) — install / finishing / shop / client (rendered if any notes exist)
  *
  * Source of truth for layout: EXAMPLE DRAWINGS/RESIDENTIAL COVER SHEET.xlsx
  * Source of truth for data shape: lib/spec-data.ts (loadSpecPDFData).
@@ -145,104 +136,130 @@ export type SpecPDFData = {
   moldings_rollup: MoldingRollupRow[];
 };
 
+// ─── XLSX fixed-row definitions ───────────────────────────────────────────────
+
+const MATERIAL_ROLES: { role: string; label: string }[] = [
+  { role: "cab_ext",  label: "Cabinet Exterior" },
+  { role: "cab_int",  label: "Cabinet Interior" },
+  { role: "cab_ext2", label: "Cab Exterior 2" },
+  { role: "cab_int2", label: "Cab Interior 2" },
+];
+
+const DOOR_ROLES: { role: string; label: string }[] = [
+  { role: "base",         label: "Base Doors" },
+  { role: "upper",        label: "Upper Doors" },
+  { role: "applied_ends", label: "Applied Ends" },
+  { role: "slab_df",      label: "Slab DF" },
+  { role: "5pc_df",       label: "5 PC DF" },
+];
+
+const DRAWER_ROLES: { role: string; label: string }[] = [
+  { role: "drawer_box", label: "Drawer Box" },
+  { role: "rollout",    label: "Rollout" },
+];
+
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const ORANGE = "#f08122";
-const DARK   = "#222";
-const MUTED  = "#888";
-const HAIR   = "#e0e0e0";
+const ORANGE  = "#f08122";
+const DARK    = "#222";
+const MUTED   = "#777";
+const HAIR    = "#e0e0e0";
 const HEAD_BG = "#3d3d3d";
 const STRIPE  = "#f7f7f5";
+const BAND_BG = "#f0ede8";
 
 const S = StyleSheet.create({
-  // Landscape LETTER. paddingTop accommodates the fixed title block.
-  page:       { paddingTop: 78, paddingBottom: 36, paddingLeft: 28, paddingRight: 28, fontSize: 8, fontFamily: "Helvetica", color: DARK },
+  // Landscape LETTER. paddingTop accommodates the fixed title block (~64pt).
+  page: {
+    paddingTop: 72, paddingBottom: 32, paddingLeft: 24, paddingRight: 24,
+    fontSize: 7, fontFamily: "Helvetica", color: DARK,
+  },
 
-  // Title block (top-of-page, fixed)
-  tbWrap:     { position: "absolute", top: 14, left: 22, right: 22 },
-  tbTopRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 3 },
-  tbLeft:     { flex: 1 },
-  tbBrand:    { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#111", letterSpacing: 1 },
-  tbStageRow: { flexDirection: "row", alignItems: "center", marginTop: 1 },
-  tbStage:    { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: ORANGE, letterSpacing: 1.5, marginRight: 8 },
-  tbCover:    { fontSize: 7, color: MUTED, letterSpacing: 1 },
-  tbProject:  { fontSize: 9.5, fontFamily: "Helvetica-Bold", color: DARK, marginTop: 1 },
-  tbRight:    { fontSize: 6.5, color: "#444", textAlign: "right", lineHeight: 1.3 },
-  tbAddrRow:  { borderTopWidth: 0.5, borderTopColor: "#bbb", marginTop: 3, paddingTop: 2, fontSize: 6.5, color: MUTED, textAlign: "center" },
-  tbBanner:   { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 0.4, borderTopColor: HAIR, borderBottomWidth: 1.2, borderBottomColor: ORANGE, marginTop: 2, paddingVertical: 2 },
-  tbBnrLeft:  { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: DARK, letterSpacing: 0.5 },
-  tbBnrRight: { fontSize: 6.5, color: MUTED, letterSpacing: 1 },
+  // ── Title block (fixed, top of every page) ──
+  tbWrap:    { position: "absolute", top: 12, left: 20, right: 20 },
+  tbTopRow:  { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 2 },
+  tbLeft:    { flex: 1 },
+  tbBrand:   { fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", letterSpacing: 0.8 },
+  tbStageRow:{ flexDirection: "row", alignItems: "center", marginTop: 1 },
+  tbStage:   { fontSize: 7, fontFamily: "Helvetica-Bold", color: ORANGE, letterSpacing: 1.5, marginRight: 6 },
+  tbCover:   { fontSize: 6.5, color: MUTED, letterSpacing: 0.8 },
+  tbProject: { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: DARK, marginTop: 1 },
+  tbRight:   { fontSize: 6.5, color: "#444", textAlign: "right", lineHeight: 1.3 },
+  tbAddrRow: { borderTopWidth: 0.5, borderTopColor: "#bbb", marginTop: 2, paddingTop: 2, fontSize: 6, color: MUTED, textAlign: "center" },
+  tbBanner:  { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 0.4, borderTopColor: HAIR, borderBottomWidth: 1.2, borderBottomColor: ORANGE, marginTop: 2, paddingVertical: 2 },
+  tbBnrLeft: { fontSize: 7, fontFamily: "Helvetica-Bold", color: DARK, letterSpacing: 0.4 },
+  tbBnrRight:{ fontSize: 6.5, color: MUTED, letterSpacing: 0.8 },
 
-  // Footer
-  footer:    { position: "absolute", bottom: 16, left: 28, right: 28, flexDirection: "row", justifyContent: "space-between" },
-  footerTxt: { fontSize: 6.5, color: "#aaa" },
+  // ── Footer ──
+  footer:    { position: "absolute", bottom: 12, left: 24, right: 24, flexDirection: "row", justifyContent: "space-between" },
+  footerTxt: { fontSize: 6, color: "#aaa" },
 
-  // Page heading
-  h1: { fontSize: 14, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 3 },
-  h2: { fontSize: 9, color: MUTED, marginBottom: 8 },
+  // ── Header strip (beneath title block, top of each finish-group page) ──
+  hStrip:      { flexDirection: "row", borderWidth: 0.5, borderColor: "#999", marginBottom: 5 },
+  hCell:       { paddingHorizontal: 5, paddingVertical: 3, borderRightWidth: 0.5, borderRightColor: "#bbb" },
+  hCellLast:   { paddingHorizontal: 5, paddingVertical: 3 },
+  hLabel:      { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 0.8, textTransform: "uppercase" },
+  hVal:        { fontSize: 8, color: DARK, marginTop: 1 },
 
-  // Section header (orange band, like the xlsx)
-  bandRow:   { flexDirection: "row", backgroundColor: STRIPE, borderBottomWidth: 1, borderBottomColor: ORANGE, paddingHorizontal: 5, paddingVertical: 3, marginTop: 6, marginBottom: 0 },
-  bandTitle: { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: DARK, letterSpacing: 1, textTransform: "uppercase", flex: 1 },
+  // ── Two-column body ──
+  twoCol:  { flexDirection: "row", gap: 7 },
+  colLeft: { flex: 1.65 },
+  colRight:{ flex: 1 },
 
-  // Two-column page layout (per-finish cover)
-  twoCol:    { flexDirection: "row", gap: 8 },
-  colLeft:   { flex: 1.55 },
-  colRight:  { flex: 1 },
+  // ── Section band (matches the XLSX section headers) ──
+  band:      { flexDirection: "row", backgroundColor: BAND_BG, borderBottomWidth: 0.8, borderBottomColor: ORANGE, paddingHorizontal: 4, paddingVertical: 2, marginTop: 5 },
+  bandTitle: { fontSize: 7, fontFamily: "Helvetica-Bold", color: DARK, letterSpacing: 0.8, textTransform: "uppercase", flex: 1 },
+  bandRight: { fontSize: 6.5, color: ORANGE, fontFamily: "Helvetica-Bold" },
 
-  // Tables
-  tHead:    { flexDirection: "row", backgroundColor: HEAD_BG, paddingHorizontal: 4, paddingVertical: 3 },
-  tHeadCl:  { fontSize: 7, fontFamily: "Helvetica-Bold", color: "#fff", textTransform: "uppercase", letterSpacing: 0.4 },
-  tRow:     { flexDirection: "row", paddingHorizontal: 4, paddingVertical: 2.5, borderBottomWidth: 0.4, borderBottomColor: HAIR, minHeight: 14 },
-  tRowAlt:  { flexDirection: "row", paddingHorizontal: 4, paddingVertical: 2.5, borderBottomWidth: 0.4, borderBottomColor: HAIR, backgroundColor: STRIPE, minHeight: 14 },
-  tCell:    { fontSize: 7.5, color: DARK },
+  // ── Schedule table rows (compact) ──
+  colHdr:  { flexDirection: "row", backgroundColor: HEAD_BG, paddingHorizontal: 3, paddingVertical: 2 },
+  colHdrTx:{ fontSize: 6, fontFamily: "Helvetica-Bold", color: "#fff", textTransform: "uppercase", letterSpacing: 0.3 },
+  sRow:    { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  sRowAlt: { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  sCell:   { fontSize: 7, color: DARK },
+  sCellMu: { fontSize: 7, color: MUTED, fontStyle: "italic" },
 
-  // Header strip (top of per-finish cover): Job/WO/Date/PM/Eng/Finish + Notes
-  headStrip:    { flexDirection: "row", borderWidth: 0.6, borderColor: "#999", marginBottom: 6 },
-  headLabel:    { fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 1, textTransform: "uppercase" },
-  headVal:      { fontSize: 8.5, color: DARK, marginTop: 1 },
-  headCell:     { paddingHorizontal: 6, paddingVertical: 4, borderRightWidth: 0.6, borderRightColor: "#bbb" },
-  headCellLast: { paddingHorizontal: 6, paddingVertical: 4 },
+  // ── Key-value rows (Finish schedule, Countertop fields) ──
+  kvRow:   { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  kvRowAlt:{ flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  kvLabel: { width: 72, fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 0.4, textTransform: "uppercase" },
+  kvVal:   { flex: 1, fontSize: 7.5, color: DARK },
 
-  // Notes box
-  notesBox:   { backgroundColor: STRIPE, padding: 8, borderRadius: 2, marginBottom: 6 },
-  notesLabel: { fontSize: 6.5, color: MUTED, fontFamily: "Helvetica-Bold", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 3 },
-  notesBody:  { fontSize: 8, color: DARK, lineHeight: 1.4 },
+  // ── Notes box ──
+  notesBox:  { borderWidth: 0.4, borderColor: HAIR, backgroundColor: STRIPE, padding: 5, marginTop: 3 },
+  notesLabel:{ fontSize: 6, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 },
+  notesBody: { fontSize: 7, color: DARK, lineHeight: 1.4 },
 
-  // Inline label/value
-  kv:        { flexDirection: "row", paddingHorizontal: 4, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR },
-  kvLabel:   { width: 90, fontSize: 7, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 0.5, textTransform: "uppercase" },
-  kvValue:   { flex: 1, fontSize: 8, color: DARK },
+  // ── Room matrix ──
+  matrixHdr: { flexDirection: "row", backgroundColor: HEAD_BG, paddingHorizontal: 3, paddingVertical: 3 },
+  matrixRow: { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  matrixRowAlt:{ flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  matrixHdrTx:{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#fff", textTransform: "uppercase" },
+  matrixCell:{ fontSize: 8, color: DARK, textAlign: "center" },
+  matrixRoomCell:{ fontSize: 7.5, color: DARK },
 
-  // Empty-state
-  empty:     { fontSize: 7.5, fontStyle: "italic", color: MUTED, padding: 5 },
+  // ── Notes page ──
+  npSection: { marginBottom: 10 },
+  npLabel:   { fontSize: 7, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 1, textTransform: "uppercase", borderBottomWidth: 0.8, borderBottomColor: ORANGE, paddingBottom: 2, marginBottom: 4 },
+  npBody:    { fontSize: 8, color: DARK, lineHeight: 1.5 },
 
-  // Project metadata (cover page)
-  metaRow:   { flexDirection: "row", gap: 8, marginBottom: 8 },
-  metaBox:   { flex: 1, backgroundColor: STRIPE, padding: 6, borderRadius: 2 },
-  metaLabel: { fontSize: 6, color: "#aaa", fontFamily: "Helvetica-Bold", letterSpacing: 1, marginBottom: 2, textTransform: "uppercase" },
-  metaVal:   { fontSize: 8.5, color: DARK },
-
-  // Finish group key (coversheet)
-  fgKey:      { flexDirection: "row", paddingHorizontal: 4, paddingVertical: 2.5, borderBottomWidth: 0.4, borderBottomColor: HAIR, minHeight: 14 },
-  fgKeyLabel: { fontSize: 8, fontFamily: "Helvetica-Bold", color: ORANGE, width: 110 },
-  fgKeyDetail:{ fontSize: 7.5, color: DARK, flex: 1 },
+  // ── Empty state ──
+  empty: { fontSize: 7, fontStyle: "italic", color: MUTED, padding: 4 },
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const dash = (s: string | number | null | undefined) =>
-  (s === null || s === undefined || s === "") ? "—" : String(s);
+  s === null || s === undefined || s === "" ? "" : String(s);
 
 const stageMap: Record<string, string> = {
-  C: "COVER", F: "FINISH", H: "HARDWARE",
-  A: "ACCESSORIES", M: "MOLDINGS", N: "NOTES", D: "DRAWINGS",
+  F: "FINISH", R: "ROOMS", N: "NOTES",
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Shared components ────────────────────────────────────────────────────────
 
 function TitleBlock({ data, code }: { data: SpecPDFData; code: string }) {
-  const stageLetter = code.split(".")[0] || "C";
+  const stageLetter = code.split(".")[0] || "F";
   const stageWord   = stageMap[stageLetter] ?? "SPEC";
   const projectName = [data.builder_company, data.client_name].filter(Boolean).join(" — ") || data.client_name;
   return (
@@ -258,13 +275,12 @@ function TitleBlock({ data, code }: { data: SpecPDFData; code: string }) {
         </View>
         <View>
           <Text style={S.tbRight}>Job #: {data.job_id}</Text>
-          {data.pm           && <Text style={S.tbRight}>Project MGR: {data.pm}</Text>}
+          {data.pm           && <Text style={S.tbRight}>PM: {data.pm}</Text>}
           {data.builder_name && <Text style={S.tbRight}>Builder: {data.builder_name}</Text>}
           <Text style={S.tbRight}>Date: {new Date(data.generated_at).toLocaleDateString()}</Text>
-          <Text style={S.tbRight} render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`} />
         </View>
       </View>
-      <Text style={S.tbAddrRow}>250 W Anton Ave   Coeur d&apos; Alene, Idaho 83815   (208) 772-2377</Text>
+      <Text style={S.tbAddrRow}>250 W Anton Ave · Coeur d&apos;Alene, Idaho 83815 · (208) 772-2377</Text>
       <View style={S.tbBanner}>
         <Text style={S.tbBnrLeft}>{data.job_id}  ·  {projectName}</Text>
         <Text style={S.tbBnrRight}>{stageWord} · SHEET {code}</Text>
@@ -289,293 +305,330 @@ function PageFooter({ data }: { data: SpecPDFData }) {
 
 function Band({ title, right }: { title: string; right?: string }) {
   return (
-    <View style={S.bandRow}>
+    <View style={S.band}>
       <Text style={S.bandTitle}>{title}</Text>
-      {right ? <Text style={[S.bandTitle, { textAlign: "right", flex: 0, color: ORANGE }]}>{right}</Text> : null}
+      {right ? <Text style={S.bandRight}>{right}</Text> : null}
     </View>
   );
 }
 
-function MetaBox({ label, children }: { label: string; children: React.ReactNode }) {
+// ─── F.x Finish-group header strip ────────────────────────────────────────────
+
+function FinishHeaderStrip({ data, fg }: { data: SpecPDFData; fg: FinishGroupView }) {
+  const dateStr = new Date(data.generated_at).toLocaleDateString();
   return (
-    <View style={S.metaBox}>
-      <Text style={S.metaLabel}>{label}</Text>
-      <Text style={S.metaVal}>{children}</Text>
-    </View>
-  );
-}
-
-// ─── C.1 Room-matrix coversheet ───────────────────────────────────────────────
-
-function CoverPage({ data }: { data: SpecPDFData }) {
-  return (
-    <Page size="LETTER" orientation="landscape" style={S.page}>
-      <TitleBlock data={data} code="C.1" />
-      <Text style={S.h1}>Project Cover · Room × Finish Matrix</Text>
-      <Text style={S.h2}>Engineer overview · accessories and moldings rollups for purchasing</Text>
-
-      {/* Project metadata */}
-      <View style={S.metaRow}>
-        <MetaBox label="Client">{data.client_name}</MetaBox>
-        <MetaBox label="Site">{[data.site_address, data.city].filter(Boolean).join(", ")}</MetaBox>
-        <MetaBox label="Builder">{[data.builder_name, data.builder_company].filter(Boolean).join(" — ") || "—"}</MetaBox>
-        <MetaBox label="PM">{data.pm ?? "—"}</MetaBox>
-        <MetaBox label="Delivery">{data.delivery_date ?? "TBD"}</MetaBox>
+    <View style={S.hStrip}>
+      <View style={[S.hCell, { flex: 0.7 }]}>
+        <Text style={S.hLabel}>Job #</Text>
+        <Text style={S.hVal}>{data.job_id}</Text>
       </View>
+      <View style={[S.hCell, { flex: 0.7 }]}>
+        <Text style={S.hLabel}>WO #</Text>
+        <Text style={S.hVal}> </Text>
+      </View>
+      <View style={[S.hCell, { flex: 0.9 }]}>
+        <Text style={S.hLabel}>Date</Text>
+        <Text style={S.hVal}>{dateStr}</Text>
+      </View>
+      <View style={[S.hCell, { flex: 1.3 }]}>
+        <Text style={S.hLabel}>Project Manager</Text>
+        <Text style={S.hVal}>{data.pm ?? "—"}</Text>
+      </View>
+      <View style={[S.hCell, { flex: 1.3 }]}>
+        <Text style={S.hLabel}>Engineer</Text>
+        <Text style={S.hVal}> </Text>
+      </View>
+      <View style={[S.hCell, { flex: 1.6 }]}>
+        <Text style={S.hLabel}>Finish Group</Text>
+        <Text style={S.hVal}>{fg.label}</Text>
+      </View>
+      <View style={[S.hCellLast, { flex: 3 }]}>
+        <Text style={S.hLabel}>Notes</Text>
+        <Text style={[S.hVal, { fontSize: 7 }]} numberOfLines={3}>{fg.notes || "—"}</Text>
+      </View>
+    </View>
+  );
+}
 
-      {/* Finish-group key (lets the matrix below stay terse) */}
-      <Band title="Finish Group Key" />
-      {data.finish_groups.length === 0 ? (
-        <Text style={S.empty}>No finish groups defined.</Text>
-      ) : data.finish_groups.map((fg) => {
-        const finishParts = [
-          fg.finish.paint_name && `Paint: ${fg.finish.paint_name}`,
-          fg.finish.stain_name && `Stain: ${fg.finish.stain_name}`,
-          fg.finish.glaze_name && `Glaze: ${fg.finish.glaze_name}`,
-          fg.finish.topcoat_name && `Topcoat: ${fg.finish.topcoat_name}`,
-          fg.finish.sheen_name && `Sheen: ${fg.finish.sheen_name}`,
-        ].filter(Boolean).join(" · ");
+// ─── F.x Left column sections ─────────────────────────────────────────────────
+
+function MaterialSchedule({ fg }: { fg: FinishGroupView }) {
+  const matByRole = new Map(fg.materials.map(m => [m.role, m]));
+  return (
+    <>
+      <Band title="Material Schedule" />
+      <View style={[S.colHdr]}>
+        <Text style={[S.colHdrTx, { flex: 1.6 }]}>Type</Text>
+        <Text style={[S.colHdrTx, { flex: 2.2 }]}>Material</Text>
+        <Text style={[S.colHdrTx, { flex: 2 }]}>Notes / Location</Text>
+      </View>
+      {MATERIAL_ROLES.map(({ role, label }, i) => {
+        const m = matByRole.get(role);
         return (
-          <View key={fg.id} style={S.fgKey}>
-            <Text style={S.fgKeyLabel}>{fg.label}</Text>
-            <Text style={S.fgKeyDetail}>{finishParts || "—"}</Text>
+          <View key={role} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+            <Text style={[S.sCell, { flex: 1.6, fontFamily: "Helvetica-Bold" }]}>{label}</Text>
+            <Text style={[S.sCell, { flex: 2.2 }]}>{dash(m?.name)}</Text>
+            <Text style={[S.sCellMu, { flex: 2 }]}>{dash(m?.where_used)}</Text>
           </View>
         );
       })}
-
-      {/* Two-column body: Matrix on left, Rollups on right */}
-      <View style={[S.twoCol, { marginTop: 10 }]}>
-        <View style={S.colLeft}>
-          <Band title="Room × Finish Matrix" />
-          {data.rooms.length === 0 ? (
-            <Text style={S.empty}>No rooms defined.</Text>
-          ) : (
-            <>
-              <View style={S.tHead}>
-                <Text style={[S.tHeadCl, { flex: 1.4 }]}>Room</Text>
-                <Text style={[S.tHeadCl, { flex: 1.4 }]}>Finish Group</Text>
-                <Text style={[S.tHeadCl, { flex: 1 }]}>Zone</Text>
-              </View>
-              {data.rooms.flatMap((r, ri) =>
-                r.finishes.length === 0
-                  ? [(
-                    <View key={r.id} style={ri % 2 === 0 ? S.tRow : S.tRowAlt}>
-                      <Text style={[S.tCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{r.name || "—"}</Text>
-                      <Text style={[S.tCell, { flex: 1.4, color: "#c44" }]}>(no finish assigned)</Text>
-                      <Text style={[S.tCell, { flex: 1 }]}>—</Text>
-                    </View>
-                  )]
-                  : r.finishes.map((f, i) => (
-                    <View key={`${r.id}-${i}`} style={ri % 2 === 0 ? S.tRow : S.tRowAlt}>
-                      <Text style={[S.tCell, { flex: 1.4, fontFamily: i === 0 ? "Helvetica-Bold" : "Helvetica" }]}>
-                        {i === 0 ? (r.name || "—") : ""}
-                      </Text>
-                      <Text style={[S.tCell, { flex: 1.4, color: ORANGE }]}>{f.finish_label}</Text>
-                      <Text style={[S.tCell, { flex: 1 }]}>{f.zone || "—"}</Text>
-                    </View>
-                  ))
-              )}
-            </>
-          )}
-        </View>
-        <View style={S.colRight}>
-          {/* Accessories rollup (purchasing view) */}
-          <Band title="Accessories Rollup" right="Job Total" />
-          {data.accessories_rollup.length === 0 ? (
-            <Text style={S.empty}>No accessories assigned.</Text>
-          ) : (
-            <>
-              <View style={S.tHead}>
-                <Text style={[S.tHeadCl, { flex: 2.2 }]}>Accessory</Text>
-                <Text style={[S.tHeadCl, { flex: 1 }]}>Brand</Text>
-                <Text style={[S.tHeadCl, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
-              </View>
-              {data.accessories_rollup.map((a, i) => (
-                <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-                  <Text style={[S.tCell, { flex: 2.2 }]}>{a.name}</Text>
-                  <Text style={[S.tCell, { flex: 1 }]}>{a.brand || "—"}</Text>
-                  <Text style={[S.tCell, { flex: 0.5, textAlign: "right", fontFamily: "Helvetica-Bold" }]}>{a.total_qty}</Text>
-                </View>
-              ))}
-            </>
-          )}
-
-          {/* Moldings rollup (purchasing view) */}
-          <Band title="Moldings Rollup" right="Job Total" />
-          {data.moldings_rollup.length === 0 ? (
-            <Text style={S.empty}>No moldings specified.</Text>
-          ) : (
-            <>
-              <View style={S.tHead}>
-                <Text style={[S.tHeadCl, { flex: 1.2 }]}>Type</Text>
-                <Text style={[S.tHeadCl, { flex: 1.4 }]}>Profile · Material</Text>
-                <Text style={[S.tHeadCl, { flex: 0.6, textAlign: "right" }]}>Total LF</Text>
-              </View>
-              {data.moldings_rollup.map((m, i) => (
-                <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-                  <Text style={[S.tCell, { flex: 1.2 }]}>{m.type_label}</Text>
-                  <Text style={[S.tCell, { flex: 1.4 }]}>
-                    {[m.profile_name, m.size_in ? `${m.size_in}"` : null, m.material_name].filter(Boolean).join(" · ") || "—"}
-                  </Text>
-                  <Text style={[S.tCell, { flex: 0.6, textAlign: "right", fontFamily: "Helvetica-Bold" }]}>
-                    {m.total_lf > 0 ? m.total_lf.toFixed(1) : "—"}
-                  </Text>
-                </View>
-              ))}
-            </>
-          )}
-        </View>
-      </View>
-
-      <PageFooter data={data} />
-    </Page>
+    </>
   );
 }
 
-// ─── F.x Per-finish-group cover ───────────────────────────────────────────────
-
-function FinishHeaderStrip({ data, fg }: { data: SpecPDFData; fg: FinishGroupView }) {
+function DoorSchedule({ fg }: { fg: FinishGroupView }) {
+  const doorByRole = new Map(fg.door_fronts.map(d => [d.role, d]));
+  // Collect door notes
+  const doorNotes = fg.door_fronts.filter(d => d.notes).map(d => `${d.role_label}: ${d.notes}`).join("  ·  ");
   return (
-    <View style={S.headStrip}>
-      <View style={[S.headCell, { flex: 1 }]}>
-        <Text style={S.headLabel}>Job #</Text>
-        <Text style={S.headVal}>{data.job_id}</Text>
+    <>
+      <Band title="Door Schedule" />
+      <View style={S.colHdr}>
+        <Text style={[S.colHdrTx, { flex: 1.4 }]}>Type</Text>
+        <Text style={[S.colHdrTx, { flex: 1.6 }]}>Style</Text>
+        <Text style={[S.colHdrTx, { flex: 1.6 }]}>Material</Text>
+        <Text style={[S.colHdrTx, { flex: 0.7 }]}>OE</Text>
+        <Text style={[S.colHdrTx, { flex: 0.7 }]}>IE</Text>
+        <Text style={[S.colHdrTx, { flex: 0.8 }]}>Panel</Text>
+        <Text style={[S.colHdrTx, { flex: 0.7 }]}>Grain</Text>
+        <Text style={[S.colHdrTx, { flex: 1.2 }]}>Vendor</Text>
       </View>
-      <View style={[S.headCell, { flex: 1 }]}>
-        <Text style={S.headLabel}>WO #</Text>
-        <Text style={S.headVal}>—</Text>
-      </View>
-      <View style={[S.headCell, { flex: 1.2 }]}>
-        <Text style={S.headLabel}>Date</Text>
-        <Text style={S.headVal}>{new Date(data.generated_at).toLocaleDateString()}</Text>
-      </View>
-      <View style={[S.headCell, { flex: 1.4 }]}>
-        <Text style={S.headLabel}>Project Manager</Text>
-        <Text style={S.headVal}>{data.pm ?? "—"}</Text>
-      </View>
-      <View style={[S.headCell, { flex: 1.4 }]}>
-        <Text style={S.headLabel}>Engineer</Text>
-        <Text style={S.headVal}>—</Text>
-      </View>
-      <View style={[S.headCell, { flex: 2 }]}>
-        <Text style={S.headLabel}>Finish</Text>
-        <Text style={S.headVal}>{fg.label}</Text>
-      </View>
-      <View style={[S.headCellLast, { flex: 3 }]}>
-        <Text style={S.headLabel}>Notes</Text>
-        <Text style={[S.headVal, { fontSize: 7.5 }]} numberOfLines={3}>{fg.notes || "—"}</Text>
-      </View>
-    </View>
+      {DOOR_ROLES.map(({ role, label }, i) => {
+        const d = doorByRole.get(role);
+        return (
+          <View key={role} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+            <Text style={[S.sCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{label}</Text>
+            <Text style={[S.sCell, { flex: 1.6 }]}>{dash(d?.style_name)}</Text>
+            <Text style={[S.sCell, { flex: 1.6 }]}>{dash(d?.material_name)}</Text>
+            <Text style={[S.sCell, { flex: 0.7 }]}>{dash(d?.oe_name)}</Text>
+            <Text style={[S.sCell, { flex: 0.7 }]}>{dash(d?.ie_name)}</Text>
+            <Text style={[S.sCell, { flex: 0.8 }]}>{dash(d?.panel_name)}</Text>
+            <Text style={[S.sCell, { flex: 0.7 }]}>{dash(d?.grain)}</Text>
+            <Text style={[S.sCell, { flex: 1.2 }]}>{dash(d?.vendor)}</Text>
+          </View>
+        );
+      })}
+      {doorNotes ? (
+        <View style={S.notesBox}>
+          <Text style={S.notesLabel}>Notes</Text>
+          <Text style={S.notesBody}>{doorNotes}</Text>
+        </View>
+      ) : null}
+    </>
   );
 }
+
+function DrawerSchedule({ fg }: { fg: FinishGroupView }) {
+  const drawerByRole = new Map(fg.drawers.map(d => [d.role, d]));
+  const drawerNotes = fg.drawers.filter(d => d.notes).map(d => `${d.role_label}: ${d.notes}`).join("  ·  ");
+  return (
+    <>
+      <Band title="Drawer Schedule" />
+      <View style={S.colHdr}>
+        <Text style={[S.colHdrTx, { flex: 1.4 }]}>Type</Text>
+        <Text style={[S.colHdrTx, { flex: 2.4 }]}>Drawer Box</Text>
+        <Text style={[S.colHdrTx, { flex: 2 }]}>Slides</Text>
+      </View>
+      {DRAWER_ROLES.map(({ role, label }, i) => {
+        const d = drawerByRole.get(role);
+        return (
+          <View key={role} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+            <Text style={[S.sCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{label}</Text>
+            <Text style={[S.sCell, { flex: 2.4 }]}>{dash(d?.drawer_box_name)}</Text>
+            <Text style={[S.sCell, { flex: 2 }]}>{dash(d?.slides_name)}</Text>
+          </View>
+        );
+      })}
+      {drawerNotes ? (
+        <View style={S.notesBox}>
+          <Text style={S.notesLabel}>Notes</Text>
+          <Text style={S.notesBody}>{drawerNotes}</Text>
+        </View>
+      ) : null}
+    </>
+  );
+}
+
+function EdgebandSchedule({ fg }: { fg: FinishGroupView }) {
+  return (
+    <>
+      <Band title="Edgeband Schedule" />
+      {fg.edgebands.length === 0 ? (
+        <Text style={S.empty}>No edgebands specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 0.4 }]}>ID</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Thick</Text>
+            <Text style={[S.colHdrTx, { flex: 1.4 }]}>Mfr / Supplier</Text>
+            <Text style={[S.colHdrTx, { flex: 2 }]}>Description</Text>
+            <Text style={[S.colHdrTx, { flex: 2.2 }]}>Where Used</Text>
+            <Text style={[S.colHdrTx, { flex: 1.4 }]}>Notes</Text>
+          </View>
+          {fg.edgebands.map((e, i) => (
+            <View key={i} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 0.4, fontFamily: "Helvetica-Bold" }]}>{e.code}</Text>
+              <Text style={[S.sCell, { flex: 0.7 }]}>{dash(e.thickness)}</Text>
+              <Text style={[S.sCell, { flex: 1.4 }]}>{dash(e.supplier)}</Text>
+              <Text style={[S.sCell, { flex: 2 }]}>{dash(e.edgeband_name)}</Text>
+              <Text style={[S.sCell, { flex: 2.2 }]}>{dash(e.where_used_label)}</Text>
+              <Text style={[S.sCellMu, { flex: 1.4 }]}>{dash(e.notes)}</Text>
+            </View>
+          ))}
+        </>
+      )}
+    </>
+  );
+}
+
+function HardwareSchedule({ fg }: { fg: FinishGroupView }) {
+  return (
+    <>
+      <Band title="Hardware" />
+      {fg.hardware.length === 0 ? (
+        <Text style={S.empty}>No hardware specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Type</Text>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Brand</Text>
+            <Text style={[S.colHdrTx, { flex: 2 }]}>Description</Text>
+            <Text style={[S.colHdrTx, { flex: 0.4, textAlign: "right" }]}>Qty</Text>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Location</Text>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Vendor</Text>
+            <Text style={[S.colHdrTx, { flex: 1.4 }]}>Notes</Text>
+          </View>
+          {fg.hardware.map((h, i) => (
+            <View key={i} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 1.2, fontFamily: "Helvetica-Bold" }]}>{h.role_label}</Text>
+              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(h.brand)}</Text>
+              <Text style={[S.sCell, { flex: 2 }]}>{dash(h.hardware_name)}</Text>
+              <Text style={[S.sCell, { flex: 0.4, textAlign: "right" }]}>{h.qty ?? ""}</Text>
+              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(h.location)}</Text>
+              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(h.vendor)}</Text>
+              <Text style={[S.sCellMu, { flex: 1.4 }]}>{dash(h.notes)}</Text>
+            </View>
+          ))}
+        </>
+      )}
+    </>
+  );
+}
+
+// ─── F.x Right column sections ────────────────────────────────────────────────
+
+function FinishSchedule({ fg }: { fg: FinishGroupView }) {
+  const rows = [
+    { label: "Stain",   value: fg.finish.stain_name },
+    { label: "Paint",   value: fg.finish.paint_name },
+    { label: "Glaze",   value: fg.finish.glaze_name },
+    { label: "Finish",  value: fg.finish.topcoat_name },
+    { label: "Sheen",   value: fg.finish.sheen_name },
+  ];
+  return (
+    <>
+      <Band title="Finish Schedule" right={fg.finish_type} />
+      {rows.map(({ label, value }, i) => (
+        <View key={label} style={i % 2 === 0 ? S.kvRow : S.kvRowAlt}>
+          <Text style={S.kvLabel}>{label}</Text>
+          <Text style={S.kvVal}>{value || "—"}</Text>
+        </View>
+      ))}
+    </>
+  );
+}
+
+function MoldingsSchedule({ fg }: { fg: FinishGroupView }) {
+  return (
+    <>
+      <Band title="Moldings" />
+      {fg.moldings.length === 0 ? (
+        <Text style={S.empty}>No moldings specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 1.4 }]}>Type</Text>
+            <Text style={[S.colHdrTx, { flex: 0.6 }]}>Size</Text>
+            <Text style={[S.colHdrTx, { flex: 1.6 }]}>Material</Text>
+            <Text style={[S.colHdrTx, { flex: 0.6, textAlign: "right" }]}>Qty LF</Text>
+          </View>
+          {fg.moldings.map((m, i) => (
+            <View key={i} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 1.4 }]}>{m.type_label}</Text>
+              <Text style={[S.sCell, { flex: 0.6 }]}>{m.size_in ? `${m.size_in}"` : ""}</Text>
+              <Text style={[S.sCell, { flex: 1.6 }]}>{dash(m.material_name)}</Text>
+              <Text style={[S.sCell, { flex: 0.6, textAlign: "right" }]}>
+                {m.qty_lf !== null ? m.qty_lf : ""}
+              </Text>
+            </View>
+          ))}
+        </>
+      )}
+    </>
+  );
+}
+
+function CountertopsSchedule({ fg }: { fg: FinishGroupView }) {
+  // Countertop fields as label-value pairs per location
+  return (
+    <>
+      <Band title="Countertops" />
+      {fg.countertops.length === 0 ? (
+        <Text style={S.empty}>No countertops specified.</Text>
+      ) : fg.countertops.map((c, ci) => {
+        const locFields = [
+          { label: "Location",       value: c.location },
+          { label: "Counter Style",  value: c.style_name },
+          { label: "Counter Edge",   value: c.edge_name },
+          { label: "Splash",         value: c.splash_style },
+          { label: "Splash Edge",    value: c.splash_edge_name },
+          { label: "Material",       value: c.material_name },
+          { label: "Buildup",        value: c.buildup_in ? `${c.buildup_in}"` : "" },
+          { label: "Core Substrate", value: c.core_substrate },
+          { label: "Brackets",       value: c.brackets },
+        ];
+        return (
+          <View key={ci}>
+            {ci > 0 && <View style={{ height: 3 }} />}
+            {locFields.map(({ label, value }, i) => (
+              <View key={label} style={i % 2 === 0 ? S.kvRow : S.kvRowAlt}>
+                <Text style={S.kvLabel}>{label}</Text>
+                <Text style={S.kvVal}>{value || "—"}</Text>
+              </View>
+            ))}
+            {c.notes ? (
+              <View style={S.notesBox}>
+                <Text style={S.notesLabel}>Notes</Text>
+                <Text style={S.notesBody}>{c.notes}</Text>
+              </View>
+            ) : null}
+          </View>
+        );
+      })}
+    </>
+  );
+}
+
+// ─── F.x Per-finish-group page ────────────────────────────────────────────────
 
 function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroupView; idx: number }) {
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
       <TitleBlock data={data} code={`F.${idx + 1}`} />
       <FinishHeaderStrip data={data} fg={fg} />
-      <View style={S.body}>
+      <View style={S.twoCol}>
+        {/* Left column: Material / Door / Drawer / Edgeband / Hardware */}
         <View style={S.colLeft}>
-          {/* Materials schedule */}
-          <Band title="Materials" />
-          {fg.materials.length === 0 ? (
-            <Text style={S.empty}>No materials specified.</Text>
-          ) : fg.materials.map((m, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.2 }]}>{m.role_label}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{m.material_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{m.where_used || "—"}</Text>
-            </View>
-          ))}
-
-          {/* Door fronts */}
-          <Band title="Door Fronts" />
-          {fg.door_fronts.length === 0 ? (
-            <Text style={S.empty}>No door fronts specified.</Text>
-          ) : fg.door_fronts.map((d, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1 }]}>{d.role_label}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{d.style_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{d.material_name || "—"}</Text>
-            </View>
-          ))}
-
-          {/* Drawers */}
-          <Band title="Drawers" />
-          {fg.drawers.length === 0 ? (
-            <Text style={S.empty}>No drawers specified.</Text>
-          ) : fg.drawers.map((d, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1 }]}>{d.role_label}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{d.drawer_box_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{d.slides_name || "—"}</Text>
-            </View>
-          ))}
-
-          {/* Edgebands */}
-          <Band title="Edgebands" />
-          {fg.edgebands.length === 0 ? (
-            <Text style={S.empty}>No edgebands specified.</Text>
-          ) : (
-            <>
-              <View style={[S.tRow, { backgroundColor: "#e8e8e8" }]}>
-                <Text style={[S.tCell, { flex: 0.5, fontWeight: "bold" }]}>ID</Text>
-                <Text style={[S.tCell, { flex: 0.8, fontWeight: "bold" }]}>Thickness</Text>
-                <Text style={[S.tCell, { flex: 1.2, fontWeight: "bold" }]}>Mfr #</Text>
-                <Text style={[S.tCell, { flex: 2, fontWeight: "bold" }]}>Description</Text>
-                <Text style={[S.tCell, { flex: 2, fontWeight: "bold" }]}>Where Used</Text>
-                <Text style={[S.tCell, { flex: 1.5, fontWeight: "bold" }]}>Notes</Text>
-              </View>
-              {fg.edgebands.map((e, i) => (
-                <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-                  <Text style={[S.tCell, { flex: 0.5 }]}>{e.code}</Text>
-                  <Text style={[S.tCell, { flex: 0.8 }]}>{e.thickness || "—"}</Text>
-                  <Text style={[S.tCell, { flex: 1.2 }]}>{e.supplier || "—"}</Text>
-                  <Text style={[S.tCell, { flex: 2 }]}>{e.edgeband_name || "—"}</Text>
-                  <Text style={[S.tCell, { flex: 2 }]}>{e.where_used_label || "—"}</Text>
-                  <Text style={[S.tCell, { flex: 1.5 }]}>{e.notes || ""}</Text>
-                </View>
-              ))}
-            </>
-          )}
+          <MaterialSchedule fg={fg} />
+          <DoorSchedule fg={fg} />
+          <EdgebandSchedule fg={fg} />
+          <HardwareSchedule fg={fg} />
         </View>
-
+        {/* Right column: Finish / Moldings / Countertops */}
         <View style={S.colRight}>
-          {/* Hardware */}
-          <Band title="Hardware" />
-          {fg.hardware.length === 0 ? (
-            <Text style={S.empty}>No hardware specified.</Text>
-          ) : fg.hardware.map((h, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.2 }]}>{h.role_label}</Text>
-              <Text style={[S.tCell, { flex: 2 }]}>{h.hardware_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 0.5, textAlign: "right" }]}>{h.qty ?? "—"}</Text>
-            </View>
-          ))}
-
-          {/* Moldings */}
-          <Band title="Moldings" />
-          {fg.moldings.length === 0 ? (
-            <Text style={S.empty}>No moldings specified.</Text>
-          ) : fg.moldings.map((m, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.4 }]}>{m.type_label}</Text>
-              <Text style={[S.tCell, { flex: 1.4 }]}>{m.profile_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 0.6, textAlign: "right" }]}>{m.qty_lf ?? "—"}</Text>
-            </View>
-          ))}
-
-          {/* Countertops */}
-          <Band title="Countertops" />
-          {(!fg.countertops || fg.countertops.length === 0) ? (
-            <Text style={S.empty}>No countertops specified.</Text>
-          ) : fg.countertops.map((c, i) => (
-            <View key={i} style={i % 2 === 0 ? S.tRow : S.tRowAlt}>
-              <Text style={[S.tCell, { flex: 1.2 }]}>{c.location || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{c.style_name || "—"}</Text>
-              <Text style={[S.tCell, { flex: 1.5 }]}>{c.material_name || "—"}</Text>
-            </View>
-          ))}
+          <FinishSchedule fg={fg} />
+          <MoldingsSchedule fg={fg} />
+          <CountertopsSchedule fg={fg} />
         </View>
       </View>
       <PageFooter data={data} />
@@ -583,15 +636,107 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
   );
 }
 
-// ─── Main exported renderer ────────────────────────────────────────────────
+// Room matrix page
+
+function RoomMatrixPage({ data }: { data: SpecPDFData }) {
+  const address = [data.site_address, data.city].filter(Boolean).join(", ");
+  const fgs = data.finish_groups;
+  const rooms = data.rooms;
+  const fgFlex = 0.8;
+  const roomFlex = 2;
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      <TitleBlock data={data} code="R.1" />
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 2 }}>
+        ROOM SCHEDULE
+      </Text>
+      <Text style={{ fontSize: 8, color: MUTED, marginBottom: 8 }}>{address}</Text>
+      {fgs.length > 0 && (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+          {fgs.map((fg) => (
+            <View key={fg.id} style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: ORANGE, marginRight: 3 }}>
+                {fg.label}:
+              </Text>
+              <Text style={{ fontSize: 7, color: DARK }}>{fg.finish_type || "—"}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+      {rooms.length === 0 ? (
+        <Text style={S.empty}>No rooms added.</Text>
+      ) : (
+        <>
+          <View style={S.matrixHdr}>
+            <Text style={[S.matrixHdrTx, { flex: roomFlex }]}>Room</Text>
+            {fgs.map((fg) => (
+              <Text key={fg.id} style={[S.matrixHdrTx, { flex: fgFlex, textAlign: "center" }]} numberOfLines={2}>
+                {fg.label}
+              </Text>
+            ))}
+          </View>
+          {rooms.map((room, ri) => {
+            const assignedFgIds = new Set(room.finishes.map(f => f.finish_group_id));
+            return (
+              <View key={room.id} style={ri % 2 === 0 ? S.matrixRow : S.matrixRowAlt}>
+                <Text style={[S.matrixRoomCell, { flex: roomFlex }]}>{room.name || "—"}</Text>
+                {fgs.map((fg) => (
+                  <Text key={fg.id} style={[S.matrixCell, {
+                    flex: fgFlex,
+                    color: assignedFgIds.has(fg.id) ? "#1a7a1a" : HAIR,
+                  }]}>
+                    {assignedFgIds.has(fg.id) ? "✓" : "—"}
+                  </Text>
+                ))}
+              </View>
+            );
+          })}
+        </>
+      )}
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
+// Notes page
+
+function NotesPage({ data }: { data: SpecPDFData }) {
+  const sections = [
+    { label: "Install Notes",   body: data.notes_install },
+    { label: "Finishing Notes", body: data.notes_finishing },
+    { label: "Shop Notes",      body: data.notes_shop },
+    { label: "Client Notes",    body: data.notes_client },
+  ].filter(s => s.body);
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      <TitleBlock data={data} code="N.1" />
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 8 }}>
+        NOTES
+      </Text>
+      {sections.map((s) => (
+        <View key={s.label} style={S.npSection}>
+          <Text style={S.npLabel}>{s.label}</Text>
+          <Text style={S.npBody}>{s.body}</Text>
+        </View>
+      ))}
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
+// Main exported renderer
 
 export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
+  const hasNotes = !!(data.notes_install || data.notes_finishing || data.notes_shop || data.notes_client);
   return (
     <Document>
-      <CoverPage data={data} />
       {data.finish_groups.map((fg, i) => (
         <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
       ))}
+      <RoomMatrixPage data={data} />
+      {hasNotes && <NotesPage data={data} />}
     </Document>
   );
 }
