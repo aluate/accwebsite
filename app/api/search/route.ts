@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         sql`
           SELECT rs.id, rs.job_id, rs.name, rs.lifecycle_state, j.client_name
           FROM residential_specs rs JOIN jobs j ON j.id = rs.job_id
-          WHERE rs.name ILIKE ${pattern} OR rs.notes ILIKE ${pattern}
+          WHERE rs.name ILIKE ${pattern}
           ORDER BY j.client_name LIMIT 10
         ` as Promise<SpecHit[]>,
       ]),
