@@ -17,6 +17,7 @@ type FinishGroupPayload = {
   carcass_id: string;
   drawer_box_id: string;
   edgeband_id: string;
+  applied_panels: "slab" | "match_door" | null;
   notes: string;
   sort_order: number;
 };
@@ -140,7 +141,8 @@ function validate(payload: SavePayload): Violation[] {
     }
   }
 
-  const VALID_MATERIAL_ROLES = new Set(["cab_ext", "cab_int", "cab_ext2", "cab_int2"]);
+  // cab_ext removed: carcass material dropdown is the cab_ext selection.
+  const VALID_MATERIAL_ROLES = new Set(["cab_int", "cab_ext2", "cab_int2"]);
   for (const m of payload.materials ?? []) {
     const tag = `materials[${m.id || `${m.finish_group_id}/${m.role}`}]`;
     if (!m.finish_group_id) v.push({ path: tag, message: "finish_group_id is required" });
@@ -148,7 +150,7 @@ function validate(payload: SavePayload): Violation[] {
       v.push({ path: tag, message: `finish_group_id ${m.finish_group_id} not in finish_groups` });
     if (!m.role) v.push({ path: tag, message: "role is required" });
     if (m.role && !VALID_MATERIAL_ROLES.has(m.role))
-      v.push({ path: tag, message: `role '${m.role}' not in {cab_ext, cab_int, cab_ext2, cab_int2}` });
+      v.push({ path: tag, message: `role '${m.role}' not in {cab_int, cab_ext2, cab_int2}` });
   }
 
   return v;
@@ -215,14 +217,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         INSERT INTO finish_groups
           (id, spec_id, label, finish_type, color_id, color_name,
            door_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-           notes, sort_order)
+           applied_panels, notes, sort_order)
         VALUES
           (${g.id}, ${id}, ${g.label}, ${g.finish_type},
            ${g.color_id || null}, ${g.color_name || null},
            ${g.door_style_id || null}, ${g.pull_id || null},
            ${g.box_material || "melamine"},
            ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-           ${g.notes || null}, ${g.sort_order ?? 0})
+           ${g.applied_panels || "slab"}, ${g.notes || null}, ${g.sort_order ?? 0})
       `;
     }
 

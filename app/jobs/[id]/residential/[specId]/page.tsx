@@ -13,6 +13,7 @@ type FGRow      = {
   door_style_id: string; pull_id: string;
   box_material: "melamine"|"plywood";
   carcass_id: string | null; drawer_box_id: string | null; edgeband_id: string | null;
+  applied_panels: "slab" | "match_door" | null;
   notes: string; sort_order: number;
 };
 type RoomRow    = { id: string; name: string; finish_group_id: string; notes: string; sort_order: number };
@@ -135,20 +136,23 @@ export default async function SpecEditorPage({
     carcass_id:    g.carcass_id    ?? "",
     drawer_box_id: g.drawer_box_id ?? "",
     edgeband_id:   g.edgeband_id   ?? "",
+    applied_panels: (g.applied_panels ?? "slab") as "slab" | "match_door",
   }));
 
   // Materials hydrated as {finish_group_id, role, material_id, where_used, notes}.
   // Empty arrays for groups that have no rows yet — the client renders blank
   // dropdowns so Karl can fill them in (forced-dropdown discipline).
-  // Filter to the 4 valid roles + cast role to the strict union type the
+  // Filter to the 3 valid roles + cast role to the strict union type the
   // client component expects. Defensive against catalog drift.
-  const VALID_MATERIAL_ROLES = ["cab_ext", "cab_int", "cab_ext2", "cab_int2"] as const;
+  // cab_ext removed: carcass material IS the cab_ext; no separate row needed.
+  const VALID_MATERIAL_ROLES = ["cab_int", "cab_ext2", "cab_int2"] as const;
   type MaterialRole = (typeof VALID_MATERIAL_ROLES)[number];
   const materialsHydrated = materialRows
     .filter((m): m is MaterialRow & { role: MaterialRole } =>
       (VALID_MATERIAL_ROLES as readonly string[]).includes(m.role)
     )
     .map((m) => ({
+      id:              m.id,
       finish_group_id: m.finish_group_id,
       role:            m.role as MaterialRole,
       material_id:     m.material_id ?? "",

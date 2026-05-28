@@ -65,7 +65,8 @@ async function main() {
       box_material TEXT NOT NULL DEFAULT 'melamine', notes TEXT,
       sort_order INTEGER NOT NULL DEFAULT 0,
       carcass_id TEXT, drawer_box_id TEXT, edgeband_id TEXT,
-      stain_id TEXT, paint_id TEXT, glaze_id TEXT, topcoat_id TEXT, sheen_id TEXT
+      stain_id TEXT, paint_id TEXT, glaze_id TEXT, topcoat_id TEXT, sheen_id TEXT,
+      applied_panels TEXT NOT NULL DEFAULT 'slab'
     );
 
     CREATE TABLE IF NOT EXISTS rooms (
@@ -644,4 +645,5 @@ async function main() {
   console.log("Schema push complete.");
   await sql.end();
 }
-main().catch((e) => { console.error(e); process.exit(1); });
+
+main().cat

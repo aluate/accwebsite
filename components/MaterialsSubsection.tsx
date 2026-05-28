@@ -5,17 +5,20 @@ import type { CarcassMaterial } from "@/lib/catalogs";
 /**
  * Material sub-section for a single finish group.
  *
- * The cover-sheet vocabulary has 4 material slots per finish:
- *   - cab_ext   (cabinet exterior — what the customer sees)
- *   - cab_int   (cabinet interior — boxes, shelves)
+ * The cover-sheet vocabulary has 3 material slots per finish:
+ *   - cab_int   (cabinet interior — boxes, shelves) — required
  *   - cab_ext2  (optional 2nd exterior — e.g. a different finish on the island)
  *   - cab_int2  (optional 2nd interior — rare but real)
  *
- * The first two are the canary $70k columns: a silent default here is
- * what produced the original incident. UI is forced-dropdown with no
- * pre-fills. Empty material_id is allowed *during edit* (so the user can
- * partially fill the form), but the lifecycle gate to RELEASED_TO_SHOP
- * will require cab_ext + cab_int to be set before drawings ship.
+ * NOTE: cab_ext was removed. The carcass material dropdown at the top of the
+ * finish group IS the cab ext selection — the cabinet exterior material never
+ * differs from the carcass. The redundant Materials row only created confusion.
+ *
+ * cab_int is the canary $70k column: a silent default here is what produced
+ * the original incident. UI is forced-dropdown with no pre-fills. Empty
+ * material_id is allowed *during edit* (so the user can partially fill the
+ * form), but the lifecycle gate to RELEASED_TO_SHOP will require cab_int to
+ * be set before drawings ship.
  *
  * The 2nd-tier slots (cab_ext2 / cab_int2) are always optional. They
  * only get persisted if the user picks something.
@@ -23,14 +26,18 @@ import type { CarcassMaterial } from "@/lib/catalogs";
 export type FinishMaterial = {
   id: string;                 // local + DB row id
   finish_group_id: string;
-  role: "cab_ext" | "cab_int" | "cab_ext2" | "cab_int2";
+  // cab_ext removed: carcass material IS the cab_ext. See comment above.
+  role: "cab_int" | "cab_ext2" | "cab_int2";
   material_id: string;        // FK to colors_carcass.csv (empty = unset)
   where_used: string;         // optional clarifier — "uppers only", "island", etc.
   notes: string;
 };
 
+// cab_ext intentionally removed: the carcass material dropdown at the top
+// of the finish group IS the cab ext selection. A separate Cab Ext row here is
+// redundant — the cabinet exterior material never differs from the carcass.
+// Keep: cab_int (required), cab_ext2 (optional), cab_int2 (optional).
 export const MATERIAL_ROLES: { role: FinishMaterial["role"]; label: string; required: boolean; tier2: boolean }[] = [
-  { role: "cab_ext",  label: "Cab Ext",   required: true,  tier2: false },
   { role: "cab_int",  label: "Cab Int",   required: true,  tier2: false },
   { role: "cab_ext2", label: "Cab Ext 2", required: false, tier2: true  },
   { role: "cab_int2", label: "Cab Int 2", required: false, tier2: true  },
@@ -55,7 +62,7 @@ export function MaterialsSubsection({
   carcassMaterials,
   onUpsert,
 }: MaterialsSubsectionProps) {
-  // Index materials by role for fast lookup. UI always shows all 4 role slots
+  // Index materials by role for fast lookup. UI always shows all 3 role slots
   // even if the underlying state has fewer rows — empty slots prompt the user
   // to pick something rather than silently disappearing.
   const byRole = new Map<string, FinishMaterial>();

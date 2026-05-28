@@ -22,7 +22,8 @@ type FinishUpdate = {
 
 type MaterialPayload = {
   finish_group_id: string;
-  role: "cab_ext" | "cab_int" | "cab_ext2" | "cab_int2";
+  // cab_ext removed: carcass material IS the cab_ext; no separate row needed.
+  role: "cab_int" | "cab_ext2" | "cab_int2";
   material_id: string | null;
   where_used:  string | null;
   notes:       string | null;

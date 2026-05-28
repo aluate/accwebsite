@@ -34,6 +34,7 @@ export type FinishGroup = {
   carcass_id: string;
   drawer_box_id: string;
   edgeband_id: string;
+  applied_panels: "slab" | "match_door";
   notes: string; sort_order: number;
 };
 
@@ -456,6 +457,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       door_style_id: "", pull_id: "",
       box_material: "melamine",
       carcass_id: "", drawer_box_id: "", edgeband_id: "",
+      applied_panels: "slab",
       notes: "",
       sort_order: idx,
     }]);
@@ -905,7 +907,23 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   </div>
                   <div>
                     <label className={LABEL}>Finish Type *</label>
-                    <select value={g.finish_type} onChange={(e) => updateGroup(g.id, { finish_type: e.target.value as FinishType, color_id: "", color_name: "", edgeband_id: "" })} className={SELECT}>
+                    <select
+                      value={g.finish_type}
+                      onChange={(e) => {
+                        const newType = e.target.value as FinishType;
+                        const patch: Partial<FinishGroup> = { finish_type: newType, color_id: "", color_name: "", edgeband_id: "" };
+                        // When switching to melamine, check if current door style is a slab;
+                        // if not, clear it so the user must re-pick from the restricted list.
+                        if (newType === "melamine" && g.door_style_id) {
+                          const currentDoor = catalogs.doorStyles.find((d) => d.id === g.door_style_id);
+                          if (currentDoor && currentDoor.construction !== "slab") {
+                            patch.door_style_id = "";
+                          }
+                        }
+                        updateGroup(g.id, patch);
+                      }}
+                      className={SELECT}
+                    >
                       <option value="paint">Paint</option>
                       <option value="stain">Stain</option>
                       <option value="melamine">Melamine / TFL</option>
@@ -934,10 +952,42 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
-                    <label className={LABEL}>Door Style <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
-                    <select value={g.door_style_id} onChange={(e) => updateGroup(g.id, { door_style_id: e.target.value })} className={SELECT}>
+                    <label className={LABEL}>
+                      Door Style{" "}
+                      <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span>
+                      {g.finish_type === "melamine" && (
+                        <span className="ml-1 text-[#f08122]/70 normal-case font-normal text-[10px]">— slab only</span>
+                      )}
+                    </label>
+                    <select
+                      value={g.door_style_id}
+                      onChange={(e) => updateGroup(g.id, { door_style_id: e.target.value })}
+                      className={SELECT}
+                    >
                       <option value="">-- Select Door --</option>
-                      {catalogs.doorStyles.filter((d) => !d.placeholder).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                      {catalogs.doorStyles
+                        .filter((d) => {
+                          if (d.placeholder) return false;
+                          if (g.finish_type === "melamine") return d.construction === "slab";
+                          return true;
+                        })
+                        .map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                    {g.finish_type === "melamine" && !g.door_style_id && (
+                      <p className="text-yellow-400/70 text-[10px] mt-1 font-condensed uppercase tracking-widest">
+                        Door style reset — melamine finish uses slab doors only.
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className={LABEL}>Applied Panels</label>
+                    <select
+                      value={g.applied_panels ?? "slab"}
+                      onChange={(e) => updateGroup(g.id, { applied_panels: e.target.value as "slab" | "match_door" })}
+                      className={SELECT}
+                    >
+                      <option value="slab">Slab</option>
+                      <option value="match_door">Match door style</option>
                     </select>
                   </div>
                   <div>
@@ -979,31 +1029,21 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     )}
                   </div>
                   <div>
-                    <label className={LABEL}>Edgeband {requiresEdgebandPick ? "*" : "(auto)"}</label>
-                    {requiresEdgebandPick ? (
+                    <label className={LABEL}>Edgeband {requiresEdgebandPick ? "*" : ""}</label>
+                    {g.finish_type === "melamine" ? (
+                      // Melamine: edgeband IS the carcass material — no separate pick needed.
+                      // Store no edgeband_id (null). Display a read-only callout.
+                      <div className={INPUT + " text-white/50 text-xs italic"}>
+                        Matches carcass material
+                      </div>
+                    ) : (
+                      // Paint / Stain: PM must pick an edgeband from the filtered list.
                       <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
                         <option value="">-- Select Edgeband --</option>
                         {edgebandOptions.map((e) => (
                           <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
                         ))}
                       </select>
-                    ) : matchedEdgeband ? (
-                      <div className={INPUT + " text-green-400/80 text-xs"}>
-                        ✓ {matchedEdgeband.product_name} — {matchedEdgeband.supplier}
-                        <span className="text-white/30 ml-1.5">(auto-matched)</span>
-                      </div>
-                    ) : g.color_id ? (
-                      // Color is picked but catalog has no match — let PM select manually
-                      <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
-                        <option value="">-- No catalog match — pick edgeband --</option>
-                        {edgebandOptions.map((e) => (
-                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className={INPUT + " text-white/30 text-xs italic"}>
-                        Pick a melamine color first
-                      </div>
                     )}
                   </div>
                 </div>
@@ -1250,7 +1290,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                             <SumRow label="Hardware"     value={pull?.name} />
                             <SumRow label="Carcass"      value={carc?.name} />
                             <SumRow label="Drawer Box"   value={dbox?.name} />
-                            <SumRow label="Edgeband"     value={eb?.name} />
+                            <SumRow label="Edgeband"     value={eb?.product_name} />
                           </div>
                         </div>
                       );
@@ -1262,6 +1302,149 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+const CAB_CATS = ["Base", "Wall", "Tall", "Vanity", "Accessory"] as const;
+
+function CabinetRow({
+  cab, fam, families, onChange, onRemove,
+}: {
+  cab: CabinetItem;
+  fam: CabinetFamily | undefined;
+  families: CabinetFamily[];
+  onChange: (patch: Partial<CabinetItem>) => void;
+  onRemove: () => void;
+}) {
+  const widthOpts   = fam?.allowed_widths_in ?? [];
+  const heightOpts  = fam?.allowed_heights_in ?? [];
+  const showHinge   = fam?.requires_hinge_side ?? false;
+  const showRollout = (fam?.options?.supports_rollouts && (fam.options.max_rollouts ?? 0) > 0) ?? false;
+  const maxRollouts = fam?.options?.max_rollouts ?? 0;
+  const showTrash   = fam?.options?.supports_trash_kit ?? false;
+  const trashConfig = fam?.options?.trash_config ?? ["None", "Single", "Double"];
+  const showApplied = fam?.options?.supports_applied_panels ?? false;
+  const hasOptions  = showHinge || showRollout || showTrash || showApplied;
+
+  function pickFamily(code: string) {
+    const f = families.find((x) => x.family_code === code);
+    onChange({
+      family_code: code,
+      width_in:   f?.allowed_widths_in?.[0]  ?? null,
+      height_in:  f?.allowed_heights_in?.[0] ?? null,
+      depth_in:   f?.default_depth_in        ?? null,
+      hinge_side: "", rollout_trays_qty: 0, trash_kit: "None", applied_panels: false,
+    });
+  }
+
+  const LABEL  = "block text-xs font-condensed uppercase tracking-widest text-white/50 mb-1.5";
+  const INPUT  = "w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors";
+  const SELECT = INPUT;
+
+  return (
+    <div className="bg-[#1a1a1a] border border-white/8 rounded p-4 space-y-3">
+      <div className="flex gap-3 items-start">
+        <select value={cab.family_code} onChange={(e) => pickFamily(e.target.value)} className={SELECT + " flex-1"}>
+          <option value="">-- Select Cabinet Family --</option>
+          {CAB_CATS.map((cat) => {
+            const fams = families.filter((f) => f.category === cat);
+            if (!fams.length) return null;
+            return (
+              <optgroup key={cat} label={cat}>
+                {fams.map((f) => <option key={f.family_code} value={f.family_code}>{f.display_name}</option>)}
+              </optgroup>
+            );
+          })}
+        </select>
+        <button onClick={onRemove} className="text-white/20 hover:text-red-400 transition-colors px-1 mt-2.5 text-sm shrink-0">x</button>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        <div>
+          <label className={LABEL}>Width (in)</label>
+          {widthOpts.length > 0
+            ? <select value={cab.width_in ?? ""} onChange={(e) => onChange({ width_in: Number(e.target.value) })} className={SELECT}>
+                <option value="">--</option>
+                {widthOpts.map((w) => <option key={w} value={w}>{w}&quot;</option>)}
+              </select>
+            : <input type="number" value={cab.width_in ?? ""} onChange={(e) => onChange({ width_in: parseFloat(e.target.value) || null })} className={INPUT} placeholder="W" />
+          }
+        </div>
+        <div>
+          <label className={LABEL}>Height (in)</label>
+          {heightOpts.length > 0
+            ? <select value={cab.height_in ?? ""} onChange={(e) => onChange({ height_in: Number(e.target.value) })} className={SELECT}>
+                <option value="">--</option>
+                {heightOpts.map((h) => <option key={h} value={h}>{h}&quot;</option>)}
+              </select>
+            : <input type="number" value={cab.height_in ?? ""} onChange={(e) => onChange({ height_in: parseFloat(e.target.value) || null })} className={INPUT} placeholder="H" />
+          }
+        </div>
+        <div>
+          <label className={LABEL}>Depth (in)</label>
+          <input type="number" value={cab.depth_in ?? ""} onChange={(e) => onChange({ depth_in: parseFloat(e.target.value) || null })}
+            className={INPUT} placeholder={fam?.default_depth_in ? String(fam.default_depth_in) : "D"} />
+        </div>
+        <div>
+          <label className={LABEL}>Qty</label>
+          <input type="number" min={1} value={cab.qty} onChange={(e) => onChange({ qty: parseInt(e.target.value) || 1 })} className={INPUT} />
+        </div>
+      </div>
+
+      {hasOptions && (
+        <div className="flex flex-wrap gap-4 items-end pt-1">
+          {showHinge && (
+            <div>
+              <label className={LABEL}>Hinge Side</label>
+              <select value={cab.hinge_side} onChange={(e) => onChange({ hinge_side: e.target.value })} className={SELECT + " w-28"}>
+                <option value="">--</option>
+                <option value="L">Left</option>
+                <option value="R">Right</option>
+              </select>
+            </div>
+          )}
+          {showRollout && (
+            <div>
+              <label className={LABEL}>Rollout Trays (max {maxRollouts})</label>
+              <input type="number" min={0} max={maxRollouts} value={cab.rollout_trays_qty}
+                onChange={(e) => onChange({ rollout_trays_qty: Math.min(parseInt(e.target.value) || 0, maxRollouts) })}
+                className={INPUT + " w-20"} />
+            </div>
+          )}
+          {showTrash && (
+            <div>
+              <label className={LABEL}>Trash Kit</label>
+              <select value={cab.trash_kit} onChange={(e) => onChange({ trash_kit: e.target.value })} className={SELECT + " w-36"}>
+                {trashConfig.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          )}
+          {showApplied && (
+            <label className="flex items-center gap-2 cursor-pointer mt-5">
+              <input type="checkbox" checked={cab.applied_panels} onChange={(e) => onChange({ applied_panels: e.target.checked })}
+                className="accent-[#f08122] w-4 h-4" />
+              <span className="text-white/50 text-xs font-condensed uppercase tracking-widest">Applied Panels</span>
+            </label>
+          )}
+        </div>
+      )}
+
+      <div>
+        <label className={LABEL}>Special Instructions</label>
+        <input value={cab.special_instructions} onChange={(e) => onChange({ special_instructions: e.target.value })}
+          placeholder="Custom dims, modifications, island back..." className={INPUT} />
+      </div>
+    </div>
+  );
+}
+
+function SumRow({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null;
+  return (
+    <div>
+      <span className="text-white/30 font-condensed uppercase tracking-wider mr-2">{label}:</span>
+      <span className="text-white/70 capitalize">{value}</span>
     </div>
   );
 }
