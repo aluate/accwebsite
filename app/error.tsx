@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 export default function GlobalError({
   reset,
 }: {
@@ -26,12 +24,12 @@ export default function GlobalError({
         >
           Try again
         </button>
-        <Link
-          href="/jobs"
+        <button
+          onClick={() => { window.location.href = "/jobs"; }}
           className="px-5 py-2 border border-white/15 hover:border-white/30 text-white/60 hover:text-white font-condensed uppercase tracking-widest text-sm rounded transition-colors"
         >
           Back to Jobs
-        </Link>
+        </button>
       </div>
     </div>
   );
