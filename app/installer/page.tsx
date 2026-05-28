@@ -13,7 +13,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBuilder } from "@/lib/auth";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -244,10 +244,12 @@ const STAGE_COLORS: Record<string, string> = {
 };
 
 export default async function InstallerPage() {
-  const session = await getBuilder();
+  const [session, events, activeJobs] = await withDbTimeout(() => Promise.all([
+    getBuilder(),
+    fetchEvents(),
+    fetchActiveJobs(),
+  ]));
   if (!session) redirect("/login");
-
-  const [events, activeJobs] = await Promise.all([fetchEvents(), fetchActiveJobs()]);
   const today  = todayIso();
   const { past, todayEvts, upcoming, undated } = groupEvents(events, today);
 
