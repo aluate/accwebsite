@@ -339,8 +339,14 @@ function FinishHeaderStrip({ data, fg }: { data: SpecPDFData; fg: FinishGroupVie
         <Text style={S.hVal}> </Text>
       </View>
       <View style={[S.hCell, { flex: 1.6 }]}>
-        <Text style={S.hLabel}>Finish Group</Text>
-        <Text style={S.hVal}>{fg.label}</Text>
+        <Text style={S.hLabel}>Finish</Text>
+        <Text style={S.hVal}>
+          {fg.finish_type === 'paint'
+            ? (fg.finish.paint_name || fg.label)
+            : fg.finish_type === 'stain'
+            ? (fg.finish.stain_name || fg.label)
+            : (fg.finish_type ? fg.finish_type.charAt(0).toUpperCase() + fg.finish_type.slice(1) : fg.label)}
+        </Text>
       </View>
       <View style={[S.hCellLast, { flex: 3 }]}>
         <Text style={S.hLabel}>Notes</Text>
@@ -527,7 +533,7 @@ function FinishSchedule({ fg }: { fg: FinishGroupView }) {
   ];
   return (
     <>
-      <Band title="Finish Schedule" right={fg.finish_type} />
+      <Band title="Finish Schedule" right={fg.finish_type ? fg.finish_type.charAt(0).toUpperCase() + fg.finish_type.slice(1) : ''} />
       {rows.map(({ label, value }, i) => (
         <View key={label} style={i % 2 === 0 ? S.kvRow : S.kvRowAlt}>
           <Text style={S.kvLabel}>{label}</Text>
@@ -639,7 +645,7 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
 // Room matrix page
 
 function RoomMatrixPage({ data }: { data: SpecPDFData }) {
-  const address = [data.site_address, data.city].filter(Boolean).join(", ");
+  const address = data.site_address || "";
   const fgs = data.finish_groups;
   const rooms = data.rooms;
   const fgFlex = 0.8;
@@ -732,15 +738,4 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   const hasNotes = !!(data.notes_install || data.notes_finishing || data.notes_shop || data.notes_client);
   return (
     <Document>
-      {data.finish_groups.map((fg, i) => (
-        <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
-      ))}
-      <RoomMatrixPage data={data} />
-      {hasNotes && <NotesPage data={data} />}
-    </Document>
-  );
-}
-
-export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
-  return renderToBuffer(renderSpecPDF(data));
-}
+      {data.finish_groups.map((fg, i) 
