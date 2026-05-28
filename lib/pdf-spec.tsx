@@ -738,4 +738,15 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   const hasNotes = !!(data.notes_install || data.notes_finishing || data.notes_shop || data.notes_client);
   return (
     <Document>
-      {data.finish_groups.map((fg, i) 
+      {data.finish_groups.map((fg, i) => (
+        <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
+      ))}
+      <RoomMatrixPage data={data} />
+      {hasNotes && <NotesPage data={data} />}
+    </Document>
+  );
+}
+
+export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
+  return renderToBuffer(renderSpecPDF(data));
+}
