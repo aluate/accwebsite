@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 
 type StageCount = { status: string; cnt: number };
@@ -42,9 +42,9 @@ function fmtTime(iso: string) {
 }
 
 export default async function DashboardPage() {
-  await requireRole(["admin", "pm"]);
-
-  const [stageCounts, agingJobs, punchJobs, recentActivity, totalJobs, warrantyCounts] = await Promise.all([
+  const [, stageCounts, agingJobs, punchJobs, recentActivity, totalJobs, warrantyCounts] = await withDbTimeout(() =>
+    Promise.all([
+      requireRole(["admin", "pm"]),
     sql`
       SELECT status, COUNT(*)::int AS cnt FROM jobs
       WHERE status NOT IN ('complete') GROUP BY status ORDER BY cnt DESC
@@ -81,7 +81,8 @@ export default async function DashboardPage() {
         COUNT(*) FILTER (WHERE status = 'in_progress')::int AS in_progress_count
       FROM warranty_items
     ` as Promise<WarrantyCounts[]>,
-  ]);
+    ]),
+  );
 
   const total = totalJobs[0]?.n ?? 0;
   const stuckCount = agingJobs.length;
