@@ -6,23 +6,13 @@ import { requireRole } from "@/lib/auth";
 import { QuickUploadDrawing } from "@/components/QuickUploadDrawing";
 
 type SpecRow = {
-  id: string;
-  name: string;
-  lifecycle_state: string;
-  updated_at: string;
-  job_id: string;
-  client_name: string;
-  site_address: string;
-  city: string | null;
-  pm: string | null;
+  id: string; name: string; lifecycle_state: string; updated_at: string;
+  job_id: string; client_name: string; site_address: string; city: string | null; pm: string | null;
 };
 
 const STATE_LABEL: Record<string, string> = {
-  RELEASED_TO_ENG: "Released to Engineering",
-  ENGINEERED:      "Engineered",
-  PM_REVIEW:       "PM Review",
-  CLIENT_APPROVED: "Client Approved",
-  RELEASED_TO_SHOP:"Released to Shop",
+  RELEASED_TO_ENG: "Released to Engineering", ENGINEERED: "Engineered",
+  PM_REVIEW: "PM Review", CLIENT_APPROVED: "Client Approved", RELEASED_TO_SHOP: "Released to Shop",
 };
 
 const STATE_COLOR: Record<string, string> = {
@@ -40,14 +30,12 @@ function fmtDate(iso: string): string {
 }
 
 export default async function EngineerPage() {
-  // Auth + data in one 8-second window so pool exhaustion fails fast.
-  const [session, specs] = await withDbTimeout((signal) =>
+  const [session, specs] = await withDbTimeout(() =>
     Promise.all([
       requireRole(["engineer", "admin"]),
-      sql({ signal })<SpecRow[]>`
-        SELECT
-          rs.id, rs.name, rs.lifecycle_state, rs.updated_at,
-          j.id AS job_id, j.client_name, j.site_address, j.city, j.pm
+      sql<SpecRow[]>`
+        SELECT rs.id, rs.name, rs.lifecycle_state, rs.updated_at,
+               j.id AS job_id, j.client_name, j.site_address, j.city, j.pm
         FROM residential_specs rs
         JOIN jobs j ON j.id = rs.job_id
         WHERE rs.lifecycle_state IN ('RELEASED_TO_ENG', 'ENGINEERED', 'PM_REVIEW')
@@ -76,14 +64,10 @@ export default async function EngineerPage() {
             {session.name} · {queue.length} waiting
           </p>
         </div>
-        <Link
-          href="/jobs"
-          className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/10 rounded px-3 py-1.5 transition-colors"
-        >
+        <Link href="/jobs" className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/10 rounded px-3 py-1.5 transition-colors">
           All Jobs
         </Link>
       </div>
-
       {specs.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-white/20 font-condensed uppercase tracking-widest text-sm">No specs in queue</p>
@@ -100,22 +84,15 @@ export default async function EngineerPage() {
   );
 }
 
-function QueueSection({ title, count, specs, dimmed = false }: {
-  title: string; count: number; specs: SpecRow[]; dimmed?: boolean;
-}) {
+function QueueSection({ title, count, specs, dimmed = false }: { title: string; count: number; specs: SpecRow[]; dimmed?: boolean }) {
   if (count === 0) return null;
   return (
     <div className={dimmed ? "opacity-50" : ""}>
-      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">
-        {title} — {count}
-      </p>
+      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">{title} — {count}</p>
       <div className="space-y-3">
         {specs.map((s) => (
           <div key={s.id} className="bg-[#2d2d2d] rounded-lg overflow-hidden">
-            <Link
-              href={`/engineering/${s.id}`}
-              className="block p-4 hover:bg-[#353535] transition-colors group"
-            >
+            <Link href={`/engineering/${s.id}`} className="block p-4 hover:bg-[#353535] transition-colors group">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -125,9 +102,7 @@ function QueueSection({ title, count, specs, dimmed = false }: {
                     </span>
                   </div>
                   <p className="text-white font-medium text-base leading-tight">{s.client_name}</p>
-                  <p className="text-white/40 text-xs mt-0.5">
-                    {s.name}{s.site_address ? ` · ${s.site_address}${s.city ? `, ${s.city}` : ""}` : ""}
-                  </p>
+                  <p className="text-white/40 text-xs mt-0.5">{s.name}{s.site_address ? ` · ${s.site_address}${s.city ? `, ${s.city}` : ""}` : ""}</p>
                   <div className="flex items-center gap-3 mt-2">
                     {s.pm && <span className="text-white/30 text-[10px] font-condensed">PM: {s.pm}</span>}
                     <span className="text-white/20 text-[10px] font-condensed">Updated {fmtDate(s.updated_at)}</span>
@@ -139,12 +114,7 @@ function QueueSection({ title, count, specs, dimmed = false }: {
             {!dimmed && (
               <div className="px-4 pb-3 pt-0 flex items-center gap-4 border-t border-white/5">
                 <QuickUploadDrawing jobId={s.job_id} />
-                <Link
-                  href={`/jobs/${s.job_id}`}
-                  className="text-white/25 hover:text-white/50 text-[10px] font-condensed uppercase tracking-wider transition-colors"
-                >
-                  View Job
-                </Link>
+                <Link href={`/jobs/${s.job_id}`} className="text-white/25 hover:text-white/50 text-[10px] font-condensed uppercase tracking-wider transition-colors">View Job</Link>
               </div>
             )}
           </div>

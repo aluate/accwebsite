@@ -13,9 +13,9 @@ export async function GET(req: NextRequest) {
   const pattern = `%${q.replace(/[%_]/g, "\\$&")}%`;
 
   try {
-    const [jobs, specs] = await withDbTimeout((signal) =>
+    const [jobs, specs] = await withDbTimeout(() =>
       Promise.all([
-        sql({ signal })`
+        sql`
           SELECT id, job_number, client_name, site_address, city, pm, status
           FROM jobs
           WHERE client_name ILIKE ${pattern} OR site_address ILIKE ${pattern} OR city ILIKE ${pattern}
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
              OR builder_name ILIKE ${pattern} OR builder_company ILIKE ${pattern} OR notes ILIKE ${pattern}
           ORDER BY client_name LIMIT 20
         ` as Promise<JobHit[]>,
-        sql({ signal })`
+        sql`
           SELECT rs.id, rs.job_id, rs.name, rs.lifecycle_state, j.client_name
           FROM residential_specs rs JOIN jobs j ON j.id = rs.job_id
           WHERE rs.name ILIKE ${pattern} OR rs.notes ILIKE ${pattern}

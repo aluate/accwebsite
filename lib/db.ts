@@ -72,48 +72,36 @@ export { sql };
  * rather than leaving a pending Lambda holding the queue slot.
  *
  * Usage:
- *   const rows = await withDbTimeout((signal) =>
- *     sql({ signal })`SELECT ...`
+ *   const rows = await withDbTimeout(() =>
+ *     sql`SELECT ...`
  *   );
  *
  *   // For Promise.all:
- *   const [a, b] = await withDbTimeout((signal) =>
- *     Promise.all([sql({ signal })`...`, sql({ signal })`...`])
+ *   const [a, b] = await withDbTimeout(() =>
+ *     Promise.all([sql`...`, sql`...`])
  *   );
  *
  * Default: 8 000 ms.
  */
 export async function withDbTimeout<T>(
-  fn: (signal: AbortSignal) => Promise<T>,
+  fn: () => Promise<T>,
   ms = 8000,
 ): Promise<T> {
-  const controller = new AbortController();
-
-  // A promise that rejects exactly when the timeout fires.
-  // Promise.race() ensures we return in ≤ ms even when postgres.js cannot
-  // cancel a locally-queued (not-yet-executing) query on AbortSignal, e.g.
-  // when all max:1 connections are held by another pending query.
   let rejectTimeout!: (e: Error) => void;
   const timeoutPromise = new Promise<never>((_, reject) => {
     rejectTimeout = reject;
   });
 
   const timer = setTimeout(() => {
-    const err = new Error(`Database timed out after ${ms / 1000}s — pool may be busy`);
-    controller.abort(err);   // cancel any running postgres.js query
-    rejectTimeout(err);      // also reject the race so we always return fast
+    rejectTimeout(new Error(`Database timed out after ${ms / 1000}s — pool may be busy`));
   }, ms);
 
   try {
-    return await Promise.race([fn(controller.signal), timeoutPromise]);
+    return await Promise.race([fn(), timeoutPromise]);
   } catch (err) {
-    if (controller.signal.aborted) {
-      throw new Error(`Database timed out after ${ms / 1000}s — pool may be busy`);
-    }
     throw err;
   } finally {
     clearTimeout(timer);
-    if (!controller.signal.aborted) controller.abort();
   }
 }
 

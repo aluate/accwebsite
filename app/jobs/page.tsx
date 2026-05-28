@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 import { getBuilder, type BuilderSession } from "@/lib/auth";
 import { JobsClient } from "@/components/JobsClient";
 
@@ -68,11 +68,13 @@ async function fetchPipelineJobs(): Promise<PipelineJob[]> {
 }
 
 export default async function JobsPage() {
-  const [jobs, pipelineJobs, session] = await Promise.all([
-    sql`SELECT * FROM jobs ORDER BY seq DESC` as Promise<Job[]>,
-    fetchPipelineJobs(),
-    getBuilder(),
-  ]);
+  const [jobs, pipelineJobs, session] = await withDbTimeout(() =>
+    Promise.all([
+      sql`SELECT * FROM jobs ORDER BY seq DESC` as Promise<Job[]>,
+      fetchPipelineJobs(),
+      getBuilder(),
+    ]),
+  );
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
