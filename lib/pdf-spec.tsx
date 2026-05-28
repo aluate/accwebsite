@@ -111,6 +111,27 @@ export type MoldingRollupRow = {
   total_lf: number; finishes: string[];
 };
 
+
+export type SpecPullRow = {
+  id: string;
+  make: string;
+  model: string;
+  size: string;
+  room: string;
+  notes: string;
+  qty: number;
+};
+
+export type SpecAccessoryRow = {
+  id: string;
+  part_number: string;
+  description: string;
+  qty: number;
+  handed: string;
+  room: string;
+  notes: string;
+};
+
 export type SpecPDFData = {
   job_id: string;
   spec_name: string;
@@ -134,6 +155,9 @@ export type SpecPDFData = {
   rooms: RoomView[];
   accessories_rollup: AccessoryRollupRow[];
   moldings_rollup: MoldingRollupRow[];
+
+  spec_pulls: SpecPullRow[];
+  spec_accessories: SpecAccessoryRow[];
 };
 
 // ─── XLSX fixed-row definitions ───────────────────────────────────────────────
@@ -253,7 +277,7 @@ const dash = (s: string | number | null | undefined) =>
   s === null || s === undefined || s === "" ? "" : String(s);
 
 const stageMap: Record<string, string> = {
-  F: "FINISH", R: "ROOMS", N: "NOTES",
+  F: "FINISH", R: "ROOMS", N: "NOTES", A: "ACCESSORIES",
 };
 
 // ─── Shared components ────────────────────────────────────────────────────────
@@ -732,15 +756,94 @@ function NotesPage({ data }: { data: SpecPDFData }) {
   );
 }
 
+
+// A.1 Accessories and Pulls page
+
+function AccessoriesPage({ data }: { data: SpecPDFData }) {
+  const pulls = data.spec_pulls ?? [];
+  const accs = data.spec_accessories ?? [];
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      <TitleBlock data={data} code="A.1" />
+
+      {/* PULLS section */}
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 4 }}>
+        PULLS
+      </Text>
+      {pulls.length === 0 ? (
+        <Text style={S.empty}>No pulls specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Make</Text>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Model</Text>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Size</Text>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
+            <Text style={[S.colHdrTx, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
+            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
+          </View>
+          {pulls.map((p, i) => (
+            <View key={p.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(p.make)}</Text>
+              <Text style={[S.sCell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{dash(p.model)}</Text>
+              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(p.size)}</Text>
+              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(p.room)}</Text>
+              <Text style={[S.sCell, { flex: 0.5, textAlign: "right" }]}>{p.qty}</Text>
+              <Text style={[S.sCellMu, { flex: 2 }]}>{dash(p.notes)}</Text>
+            </View>
+          ))}
+        </>
+      )}
+
+      {/* Spacer between sections */}
+      <View style={{ height: 14 }} />
+
+      {/* ACCESSORIES section */}
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 4 }}>
+        REVASHELF / ACCESSORIES
+      </Text>
+      {accs.length === 0 ? (
+        <Text style={S.empty}>No accessories specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Part Number</Text>
+            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Description</Text>
+            <Text style={[S.colHdrTx, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
+            <Text style={[S.colHdrTx, { flex: 0.8 }]}>Handed</Text>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
+            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
+          </View>
+          {accs.map((a, i) => (
+            <View key={a.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 1.2, fontFamily: "Helvetica-Bold" }]}>{dash(a.part_number)}</Text>
+              <Text style={[S.sCell, { flex: 2.5 }]}>{dash(a.description)}</Text>
+              <Text style={[S.sCell, { flex: 0.5, textAlign: "right" }]}>{a.qty}</Text>
+              <Text style={[S.sCell, { flex: 0.8 }]}>{dash(a.handed)}</Text>
+              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(a.room)}</Text>
+              <Text style={[S.sCellMu, { flex: 2 }]}>{dash(a.notes)}</Text>
+            </View>
+          ))}
+        </>
+      )}
+
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
 // Main exported renderer
 
 export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   const hasNotes = !!(data.notes_install || data.notes_finishing || data.notes_shop || data.notes_client);
+  const hasAccessories = (data.spec_pulls?.length ?? 0) > 0 || (data.spec_accessories?.length ?? 0) > 0;
   return (
     <Document>
       {data.finish_groups.map((fg, i) => (
         <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
       ))}
+      {hasAccessories && <AccessoriesPage data={data} />}
       <RoomMatrixPage data={data} />
       {hasNotes && <NotesPage data={data} />}
     </Document>

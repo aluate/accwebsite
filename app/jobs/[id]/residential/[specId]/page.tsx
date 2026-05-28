@@ -5,8 +5,29 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { catalogs } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
+import type { AccessoriesData } from "@/components/AccessoriesTab";
 
 type SpecRow    = { id: string; job_id: string; name: string; status: string; updated_at: string };
+type PullDbRow  = { id: string; make: string|null; model: string|null; size: string|null; room: string|null; notes: string|null; qty: number };
+type AccDbRow   = { id: string; part_number: string|null; description: string|null; qty: number; handed: string; room: string|null; notes: string|null };
+
+function buildAccessoriesData(pullsRaw: PullDbRow[], accsRaw: AccDbRow[]): AccessoriesData {
+  return {
+    pulls: pullsRaw.map((r) => ({
+      id: r.id, make: r.make ?? "", model: r.model ?? "",
+      size: r.size ?? "", room: r.room ?? "", notes: r.notes ?? "", qty: r.qty,
+    })),
+    accessories: accsRaw.map((r) => {
+      const h = r.handed || "N/A";
+      const handed = (h === "Left" || h === "Right") ? h : "N/A" as const;
+      return {
+        id: r.id, part_number: r.part_number ?? "",
+        description: r.description ?? "", qty: r.qty, handed,
+        room: r.room ?? "", notes: r.notes ?? "",
+      };
+    }),
+  };
+}
 type FGRow      = {
   id: string; label: string; finish_type: "paint"|"stain"|"melamine";
   color_id: string; color_name: string;
@@ -74,6 +95,17 @@ export default async function SpecEditorPage({
     : [];
 
   const moldingIds = moldingRows.map((m) => m.id);
+
+  // Accessories (pulls + RevAShelf items) -- spec-level, not room-level.
+  // Tables are created on first API call if they don't exist yet.
+  let accessoriesData: AccessoriesData = { pulls: [], accessories: [] };
+  try {
+    const pullsRaw = await sql<PullDbRow[]>`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`;
+    const accsRaw  = await sql<AccDbRow[]>`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`;
+    accessoriesData = buildAccessoriesData(pullsRaw, accsRaw);
+  } catch (e) {
+    void e; // Tables not yet created -- return empty
+  }
 
   const moldingRoomRows: MoldingRoomRow[] = moldingIds.length
     ? await sql`SELECT * FROM finish_molding_rooms WHERE molding_id IN ${sql(moldingIds)}` as MoldingRoomRow[]
@@ -197,6 +229,7 @@ export default async function SpecEditorPage({
         initialRooms={roomsWithAcc}
         initialMoldings={moldings}
         initialMaterials={materialsHydrated}
+        initialAccessories={accessoriesData}
         catalogs={catalogData}
         lastSaved={spec.updated_at}
       />

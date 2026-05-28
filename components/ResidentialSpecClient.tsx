@@ -11,6 +11,7 @@ import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { SchedulesTabLoader } from "@/components/SchedulesTabLoader";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
+import { AccessoriesTab, type AccessoriesData } from "@/components/AccessoriesTab";
 
 type CatalogData = {
   paintColors: PaintColor[]; stainColors: StainColor[]; melamineColors: MelamineColor[];
@@ -67,6 +68,7 @@ type Props = {
   initialRooms: Room[];
   initialMoldings: FinishMolding[];
   initialMaterials: FinishMaterial[];   // v2 spec-form expansion (2026-05-06)
+  initialAccessories: AccessoriesData;  // pulls + RevAShelf items (2026-05-28)
   catalogs: CatalogData;
   lastSaved: string;
 };
@@ -221,8 +223,8 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, catalogs, lastSaved }: Props) {
-  const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "summary">("finishes");
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, initialAccessories, catalogs, lastSaved }: Props) {
+  const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "accessories" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
   const [moldings, setMoldings] = useState<FinishMolding[]>(initialMoldings);
@@ -852,7 +854,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
       {/* Tabs */}
       <div className="flex border-b border-white/10 mb-8 overflow-x-auto whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0 sticky top-0 z-10 bg-[#1a1a1a]/95 backdrop-blur-sm">
-        {(["finishes", "rooms", "cabinets", "moldings", "schedules", "summary"] as const).map((t) => (
+        {(["finishes", "rooms", "cabinets", "moldings", "schedules", "accessories", "summary"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`font-condensed uppercase tracking-widest text-xs py-3 px-3 sm:px-5 border-b-2 transition-colors ${
               tab === t ? "border-[#f08122] text-[#f08122]" : "border-transparent text-white/30 hover:text-white/60"
@@ -863,6 +865,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               : t === "cabinets" ? `Cabinet Order (${rooms.reduce((n, r) => n + r.cabinets.length, 0)})`
               : t === "moldings" ? `Moldings (${moldings.length})`
               : t === "schedules" ? `Schedules · v2`
+              : t === "accessories" ? "Accessories"
               : "Summary"}
           </button>
         ))}
@@ -1251,6 +1254,11 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           specId={specId}
           onRegisterSave={(fn) => { schedulesSaveRef.current = fn; }}
         />
+      )}
+
+      {/* ACCESSORIES -- pulls + RevAShelf items (2026-05-28) */}
+      {tab === "accessories" && (
+        <AccessoriesTab specId={specId} initialData={initialAccessories} />
       )}
 
       {/* SUMMARY */}
