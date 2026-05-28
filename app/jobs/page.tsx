@@ -88,6 +88,7 @@ export default async function JobsPage() {
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <Link
             href="/search"
+            prefetch={false}
             className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
           >
             Search
@@ -95,6 +96,7 @@ export default async function JobsPage() {
           {session && ["admin", "pm"].includes(session.role) && (
             <Link
               href="/punch"
+              prefetch={false}
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
             >
               Punch
@@ -103,6 +105,7 @@ export default async function JobsPage() {
           {session && ["admin", "pm"].includes(session.role) && (
             <Link
               href="/warranty"
+              prefetch={false}
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
             >
               Warranty
@@ -111,6 +114,7 @@ export default async function JobsPage() {
           {session && ["admin", "pm"].includes(session.role) && (
             <Link
               href="/dashboard"
+              prefetch={false}
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
             >
               Dashboard
@@ -119,6 +123,7 @@ export default async function JobsPage() {
           {session && ["admin", "engineer"].includes(session.role) && (
             <Link
               href="/engineer"
+              prefetch={false}
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
             >
               Engineering
@@ -127,6 +132,7 @@ export default async function JobsPage() {
           {session && ["admin", "installer"].includes(session.role) && (
             <Link
               href="/installer"
+              prefetch={false}
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
             >
               Installer
@@ -134,6 +140,7 @@ export default async function JobsPage() {
           )}
           <Link
             href="/schedule"
+            prefetch={false}
             className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
           >
             Schedule
@@ -141,6 +148,7 @@ export default async function JobsPage() {
           {session && ["admin", "pm"].includes(session.role) && (
             <Link
               href="/jobs/pm-hours"
+              prefetch={false}
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
             >
               My Hours
@@ -149,6 +157,7 @@ export default async function JobsPage() {
           {session && ["admin", "pm"].includes(session.role) && (
             <Link
               href="/jobs/new"
+              prefetch={false}
               className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded transition-colors"
             >
               + New Job
@@ -157,6 +166,7 @@ export default async function JobsPage() {
           {session && !["admin", "pm"].includes(session.role) && (
             <Link
               href="/jobs/new"
+              prefetch={false}
               className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded transition-colors"
             >
               + New Job

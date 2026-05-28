@@ -68,6 +68,7 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={false}
                   className={cn(
                     "px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide transition-colors",
                     pathname === item.href || pathname.startsWith(item.href + "/")
@@ -105,6 +106,7 @@ export function Header() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={false}
                       onClick={() => setOpen(false)}
                       className={cn(
                         "px-3 py-2.5 text-sm font-condensed uppercase tracking-wide",
