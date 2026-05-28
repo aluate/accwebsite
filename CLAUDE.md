@@ -337,7 +337,7 @@ The repo is mounted at `C:\dev\repos\acc-website` (NTFS). The Linux sandbox cann
 
 **Setup at the start of any session that needs to push:**
 ```bash
-TOKEN=$(grep -o 'ghp_[A-Za-z0-9]*' /sessions/*/mnt/acc-website/.git/config | head -1)
+TOKEN=$(grep -o 'ghp_[A-Za-z0-9]*' /sessions/*/mnt/repos/acc-website/.git/config | head -1)
 git clone "https://${TOKEN}@github.com/aluate/accwebsite.git" /tmp/acc-repo
 cd /tmp/acc-repo && git checkout main
 git config --global user.email "karlv@advancedcabinets.net"
@@ -355,7 +355,7 @@ cat > /tmp/push.sh << 'SCRIPT'
 #!/bin/bash
 # Usage: bash /tmp/push.sh "commit message" path/to/file1 path/to/file2 ...
 MSG="$1"; shift
-MOUNT="/sessions/stoic-eager-wright/mnt/acc-website"
+MOUNT=$(ls -d /sessions/*/mnt/repos/acc-website 2>/dev/null | head -1)
 REPO="/tmp/acc-repo"
 cd "$REPO"
 git fetch origin -q
