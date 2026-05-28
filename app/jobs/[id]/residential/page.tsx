@@ -37,9 +37,12 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
   const { id } = await params;
   const [job] = await sql`
     SELECT id, client_name, mod_residential, builder_name, builder_company
-    FROM jobs WHERE id = ${id}
+    FROM jobs WHERE id = ${id} OR job_number = ${id}
   ` as Job[];
   if (!job || !job.mod_residential) notFound();
+
+  // Always use the canonical internal id for subsequent queries
+  const jobId = job.id;
 
   const builderProfileId = resolveBuilderProfileId(job);
   const builderProfile = builderProfileId
@@ -47,26 +50,26 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
     : null;
 
   const specs = await sql`
-    SELECT * FROM residential_specs WHERE job_id = ${id} ORDER BY created_at
+    SELECT * FROM residential_specs WHERE job_id = ${jobId} ORDER BY created_at
   ` as Spec[];
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-      <Link href={`/jobs/${id}`} className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors mb-8 block">
+      <Link href={`/jobs/${jobId}`} className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors mb-8 block">
         ← Back to Job
       </Link>
 
       <div className="flex items-start justify-between mb-10">
         <div>
           <h1 className="font-heading text-3xl uppercase tracking-wide text-white">Residential Cabinets</h1>
-          <p className="text-[#f08122] font-condensed uppercase tracking-widest text-sm mt-1">{id} — {job.client_name}</p>
+          <p className="text-[#f08122] font-condensed uppercase tracking-widest text-sm mt-1">{jobId} — {job.client_name}</p>
           {builderProfile && (
             <p className="text-white/40 text-xs mt-1 font-condensed uppercase tracking-widest">
               New specs auto-seeded from: <span className="text-white/70">{builderProfile.builder_name}</span>
             </p>
           )}
         </div>
-        <NewSpecButton jobId={id} builderProfileId={builderProfileId} />
+        <NewSpecButton jobId={jobId} builderProfileId={builderProfileId} />
       </div>
 
       {specs.length === 0 ? (
@@ -78,7 +81,7 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
           {specs.map((spec) => (
             <Link
               key={spec.id}
-              href={`/jobs/${id}/residential/${spec.id}`}
+              href={`/jobs/${jobId}/residential/${spec.id}`}
               className="flex items-center justify-between bg-[#2d2d2d] hover:bg-[#353535] rounded px-5 py-4 transition-colors group"
             >
               <div>

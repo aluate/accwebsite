@@ -91,6 +91,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!job) notFound();
   const internalId = job.id; // always use internal PK for subsequent queries
 
+  // ON DECK state: true if ANY schedule events exist for this job (scheduled or not)
+  const [{ count: eventCount }] = await sql`
+    SELECT COUNT(*) AS count FROM job_events WHERE job_id = ${internalId}
+  ` as [{ count: string }];
+  const hasScheduleEvents = Number(eventCount) > 0;
+
   // Activity feed — best-effort (may be empty on first use, catches if table not yet in DB)
   let activityLog: ActivityRow[] = [];
   try { activityLog = await listActivityForJob(internalId, 30); } catch {}
@@ -186,7 +192,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <PunchListPanel jobId={internalId} role={session.role} />
 
           {/* Photo upload — site kind pre-selected */}
-          <JobFilesPanel jobId={id} isAdmin={false} defaultKind="09_site_photos" />
+          <JobFilesPanel jobId={internalId} isAdmin={false} defaultKind="09_site_photos" />
         </div>
       </div>
     );
@@ -334,7 +340,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               {activeModules.map((m) => (
                 <Link
                   key={m.key}
-                  href={"/jobs/" + id + "/" + m.href}
+                  href={"/jobs/" + internalId + "/" + m.href}
                   className="flex items-center justify-between bg-[#2d2d2d] hover:bg-[#353535] rounded p-4 transition-colors group"
                 >
                   <div>
@@ -367,7 +373,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <GateCheckinButton jobId={internalId} currentStage={job.status} />
             )}
             {(session.role === "admin" || session.role === "user") && (
-              <ReadyToScheduleButton jobId={internalId} />
+              <ReadyToScheduleButton jobId={internalId} initialOnDeck={hasScheduleEvents} />
             )}
           </div>
 
@@ -385,7 +391,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           )}
 
           <div className="mt-6">
-            <JobFilesPanel jobId={id} isAdmin={isAdmin} />
+            <JobFilesPanel jobId={internalId} isAdmin={isAdmin} />
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5">
@@ -450,4 +456,12 @@ function Row({ label, value, href }: { label: string; value?: string; href?: str
   if (!value) return null;
   return (
     <div>
-      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-wider">{lab
+      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-wider">{label}</p>
+      {href ? (
+        <a href={href} className="text-white text-sm hover:text-[#f08122] transition-colors">{value}</a>
+      ) : (
+        <p className="text-white text-sm">{value}</p>
+      )}
+    </div>
+  );
+}
