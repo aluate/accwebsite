@@ -405,3 +405,15 @@ After a push, confirm deployment at:
 `https://vercel.com/aluates-projects/accwebsite-cd58/deployments`
 
 Builds take ~35–40 seconds. Current production commit is always marked "Current" in green.
+
+---
+
+## Spec Form Design Principles
+
+### Rooms = Finish Group Applications (NOT physical rooms)
+On the residential spec, a "room" is a finish application location, not a physical room.
+- Kitchen with 3 finishes → 3 finish groups: "Kitchen Perimeter", "Kitchen Uppers", "Kitchen Island"
+- The finish group label IS the location label
+- The room matrix maps finish groups to locations
+- Never group multiple finish types under one room entry
+This has been a recurring source of confusion — treat this as a hard rule.
