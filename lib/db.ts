@@ -22,11 +22,13 @@ function createSql() {
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
     ssl: "require",
-    // max: 1 — Supabase free tier has only ~10 connections total.
-    // Each Vercel Lambda is its own process with its own pool.
-    // Sequential queries never need more than 1 connection at a time,
-    // so max: 1 prevents multiple warm Lambdas from exhausting the pool.
-    max: 1,
+    // max: 3 — Supabase Pro gives 25 dedicated pooler connections.
+    // Each Vercel Lambda is its own process. max:3 lets Promise.all run
+    // page queries in parallel instead of serializing them (schedule page
+    // runs 5 concurrent queries; serial through max:1 takes 8–12s total).
+    // 8 users × 3 max = 24 connections — just within Pro plan limits,
+    // and idle_timeout:2 keeps actual hold time short.
+    max: 3,
     // idle_timeout: 2 — release connections to PgBouncer quickly after use,
     // so other Lambda invocations can acquire them.
     idle_timeout: 2,
@@ -85,7 +87,7 @@ export { sql };
  */
 export async function withDbTimeout<T>(
   fn: () => Promise<T>,
-  ms = 8000,
+  ms = 12000,
 ): Promise<T> {
   let rejectTimeout!: (e: Error) => void;
   const timeoutPromise = new Promise<never>((_, reject) => {
