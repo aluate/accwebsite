@@ -49,9 +49,10 @@ function safeFilename(name: string): string {
   return name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 200);
 }
 
-async function jobExists(id: string): Promise<boolean> {
-  const [row] = await sql`SELECT id FROM jobs WHERE id = ${id}`;
-  return !!row;
+/** Resolve a job by internal id OR job_number. Returns canonical id or null. */
+async function resolveJobId(id: string): Promise<string | null> {
+  const [row] = await sql`SELECT id FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string }>;
+  return row?.id ?? null;
 }
 
 // POST /api/jobs/[id]/files  multipart/form-data
@@ -59,8 +60,9 @@ async function jobExists(id: string): Promise<boolean> {
 //   kind: one of the 17 Z-drive folder keys
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getBuilder();
-  const { id } = await params;
-  if (!(await jobExists(id))) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const form = await req.formData();
   const file = form.get("file") as File | null;
@@ -107,8 +109,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 //   List mode: { files: { [kind]: FileEntry[] } }  — all 17 folders always present
 //   Stream mode (?file_id=Y): returns signed download URL redirect
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  if (!(await jobExists(id))) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const url = req.nextUrl;
   const fileId = url.searchParams.get("file_id");
@@ -158,8 +161,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 // DELETE /api/jobs/[id]/files?file_id=X  (admin only)
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await requireRole("admin");
-  const { id } = await params;
-  if (!(await jobExists(id))) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const fileId = req.nextUrl.searchParams.get("file_id");
   if (!fileId) return NextResponse.json({ error: "file_id required" }, { status: 400 });

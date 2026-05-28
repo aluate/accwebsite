@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-export function ReadyToScheduleButton({ jobId }: { jobId: string }) {
-  const [state, setState]   = useState<"idle" | "open" | "submitting" | "done" | "error">("idle");
+export function ReadyToScheduleButton({ jobId, initialOnDeck = false }: { jobId: string; initialOnDeck?: boolean }) {
+  const [state, setState]   = useState<"idle" | "open" | "submitting" | "done" | "error">(initialOnDeck ? "done" : "idle");
   const [note, setNote]     = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
