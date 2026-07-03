@@ -318,6 +318,7 @@ function cleanNotes(s: string | null | undefined): string {
 
 const stageMap: Record<string, string> = {
   F: "FINISH", R: "ROOMS", N: "NOTES", A: "ACCESSORIES",
+  EB: "EDGEBANDS", T: "TRIM", AP: "APPLIANCES",
 };
 
 // ─── Shared components ────────────────────────────────────────────────────────
@@ -969,20 +970,218 @@ function AppliancesPage({ data }: { data: SpecPDFData }) {
   );
 }
 
+// ─── F.1  Consolidated Finish Schedule (all finish groups on one page) ────────
+
+function ConsolidatedFinishPage({ data }: { data: SpecPDFData }) {
+  const fgs = data.finish_groups;
+
+  type RowDef = { label: string; getValue: (fg: FinishGroupView) => string };
+  const ROW_DEFS: RowDef[] = [
+    { label: "Finish Type",  getValue: (fg) => fg.finish_type ? (fg.finish_type.charAt(0).toUpperCase() + fg.finish_type.slice(1)) : "\u2014" },
+    { label: "Color/Stain", getValue: (fg) => fg.finish.stain_name || fg.finish.paint_name || "\u2014" },
+    { label: "Glaze",       getValue: (fg) => fg.finish.glaze_name || "\u2014" },
+    { label: "Topcoat",     getValue: (fg) => fg.finish.topcoat_name || "\u2014" },
+    { label: "Sheen",       getValue: (fg) => fg.finish.sheen_name || "\u2014" },
+    { label: "Species",     getValue: (fg) => fg.species || "\u2014" },
+    { label: "Carcass Ext", getValue: (fg) => fg.materials.find(m => m.role === "cab_ext")?.name || "\u2014" },
+    { label: "Carcass Int", getValue: (fg) => fg.materials.find(m => m.role === "cab_int")?.name || "\u2014" },
+    { label: "Drawer Box",  getValue: (fg) => fg.drawers.find(d => d.role === "drawer_box")?.drawer_box_name || "\u2014" },
+    { label: "Door Style",  getValue: (fg) => fg.door_fronts.find(d => d.role === "base")?.style_name || "\u2014" },
+    { label: "Edgebands",   getValue: (fg) => fg.edgebands.map(e => e.code).join(" / ") || "\u2014" },
+    { label: "Pulls",       getValue: (fg) => { const pulls = (data.finish_group_pulls ?? {})[fg.id] ?? []; return pulls.map((p: FGPullRow) => p.description || p.part_no).filter(Boolean).join(", ") || "\u2014"; } },
+  ];
+
+  const labelFlex = 1.3;
+  const fgFlex = 1;
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      <TitleBlock data={data} code="F.1" />
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 8 }}>
+        FINISH SCHEDULE
+      </Text>
+      {fgs.length === 0 ? (
+        <Text style={S.empty}>No finish groups defined.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: labelFlex }]}>Attribute</Text>
+            {fgs.map(fg => (
+              <Text key={fg.id} style={[S.colHdrTx, { flex: fgFlex, textAlign: "center" }]}>{fg.label}</Text>
+            ))}
+          </View>
+          {ROW_DEFS.map(({ label, getValue }, ri) => (
+            <View key={label} style={ri % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: labelFlex, fontFamily: "Helvetica-Bold", color: MUTED, fontSize: 6, letterSpacing: 0.3 }]}>
+                {label.toUpperCase()}
+              </Text>
+              {fgs.map(fg => (
+                <Text key={fg.id} style={[S.sCell, { flex: fgFlex, textAlign: "center" }]}>{getValue(fg)}</Text>
+              ))}
+            </View>
+          ))}
+          {fgs.some(fg => cleanNotes(fg.notes)) && (
+            <View style={{ marginTop: 8 }}>
+              <Band title="Notes" />
+              {fgs.filter(fg => cleanNotes(fg.notes)).map(fg => (
+                <View key={fg.id} style={[S.notesBox, { marginBottom: 3 }]}>
+                  <Text style={S.notesLabel}>{fg.label}</Text>
+                  <Text style={S.notesBody}>{cleanNotes(fg.notes)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </>
+      )}
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
+// ─── EB.1  Edgeband Schedule (consolidated across all finish groups) ──────────
+
+function EdgebandSchedulePage({ data }: { data: SpecPDFData }) {
+  const bandMap = new Map<string, { eb: EdgebandView; fgLabels: string[] }>();
+  for (const fg of data.finish_groups) {
+    for (const eb of fg.edgebands) {
+      const key = eb.code || eb.edgeband_name;
+      if (!bandMap.has(key)) {
+        bandMap.set(key, { eb, fgLabels: [fg.label] });
+      } else {
+        const entry = bandMap.get(key)!;
+        if (!entry.fgLabels.includes(fg.label)) entry.fgLabels.push(fg.label);
+      }
+    }
+  }
+  const bands = Array.from(bandMap.values()).sort((a, b) => a.eb.code.localeCompare(b.eb.code));
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      <TitleBlock data={data} code="EB.1" />
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 3 }}>
+        EDGEBAND SCHEDULE
+      </Text>
+      <Text style={{ fontSize: 7, color: "#cc0000", fontFamily: "Helvetica-Bold", marginBottom: 8 }}>
+        Letter IDs are machine positions — verify before ordering. One wrong ID = full job redo.
+      </Text>
+      {bands.length === 0 ? (
+        <Text style={S.empty}>No edgebands specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 0.35 }]}>ID</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Thick</Text>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Supplier</Text>
+            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Description</Text>
+            <Text style={[S.colHdrTx, { flex: 2.2 }]}>Where Used</Text>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Finish Groups</Text>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Notes</Text>
+          </View>
+          {bands.map(({ eb, fgLabels }, i) => (
+            <View key={eb.code || i} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 0.35, fontFamily: "Helvetica-Bold", fontSize: 10, color: ORANGE }]}>{eb.code}</Text>
+              <Text style={[S.sCell, { flex: 0.7 }]}>{dash(eb.thickness)}</Text>
+              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(eb.supplier)}</Text>
+              <Text style={[S.sCell, { flex: 2.5 }]}>{dash(eb.edgeband_name)}</Text>
+              <Text style={[S.sCell, { flex: 2.2 }]}>{dash(eb.where_used_label)}</Text>
+              <Text style={[S.sCell, { flex: 1.2, fontFamily: "Helvetica-Bold" }]}>{fgLabels.join(", ")}</Text>
+              <Text style={[S.sCellMu, { flex: 1.5 }]}>{dash(eb.notes)}</Text>
+            </View>
+          ))}
+        </>
+      )}
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
+// ─── T.1  Trim & Moldings Rollup ─────────────────────────────────────────────
+
+function TrimRollupPage({ data }: { data: SpecPDFData }) {
+  const allTrim: (RoomTrimEntry & { room_name: string })[] = [];
+  for (const room of data.rooms) {
+    const entries = (data.room_trim ?? {})[room.id] ?? [];
+    for (const t of entries) {
+      allTrim.push({ ...t, room_name: room.name || "\u2014" });
+    }
+  }
+  allTrim.sort((a, b) => (a.trim_type || "").localeCompare(b.trim_type || ""));
+
+  const typeMap = new Map<string, number>();
+  for (const t of allTrim) {
+    typeMap.set(t.trim_type, (typeMap.get(t.trim_type) ?? 0) + (Number(t.qty_lf) || 0));
+  }
+  const totals = Array.from(typeMap.entries()).sort(([a], [b]) => a.localeCompare(b));
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      <TitleBlock data={data} code="T.1" />
+      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 8 }}>
+        TRIM & MOLDINGS SCHEDULE
+      </Text>
+      {allTrim.length === 0 ? (
+        <Text style={S.empty}>No trim callouts specified.</Text>
+      ) : (
+        <>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Type</Text>
+            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Room</Text>
+            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Size</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7, textAlign: "right" }]}>LF</Text>
+            <Text style={[S.colHdrTx, { flex: 3.5 }]}>Notes</Text>
+          </View>
+          {allTrim.map((t, i) => (
+            <View key={t.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+              <Text style={[S.sCell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{t.trim_type || "\u2014"}</Text>
+              <Text style={[S.sCell, { flex: 2.5 }]}>{t.room_name}</Text>
+              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(t.size_desc)}</Text>
+              <Text style={[S.sCell, { flex: 0.7, textAlign: "right" }]}>{t.qty_lf || ""}</Text>
+              <Text style={[S.sCellMu, { flex: 3.5 }]}>{dash(t.notes)}</Text>
+            </View>
+          ))}
+          <View style={{ marginTop: 12 }}>
+            <Band title="Totals by Type" />
+            <View style={S.colHdr}>
+              <Text style={[S.colHdrTx, { flex: 4 }]}>Type</Text>
+              <Text style={[S.colHdrTx, { flex: 1, textAlign: "right" }]}>Total LF</Text>
+            </View>
+            {totals.map(([type, lf], i) => (
+              <View key={type} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
+                <Text style={[S.sCell, { flex: 4, fontFamily: "Helvetica-Bold" }]}>{type}</Text>
+                <Text style={[S.sCell, { flex: 1, textAlign: "right", fontFamily: "Helvetica-Bold" }]}>{lf}</Text>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
 // Main exported renderer
 
 export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   const hasNotes = !!(cleanNotes(data.notes_install) || cleanNotes(data.notes_finishing) || cleanNotes(data.notes_shop) || cleanNotes(data.notes_client));
   const hasAccessories = (data.spec_pulls?.length ?? 0) > 0 || (data.spec_accessories?.length ?? 0) > 0;
   const hasAppliances = (data.spec_appliances_list?.length ?? 0) > 0;
+  const hasEdgebands = data.finish_groups.some(fg => fg.edgebands.length > 0);
+  const hasTrim = data.rooms.some(r => ((data.room_trim ?? {})[r.id]?.length ?? 0) > 0);
   return (
     <Document>
-      {data.finish_groups.map((fg, i) => (
-        <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
-      ))}
-      {hasAccessories && <AccessoriesPage data={data} />}
-      {hasAppliances && <AppliancesPage data={data} />}
+      {/* Sheet 1: Finish Schedule — all finish groups in one matrix */}
+      <ConsolidatedFinishPage data={data} />
+      {/* Sheet 2: Room Schedule — 3-column (room | FG | notes) */}
       <RoomMatrixPage data={data} />
+      {/* Sheet 3: Edgeband Schedule — consolidated, machine-position IDs */}
+      {hasEdgebands && <EdgebandSchedulePage data={data} />}
+      {/* Sheet 4: Trim & Moldings — detail + totals by type */}
+      {hasTrim && <TrimRollupPage data={data} />}
+      {/* Sheet 5: Appliances & Plumbing */}
+      {hasAppliances && <AppliancesPage data={data} />}
+      {/* Accessories (when present) */}
+      {hasAccessories && <AccessoriesPage data={data} />}
+      {/* Notes (when present) */}
       {hasNotes && <NotesPage data={data} />}
     </Document>
   );
