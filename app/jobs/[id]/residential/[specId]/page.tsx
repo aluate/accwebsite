@@ -44,7 +44,7 @@ type RoomTrimRow = { id: string; room_id: string; trim_type: string; size_desc: 
 type SpecApplianceRow = { id: string; spec_id: string; appliance_type: string; manufacturer: string | null; model_no: string | null; room_id: string | null; notes: string | null; sort_order: number };
 type RoomRow    = { id: string; name: string; finish_group_id: string; notes: string; sort_order: number };
 type RoomFinishRow = { id: string; room_id: string; finish_group_id: string; zone: string | null; sort_order: number };
-type AccRow     = { id: string; room_id: string; acc_id: string; qty: number };
+type AccRow     = { id: string; room_id: string; acc_id: string; qty: number; notes: string | null };
 type CabinetRow = { id: string; room_id: string; family_code: string; width_in: number|null; height_in: number|null; depth_in: number|null; qty: number; hinge_side: string|null; rollout_trays_qty: number; trash_kit: string; applied_panels: boolean; special_instructions: string|null; sort_order: number };
 type MoldingRow = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; size_in: number | null; material_id: string | null; material_other: string | null; notes: string | null; sort_order: number };
 type MoldingRoomRow = { molding_id: string; room_id: string };
@@ -165,7 +165,7 @@ export default async function SpecEditorPage({
       finishes: seededFinishes,
       accessories: accessories
         .filter((a) => a.room_id === r.id)
-        .map((a) => ({ acc_id: a.acc_id, qty: a.qty })),
+        .map((a) => ({ acc_id: a.acc_id, qty: a.qty, custom_note: a.notes ?? undefined })),
       cabinets: cabinets
         .filter((c) => c.room_id === r.id)
         .map((c) => ({

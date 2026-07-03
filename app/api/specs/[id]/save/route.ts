@@ -23,7 +23,7 @@ type FinishGroupPayload = {
   sort_order: number;
 };
 
-type AccessoryPayload = { acc_id: string; qty: number };
+type AccessoryPayload = { acc_id: string; qty: number; custom_note?: string };
 
 type CabinetPayload = {
   id: string;
@@ -249,8 +249,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       // Accessories
       for (const acc of r.accessories ?? []) {
         await sql`
-          INSERT INTO room_accessories (id, room_id, acc_id, qty)
-          VALUES (${uid()}, ${r.id}, ${acc.acc_id}, ${acc.qty ?? 1})
+          INSERT INTO room_accessories (id, room_id, acc_id, qty, notes)
+          VALUES (${uid()}, ${r.id}, ${acc.acc_id}, ${acc.qty ?? 1}, ${acc.custom_note ?? null})
         `;
       }
 

@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const OUT_PATH = resolve(ROOT, "data/catalogs/paint_colors_bm.csv");
 
-const URL = "https://raw.githubusercontent.com/jpederson/colornerd/master/colors/benjamin-moore.json";
+const URL = "https://raw.githubusercontent.com/jpederson/colornerd/master/json/benjamin-moore.json";
 
 function normalizeHex(raw) {
   if (!raw) return "";

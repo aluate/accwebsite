@@ -100,8 +100,11 @@ async function main() {
     CREATE TABLE IF NOT EXISTS room_accessories (
       id TEXT PRIMARY KEY,
       room_id TEXT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-      acc_id TEXT NOT NULL, qty INTEGER NOT NULL DEFAULT 1
+      acc_id TEXT NOT NULL, qty INTEGER NOT NULL DEFAULT 1,
+      notes TEXT
     );
+    -- Add notes column if upgrading from schema without it
+    ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS notes TEXT;
 
     CREATE TABLE IF NOT EXISTS finish_group_materials (
       id TEXT PRIMARY KEY,

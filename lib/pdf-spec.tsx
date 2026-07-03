@@ -199,10 +199,8 @@ export type ApplianceEntry = {
 // ─── XLSX fixed-row definitions ───────────────────────────────────────────────
 
 const MATERIAL_ROLES: { role: string; label: string }[] = [
-  { role: "cab_ext",  label: "Cabinet Exterior" },
-  { role: "cab_int",  label: "Cabinet Interior" },
-  { role: "cab_ext2", label: "Cab Exterior 2" },
-  { role: "cab_int2", label: "Cab Interior 2" },
+  { role: "cab_ext", label: "Cabinet Exterior" },
+  { role: "cab_int", label: "Cabinet Interior" },
 ];
 
 const DOOR_ROLES: { role: string; label: string }[] = [
@@ -274,14 +272,14 @@ const S = StyleSheet.create({
   // ── Schedule table rows (compact) ──
   colHdr:  { flexDirection: "row", backgroundColor: HEAD_BG, paddingHorizontal: 3, paddingVertical: 2 },
   colHdrTx:{ fontSize: 6, fontFamily: "Helvetica-Bold", color: "#fff", textTransform: "uppercase", letterSpacing: 0.3 },
-  sRow:    { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR },
-  sRowAlt: { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  sRow:    { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 3, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  sRowAlt: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 3, paddingVertical: 2, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
   sCell:   { fontSize: 7, color: DARK },
   sCellMu: { fontSize: 7, color: MUTED, fontStyle: "italic" },
 
   // ── Key-value rows (Finish schedule, Countertop fields) ──
-  kvRow:   { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR },
-  kvRowAlt:{ flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  kvRow:   { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  kvRowAlt:{ flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
   kvLabel: { width: 72, fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 0.4, textTransform: "uppercase" },
   kvVal:   { flex: 1, fontSize: 7.5, color: DARK },
 
@@ -292,8 +290,8 @@ const S = StyleSheet.create({
 
   // ── Room matrix ──
   matrixHdr: { flexDirection: "row", backgroundColor: HEAD_BG, paddingHorizontal: 3, paddingVertical: 3 },
-  matrixRow: { flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR },
-  matrixRowAlt:{ flexDirection: "row", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  matrixRow: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  matrixRowAlt:{ flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 3, paddingVertical: 2.5, borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
   matrixHdrTx:{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#fff", textTransform: "uppercase" },
   matrixCell:{ fontSize: 8, color: DARK, textAlign: "center" },
   matrixRoomCell:{ fontSize: 7.5, color: DARK },
@@ -311,6 +309,12 @@ const S = StyleSheet.create({
 
 const dash = (s: string | number | null | undefined) =>
   s === null || s === undefined || s === "" ? "" : String(s);
+
+function cleanNotes(s: string | null | undefined): string {
+  if (!s) return "";
+  if (s.startsWith("Auto-seeded from builder profile:")) return "";
+  return s.trim();
+}
 
 const stageMap: Record<string, string> = {
   F: "FINISH", R: "ROOMS", N: "NOTES", A: "ACCESSORIES",
@@ -411,7 +415,7 @@ function FinishHeaderStrip({ data, fg }: { data: SpecPDFData; fg: FinishGroupVie
       </View>
       <View style={[S.hCellLast, { flex: 3 }]}>
         <Text style={S.hLabel}>Notes</Text>
-        <Text style={[S.hVal, { fontSize: 7 }]} numberOfLines={3}>{fg.notes || "—"}</Text>
+        <Text style={[S.hVal, { fontSize: 7 }]}>{cleanNotes(fg.notes) || "—"}</Text>
       </View>
     </View>
   );
@@ -451,8 +455,8 @@ function DoorSchedule({ fg }: { fg: FinishGroupView }) {
     <>
       <Band title="Door Schedule" />
       <View style={S.colHdr}>
-        <Text style={[S.colHdrTx, { flex: 1.4 }]}>Type</Text>
-        <Text style={[S.colHdrTx, { flex: 1.6 }]}>Style</Text>
+        <Text style={[S.colHdrTx, { flex: 1.2 }]}>Type</Text>
+        <Text style={[S.colHdrTx, { flex: 2.2 }]}>Style</Text>
         <Text style={[S.colHdrTx, { flex: 1.6 }]}>Material</Text>
         <Text style={[S.colHdrTx, { flex: 0.7 }]}>OE</Text>
         <Text style={[S.colHdrTx, { flex: 0.7 }]}>IE</Text>
@@ -464,8 +468,8 @@ function DoorSchedule({ fg }: { fg: FinishGroupView }) {
         const d = doorByRole.get(role);
         return (
           <View key={role} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
-            <Text style={[S.sCell, { flex: 1.4, fontFamily: "Helvetica-Bold" }]}>{label}</Text>
-            <Text style={[S.sCell, { flex: 1.6 }]}>{dash(d?.style_name)}</Text>
+            <Text style={[S.sCell, { flex: 1.2, fontFamily: "Helvetica-Bold" }]}>{label}</Text>
+            <Text style={[S.sCell, { flex: 2.2 }]}>{dash(d?.style_name)}</Text>
             <Text style={[S.sCell, { flex: 1.6 }]}>{dash(d?.material_name)}</Text>
             <Text style={[S.sCell, { flex: 0.7 }]}>{dash(d?.oe_name)}</Text>
             <Text style={[S.sCell, { flex: 0.7 }]}>{dash(d?.ie_name)}</Text>
@@ -743,14 +747,30 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
   );
 }
 
-// Room matrix page
+// Room schedule page (3-column list: Room | Finish Group | Notes)
 
 function RoomMatrixPage({ data }: { data: SpecPDFData }) {
   const address = data.site_address || "";
   const fgs = data.finish_groups;
   const rooms = data.rooms;
-  const fgFlex = 0.8;
-  const roomFlex = 2;
+
+  // Build flat list of rows: one row per room×FG assignment
+  type RoomRow = { roomName: string; fgLabel: string; notes: string };
+  const rows: RoomRow[] = [];
+  for (const room of rooms) {
+    if (room.finishes.length === 0) {
+      rows.push({ roomName: room.name || "—", fgLabel: "—", notes: "" });
+    } else {
+      for (const f of room.finishes) {
+        const fg = fgs.find((g) => g.id === f.finish_group_id);
+        rows.push({
+          roomName: room.name || "—",
+          fgLabel: fg ? fg.label : (f.finish_group_id ? "?" : "—"),
+          notes: f.zone || "",
+        });
+      }
+    }
+  }
 
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
@@ -759,12 +779,13 @@ function RoomMatrixPage({ data }: { data: SpecPDFData }) {
         ROOM SCHEDULE
       </Text>
       <Text style={{ fontSize: 8, color: MUTED, marginBottom: 8 }}>{address}</Text>
-      {data.job_notes ? (
+      {cleanNotes(data.job_notes) ? (
         <View style={[S.notesBox, { borderColor: "#c00", marginBottom: 8 }]}>
           <Text style={[S.notesLabel, { color: "#c00" }]}>JOB NOTES</Text>
-          <Text style={[S.notesBody, { color: "#111" }]}>{data.job_notes}</Text>
+          <Text style={[S.notesBody, { color: "#111" }]}>{cleanNotes(data.job_notes)}</Text>
         </View>
       ) : null}
+      {/* Finish group legend */}
       {fgs.length > 0 && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
           {fgs.map((fg) => (
@@ -777,39 +798,30 @@ function RoomMatrixPage({ data }: { data: SpecPDFData }) {
           ))}
         </View>
       )}
+      {/* 3-column table */}
       {rooms.length === 0 ? (
         <Text style={S.empty}>No rooms added.</Text>
       ) : (
         <>
-          <View style={S.matrixHdr}>
-            <Text style={[S.matrixHdrTx, { flex: roomFlex }]}>Room</Text>
-            {fgs.map((fg) => (
-              <Text key={fg.id} style={[S.matrixHdrTx, { flex: fgFlex, textAlign: "center" }]} numberOfLines={2}>
-                {fg.label}
-              </Text>
-            ))}
+          {/* Header row */}
+          <View style={{ flexDirection: "row", backgroundColor: DARK, paddingHorizontal: 3, paddingVertical: 3 }}>
+            <Text style={[S.matrixHdrTx, { flex: 3.5 }]}>ROOM</Text>
+            <Text style={[S.matrixHdrTx, { flex: 2 }]}>FINISH GROUP</Text>
+            <Text style={[S.matrixHdrTx, { flex: 4.5 }]}>NOTES</Text>
           </View>
-          {rooms.map((room, ri) => {
-            const assignedFgIds = new Set(room.finishes.map(f => f.finish_group_id));
-            return (
-              <View key={room.id} style={ri % 2 === 0 ? S.matrixRow : S.matrixRowAlt}>
-                <Text style={[S.matrixRoomCell, { flex: roomFlex }]}>{room.name || "—"}</Text>
-                {fgs.map((fg) => {
-                  const finishLink = room.finishes.find(f => f.finish_group_id === fg.id);
-                  const zoneText = finishLink ? (finishLink.zone || "✓") : "";
-                  return (
-                    <Text key={fg.id} style={[S.matrixCell, {
-                      flex: fgFlex,
-                      color: finishLink ? "#1a7a1a" : HAIR,
-                      fontSize: 6.5,
-                    }]}>
-                      {zoneText}
-                    </Text>
-                  );
-                })}
-              </View>
-            );
-          })}
+          {rows.map((row, ri) => (
+            <View
+              key={ri}
+              style={[
+                ri % 2 === 0 ? S.matrixRow : S.matrixRowAlt,
+                { flexWrap: "wrap" },
+              ]}
+            >
+              <Text style={[S.matrixRoomCell, { flex: 3.5 }]}>{row.roomName}</Text>
+              <Text style={[S.sCell, { flex: 2, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{row.fgLabel}</Text>
+              <Text style={[S.sCell, { flex: 4.5 }]}>{row.notes}</Text>
+            </View>
+          ))}
         </>
       )}
       <PageFooter data={data} />
@@ -821,10 +833,10 @@ function RoomMatrixPage({ data }: { data: SpecPDFData }) {
 
 function NotesPage({ data }: { data: SpecPDFData }) {
   const sections = [
-    { label: "Install Notes",   body: data.notes_install },
-    { label: "Finishing Notes", body: data.notes_finishing },
-    { label: "Shop Notes",      body: data.notes_shop },
-    { label: "Client Notes",    body: data.notes_client },
+    { label: "Install Notes",   body: cleanNotes(data.notes_install) },
+    { label: "Finishing Notes", body: cleanNotes(data.notes_finishing) },
+    { label: "Shop Notes",      body: cleanNotes(data.notes_shop) },
+    { label: "Client Notes",    body: cleanNotes(data.notes_client) },
   ].filter(s => s.body);
 
   return (
@@ -960,7 +972,7 @@ function AppliancesPage({ data }: { data: SpecPDFData }) {
 // Main exported renderer
 
 export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
-  const hasNotes = !!(data.notes_install || data.notes_finishing || data.notes_shop || data.notes_client);
+  const hasNotes = !!(cleanNotes(data.notes_install) || cleanNotes(data.notes_finishing) || cleanNotes(data.notes_shop) || cleanNotes(data.notes_client));
   const hasAccessories = (data.spec_pulls?.length ?? 0) > 0 || (data.spec_accessories?.length ?? 0) > 0;
   const hasAppliances = (data.spec_appliances_list?.length ?? 0) > 0;
   return (

@@ -89,7 +89,7 @@ export type Room = {
   finish_group_id: string;
   finishes: RoomFinishLink[];
   notes: string; sort_order: number;
-  accessories: { acc_id: string; qty: number }[];
+  accessories: { acc_id: string; qty: number; custom_note?: string }[];
   cabinets: CabinetItem[];
   trim: TrimRow[];
 };
@@ -341,11 +341,9 @@ function ColorPicker({
   const all: CPEntry[] = useMemo(() => {
     if (type === "stain") {
       return catalogs.stainColors
-        .filter((c) => !c.placeholder)
         .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name }));
     }
     return catalogs.melamineColors
-      .filter((c) => !c.placeholder)
       .map((c) => ({ id: c.id, brand: c.supplier, code: c.code && c.code !== "—" ? c.code : "", name: c.name, hex: c.hex_approx }));
   }, [type, catalogs]);
 
@@ -791,7 +789,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, accessories: [...r.accessories, { acc_id: "", qty: 1 }] }));
     markDirty();
   }
-  function updateAccessory(roomId: string, idx: number, patch: { acc_id?: string; qty?: number }) {
+  function updateAccessory(roomId: string, idx: number, patch: { acc_id?: string; qty?: number; custom_note?: string }) {
     setRooms(rooms.map((r) => {
       if (r.id !== roomId) return r;
       const acc = [...r.accessories]; acc[idx] = { ...acc[idx], ...patch };
@@ -1255,14 +1253,13 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       )}
                     </label>
                     <select
-                      value={g.door_style_id}
+                      value={g.door_style_id ?? ""}
                       onChange={(e) => updateGroup(g.id, { door_style_id: e.target.value })}
                       className={SELECT}
                     >
                       <option value="">-- Select Door --</option>
                       {catalogs.doorStyles
                         .filter((d) => {
-                          if (d.placeholder) return false;
                           if (g.finish_type === "melamine") return d.construction === "slab";
                           return true;
                         })
@@ -1474,19 +1471,33 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               </div>
 
               <div className="pt-2 border-t border-white/5">
-                <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Rev-A-Shelf Accessories</p>
+                <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Accessories</p>
                 <div className="space-y-2">
-                  {room.accessories.map((acc, ai) => (
-                    <div key={ai} className="flex flex-wrap sm:flex-nowrap gap-3 items-stretch sm:items-center">
-                      <select value={acc.acc_id} onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })} className={SELECT + " flex-1"}>
-                        <option value="">-- Select Accessory --</option>
-                        {catalogs.revaAccessories.map((a) => <option key={a.id} value={a.id}>{a.name} - {a.brand}</option>)}
-                      </select>
-                      <input type="number" min={1} value={acc.qty} onChange={(e) => updateAccessory(room.id, ai, { qty: parseInt(e.target.value) || 1 })}
-                        className="w-16 bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white text-center focus:outline-none focus:border-[#f08122]" />
-                      <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1">x</button>
-                    </div>
-                  ))}
+                  {room.accessories.map((acc, ai) => {
+                    const isCustom = acc.acc_id && acc.acc_id.toLowerCase().includes("custom");
+                    return (
+                      <div key={ai} className="space-y-1.5">
+                        <div className="flex flex-wrap sm:flex-nowrap gap-3 items-stretch sm:items-center">
+                          <select value={acc.acc_id} onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })} className={SELECT + " flex-1"}>
+                            <option value="">-- Select Accessory --</option>
+                            {catalogs.revaAccessories.map((a) => <option key={a.id} value={a.id}>{a.name} - {a.brand}</option>)}
+                          </select>
+                          <input type="number" min={1} value={acc.qty} onChange={(e) => updateAccessory(room.id, ai, { qty: parseInt(e.target.value) || 1 })}
+                            className="w-16 bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white text-center focus:outline-none focus:border-[#f08122]" />
+                          <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1">x</button>
+                        </div>
+                        {isCustom && (
+                          <input
+                            type="text"
+                            value={acc.custom_note ?? ""}
+                            onChange={(e) => updateAccessory(room.id, ai, { custom_note: e.target.value })}
+                            placeholder="Custom accessory description / notes..."
+                            className={INPUT + " text-xs"}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                   <button onClick={() => addAccessory(room.id)} className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">
                     + Add Accessory
                   </button>
@@ -1512,8 +1523,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <input value={tr.size_desc} onChange={(e) => updateTrim(room.id, ti, { size_desc: e.target.value })} placeholder='e.g. 4.5" crown' className={INPUT} />
                       </div>
                       <div>
-                        <label className={LABEL}>Material</label>
-                        <input value={tr.material} onChange={(e) => updateTrim(room.id, ti, { material: e.target.value })} placeholder="Material" className={INPUT} />
+                        <label className={LABEL}>Notes</label>
+                        <input value={tr.material} onChange={(e) => updateTrim(room.id, ti, { material: e.target.value })} placeholder="Special conditions, stick counts, install notes..." className={INPUT} />
                       </div>
                       <div>
                         <label className={LABEL}>LF Qty</label>
