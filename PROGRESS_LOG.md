@@ -13,6 +13,36 @@ Doc roles, so nothing drifts:
 
 ---
 
+## Session: 2026-07-03 — PDF + form polish (agent)
+
+**Selftest before:** 19 pass / 3 fail (pre-existing: $70k fields, paint_colors_bm.json missing, schedule TS types)
+**Selftest after:** 19 pass / 3 fail (no regression)
+
+### CURRENT LIST — all items completed [x]
+
+- [x] **Item 1 — PDF: Room Schedule → 3-column list** (`lib/pdf-spec.tsx` `RoomMatrixPage`): Replaced the old matrix (columns = finish groups, rows = rooms, ✓ cells) with a flat 3-column list (ROOM | FINISH GROUP | NOTES). One row per room×FG assignment. Room name repeats if multiple FGs. Unassigned room → "—" in FG column. Header row uses DARK (#222) background, white text, all caps. Alternate row shading preserved. FG legend (label: type) kept above table. Column widths: ROOM flex 3.5, FG flex 2, NOTES flex 4.5.
+- [x] **Item 2 — PDF: Remove CAB EXT 2 / CAB INT 2** (`lib/pdf-spec.tsx`): `MATERIAL_ROLES` array trimmed from 4 rows to 2 (Cabinet Exterior, Cabinet Interior only). Removed `cab_ext2` and `cab_int2` entries.
+- [x] **Item 3 — PDF: Text wrapping + column widths** (`lib/pdf-spec.tsx`): Added `flexWrap: "wrap"` to `sRow`, `sRowAlt`, `kvRow`, `kvRowAlt`, `matrixRow`, `matrixRowAlt` styles. Door Schedule STYLE column flex widened 1.6 → 2.2 (Type narrowed 1.4 → 1.2 to compensate). No `numberOfLines` caps remained in data cells after Item 4b removal.
+- [x] **Item 4 — PDF: Strip placeholder notes text** (`lib/pdf-spec.tsx`): Added `cleanNotes()` helper that returns `""` when value starts with "Auto-seeded from builder profile:". Applied to: `fg.notes` in `FinishHeaderStrip`, all four notes sections in `NotesPage`, `job_notes` in `RoomMatrixPage`, and `hasNotes` check in `renderSpecPDF`. Notes sections/boxes only render when `cleanNotes()` is non-empty.
+- [x] **Item 5a — Form: Accessories header rename** (`components/ResidentialSpecClient.tsx`): "Rev-A-Shelf Accessories" label in Rooms tab → "Accessories".
+- [x] **Item 5b — Form: Custom accessory notes field** (`components/ResidentialSpecClient.tsx`, `app/api/specs/[id]/save/route.ts`, `app/jobs/[id]/residential/[specId]/page.tsx`, `scripts/db-push.mjs`): When selected `acc_id` contains "custom" (case-insensitive), shows a free-text input below the row. Stored as `custom_note` on the accessory object. Saves to `room_accessories.notes` column (added `notes TEXT` column to db-push with `ADD COLUMN IF NOT EXISTS` guard). Round-trips on page load via AccRow type + page map update.
+- [x] **Item 6 — Form: Trim callouts "Material" → "Notes"** (`components/ResidentialSpecClient.tsx`): Label renamed "Notes", placeholder updated to "Special conditions, stick counts, install notes...". DB field name (`material`) unchanged — no migration needed. Save payload key unchanged.
+
+### Also fixed
+- Stripped 135 null bytes from end of `components/ResidentialSpecClient.tsx` (pre-existing corruption from prior session that was causing `TS1127: Invalid character` errors). File now clean.
+
+### Karl action required
+- Run `node scripts/db-push.mjs` on staging to add `notes TEXT` column to `room_accessories` table (the `ADD COLUMN IF NOT EXISTS` guard makes it safe to re-run).
+
+### Files changed
+- `lib/pdf-spec.tsx` — Items 1, 2, 3, 4
+- `components/ResidentialSpecClient.tsx` — Items 5a, 5b, 6 + null-byte cleanup
+- `app/api/specs/[id]/save/route.ts` — Item 5b: AccessoryPayload type + INSERT with notes
+- `app/jobs/[id]/residential/[specId]/page.tsx` — Item 5b: AccRow type + map includes custom_note
+- `scripts/db-push.mjs` — Item 5b: room_accessories.notes column added
+
+---
+
 ## Session: 2026-07-03 — Paint color catalog + type-ahead (agent)
 
 **Selftest before:** 19 pass / 3 fail (pre-existing: $70k fields, .next/ TS types)
