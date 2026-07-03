@@ -218,6 +218,9 @@ export default function BuildersAdminPage() {
           </p>
         </div>
         <nav className="flex items-center gap-4">
+          <a href="/admin/estimating" className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs transition-colors">
+            Estimating
+          </a>
           <a href="/admin/libraries" className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs transition-colors">
             Libraries
           </a>

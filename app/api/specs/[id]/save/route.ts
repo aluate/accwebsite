@@ -299,8 +299,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       `;
       for (const rid of m.where_used_room_ids ?? []) {
         await sql`
-          INSERT INTO finish_molding_rooms (id, molding_id, room_id)
-          VALUES (${uid()}, ${m.id}, ${rid})
+          INSERT INTO finish_molding_rooms (molding_id, room_id)
+          VALUES (${m.id}, ${rid})
         `;
       }
     }

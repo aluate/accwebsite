@@ -1,0 +1,8 @@
+code,name,typical_depth_in,typical_height_in,notes
+BASE,Base Cabinet,24,34.5,Floor-standing. Includes toekick. All base variants.
+UPPER,Upper / Wall Cabinet,12,variable,Wall-hung. No toekick. Heights vary (12–42in typical).
+TALL,Tall Cabinet,12-24,84-96,Full-height. Pantry, oven surround, utility, refer surround.
+PANEL,Finished Panel,variable,variable,Decorative finished panels. Minimal box labor. Mostly material + finish.
+FILLER,Filler,variable,variable,Base, upper, or tall filler strips. Material only, no hardware.
+SHELF,Floating Shelf / Top,variable,variable,Open shelves, floating shelves, countertop caps.
+ACCESSORY,Accessory / Specialty,variable,variable,Wall cleats, die walls, wainscot panels, custom pieces. Manual override territory.

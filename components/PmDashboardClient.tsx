@@ -34,8 +34,8 @@ const ALL_STATUSES = [
 ];
 
 const ACTIVE_STATUSES = [
-  "intake", "bid", "design", "field_dims", "engineering", "procurement",
-  "production", "delivery", "install", "punch",
+  "production", "delivery", "install", "punch", "field_dims",
+  "engineering", "procurement", "design", "bid",
 ];
 
 type SortKey = "delivery_asc" | "delivery_desc" | "install_asc" | "install_desc" | "client_az" | "client_za";
@@ -567,7 +567,7 @@ export function PmDashboardClient({
 
                     {/* Status */}
                     <td className="py-3">
-                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
+                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
                         {statusTxt}
                       </span>
                     </td>

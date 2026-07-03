@@ -1,0 +1,531 @@
+[
+  {
+    "code": "DB-2DR",
+    "category": "BASE",
+    "display_name": "Drawer Base 2-Drawer",
+    "cv_name_pattern": "DB-2Dr",
+    "door_count": 0,
+    "drawer_count": 2,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "All-drawer. No doors. 2 equal drawers."
+  },
+  {
+    "code": "DB-3DR",
+    "category": "BASE",
+    "display_name": "Drawer Base 3-Drawer",
+    "cv_name_pattern": "DB-3Dr",
+    "door_count": 0,
+    "drawer_count": 3,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "All-drawer. Standard stack. Most common base type."
+  },
+  {
+    "code": "DB-4DR",
+    "category": "BASE",
+    "display_name": "Drawer Base 4-Drawer",
+    "cv_name_pattern": "DB-4Dr",
+    "door_count": 0,
+    "drawer_count": 4,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "All-drawer. 4-equal or bank stack."
+  },
+  {
+    "code": "DB-5DR",
+    "category": "BASE",
+    "display_name": "Drawer Base 5-Drawer",
+    "cv_name_pattern": "DB-5Dr",
+    "door_count": 0,
+    "drawer_count": 5,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "Less common. Pencil drawer + 4."
+  },
+  {
+    "code": "B-1DO",
+    "category": "BASE",
+    "display_name": "Base 1-Door",
+    "cv_name_pattern": "B-1Do*",
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Single door. Adjustable shelf inside."
+  },
+  {
+    "code": "B-2DO",
+    "category": "BASE",
+    "display_name": "Base 2-Door",
+    "cv_name_pattern": "B-2D*",
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Double door. Adjustable shelf. Standard base."
+  },
+  {
+    "code": "B-1DO-1DR",
+    "category": "BASE",
+    "display_name": "Base 1-Door 1-Drawer",
+    "cv_name_pattern": "B-1Do1Dr*",
+    "door_count": 1,
+    "drawer_count": 1,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Door below + drawer above. Very common."
+  },
+  {
+    "code": "B-2DO-1DR",
+    "category": "BASE",
+    "display_name": "Base 2-Door 1-Drawer",
+    "cv_name_pattern": "B-2Do1Dr*",
+    "door_count": 2,
+    "drawer_count": 1,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Double door + drawer above."
+  },
+  {
+    "code": "B-OPEN",
+    "category": "BASE",
+    "display_name": "Open Base",
+    "cv_name_pattern": "B-Open",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "No doors. Finished interior auto-required. Add drawers freely (B-OPEN-1DR etc.) — just set drawer_count."
+  },
+  {
+    "code": "B-OPEN-1DR",
+    "category": "BASE",
+    "display_name": "Open Base 1-Drawer",
+    "cv_name_pattern": "B-Open1Dr*",
+    "door_count": 0,
+    "drawer_count": 1,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Open shelf below + 1 drawer above. Finished interior required."
+  },
+  {
+    "code": "B-OPEN-2DR",
+    "category": "BASE",
+    "display_name": "Open Base 2-Drawer",
+    "cv_name_pattern": "B-Open2Dr*",
+    "door_count": 0,
+    "drawer_count": 2,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Open shelf below + 2 drawers above. Finished interior required."
+  },
+  {
+    "code": "B-CORNER-BC",
+    "category": "BASE",
+    "display_name": "Corner Base (Blind 90°)",
+    "cv_name_pattern": [
+      "B-BC*",
+      "B-BL*",
+      "B-CT*"
+    ],
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "90° blind corner. Cabinet runs past the corner, blind strip covers gap. Standard door offset to one side. Standard hinges."
+  },
+  {
+    "code": "B-CORNER-45",
+    "category": "BASE",
+    "display_name": "Corner Base (45° Diagonal)",
+    "cv_name_pattern": [
+      "B-45*",
+      "B-DG*"
+    ],
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "45° angled face frame. Door opens on the diagonal. Specialty angled door (buyout or shop-built). Requires special hinges for angled frame."
+  },
+  {
+    "code": "B-LAZY",
+    "category": "BASE",
+    "display_name": "Corner Base (Lazy Susan)",
+    "cv_name_pattern": "B-LS*",
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "2",
+    "complexity": "high",
+    "notes": "Rotating shelves. Full-circle or kidney. 2 doors, standard hinges. Hardware-heavy."
+  },
+  {
+    "code": "SB-1DO",
+    "category": "BASE",
+    "display_name": "Sink Base 1-Door",
+    "cv_name_pattern": "SB-1Do",
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Sink cutout. No real drawer (false front implied)."
+  },
+  {
+    "code": "SB-2DO",
+    "category": "BASE",
+    "display_name": "Sink Base 2-Door",
+    "cv_name_pattern": "SB-2Do",
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Sink cutout. False front on drawer space implied."
+  },
+  {
+    "code": "B-TRASH",
+    "category": "BASE",
+    "display_name": "Trash Pullout Base",
+    "cv_name_pattern": [
+      "*T Can*",
+      "*Trash*"
+    ],
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Trash pullout hardware. 1-door with pullout."
+  },
+  {
+    "code": "W-1DO",
+    "category": "UPPER",
+    "display_name": "Wall 1-Door",
+    "cv_name_pattern": "W-1Do*",
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Single door wall cabinet. Most common upper."
+  },
+  {
+    "code": "W-2DO",
+    "category": "UPPER",
+    "display_name": "Wall 2-Door",
+    "cv_name_pattern": "W-2Do*",
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Double door wall cabinet."
+  },
+  {
+    "code": "W-1DO-2AS",
+    "category": "UPPER",
+    "display_name": "Wall 1-Door 2-Shelf",
+    "cv_name_pattern": "W-1Do2As",
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "2",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Taller upper with 2 adjustable shelves."
+  },
+  {
+    "code": "W-2DO-2AS",
+    "category": "UPPER",
+    "display_name": "Wall 2-Door 2-Shelf",
+    "cv_name_pattern": "W-2Do2As",
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "2",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Taller upper with 2 adjustable shelves."
+  },
+  {
+    "code": "W-OPEN",
+    "category": "UPPER",
+    "display_name": "Open Wall / Display",
+    "cv_name_pattern": [
+      "W-1AS",
+      "W-Open*"
+    ],
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "No doors. Finished interior required. Display shelf."
+  },
+  {
+    "code": "W-CORNER-BC",
+    "category": "UPPER",
+    "display_name": "Corner Wall (Blind 90°)",
+    "cv_name_pattern": [
+      "W-BC*",
+      "W-BL*"
+    ],
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "90° blind corner upper. Standard door offset. Standard hinges. Blind strip fills gap."
+  },
+  {
+    "code": "W-CORNER-45",
+    "category": "UPPER",
+    "display_name": "Corner Wall (45° Diagonal)",
+    "cv_name_pattern": [
+      "W-45*",
+      "W-DG*"
+    ],
+    "door_count": 1,
+    "drawer_count": 0,
+    "adj_shelves": "1",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "45° angled upper. Diagonal door. Specialty hinges. Less common than base 45° but same logic."
+  },
+  {
+    "code": "T-PANTRY",
+    "category": "TALL",
+    "display_name": "Tall Pantry",
+    "cv_name_pattern": "T-*AS*FS",
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "4",
+    "fixed_shelves": "1",
+    "complexity": "high",
+    "notes": "Full-height pantry. Many shelves. Double door."
+  },
+  {
+    "code": "T-OVEN",
+    "category": "TALL",
+    "display_name": "Oven Surround / Tower",
+    "cv_name_pattern": [
+      "*Oven*",
+      "T-OV*"
+    ],
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "very_high",
+    "notes": "Built-in oven. Custom heights. Specialty labor."
+  },
+  {
+    "code": "T-REFER",
+    "category": "TALL",
+    "display_name": "Refrigerator Surround",
+    "cv_name_pattern": [
+      "*Refer*",
+      "T-RF*"
+    ],
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "medium",
+    "notes": "Panels + top box. No real door or drawer."
+  },
+  {
+    "code": "T-UTIL",
+    "category": "TALL",
+    "display_name": "Utility / Broom Tall",
+    "cv_name_pattern": [
+      "T-1Do*",
+      "T-2Do*"
+    ],
+    "door_count": 2,
+    "drawer_count": 0,
+    "adj_shelves": "2",
+    "fixed_shelves": "0",
+    "complexity": "high",
+    "notes": "1 or 2 doors. Utility storage."
+  },
+  {
+    "code": "PANEL-FULL",
+    "category": "PANEL",
+    "display_name": "Full Height Panel",
+    "cv_name_pattern": "*Full*Panel*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "1.5in finished panel. Left or right. Minimal labor."
+  },
+  {
+    "code": "PANEL-END",
+    "category": "PANEL",
+    "display_name": "End Panel (3/4)",
+    "cv_name_pattern": [
+      "*End Panel*",
+      "3/4*Panel"
+    ],
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "3/4in end or refer panel. Applied to cabinet side."
+  },
+  {
+    "code": "PANEL-WAINSCOT",
+    "category": "PANEL",
+    "display_name": "Wainscot / Island Back",
+    "cv_name_pattern": [
+      "*Wainscot*",
+      "*Island BP*"
+    ],
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Large back panel. Material-heavy"
+  },
+  {
+    "code": "PANEL-WALL",
+    "category": "PANEL",
+    "display_name": "Wall Panel (Sheet)",
+    "cv_name_pattern": "*WALL PANEL*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Full sheet applied wall panel."
+  },
+  {
+    "code": "PANEL-DIE",
+    "category": "PANEL",
+    "display_name": "Die Wall",
+    "cv_name_pattern": "*Die wall*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "very_high",
+    "notes": "Custom structural panel. Always manual override."
+  },
+  {
+    "code": "FILLER-BASE",
+    "category": "FILLER",
+    "display_name": "Base Filler",
+    "cv_name_pattern": "*Base Filler*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "none",
+    "notes": "Strip only. Cut to fit. Material cost only."
+  },
+  {
+    "code": "FILLER-BASE-NOTOE",
+    "category": "FILLER",
+    "display_name": "Base Filler No Toe",
+    "cv_name_pattern": "*Base Filler No Toe*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "none",
+    "notes": "Same but no toekick applied."
+  },
+  {
+    "code": "FILLER-UPPER",
+    "category": "FILLER",
+    "display_name": "Upper Filler",
+    "cv_name_pattern": "*Upper Filler*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "none",
+    "notes": "Strip only. Material cost only."
+  },
+  {
+    "code": "FILLER-TALL",
+    "category": "FILLER",
+    "display_name": "Tall Filler",
+    "cv_name_pattern": "*Tall Filler*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "none",
+    "notes": "Strip only. Material cost only."
+  },
+  {
+    "code": "SHELF-FLOAT",
+    "category": "SHELF",
+    "display_name": "Floating Shelf",
+    "cv_name_pattern": "*Floating Shelf*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Edgebanded shelf. No box. Material + edge labor."
+  },
+  {
+    "code": "SHELF-COUNTER",
+    "category": "SHELF",
+    "display_name": "Countertop",
+    "cv_name_pattern": "*Counter*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Placeholder for countertop sub. Dimensions → SF → cost."
+  },
+  {
+    "code": "ACC-CLEAT",
+    "category": "ACCESSORY",
+    "display_name": "Wall Cleat / Coat Hook",
+    "cv_name_pattern": [
+      "*Cleat*",
+      "*Coat Hook*"
+    ],
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "low",
+    "notes": "Mounted cleat with hardware. Simple labor."
+  },
+  {
+    "code": "ACC-CUSTOM",
+    "category": "ACCESSORY",
+    "display_name": "Custom / Specialty",
+    "cv_name_pattern": "*",
+    "door_count": 0,
+    "drawer_count": 0,
+    "adj_shelves": "0",
+    "fixed_shelves": "0",
+    "complexity": "manual",
+    "notes": "Anything not matching above. Manual line item required."
+  }
+]

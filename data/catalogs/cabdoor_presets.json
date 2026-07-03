@@ -10,7 +10,8 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "Most-requested shaker. Group A inside, Group A panel, R-1/4 standard edge.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-SHAKER-FLAT",
@@ -23,7 +24,8 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "Slab inside-look with flat raised panel.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-RAISED-A",
@@ -36,7 +38,8 @@
     "glaze": true,
     "lite": "standard+deluxe",
     "notes": "Glazed-friendly. Group A raised.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-BEADED-A",
@@ -49,7 +52,8 @@
     "glaze": true,
     "lite": "standard",
     "notes": "Bead detail; great for traditional kitchens.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-APPLIED-MOULDING",
@@ -62,7 +66,8 @@
     "glaze": true,
     "lite": "standard+deluxe",
     "notes": "Applied moulding panel for ornate detail.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-REVERSE-RAISED",
@@ -75,7 +80,8 @@
     "glaze": true,
     "lite": "standard+deluxe",
     "notes": "Reverse raised look.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-LEXINGTON",
@@ -88,7 +94,8 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "3\" mitre. Pair with Group A flat-back panel.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-CONCORD",
@@ -101,7 +108,8 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "3\" mitre. Pair with Group A flat-back panel.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-CHERRY-HILL",
@@ -114,7 +122,8 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "3\" mitre.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-PETERSBURG",
@@ -127,7 +136,8 @@
     "glaze": false,
     "lite": "none",
     "notes": "2-1/4\" mitre with default E-32 edge.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-WILLIAMSBURG",
@@ -140,7 +150,8 @@
     "glaze": false,
     "lite": "none",
     "notes": "2-1/4\" mitre with default E-46 edge.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-CHANTILLY",
@@ -153,7 +164,8 @@
     "glaze": false,
     "lite": "none",
     "notes": "2-1/4\" mitre, rope moulding inlaid.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-HARTFORD",
@@ -166,7 +178,8 @@
     "glaze": false,
     "lite": "none",
     "notes": "2-1/2\" mitre.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-ALEXANDRIA",
@@ -179,7 +192,8 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "2-1/2\" mitre.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   },
   {
     "id": "PRESET-MITRE-BROOKHAVEN-P15",
@@ -192,6 +206,7 @@
     "glaze": false,
     "lite": "standard+deluxe",
     "notes": "Rosewood edge. Replace inside profile to vary the look. Great for glazed.",
-    "placeholder": false
+    "placeholder": false,
+    "price_per_sqft": 0
   }
 ]

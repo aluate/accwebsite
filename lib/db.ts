@@ -20,11 +20,11 @@ function createSql() {
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
     ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
-    // max: 1 — Supabase free tier has only ~10 connections total.
+    // max: 3 — Supabase Pro gives 25 dedicated pooler connections.
     // Each Vercel Lambda is its own process with its own pool.
-    // Sequential queries never need more than 1 connection at a time,
-    // so max: 1 prevents multiple warm Lambdas from exhausting the pool.
-    max: 1,
+    // max: 3 lets Promise.all run 3 queries in parallel (schedule page
+    // runs 5 concurrent queries; serial through max: 1 takes 8–12s total).
+    max: 3,
     // idle_timeout: 2 — release connections to PgBouncer quickly after use,
     // so other Lambda invocations can acquire them. 20s idle keeps connections
     // tied up unnecessarily across requests.
@@ -78,11 +78,12 @@ export function uid(): string {
 /**
  * withDbTimeout — wraps a DB operation in a race against a timeout.
  * Prevents Vercel Lambda from hanging silently until the 10s hard kill.
- * Default: 8 seconds (leaves headroom for the Lambda to return a proper error).
+ * Default: 12 seconds (leaves headroom for the Lambda to return a proper error;
+ * raised from 8s to accommodate schedule page with 5 parallel queries).
  */
 export async function withDbTimeout<T>(
   fn: () => Promise<T>,
-  ms = 8000
+  ms = 12000
 ): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -104,7 +105,7 @@ export async function nextJobId(): Promise<{ id: string; seq: number }> {
   `;
   const seq = row.val as number;
   const year = new Date().getFullYear();
-  return {
+    return {
     id: `ACC-${year}-${String(seq).padStart(4, "0")}`,
     seq,
   };

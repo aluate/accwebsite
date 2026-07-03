@@ -1,0 +1,21 @@
+code,name,applies_to,labor_impact,material_impact,description,notes
+FINISHED_INTERIOR,Finished Interior,BASE;UPPER;TALL,high,medium,All interior surfaces finished (stained/painted) instead of standard liner.,Triggers full finishing sub-assembly on box interior. Required for open cabinets.
+SINK_CUTOUT,Sink Cutout,BASE,medium,low,CNC cutout in cabinet bottom for sink undermount.,Adds CNC time. Small material waste. Usually paired with false_front.
+FALSE_FRONT,False Front,BASE,low,low,Decorative panel in drawer space with no drawer box behind it.,Replaces drawer box sub-assembly with panel-only. Still needs hinge/push hardware.
+CLOSET_ROD,Closet Rod,BASE;TALL,low,low,Closet rod installed inside cabinet with rod cups.,Adds rod material (LF × cabinet depth) + install labor. Seen on pantry/closet pieces.
+ROLLOUT_SHELF,Rollout Shelf (each),BASE;TALL,medium,medium,Rollout shelf = drawer box on full-extension slides. Add per qty.,Each rollout = drawer box labor + full-extension slides. Count them individually.
+TRASH_PULLOUT,Trash Pullout,BASE,medium,medium,Soft-close pullout trash hardware inside base cabinet.,Specialty hardware cost + assembly labor. Usually replaces standard shelf.
+LAZY_SUSAN,Lazy Susan,BASE;UPPER,high,high,Rotating shelf hardware. Full-circle or kidney-shaped.,Special hardware + assembly. Typically 2-door corner cabinet.
+GLASS_DOOR,Glass Door (per door),UPPER;TALL,low,high,Door has glass panel instead of solid wood/MDF.,Door material changes entirely (buyout glass door or frame + glass). Finish labor similar.
+GLASS_INSERT,Glass Insert (per door),UPPER;TALL,medium,medium,Shop-built door with glass panel inserted (not buyout door).,Adds routing + glass sourcing. More labor than solid door.
+APPLIED_END_PANEL,Applied End Panel,BASE;UPPER;TALL,low,medium,Panelized end applied to exposed cabinet side.,Additional panel cut + finish + apply. Usually matches door style.
+FURNITURE_TOE,Furniture Toe / Bun Foot,BASE,medium,medium,Decorative furniture-style toekick or bun feet instead of standard toe.,Different toe construction. May add height. Labor and material vary.
+LIGHT_RAIL,Light Rail Molding,UPPER,low,low,Horizontal molding applied to bottom of upper cabinets.,LF of cabinet run × material cost. Install labor minimal.
+CROWN_MOLDING,Crown Molding,UPPER;TALL,medium,medium,Crown profile applied to top of uppers or talls.,LF × profile material cost. Miter/coping labor. Tracked in Molding Totals report.
+CORNER_HINGE_45,45° Corner Hinge,BASE;UPPER,none,medium,"Specialty hinge required for 45° diagonal corner cabinets. Different plate and cup than standard.","Not interchangeable with standard Blum. Flag auto-applies when cabinet type is B-CORNER-45 or W-CORNER-45."
+SOFT_CLOSE_HINGE,Soft Close Hinges,BASE;UPPER;TALL,none,low,Blum soft-close hinge upgrade.,Material delta only (standard hinge → Blum soft-close). No labor change.
+PUSH_TO_OPEN,Push to Open,BASE;UPPER,none,low,Push-to-open hardware (no pull required).,Material only. Removes pull cost. Used on appliance garages and hidden cabinets.
+PULL_ALLOWANCE,Pull Allowance Override,,none,variable,Use a dollar allowance instead of a specific pull from library.,"Tiers: $5 / $10 / $15 / $20 / $35 / $50 / $75 / $100+ / custom (free entry). Use when pull not in library or client-supplied. $5-$15 = basic/builder. $20-$35 = standard decorative. $50+ = specialty/custom."
+GLAZE,Glaze Finish,,high,medium,Glaze color applied over base finish and wiped back.,Adds finishing step between sealer and topcoat. Extra material + significant labor.
+DISTRESS,Distressing / Aging,,high,low,Physical distressing before finish (rub-through, worm holes, chain marks etc.).,All labor — pre-finish shop time. Very job-specific. Flag triggers manual labor review.
+CUSTOM_LABOR,Custom Labor Override,,manual,none,Override for non-standard labor. Die walls, complex geometry, custom builds.,Estimator enters hours directly. System applies labor rate. Required for anything not in taxonomy.

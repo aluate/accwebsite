@@ -1,0 +1,4 @@
+profile_id,name,is_default,mat_thickness_in,back_thickness_in,back_mat_cost_per_sf,toekick_height_in,door_reveal_side_in,door_reveal_top_in,door_reveal_bottom_in,door_reveal_between_in,top_nailer_height_in,notes
+ACC_STD,ACC Standard Frameless,true,0.75,0.5,2.40,4.0,0.125,0.125,0.125,0.125,3.5,"Euro frameless. 3/4 body, 1/2 back, 4in toekick, 1/8in reveals. back_mat_cost_per_sf = 1/2 ply approx $77/sheet / 32SF. Verify."
+ACC_CLOSET,ACC Closet / Melamine,false,0.75,0.25,1.20,4.0,0.125,0.125,0.125,0.125,3.5,"Closet/storage system. 3/4 body, 1/4 back (hardboard). back_mat_cost_per_sf estimate. Verify."
+ACC_COMMERCIAL,ACC Commercial Frameless,false,0.75,0.5,2.40,4.0,0.0625,0.0625,0.0625,0.0625,3.5,"Tighter 1/16in reveals for commercial installs. Same materials as ACC_STD."

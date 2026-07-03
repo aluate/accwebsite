@@ -205,15 +205,4 @@ Doc roles, so nothing drifts:
 ## CURRENT LIST — 2026-07-03
 
 **Form fixes (from testing session):**
-- [ ] Rename "EXPRESS" button → "SPEC" on job detail page (`app/jobs/[id]/page.tsx`)
-- [ ] Accessories section header: "Rev-A-Shelf Accessories" → "Accessories"
-- [ ] Custom accessory notes field: when "Other/Custom" selected in accessory dropdown, show a text input for description
-- [ ] Trim callouts: rename "Material" field → "Notes" (free text). Material is implied by finish group. Use for things like "Need at least 2 10' sticks", special conditions, etc.
-
-**PDF overhaul — priority (from Karl 2026-07-03 spec review):**
-- [ ] **Room Schedule format**: Change from finish-group matrix to a 3-column list: ROOM | FINISH GROUP | NOTES. If a room has multiple finish groups, one row per assignment. This is the target format — not the matrix.
-- [ ] **Material Schedule**: Remove CAB INT / CAB EXT 2 / CAB INT 2 rows from PDF material schedule table entirely. They are covered elsewhere.
-- [ ] **Text wrapping / column widths**: Text getting smushed and not wrapping throughout PDF. Fix column widths and enable word wrap on all cells.
-- [ ] **Notes field garbage**: "Auto-seeded from builder profile: Premier. Confirm dropdowns before saving." is appearing in the PDF notes field. This placeholder text should never reach the PDF — strip it or only render notes if they contain real content (not the placeholder string).
-- [ ] **Overall PDF formatting**: Rows not wrapping, layout broken. Needs a focused pass on `lib/pdf-spec.tsx` — column widths, wrap, padding throughout all tables.
-
+- [ ] Rename "EXPRE

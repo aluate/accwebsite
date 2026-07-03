@@ -1,0 +1,132 @@
+sub_assembly,sequence,type,cost_type,assembly_code,description,unit_cost,qty,width_in,depth_in,height_in,unit_price,line_total,notes
+Base Cab Material/Labor,1,Material,Fabrication,,BID_1B 3/4x4x8 PS Alder A1 VC,4.85,,23.125,32.5,,7.6732,,exterior panels
+Base Cab Material/Labor,2,Material,Fabrication,,3/4 x4x8 BIRCH PLYWOOD,3.2188,15.1357,23.125,32.5,,5.0925,77.0780,
+Base Cab Material/Labor,3,Material,Fabrication,,3/4 x4x8 BIRCH PLYWOOD,3.2188,14.8625,24,30.75,,5.0925,75.6867,
+Base Cab Material/Labor,4,Material,Fabrication,,BID_1B 3/4x4x8 PS Alder A1 VC,4.85,,24,30.75,,7.6732,,
+Base Cab Material/Labor,5,Material,Fabrication,,BID_1M 3/4x4x8 Hard Rock Maple Melamine PB,1.50,8.3333,31.25,32,,2.3732,19.7762,
+Base Cab Material/Labor,6,Material,Fabrication,,BID_1B 3/4x4x8 PS Alder A1 VC,4.85,,32.25,32.5,,7.6732,,
+Base Cab Material/Labor,7,Material,Fabrication,,3/4 x4x8 BIRCH PLYWOOD,3.2188,2.4772,4,30.75,,5.0925,12.6151,
+Base Cab Material/Labor,8,Material,Fabrication,,BID_1B 3/4x4x8 PS Alder A1 VC,4.85,2,32.25,32.5,,7.6732,,
+Base Cab Material/Labor,9,Material,Fabrication,,BID_1A Custom Stocked PVC Tape 3mm x 15/16,0.3320,12.9500,,,,,6.8021,edgeband LF
+Base Cab Material/Labor,10,Material,Fabrication,,BID_1A Wilsonart STD VG Finish 4x8,1.5700,,23.125,32.5,,2.4839,,exterior finish
+Base Cab Material/Labor,11,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,23.125,32.5,,1.0284,,interior liner
+Base Cab Material/Labor,12,Material,Fabrication,,BID_1A Wilsonart STD VG Finish 4x8,1.5700,,24,32.25,,2.4839,,
+Base Cab Material/Labor,13,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,24,32.25,,1.0284,,
+Base Cab Material/Labor,14,Material,Fabrication,,BID_1A Wilsonart STD VG Finish 4x8,1.5700,,32.25,28.5,,2.4839,,
+Base Cab Material/Labor,15,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,32.25,28.5,,1.0284,,
+Base Cab Material/Labor,16,Material,Fabrication,,BID_1A Wilsonart STD VG Finish 4x8,1.5700,,3,32.5,,2.4839,,
+Base Cab Material/Labor,17,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,3,32.5,,1.0284,,
+Base Cab Material/Labor,18,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,608.125,,1548,1.0284,,large panel - back?
+Base Cab Material/Labor,19,Labor,Fabrication,,LABOR CNC ROUTER 1,25.00,0.1062,1560,1548,258,92.3975,9.8126,6.37 min
+Base Cab Material/Labor,20,Labor,Fabrication,,LABOR EDGEBANDER 2,25.00,0.0294,10.7917,,9.75,92.3975,2.7165,1.76 min
+Base Cab Material/Labor,21,Labor,Fabrication,,LABOR DRILL & DOWEL,25.00,0.0250,1,,2,92.3975,,1.5 min
+Base Cab Material/Labor,22,Labor,Fabrication,,LABOR BEAM SAW,25.00,0.0227,048.125,1104,828,92.3975,2.0974,1.36 min
+Base Cab Material/Labor,23,Labor,Fabrication,,LABOR ROUGH ASSEMBLY BASE & WALL,25.00,0.1111,,,,,10.2654,6.67 min
+Base Cab Material/Labor,24,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,,780,,,92.3975,,
+Base Cab Material/Labor,25,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,,774,,,92.3975,,
+Base Cab Material/Labor,26,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,,048.125,,,92.3975,,
+Base Cab Material/Labor,27,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,,97.5,,,92.3975,,
+Base Cab Material/Labor,28,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,0.0722,1560,18.125,1548,92.3975,6.6711,4.33 min
+Base Cab Material/Labor,29,Labor,Finishing,,LABOR FINISH PREP,25.00,,780,,,92.3975,,
+Base Cab Material/Labor,30,Labor,Finishing,,LABOR FINISH PREP,25.00,,048.125,,,92.3975,,
+Base Cab Material/Labor,31,Labor,Finishing,,LABOR FINISH PREP,25.00,,774,,,92.3975,,
+Base Cab Material/Labor,32,Labor,Finishing,,LABOR FINISH PREP,25.00,,97.5,,,92.3975,,
+Base Cab Material/Labor,33,Labor,Finishing,,LABOR FINISH PREP,25.00,0.3006,1560,18.125,1548,92.3975,27.7747,18.04 min
+Base Cab Material/Labor,34,Labor,Fabrication,,LABOR KITTING BASE WALL AND CARTS,25.00,0.1000,,,,,9.2398,6.0 min
+Base Cab Material/Labor,SUBTOTAL,,,,Base Cab Material/Labor,130.5662,1.0000,32.25,24,32.5,226.0897,226.0897,
+Rail Material/Labor,35,Material,Fabrication,,3/4 x4x8 BIRCH PLYWOOD,3.2188,1.2386,4,,30.75,5.0925,6.3075,
+Rail Material/Labor,36,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,5,,4,1.0284,,
+Rail Material/Labor,37,Material,Fabrication,,BID_1A Custom Stocked PVC Tape 3mm x 15/16,0.3320,3.0750,,,,,1.6152,
+Rail Material/Labor,38,Labor,Fabrication,,LABOR CNC ROUTER 1,25.00,0.0039,4,24,30.75,92.3975,0.3604,0.23 min
+Rail Material/Labor,39,Labor,Fabrication,,LABOR EDGEBANDER 2,25.00,0.0071,30,24,,92.3975,0.6560,0.43 min
+Rail Material/Labor,40,Labor,Fabrication,,LABOR DRILL & DOWEL,25.00,0.0250,,0,0,92.3975,2.3099,1.5 min
+Rail Material/Labor,41,Labor,Fabrication,,LABOR ROUGH ASSEMBLY BASE & WALL,25.00,0.0167,,,,,1.5430,1.0 min
+Rail Material/Labor,42,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,0.0042,264,638,33,92.3975,0.3881,0.25 min
+Rail Material/Labor,43,Labor,Finishing,,LABOR FINISH PREP,25.00,0.0178,,,,,1.6447,1.07 min
+Rail Material/Labor,SUBTOTAL,,,,Rail Material/Labor,6.3252,2.0000,4,,30.75,12.7920,25.5841,qty=2 rails
+Base Toekick,44,Material,Fabrication,,BID_1I 3/4x4x8 SHOP Plywd,1.75,2.5978,4,,32.25,2.7687,7.1925,
+Base Toekick,45,Material,Fabrication,,BID_1I 3/4x4x8 SHOP Plywd,1.75,2.3564,4,,19.5,2.7687,6.5241,
+Base Toekick,46,Material,Fabrication,,BID_1I 3/4x4x8 SHOP Plywd,1.75,2.5978,4,,32.25,2.7687,7.1925,
+Base Toekick,47,Material,Fabrication,,BID_1C 1/4x4x8 MDF,0.7000,,4,,32.25,1.1075,,
+Base Toekick,48,Material,Fabrication,,BID_1A Wilsonart STD VG Finish 4x8,1.5700,,4,,32.25,2.4839,,
+Base Toekick,49,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,4,,32.25,1.0284,,
+Base Toekick,50,Material,Fabrication,,BID_1C 1/4x4x8 MDF,0.7000,,4,,21,1.1075,,
+Base Toekick,51,Material,Fabrication,,BID_1A Wilsonart STD VG Finish 4x8,1.5700,,4,,21,2.4839,,
+Base Toekick,52,Material,Fabrication,,BID_1F Wilsonart White Cabinet Liner,0.6500,,4,,21,1.0284,,
+Base Toekick,53,Labor,Fabrication,,LABOR BEAM SAW,25.00,0.0147,258,,420,92.3975,1.3582,0.88 min
+Base Toekick,54,Labor,Fabrication,,LABOR TOEKICKS,25.00,0.1250,,,,,11.5497,7.5 min
+Base Toekick,55,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,,80,,,92.3975,,
+Base Toekick,56,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,,84,,,92.3975,,
+Base Toekick,57,Labor,Finishing,,LABOR FINISH PREP,25.00,,,,,,
+Base Toekick,58,Labor,Finishing,,LABOR FINISH PREP,25.00,,84,,,92.3975,,
+Base Toekick,SUBTOTAL,,,,Base Toekick,16.7085,1.0000,32.25,,4,33.8170,33.8170,
+Face Frame Material/Labor RSL,59,Material,Fabrication,,BID_1F 4/4 PS Maple,5.40,1.3203,2.25,1,32.5,8.5433,11.2798,
+Face Frame Material/Labor RSL,60,Material,Fabrication,,BID_1F 4/4 PS Maple,5.40,2.2547,2.25,1,27.75,8.5433,19.2627,
+Face Frame Material/Labor RSL,61,Material,Fabrication,,BID_1F 4/4 PS Maple,5.40,,2.25,1,28,8.5433,,
+Face Frame Material/Labor RSL,62,Labor,Fabrication,,LABOR RIP SAW,25.00,0.0323,129,,65,92.3975,2.9844,1.94 min
+Face Frame Material/Labor RSL,63,Labor,Fabrication,,LABOR MOULDER,25.00,0.0294,129,,65,92.3975,2.7165,1.76 min
+Face Frame Material/Labor RSL,64,Labor,Fabrication,,LABOR CUSTOM 2 (CASTORS & SILLS),35.00,0.8333,20,,,129.3565,107.7928,50 min - higher rate
+Face Frame Material/Labor RSL,65,Labor,Finishing,,LABOR FINISH PREP,25.00,0.1684,129,0,65,92.3975,15.5597,10.1 min
+Face Frame Material/Labor RSL,SUBTOTAL,,,,Face Frame Material/Labor RSL,20.8475,1.0000,32.25,.75,32.5,26.2434,26.2434,
+Drawer Front - Dwr Bank,66,Material,Fabrication,,BID_1F Buyout Door & Drawer Front PG Maple Ra,18.50,2.4262,32.25,,0.8333,29.2689,71.0121,
+Drawer Front - Dwr Bank,67,Material,Fabrication,,WILSONART 38 and 60 FINISH VG 4x8,1.3700,,32.25,,0.8333,2.1675,,
+Drawer Front - Dwr Bank,68,Material,Fabrication,,WILSONART 3173 PEARL CABINET LINER 4x8,0.6460,,32.25,,0.8333,1.0220,,
+Drawer Front - Dwr Bank,69,Material,Fabrication,,BID_1A Custom Stocked PVC Tape 3mm x 15/16,0.3320,,,,,0.5253,,
+Drawer Front - Dwr Bank,70,Hardware,Fabrication,,Allowance_0_Pull $20.00,20.00,1.0000,,,,,31.6420,pull allowance
+Drawer Front - Dwr Bank,71,Hardware,Fabrication,,BUMPERS CLEAR 7.9mm x 2.2mm,0.0387,2.0000,,,,,0.1225,
+Drawer Front - Dwr Bank,72,Labor,Fabrication,,LABOR PANEL LAYUP,25.00,0.0122,,,,,1.1272,0.73 min
+Drawer Front - Dwr Bank,73,Labor,Fabrication,,LABOR BEAM SAW,25.00,0.0076,,,,,0.7022,0.46 min
+Drawer Front - Dwr Bank,74,Labor,Fabrication,,LABOR EDGEBANDER 1,25.00,,7.1806,,0.8333,92.3975,,
+Drawer Front - Dwr Bank,75,Labor,Fabrication,,LABOR BRIMA/EKO,25.00,0.0121,,,,,1.1180,0.73 min
+Drawer Front - Dwr Bank,76,Labor,Fabrication,Metal DwrBox,LABOR FINAL ASMB 3 DR/DWR CABS,25.00,0.0333,,,,,3.0768,2.0 min
+Drawer Front - Dwr Bank,77,Labor,Fabrication,,LABOR FINAL ASMB 3 DR/DWR CABS,25.00,0.2000,,,,,18.4795,12.0 min
+Drawer Front - Dwr Bank,78,Labor,Finishing,,LABOR FINISH PREP,25.00,0.0506,,,,,4.6753,3.04 min
+Drawer Front - Dwr Bank,79,InstLabor,Installation,PULL,LABOR INSTALLATION - PULLS,45.00,0.0400,2,,,112.9050,4.5162,2.4 min install
+Drawer Front - Dwr Bank,SUBTOTAL,,,,Drawer Front - Dwr Bank,73.3297,3.0000,32.25,.75,8333,131.5657,394.6970,qty=3 fronts
+Drawer Box - Bank,80,Material,Fabrication,,BID_1T 1/2 Prefinished Maple Plywood,2.8500,2.9333,22,,8,4.5090,13.2262,
+Drawer Box - Bank,81,Material,Fabrication,,BID_1T 3/4 Prefinished Maple Plywood,3.2500,3.8333,28.75,,8,5.1418,19.7102,
+Drawer Box - Bank,82,Material,Fabrication,,BID_1T 1/2 Prefinished Maple Plywood,2.8500,5.2406,21.5,,29.25,4.5090,23.6298,
+Drawer Box - Bank,83,Material,Fabrication,,BID_1U 5/8 Prefinished Maple Edgebanding,0.1500,10.3500,,,,,2.4562,LF edgeband
+Drawer Box - Bank,84,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,14.50,,,,,,22.9405,
+Drawer Box - Bank,85,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,14.50,,,,,,22.9405,
+Drawer Box - Bank,86,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,16.00,,,,,,25.3136,
+Drawer Box - Bank,87,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,9.10,,,,,,14.3971,
+Drawer Box - Bank,88,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,18.00,,,,,,28.4778,
+Drawer Box - Bank,89,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,18.00,1.0000,,,,,28.4778,
+Drawer Box - Bank,90,Hardware,Fabrication,,BID_1S Drawer Slide Undermount Soft Close PROS,18.00,,,,,,28.4778,
+Drawer Box - Bank,91,Hardware,Fabrication,,DO NOT USE Grass Elite Standard Locking Device,0.35,1.0000,,,,,0.3500,flagged do not use
+Drawer Box - Bank,92,Labor,Fabrication,,LABOR BEAM SAW,25.00,0.0322,476,654.5,352,25.0000,0.8050,1.93 min
+Drawer Box - Bank,93,Labor,Fabrication,,LABOR BRIMA/EKO,25.00,0.0288,476,400,352,25.0000,0.7200,1.73 min
+Drawer Box - Bank,94,Labor,Fabrication,,LABOR EDGEBANDER 1,25.00,0.0157,30,24,,25.0000,0.3925,0.94 min
+Drawer Box - Bank,95,Labor,Fabrication,,LABOR DRAWERS,25.00,0.2000,,,,,5.0000,12.0 min
+Drawer Box - Bank,96,Labor,Fabrication,,LABOR DRAWERS,25.00,0.0500,.2,,.25,25.0000,1.2500,3.0 min
+Drawer Box - Bank,97,Labor,Fabrication,,LABOR FINAL ASMB 3 DR/DWR CABS,25.00,0.0667,,,,,1.6675,4.0 min
+Drawer Box - Bank,98,Labor,Fabrication,UNDERMTS,LABOR FINAL ASMB 3 DR/DWR CABS,25.00,0.0833,,,,,2.0825,5.0 min - undermount
+Drawer Box - Bank,SUBTOTAL,,,,Drawer Box - Bank,63.1713,3.0000,29.75,22,8,95.3652,286.0955,qty=3 boxes
+Finish Cabinet,99,Material,Finishing,,BID_1V Stain Base 5gal Dye Stain,32.00,0.0506,0,3.875,10.875,50.6272,2.5617,
+Finish Cabinet,100,Material,Finishing,,BID_1V Woodsong II 10% Stain Base 1gal Wiping S,48.00,0.0506,0,3.875,10.875,75.9408,3.8426,
+Finish Cabinet,101,Material,Finishing,,BID_1V Krystal Sealer 5gal (CV Sealer),55.00,0.0506,0,3.875,10.875,87.0155,4.4030,
+Finish Cabinet,102,Material,Finishing,,BID_1V Klearvar Dull 5gal (CV Topcoat),54.00,0.1012,0,3.875,10.875,85.4334,8.6459,
+Finish Cabinet,103,Material,Finishing,,BID_1V Care Catalyst,57.00,0.0153,0,3.875,10.875,90.1797,1.3797,
+Finish Cabinet,104,Material,Finishing,,BID_1V Klearvar Post Cat Satin Sheen,43.00,0.0506,0,3.875,10.875,68.0303,3.4423,
+Finish Cabinet,105,Labor,Finishing,,LABOR FINISHING,25.00,0.4835,0,3.875,10.875,92.3975,44.6742,29.01 min carcass
+Finish Cabinet,106,Labor,Finishing,Specialty,LABOR FINISHING,25.00,0.2417,0,3.875,10.875,92.3975,22.3325,14.5 min specialty
+Finish Cabinet,SUBTOTAL,,,,Finish Cabinet,18.1387,1.0000,32.25,24,36.5,42.6272,42.6272,
+Finish Base Door/Dwr Frt,107,Material,Finishing,,BID_1V Stain Base 5gal Dye Stain,32.00,0.0928,2227.75,0,32,50.6272,4.6982,
+Finish Base Door/Dwr Frt,108,Material,Finishing,,BID_1V Woodsong II 10% Stain Base 1gal Wiping S,48.00,0.0928,2227.75,0,32,75.9408,7.0473,
+Finish Base Door/Dwr Frt,109,Material,Finishing,,BID_1V Krystal Sealer 5gal (CV Sealer),55.00,0.0928,2227.75,0,32,87.0155,8.0750,
+Finish Base Door/Dwr Frt,110,Material,Finishing,,BID_1V Klearvar Dull 5gal (CV Topcoat),54.00,0.1856,2227.75,0,32,85.4334,15.8564,
+Finish Base Door/Dwr Frt,111,Material,Finishing,,BID_1V Care Catalyst,57.00,0.0279,2227.75,,32,90.1797,2.5160,
+Finish Base Door/Dwr Frt,112,Material,Finishing,,BID_1V Klearvar Post Cat Satin Sheen,43.00,0.0928,2227.75,0,32,68.0303,6.3132,
+Finish Base Door/Dwr Frt,113,Labor,Finishing,,LABOR FINISHING,25.00,0.2636,0,3.875,10.875,92.3975,24.3560,15.82 min 3 fronts
+Finish Base Door/Dwr Frt,114,Labor,Finishing,Specialty,LABOR FINISHING,25.00,0.1318,0,3.875,10.875,92.3975,12.1780,7.91 min specialty
+Finish Base Door/Dwr Frt,SUBTOTAL,,,,Finish Base Door/Dwr Frt,33.2586,1.0000,32.25,.75,32.5,78.1690,78.1690,
+Engineering/PM Labor,115,EngPMLa,Engineering,,LABOR ENGINEERING,55.00,0.2500,,,,,36.9476,15 min eng
+Engineering/PM Labor,116,EngPMLa,Management,,LABOR PROJECT MANAGEMENT,55.00,0.2499,,,,,36.9328,15 min PM
+Engineering/PM Labor,SUBTOTAL,,,,Engineering/PM Labor - Cabinet,27.4945,1.0000,,,73.8805,73.8805,,
+Delivery/Install Labor,117,DeliveryL,Fabrication,,LABOR LOAD/PACK TRUCK,25.00,0.1667,,,,,15.4027,10 min
+Delivery/Install Labor,118,InstLabor,Installation,,LABOR UNLOAD TRUCK,45.00,0.2500,,,,,28.2263,15 min
+Delivery/Install Labor,119,InstLabor,Installation,,LABOR INSTALLATION - BASES,45.00,0.8333,,,,,94.0837,50 min
+Delivery/Install Labor,120,InstLabor,Installation,,LABOR INSTALLATION - TOEKICKS,45.00,0.1667,,,,,18.8213,10 min
+Delivery/Install Labor,SUBTOTAL,,,,Delivery/Install Labor - Base,60.4175,1.0000,32.25,24,36.5,156.5339,156.5339,
+PRODUCT TOTAL,,,,DB3D_3EQ,Drawer Stack 3 Equal Drawers,708.7374,1.0000,32.25,24,36.5,1317.4937,1317.4937,stained finish

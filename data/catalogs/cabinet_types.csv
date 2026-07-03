@@ -1,0 +1,42 @@
+code,category,display_name,cv_name_pattern,door_count,drawer_count,adj_shelves,fixed_shelves,complexity,notes
+DB-2DR,BASE,Drawer Base 2-Drawer,DB-2Dr,0,2,0,0,medium,All-drawer. No doors. 2 equal drawers.
+DB-3DR,BASE,Drawer Base 3-Drawer,DB-3Dr,0,3,0,0,medium,All-drawer. Standard stack. Most common base type.
+DB-4DR,BASE,Drawer Base 4-Drawer,DB-4Dr,0,4,0,0,high,All-drawer. 4-equal or bank stack.
+DB-5DR,BASE,Drawer Base 5-Drawer,DB-5Dr,0,5,0,0,high,Less common. Pencil drawer + 4.
+B-1DO,BASE,Base 1-Door,B-1Do*,1,0,1,0,low,Single door. Adjustable shelf inside.
+B-2DO,BASE,Base 2-Door,B-2D*,2,0,1,0,low,Double door. Adjustable shelf. Standard base.
+B-1DO-1DR,BASE,Base 1-Door 1-Drawer,B-1Do1Dr*,1,1,1,0,medium,Door below + drawer above. Very common.
+B-2DO-1DR,BASE,Base 2-Door 1-Drawer,B-2Do1Dr*,2,1,1,0,medium,Double door + drawer above.
+B-OPEN,BASE,Open Base,B-Open,0,0,1,0,low,"No doors. Finished interior auto-required. Add drawers freely (B-OPEN-1DR etc.) — just set drawer_count."
+B-OPEN-1DR,BASE,Open Base 1-Drawer,B-Open1Dr*,0,1,1,0,medium,Open shelf below + 1 drawer above. Finished interior required.
+B-OPEN-2DR,BASE,Open Base 2-Drawer,B-Open2Dr*,0,2,1,0,medium,Open shelf below + 2 drawers above. Finished interior required.
+B-CORNER-BC,BASE,Corner Base (Blind 90°),B-BC*;B-BL*;B-CT*,1,0,1,0,high,"90° blind corner. Cabinet runs past the corner, blind strip covers gap. Standard door offset to one side. Standard hinges."
+B-CORNER-45,BASE,Corner Base (45° Diagonal),B-45*;B-DG*,1,0,1,0,high,"45° angled face frame. Door opens on the diagonal. Specialty angled door (buyout or shop-built). Requires special hinges for angled frame."
+B-LAZY,BASE,Corner Base (Lazy Susan),B-LS*,2,0,0,2,high,"Rotating shelves. Full-circle or kidney. 2 doors, standard hinges. Hardware-heavy."
+SB-1DO,BASE,Sink Base 1-Door,SB-1Do,1,0,0,0,medium,Sink cutout. No real drawer (false front implied).
+SB-2DO,BASE,Sink Base 2-Door,SB-2Do,2,0,0,0,medium,Sink cutout. False front on drawer space implied.
+B-TRASH,BASE,Trash Pullout Base,*T Can*;*Trash*,1,0,0,0,medium,Trash pullout hardware. 1-door with pullout.
+W-1DO,UPPER,Wall 1-Door,W-1Do*,1,0,1,0,low,Single door wall cabinet. Most common upper.
+W-2DO,UPPER,Wall 2-Door,W-2Do*,2,0,1,0,low,Double door wall cabinet.
+W-1DO-2AS,UPPER,Wall 1-Door 2-Shelf,W-1Do2As,1,0,2,0,low,Taller upper with 2 adjustable shelves.
+W-2DO-2AS,UPPER,Wall 2-Door 2-Shelf,W-2Do2As,2,0,2,0,low,Taller upper with 2 adjustable shelves.
+W-OPEN,UPPER,Open Wall / Display,W-1AS;W-Open*,0,0,1,0,low,No doors. Finished interior required. Display shelf.
+W-CORNER-BC,UPPER,Corner Wall (Blind 90°),W-BC*;W-BL*,1,0,1,0,high,"90° blind corner upper. Standard door offset. Standard hinges. Blind strip fills gap."
+W-CORNER-45,UPPER,Corner Wall (45° Diagonal),W-45*;W-DG*,1,0,1,0,high,"45° angled upper. Diagonal door. Specialty hinges. Less common than base 45° but same logic."
+T-PANTRY,TALL,Tall Pantry,T-*AS*FS,2,0,4,1,high,Full-height pantry. Many shelves. Double door.
+T-OVEN,TALL,Oven Surround / Tower,*Oven*;T-OV*,2,0,0,0,very_high,Built-in oven. Custom heights. Specialty labor.
+T-REFER,TALL,Refrigerator Surround,*Refer*;T-RF*,0,0,0,0,medium,Panels + top box. No real door or drawer.
+T-UTIL,TALL,Utility / Broom Tall,T-1Do*;T-2Do*,2,0,2,0,high,1 or 2 doors. Utility storage.
+PANEL-FULL,PANEL,Full Height Panel,*Full*Panel*,0,0,0,0,low,1.5in finished panel. Left or right. Minimal labor.
+PANEL-END,PANEL,End Panel (3/4),*End Panel*;3/4*Panel,0,0,0,0,low,3/4in end or refer panel. Applied to cabinet side.
+PANEL-WAINSCOT,PANEL,Wainscot / Island Back,*Wainscot*;*Island BP*,0,0,0,0,low,Large back panel. Material-heavy, minimal labor.
+PANEL-WALL,PANEL,Wall Panel (Sheet),*WALL PANEL*,0,0,0,0,low,Full sheet applied wall panel.
+PANEL-DIE,PANEL,Die Wall,*Die wall*,0,0,0,0,very_high,Custom structural panel. Always manual override.
+FILLER-BASE,FILLER,Base Filler,*Base Filler*,0,0,0,0,none,Strip only. Cut to fit. Material cost only.
+FILLER-BASE-NOTOE,FILLER,Base Filler No Toe,*Base Filler No Toe*,0,0,0,0,none,Same but no toekick applied.
+FILLER-UPPER,FILLER,Upper Filler,*Upper Filler*,0,0,0,0,none,Strip only. Material cost only.
+FILLER-TALL,FILLER,Tall Filler,*Tall Filler*,0,0,0,0,none,Strip only. Material cost only.
+SHELF-FLOAT,SHELF,Floating Shelf,*Floating Shelf*,0,0,0,0,low,Edgebanded shelf. No box. Material + edge labor.
+SHELF-COUNTER,SHELF,Countertop,*Counter*,0,0,0,0,low,Placeholder for countertop sub. Dimensions → SF → cost.
+ACC-CLEAT,ACCESSORY,Wall Cleat / Coat Hook,*Cleat*;*Coat Hook*,0,0,0,0,low,Mounted cleat with hardware. Simple labor.
+ACC-CUSTOM,ACCESSORY,Custom / Specialty,*,0,0,0,0,manual,Anything not matching above. Manual line item required.

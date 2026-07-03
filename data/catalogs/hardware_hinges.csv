@@ -1,7 +1,7 @@
-id,name,brand,model,type,overlay,close,notes
-HH-000,None (push-to-open),—,—,—,—,—,No hinge — push-to-open or trackball
-HH-BLU-110,Blum 110 CLIP top Blumotion Soft Close,Blum,71B3550,euro_concealed,full,soft-close,Standard ACC hinge — drawing label: Blum 110 Int-Soft Close
-HH-BLU-120,Blum 120 CLIP top Blumotion Soft Close,Blum,71B3750,euro_concealed,full,soft-close,"Wide-opening variant — drawing label: Blum 120, Soft Close. Used on pantries, corner cabs. Spivey, Bissell (2026 jobs)."
-HH-BLU-38N,Blum Compact 38N Blumotion 1/2 Overlay,Blum,38N355B.08,euro_concealed,1/2,soft-close,Half overlay variant
-HH-BLU-INSET,Blum Compact 38N Inset,Blum,38N355B.00,euro_concealed,inset,soft-close,Inset doors
-HH-099,Other,—,—,—,—,—,Specify in notes
+id,name,brand,model,type,overlay,close,unit_cost,notes
+HH-000,None (push-to-open),—,—,—,—,—,0,No hinge — push-to-open or trackball
+HH-BLU-110,Blum 110 CLIP top Blumotion Soft Close,Blum,71B3550,euro_concealed,full,soft-close,2.77,Standard ACC hinge — $0.52 plate + $2.25 clip from PPAK 2026. Verify current price.
+HH-BLU-120,Blum 120 CLIP top Blumotion Soft Close,Blum,71B3750,euro_concealed,full,soft-close,2.77,"Wide-opening variant — drawing label: Blum 120, Soft Close. Used on pantries, corner cabs."
+HH-BLU-38N,Blum Compact 38N Blumotion 1/2 Overlay,Blum,38N355B.08,euro_concealed,1/2,soft-close,2.60,Half overlay variant — estimate based on BLU-110. Verify.
+HH-BLU-INSET,Blum Compact 38N Inset,Blum,38N355B.00,euro_concealed,inset,soft-close,2.60,Inset doors — estimate based on BLU-110. Verify.
+HH-099,Other,—,—,—,—,—,0,Specify in notes
