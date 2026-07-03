@@ -75,7 +75,7 @@ export type MoldingView = {
 };
 
 export type FinishGroupView = {
-  id: string; label: string; finish_type: string; notes: string; species: string;
+  id: string; label: string; finish_type: string; notes: string;
   finish: FinishView;
   materials: MaterialView[];
   door_fronts: DoorFrontView[];
@@ -111,26 +111,6 @@ export type MoldingRollupRow = {
   total_lf: number; finishes: string[];
 };
 
-export type SpecPullRow = {
-  id: string;
-  make: string;
-  model: string;
-  size: string;
-  room: string;
-  notes: string;
-  qty: number;
-};
-
-export type SpecAccessoryRow = {
-  id: string;
-  part_number: string;
-  description: string;
-  qty: number;
-  handed: string;
-  room: string;
-  notes: string;
-};
-
 export type SpecPDFData = {
   job_id: string;
   spec_name: string;
@@ -154,46 +134,6 @@ export type SpecPDFData = {
   rooms: RoomView[];
   accessories_rollup: AccessoryRollupRow[];
   moldings_rollup: MoldingRollupRow[];
-
-  spec_pulls: SpecPullRow[];
-  spec_accessories: SpecAccessoryRow[];
-
-  // Phase 1 additions (2026-07-02)
-  finish_group_pulls: Record<string, FGPullRow[]>;
-  room_trim: Record<string, RoomTrimEntry[]>;
-  spec_appliances_list: ApplianceEntry[];
-  job_notes: string | null;
-};
-
-export type FGPullRow = {
-  id: string;
-  description: string;
-  part_no: string;
-  finish_color: string;
-  where_used: string;
-  qty: number;
-  sort_order: number;
-};
-
-export type RoomTrimEntry = {
-  id: string;
-  room_id: string;
-  trim_type: string;
-  size_desc: string;
-  material: string;
-  qty_lf: number;
-  notes: string;
-  sort_order: number;
-};
-
-export type ApplianceEntry = {
-  id: string;
-  appliance_type: string;
-  manufacturer: string;
-  model_no: string;
-  room_name: string;
-  notes: string;
-  sort_order: number;
 };
 
 // ─── XLSX fixed-row definitions ───────────────────────────────────────────────
@@ -313,7 +253,7 @@ const dash = (s: string | number | null | undefined) =>
   s === null || s === undefined || s === "" ? "" : String(s);
 
 const stageMap: Record<string, string> = {
-  F: "FINISH", R: "ROOMS", N: "NOTES", A: "ACCESSORIES",
+  F: "FINISH", R: "ROOMS", N: "NOTES",
 };
 
 // ─── Shared components ────────────────────────────────────────────────────────
@@ -335,9 +275,8 @@ function TitleBlock({ data, code }: { data: SpecPDFData; code: string }) {
         </View>
         <View>
           <Text style={S.tbRight}>Job #: {data.job_id}</Text>
-          {data.pm              && <Text style={S.tbRight}>PM: {data.pm}</Text>}
-          {data.builder_company && <Text style={S.tbRight}>Builder: {data.builder_company}</Text>}
-          {data.builder_name    && <Text style={[S.tbRight, { fontSize: 6, color: MUTED }]}>Contact: {data.builder_name}</Text>}
+          {data.pm           && <Text style={S.tbRight}>PM: {data.pm}</Text>}
+          {data.builder_name && <Text style={S.tbRight}>Builder: {data.builder_name}</Text>}
           <Text style={S.tbRight}>Date: {new Date(data.generated_at).toLocaleDateString()}</Text>
         </View>
       </View>
@@ -584,52 +523,13 @@ function HardwareSchedule({ fg }: { fg: FinishGroupView }) {
 
 // ─── F.x Right column sections ────────────────────────────────────────────────
 
-
-function FGPullsSection({ data, fg }: { data: SpecPDFData; fg: FinishGroupView }) {
-  const fgPulls = (data.finish_group_pulls ?? {})[fg.id] ?? [];
-  if (fgPulls.length === 0) {
-    return (
-      <>
-        <Band title="Pulls" />
-        <Text style={S.empty}>See hardware schedule</Text>
-      </>
-    );
-  }
-  return (
-    <>
-      <Band title="Pulls" />
-      <View style={S.colHdr}>
-        <Text style={[S.colHdrTx, { flex: 2.2 }]}>Description</Text>
-        <Text style={[S.colHdrTx, { flex: 1.2 }]}>Part #</Text>
-        <Text style={[S.colHdrTx, { flex: 1 }]}>Finish</Text>
-        <Text style={[S.colHdrTx, { flex: 1.5 }]}>Where Used</Text>
-        <Text style={[S.colHdrTx, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
-      </View>
-      {fgPulls.map((p, i) => (
-        <View key={p.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
-          <Text style={[S.sCell, { flex: 2.2, fontFamily: "Helvetica-Bold" }]}>{dash(p.description)}</Text>
-          <Text style={[S.sCell, { flex: 1.2 }]}>{dash(p.part_no)}</Text>
-          <Text style={[S.sCell, { flex: 1 }]}>{dash(p.finish_color)}</Text>
-          <Text style={[S.sCell, { flex: 1.5 }]}>{dash(p.where_used)}</Text>
-          <Text style={[S.sCell, { flex: 0.5, textAlign: "right" }]}>{p.qty || ""}</Text>
-        </View>
-      ))}
-    </>
-  );
-}
-
 function FinishSchedule({ fg }: { fg: FinishGroupView }) {
-  const isPaintOrStain = fg.finish_type === "paint" || fg.finish_type === "stain";
-  const baseRows = [
+  const rows = [
     { label: "Stain",   value: fg.finish.stain_name },
     { label: "Paint",   value: fg.finish.paint_name },
     { label: "Glaze",   value: fg.finish.glaze_name },
     { label: "Finish",  value: fg.finish.topcoat_name },
     { label: "Sheen",   value: fg.finish.sheen_name },
-  ];
-  const rows = [
-    ...baseRows,
-    ...(isPaintOrStain && fg.species ? [{ label: "Species", value: fg.species }] : []),
   ];
   return (
     <>
@@ -730,10 +630,9 @@ function FinishGroupPage({ data, fg, idx }: { data: SpecPDFData; fg: FinishGroup
           <EdgebandSchedule fg={fg} />
           <HardwareSchedule fg={fg} />
         </View>
-        {/* Right column: Finish / Pulls / Moldings / Countertops */}
+        {/* Right column: Finish / Moldings / Countertops */}
         <View style={S.colRight}>
           <FinishSchedule fg={fg} />
-          <FGPullsSection data={data} fg={fg} />
           <MoldingsSchedule fg={fg} />
           <CountertopsSchedule fg={fg} />
         </View>
@@ -759,12 +658,6 @@ function RoomMatrixPage({ data }: { data: SpecPDFData }) {
         ROOM SCHEDULE
       </Text>
       <Text style={{ fontSize: 8, color: MUTED, marginBottom: 8 }}>{address}</Text>
-      {data.job_notes ? (
-        <View style={[S.notesBox, { borderColor: "#c00", marginBottom: 8 }]}>
-          <Text style={[S.notesLabel, { color: "#c00" }]}>JOB NOTES</Text>
-          <Text style={[S.notesBody, { color: "#111" }]}>{data.job_notes}</Text>
-        </View>
-      ) : null}
       {fgs.length > 0 && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
           {fgs.map((fg) => (
@@ -794,19 +687,14 @@ function RoomMatrixPage({ data }: { data: SpecPDFData }) {
             return (
               <View key={room.id} style={ri % 2 === 0 ? S.matrixRow : S.matrixRowAlt}>
                 <Text style={[S.matrixRoomCell, { flex: roomFlex }]}>{room.name || "—"}</Text>
-                {fgs.map((fg) => {
-                  const finishLink = room.finishes.find(f => f.finish_group_id === fg.id);
-                  const zoneText = finishLink ? (finishLink.zone || "✓") : "";
-                  return (
-                    <Text key={fg.id} style={[S.matrixCell, {
-                      flex: fgFlex,
-                      color: finishLink ? "#1a7a1a" : HAIR,
-                      fontSize: 6.5,
-                    }]}>
-                      {zoneText}
-                    </Text>
-                  );
-                })}
+                {fgs.map((fg) => (
+                  <Text key={fg.id} style={[S.matrixCell, {
+                    flex: fgFlex,
+                    color: assignedFgIds.has(fg.id) ? "#1a7a1a" : HAIR,
+                  }]}>
+                    {assignedFgIds.has(fg.id) ? "✓" : "—"}
+                  </Text>
+                ))}
               </View>
             );
           })}
@@ -844,132 +732,15 @@ function NotesPage({ data }: { data: SpecPDFData }) {
   );
 }
 
-// A.1 Accessories and Pulls page
-
-function AccessoriesPage({ data }: { data: SpecPDFData }) {
-  const pulls = data.spec_pulls ?? [];
-  const accs = data.spec_accessories ?? [];
-
-  return (
-    <Page size="LETTER" orientation="landscape" style={S.page}>
-      <TitleBlock data={data} code="A.1" />
-
-      {/* PULLS section */}
-      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 4 }}>
-        PULLS
-      </Text>
-      {pulls.length === 0 ? (
-        <Text style={S.empty}>No pulls specified.</Text>
-      ) : (
-        <>
-          <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Make</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Model</Text>
-            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Size</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
-            <Text style={[S.colHdrTx, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
-          </View>
-          {pulls.map((p, i) => (
-            <View key={p.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
-              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(p.make)}</Text>
-              <Text style={[S.sCell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{dash(p.model)}</Text>
-              <Text style={[S.sCell, { flex: 1.2 }]}>{dash(p.size)}</Text>
-              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(p.room)}</Text>
-              <Text style={[S.sCell, { flex: 0.5, textAlign: "right" }]}>{p.qty}</Text>
-              <Text style={[S.sCellMu, { flex: 2 }]}>{dash(p.notes)}</Text>
-            </View>
-          ))}
-        </>
-      )}
-
-      {/* Spacer between sections */}
-      <View style={{ height: 14 }} />
-
-      {/* ACCESSORIES section */}
-      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 4 }}>
-        REVASHELF / ACCESSORIES
-      </Text>
-      {accs.length === 0 ? (
-        <Text style={S.empty}>No accessories specified.</Text>
-      ) : (
-        <>
-          <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Part Number</Text>
-            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Description</Text>
-            <Text style={[S.colHdrTx, { flex: 0.5, textAlign: "right" }]}>Qty</Text>
-            <Text style={[S.colHdrTx, { flex: 0.8 }]}>Handed</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
-          </View>
-          {accs.map((a, i) => (
-            <View key={a.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
-              <Text style={[S.sCell, { flex: 1.2, fontFamily: "Helvetica-Bold" }]}>{dash(a.part_number)}</Text>
-              <Text style={[S.sCell, { flex: 2.5 }]}>{dash(a.description)}</Text>
-              <Text style={[S.sCell, { flex: 0.5, textAlign: "right" }]}>{a.qty}</Text>
-              <Text style={[S.sCell, { flex: 0.8 }]}>{dash(a.handed)}</Text>
-              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(a.room)}</Text>
-              <Text style={[S.sCellMu, { flex: 2 }]}>{dash(a.notes)}</Text>
-            </View>
-          ))}
-        </>
-      )}
-
-      <PageFooter data={data} />
-    </Page>
-  );
-}
-
-
-// Appliances page
-function AppliancesPage({ data }: { data: SpecPDFData }) {
-  const apps = data.spec_appliances_list ?? [];
-  return (
-    <Page size="LETTER" orientation="landscape" style={S.page}>
-      <TitleBlock data={data} code="AP.1" />
-      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#111", marginBottom: 8 }}>
-        APPLIANCES & PLUMBING
-      </Text>
-      {apps.length === 0 ? (
-        <Text style={S.empty}>No appliances specified.</Text>
-      ) : (
-        <>
-          <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 1.2 }]}>Type</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Manufacturer</Text>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Model #</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
-          </View>
-          {apps.map((a, i) => (
-            <View key={a.id} style={i % 2 === 0 ? S.sRow : S.sRowAlt}>
-              <Text style={[S.sCell, { flex: 1.2, fontFamily: "Helvetica-Bold" }]}>{a.appliance_type}</Text>
-              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(a.manufacturer)}</Text>
-              <Text style={[S.sCell, { flex: 2 }]}>{dash(a.model_no)}</Text>
-              <Text style={[S.sCell, { flex: 1.5 }]}>{dash(a.room_name)}</Text>
-              <Text style={[S.sCellMu, { flex: 2 }]}>{dash(a.notes)}</Text>
-            </View>
-          ))}
-        </>
-      )}
-      <PageFooter data={data} />
-    </Page>
-  );
-}
-
 // Main exported renderer
 
 export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   const hasNotes = !!(data.notes_install || data.notes_finishing || data.notes_shop || data.notes_client);
-  const hasAccessories = (data.spec_pulls?.length ?? 0) > 0 || (data.spec_accessories?.length ?? 0) > 0;
-  const hasAppliances = (data.spec_appliances_list?.length ?? 0) > 0;
   return (
     <Document>
       {data.finish_groups.map((fg, i) => (
         <FinishGroupPage key={fg.id} data={data} fg={fg} idx={i} />
       ))}
-      {hasAccessories && <AccessoriesPage data={data} />}
-      {hasAppliances && <AppliancesPage data={data} />}
       <RoomMatrixPage data={data} />
       {hasNotes && <NotesPage data={data} />}
     </Document>

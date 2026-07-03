@@ -11,7 +11,6 @@ import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { SchedulesTabLoader } from "@/components/SchedulesTabLoader";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
-import { AccessoriesTab, type AccessoriesData } from "@/components/AccessoriesTab";
 
 type CatalogData = {
   paintColors: PaintColor[]; stainColors: StainColor[]; melamineColors: MelamineColor[];
@@ -36,7 +35,6 @@ export type FinishGroup = {
   drawer_box_id: string;
   edgeband_id: string;
   applied_panels: "slab" | "match_door";
-  species: string;
   notes: string; sort_order: number;
 };
 
@@ -54,36 +52,6 @@ export type RoomFinishLink = {
   sort_order: number;
 };
 
-export type PullRow = {
-  id: string;
-  description: string;
-  part_no: string;
-  finish_color: string;
-  where_used: string;
-  qty: number;
-  sort_order: number;
-};
-
-export type TrimRow = {
-  id: string;
-  trim_type: string;
-  size_desc: string;
-  material: string;
-  qty_lf: number;
-  notes: string;
-  sort_order: number;
-};
-
-export type ApplianceRow = {
-  id: string;
-  appliance_type: string;
-  manufacturer: string;
-  model_no: string;
-  room_id: string;
-  notes: string;
-  sort_order: number;
-};
-
 export type Room = {
   id: string; name: string;
   finish_group_id: string;
@@ -91,7 +59,6 @@ export type Room = {
   notes: string; sort_order: number;
   accessories: { acc_id: string; qty: number }[];
   cabinets: CabinetItem[];
-  trim: TrimRow[];
 };
 
 type Props = {
@@ -100,9 +67,6 @@ type Props = {
   initialRooms: Room[];
   initialMoldings: FinishMolding[];
   initialMaterials: FinishMaterial[];   // v2 spec-form expansion (2026-05-06)
-  initialAccessories: AccessoriesData;  // pulls + RevAShelf items (2026-05-28)
-  initialPulls: Record<string, PullRow[]>;     // finish_group_pulls keyed by fg id
-  initialAppliances: ApplianceRow[];
   catalogs: CatalogData;
   lastSaved: string;
 };
@@ -149,196 +113,29 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
 }
 
 // ── ColorPicker ────────────────────────────────────────────────────────────
-// For paint → live API type-ahead (/api/paint-colors) with brand filter tabs,
-//   debounced input, swatch chips, selected-state chip + X to clear.
-// For stain/melamine → catalog-backed filter + select (unchanged).
+// Brand/supplier filter pills + code-or-name text search. Works for:
+//   paint   → brand: SW | BM | ML | Custom
+//   stain   → brand: ACC | ML | Custom
+//   melamine → supplier: Stevenswood | TruNorth | Egger | Tafisa | Custom
 type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null };
 
-// ── PaintColorTypeAhead ──────────────────────────────────────────────────────
-// Replaces the static select for paint finish groups.
-// value is the color code (e.g. "SW 7757"), displayed as swatch + name + code chip.
-type PaintApiResult = { brand: string; name: string; code: string; hex: string | null };
-
-function PaintColorTypeAhead({
-  value,         // the currently stored code string (e.g. "SW 7757")
-  valueName,     // display name for the selected code (stored in color_name)
-  valueHex,      // hex for selected swatch
-  onChange,      // (code: string, label: string, hex: string|null) => void
-}: {
-  value: string;
-  valueName: string;
-  valueHex: string | null;
-  onChange: (code: string, label: string, hex: string | null) => void;
-}) {
-  const [filterBrand, setFilterBrand] = useState<string>("ALL");
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<PaintApiResult[]>([]);
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Debounced fetch
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.length < 2) { setResults([]); setOpen(false); return; }
-    debounceRef.current = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const brand = filterBrand === "ALL" ? "" : filterBrand;
-        const url = `/api/paint-colors?q=${encodeURIComponent(query)}${brand ? `&brand=${brand}` : ""}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json() as { colors: PaintApiResult[] };
-          setResults(data.colors ?? []);
-          setOpen(true);
-        }
-      } finally {
-        setLoading(false);
-      }
-    }, 200);
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [query, filterBrand]);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  function selectColor(c: PaintApiResult) {
-    const label = `${c.code} · ${c.name} — ${c.brand}`;
-    onChange(c.code, label, c.hex);
-    setQuery("");
-    setResults([]);
-    setOpen(false);
-  }
-
-  function clearSelection() {
-    onChange("", "", null);
-  }
-
-  const BRANDS = ["ALL", "BM", "SW"];
-
-  // Selected state: show chip
-  if (value && !query) {
-    return (
-      <div className="space-y-2">
-        {/* Brand filter tabs */}
-        <div className="flex gap-1 flex-wrap">
-          {BRANDS.map((b) => (
-            <button key={b} type="button" onClick={() => setFilterBrand(b)}
-              className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border transition-colors ${filterBrand === b ? "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]" : "border-white/10 text-white/30 hover:text-white hover:border-white/30"}`}
-            >{b}</button>
-          ))}
-        </div>
-        {/* Selected chip */}
-        <div className="flex items-center gap-2 bg-[#252525] border border-[#f08122]/30 rounded px-3 py-2">
-          <span
-            className="w-4 h-4 rounded shrink-0 border border-white/20"
-            style={{ backgroundColor: valueHex || "#555" }}
-          />
-          <span className="text-white text-sm flex-1 min-w-0 truncate">
-            <span className="text-white/50 font-mono text-xs mr-1">{value}</span>
-            {valueName || value}
-          </span>
-          <button
-            type="button"
-            onClick={clearSelection}
-            className="text-white/30 hover:text-white text-xs ml-1 shrink-0"
-            aria-label="Clear color"
-          >✕</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2" ref={containerRef}>
-      {/* Brand filter tabs */}
-      <div className="flex gap-1 flex-wrap">
-        {BRANDS.map((b) => (
-          <button key={b} type="button" onClick={() => setFilterBrand(b)}
-            className={`font-condensed uppercase tracking-widest text-[10px] px-2 py-0.5 rounded border transition-colors ${filterBrand === b ? "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]" : "border-white/10 text-white/30 hover:text-white hover:border-white/30"}`}
-          >{b}</button>
-        ))}
-      </div>
-      {/* Search input */}
-      <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => { if (results.length > 0) setOpen(true); }}
-          placeholder="Type color name or code (min 2 chars)…"
-          className="w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#f08122] transition-colors"
-        />
-        {loading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-xs">…</span>
-        )}
-        {/* Dropdown results */}
-        {open && results.length > 0 && (
-          <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-[#232323] border border-white/15 rounded shadow-xl max-h-56 overflow-y-auto">
-            {results.map((c) => (
-              <button
-                key={`${c.brand}-${c.code}`}
-                type="button"
-                onMouseDown={() => selectColor(c)}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#2d2d2d] text-left transition-colors"
-              >
-                <span
-                  className="w-4 h-4 rounded shrink-0 border border-white/20"
-                  style={{ backgroundColor: c.hex || "#555" }}
-                />
-                <span className="text-white/50 font-mono text-xs w-20 shrink-0 truncate">{c.code}</span>
-                <span className="text-white text-sm flex-1 min-w-0 truncate">{c.name}</span>
-                <span className="text-white/30 text-[10px] font-condensed uppercase shrink-0">{c.brand}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {open && !loading && query.length >= 2 && results.length === 0 && (
-          <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-[#232323] border border-white/15 rounded shadow-xl px-3 py-2 text-white/30 text-sm">
-            No matches — try a different name or code
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function ColorPicker({
-  type, value, valueName, valueHex, catalogs, onChange,
+  type, value, catalogs, onChange,
 }: {
   type: FinishType;
   value: string;
-  valueName: string;
-  valueHex: string | null;
   catalogs: Props["catalogs"];
-  onChange: (id: string, label: string, hex?: string | null) => void;
+  onChange: (id: string, label: string) => void;
 }) {
-  // Paint: use live API type-ahead
-  if (type === "paint") {
-    return (
-      <PaintColorTypeAhead
-        value={value}
-        valueName={valueName}
-        valueHex={valueHex}
-        onChange={onChange}
-      />
-    );
-  }
-
-  // Stain / Melamine: catalog-backed (unchanged behavior)
   const [filterBrand, setFilterBrand] = useState("");
   const [search, setSearch] = useState("");
 
   const all: CPEntry[] = useMemo(() => {
+    if (type === "paint") {
+      return catalogs.paintColors
+        .filter((c) => !c.placeholder)
+        .map((c) => ({ id: c.id, brand: c.brand, code: c.code ?? "", name: c.name, hex: c.hex_approx }));
+    }
     if (type === "stain") {
       return catalogs.stainColors
         .filter((c) => !c.placeholder)
@@ -361,7 +158,7 @@ function ColorPicker({
   }, [all, filterBrand, search]);
 
   const selected = all.find((c) => c.id === value);
-  const isCustom = value === "STN-CUSTOM" || value === "MEL-CUSTOM";
+  const isCustom = value === "PNT-CUSTOM" || value === "STN-CUSTOM" || value === "MEL-CUSTOM";
 
   function makeLabel(c: CPEntry) {
     return `${c.code ? c.code + " · " : ""}${c.name} — ${c.brand}`;
@@ -424,14 +221,12 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, initialAccessories, initialPulls, initialAppliances, catalogs, lastSaved }: Props) {
-  const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "accessories" | "appliances" | "summary">("finishes");
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, catalogs, lastSaved }: Props) {
+  const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
   const [moldings, setMoldings] = useState<FinishMolding[]>(initialMoldings);
   const [materials, setMaterials] = useState<FinishMaterial[]>(initialMaterials);
-  const [pulls, setPulls] = useState<Record<string, PullRow[]>>(initialPulls);
-  const [appliances, setAppliances] = useState<ApplianceRow[]>(initialAppliances);
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -663,7 +458,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       box_material: "melamine",
       carcass_id: "", drawer_box_id: "", edgeband_id: "",
       applied_panels: "slab",
-      species: "",
       notes: "",
       sort_order: idx,
     }]);
@@ -750,7 +544,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       id: uid(), name: "",
       finish_group_id: "", finishes: [],
       notes: "", sort_order: rooms.length + 1,
-      accessories: [], cabinets: [], trim: [],
+      accessories: [], cabinets: [],
     }]);
     markDirty();
   }
@@ -802,91 +596,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   function removeAccessory(roomId: string, idx: number) {
     setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, accessories: r.accessories.filter((_, i) => i !== idx) }));
     markDirty();
-  }
-
-  // ── Pulls per finish group ──────────────────────────────────────────────────
-  function addPull(fgId: string) {
-    setPulls((prev) => ({
-      ...prev,
-      [fgId]: [...(prev[fgId] ?? []), {
-        id: uid(), description: "", part_no: "", finish_color: "",
-        where_used: "", qty: 1, sort_order: (prev[fgId] ?? []).length,
-      }],
-    }));
-    markDirty();
-  }
-  function updatePull(fgId: string, idx: number, patch: Partial<PullRow>) {
-    setPulls((prev) => {
-      const list = [...(prev[fgId] ?? [])];
-      list[idx] = { ...list[idx], ...patch };
-      return { ...prev, [fgId]: list };
-    });
-    markDirty();
-  }
-  function removePull(fgId: string, idx: number) {
-    setPulls((prev) => ({ ...prev, [fgId]: (prev[fgId] ?? []).filter((_, i) => i !== idx) }));
-    markDirty();
-  }
-  async function savePulls(fgId: string) {
-    const rows = pulls[fgId] ?? [];
-    await fetch(`/api/specs/${specId}/pulls`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
-    });
-  }
-
-  // ── Trim per room ──────────────────────────────────────────────────────────
-  function addTrim(roomId: string) {
-    setRooms(rooms.map((r) => r.id !== roomId ? r : {
-      ...r, trim: [...(r.trim ?? []), {
-        id: uid(), trim_type: "Crown Molding", size_desc: "", material: "",
-        qty_lf: 0, notes: "", sort_order: (r.trim ?? []).length,
-      }],
-    }));
-    markDirty();
-  }
-  function updateTrim(roomId: string, idx: number, patch: Partial<TrimRow>) {
-    setRooms(rooms.map((r) => {
-      if (r.id !== roomId) return r;
-      const list = [...(r.trim ?? [])]; list[idx] = { ...list[idx], ...patch };
-      return { ...r, trim: list };
-    }));
-    markDirty();
-  }
-  function removeTrim(roomId: string, idx: number) {
-    setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, trim: (r.trim ?? []).filter((_, i) => i !== idx) }));
-    markDirty();
-  }
-  async function saveTrim(roomId: string, trim: TrimRow[]) {
-    await fetch(`/api/specs/${specId}/trim`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ room_id: roomId, trim }),
-    });
-  }
-
-  // ── Appliances ────────────────────────────────────────────────────────────
-  function addAppliance() {
-    setAppliances([...appliances, {
-      id: uid(), appliance_type: "Range", manufacturer: "", model_no: "",
-      room_id: "", notes: "", sort_order: appliances.length,
-    }]);
-    markDirty();
-  }
-  function updateAppliance(idx: number, patch: Partial<ApplianceRow>) {
-    const list = [...appliances]; list[idx] = { ...list[idx], ...patch };
-    setAppliances(list); markDirty();
-  }
-  function removeAppliance(idx: number) {
-    setAppliances(appliances.filter((_, i) => i !== idx)); markDirty();
-  }
-  async function saveAppliances() {
-    await fetch(`/api/specs/${specId}/appliances`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ appliances }),
-    });
   }
 
   // ── Cabinets ──────────────────────────────────────────────────────────────
@@ -1143,7 +852,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
       {/* Tabs */}
       <div className="flex border-b border-white/10 mb-8 overflow-x-auto whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0 sticky top-0 z-10 bg-[#1a1a1a]/95 backdrop-blur-sm">
-        {(["finishes", "rooms", "cabinets", "moldings", "schedules", "accessories", "appliances", "summary"] as const).map((t) => (
+        {(["finishes", "rooms", "cabinets", "moldings", "schedules", "summary"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`font-condensed uppercase tracking-widest text-xs py-3 px-3 sm:px-5 border-b-2 transition-colors ${
               tab === t ? "border-[#f08122] text-[#f08122]" : "border-transparent text-white/30 hover:text-white/60"
@@ -1154,8 +863,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               : t === "cabinets" ? `Cabinet Order (${rooms.reduce((n, r) => n + r.cabinets.length, 0)})`
               : t === "moldings" ? `Moldings (${moldings.length})`
               : t === "schedules" ? `Schedules · v2`
-              : t === "accessories" ? "Accessories"
-              : t === "appliances" ? `Appliances (${appliances.length})`
               : "Summary"}
           </button>
         ))}
@@ -1227,8 +934,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     <ColorPicker
                       type={g.finish_type}
                       value={g.color_id}
-                      valueName={g.color_name}
-                      valueHex={null}
                       catalogs={catalogs}
                       onChange={(id, label) => {
                         const updates: Partial<FinishGroup> = { color_id: id, color_name: label };
@@ -1292,17 +997,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       {catalogs.hardwarePulls.map((p) => <option key={p.id} value={p.id}>{p.name} - {p.brand}</option>)}
                     </select>
                   </div>
-                  {(g.finish_type === "paint" || g.finish_type === "stain") && (
-                    <div>
-                      <label className={LABEL}>Species</label>
-                      <input
-                        value={g.species ?? ""}
-                        onChange={(e) => updateGroup(g.id, { species: e.target.value })}
-                        placeholder="e.g. Red Oak, Alder, Maple, Paint Grade"
-                        className={INPUT}
-                      />
-                    </div>
-                  )}
                   <div>
                     <label className={LABEL}>Notes</label>
                     <input value={g.notes} onChange={(e) => updateGroup(g.id, { notes: e.target.value })} placeholder="Sheen, custom mix, special instructions..." className={INPUT} />
@@ -1354,48 +1048,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   </div>
                 </div>
 
-                {/* MaterialsSubsection removed 2026-07-02 — materials are fully
-                    covered in the Schedules · v2 tab. Keep file, stop rendering. */}
-
-                {/* Pulls section (Phase 3c) */}
-                <div className="pt-3 border-t border-white/5">
-                  <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Pulls</p>
-                  <div className="space-y-2">
-                    {(pulls[g.id] ?? []).map((p, pi) => (
-                      <div key={pi} className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#1a1a1a] rounded p-2">
-                        <div className="sm:col-span-2">
-                          <label className={LABEL}>Description</label>
-                          <input value={p.description} onChange={(e) => updatePull(g.id, pi, { description: e.target.value })} placeholder="Description" className={INPUT} />
-                        </div>
-                        <div>
-                          <label className={LABEL}>Part #</label>
-                          <input value={p.part_no} onChange={(e) => updatePull(g.id, pi, { part_no: e.target.value })} placeholder="Part #" className={INPUT} />
-                        </div>
-                        <div>
-                          <label className={LABEL}>Finish/Color</label>
-                          <input value={p.finish_color} onChange={(e) => updatePull(g.id, pi, { finish_color: e.target.value })} placeholder="Finish" className={INPUT} />
-                        </div>
-                        <div>
-                          <label className={LABEL}>Where Used</label>
-                          <input value={p.where_used} onChange={(e) => updatePull(g.id, pi, { where_used: e.target.value })} placeholder="e.g. Base doors, Drawers" className={INPUT} />
-                        </div>
-                        <div>
-                          <label className={LABEL}>Qty</label>
-                          <div className="flex gap-1">
-                            <input type="number" min={0} value={p.qty} onChange={(e) => updatePull(g.id, pi, { qty: parseInt(e.target.value) || 0 })} className={INPUT + " w-20"} />
-                            <button onClick={() => removePull(g.id, pi)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="flex gap-3">
-                      <button onClick={() => addPull(g.id)} className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">+ Add Pull Row</button>
-                      {(pulls[g.id] ?? []).length > 0 && (
-                        <button onClick={() => savePulls(g.id)} className="text-[#f08122]/60 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">Save Pulls</button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                {/* Spec form expansion v2 (2026-05-06): Material sub-section.
+                    First of 7 sub-sections. The legacy carcass_id dropdown
+                    above stays for back-compat until all sub-sections ship
+                    and the cleanup migration drops the legacy column. */}
+                <MaterialsSubsection
+                  finishGroupId={g.id}
+                  finishGroupLabel={g.label}
+                  materials={materials}
+                  carcassMaterials={catalogs.carcassMaterials}
+                  onUpsert={upsertMaterial}
+                />
               </div>
             );
           })}
@@ -1458,7 +1121,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <input
                         value={f.zone}
                         onChange={(e) => updateRoomFinish(room.id, fi, { zone: e.target.value })}
-                        placeholder="Finish Notes (e.g. Perimeter, Island, Tall Panels)"
+                        placeholder="Zone (e.g. Perimeter, Island, Tall Panels)"
                         className={INPUT + " w-full sm:w-72"}
                       />
                       <button onClick={() => removeRoomFinish(room.id, fi)} className="text-white/20 hover:text-red-400 transition-colors px-1 shrink-0">x</button>
@@ -1490,46 +1153,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   <button onClick={() => addAccessory(room.id)} className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">
                     + Add Accessory
                   </button>
-                </div>
-              </div>
-
-              {/* Trim section (Phase 3d) */}
-              <div className="pt-2 border-t border-white/5">
-                <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Trim Callouts</p>
-                <div className="space-y-2">
-                  {(room.trim ?? []).map((tr, ti) => (
-                    <div key={ti} className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#1a1a1a] rounded p-2">
-                      <div>
-                        <label className={LABEL}>Type</label>
-                        <select value={tr.trim_type} onChange={(e) => updateTrim(room.id, ti, { trim_type: e.target.value })} className={SELECT}>
-                          {["Crown Molding","Valance","Toekick","Light Rail","Scribe Molding","Base Shoe","Crown Nailer","Filler","Other"].map((t) => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className={LABEL}>Size/Description</label>
-                        <input value={tr.size_desc} onChange={(e) => updateTrim(room.id, ti, { size_desc: e.target.value })} placeholder='e.g. 4.5" crown' className={INPUT} />
-                      </div>
-                      <div>
-                        <label className={LABEL}>Material</label>
-                        <input value={tr.material} onChange={(e) => updateTrim(room.id, ti, { material: e.target.value })} placeholder="Material" className={INPUT} />
-                      </div>
-                      <div>
-                        <label className={LABEL}>LF Qty</label>
-                        <div className="flex gap-1">
-                          <input type="number" min={0} step={0.5} value={tr.qty_lf} onChange={(e) => updateTrim(room.id, ti, { qty_lf: parseFloat(e.target.value) || 0 })} className={INPUT + " w-24"} />
-                          <button onClick={() => removeTrim(room.id, ti)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex gap-3">
-                    <button onClick={() => addTrim(room.id)} className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">+ Add Trim</button>
-                    {(room.trim ?? []).length > 0 && (
-                      <button onClick={() => saveTrim(room.id, room.trim ?? [])} className="text-[#f08122]/60 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">Save Trim</button>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -1628,66 +1251,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           specId={specId}
           onRegisterSave={(fn) => { schedulesSaveRef.current = fn; }}
         />
-      )}
-
-      {/* ACCESSORIES — pulls + RevAShelf items (2026-05-28) */}
-      {tab === "accessories" && (
-        <AccessoriesTab specId={specId} initialData={initialAccessories} />
-      )}
-
-      {/* APPLIANCES (Phase 3e) */}
-      {tab === "appliances" && (
-        <div className="space-y-6">
-          <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
-            List all appliances and plumbing fixtures. Audience: engineer (rough-in reference) and client (change tracking).
-          </p>
-          <div className="space-y-2">
-            {appliances.map((ap, ai) => (
-              <div key={ai} className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#2d2d2d] rounded p-3">
-                <div>
-                  <label className={LABEL}>Type</label>
-                  <select value={ap.appliance_type} onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value })} className={SELECT}>
-                    {["Range","Hood","Dishwasher","Refrigerator","Microwave","Wine Fridge","Warming Drawer","Sink","Faucet","Other"].map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={LABEL}>Manufacturer</label>
-                  <input value={ap.manufacturer} onChange={(e) => updateAppliance(ai, { manufacturer: e.target.value })} placeholder="Brand" className={INPUT} />
-                </div>
-                <div>
-                  <label className={LABEL}>Model #</label>
-                  <input value={ap.model_no} onChange={(e) => updateAppliance(ai, { model_no: e.target.value })} placeholder="Model / Part #" className={INPUT} />
-                </div>
-                <div>
-                  <label className={LABEL}>Room</label>
-                  <select value={ap.room_id} onChange={(e) => updateAppliance(ai, { room_id: e.target.value })} className={SELECT}>
-                    <option value="">-- Any Room --</option>
-                    {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={LABEL}>Notes</label>
-                  <div className="flex gap-1">
-                    <input value={ap.notes} onChange={(e) => updateAppliance(ai, { notes: e.target.value })} placeholder="Notes" className={INPUT} />
-                    <button onClick={() => removeAppliance(ai)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-3">
-            <button onClick={addAppliance} className="border border-dashed border-white/20 hover:border-[#f08122] text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs rounded py-3 px-6 transition-colors">
-              + Add Appliance
-            </button>
-            {appliances.length > 0 && (
-              <button onClick={saveAppliances} className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-3 px-6 rounded transition-colors">
-                Save Appliances
-              </button>
-            )}
-          </div>
-        </div>
       )}
 
       {/* SUMMARY */}

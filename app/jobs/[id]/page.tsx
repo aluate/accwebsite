@@ -245,7 +245,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <div className="flex flex-wrap items-center gap-2">
             {job.builder_name && (
               <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
-                Express
+                SPEC
               </span>
             )}
             <span className={"text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 " + (STATUS_COLOR[job.status] ?? STATUS_COLOR.intake)}>
@@ -270,7 +270,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <div className="flex items-center gap-2">
             {job.builder_name && (
               <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
-                Express
+                SPEC
               </span>
             )}
             <span className={"text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 " + (STATUS_COLOR[job.status] ?? STATUS_COLOR.intake)}>

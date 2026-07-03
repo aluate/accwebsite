@@ -5,9 +5,10 @@
  * Connection string comes from DATABASE_URL env var.
  *
  * Exports:
- *   sql        — tagged template function for all queries
- *   uid()      — random hex ID generator
- *   nextJobId() — async, atomically increments seq table, returns ACC-YYYY-NNNN
+ *   sql            — tagged template function for all queries
+ *   uid()          — random hex ID generator
+ *   nextJobId()    — async, atomically increments seq table, returns ACC-YYYY-NNNN
+ *   withDbTimeout() — race a DB call against a timeout to avoid Lambda hangs
  */
 import postgres from "postgres";
 import { randomBytes } from "crypto";
@@ -61,6 +62,29 @@ export { sql };
 
 export function uid(): string {
   return randomBytes(8).toString("hex");
+}
+
+/**
+ * withDbTimeout — wraps a DB operation in a race against a timeout.
+ * Prevents Vercel Lambda from hanging silently until the 10s hard kill.
+ * Default: 8 seconds (leaves headroom for the Lambda to return a proper error).
+ */
+export async function withDbTimeout<T>(
+  fn: () => Promise<T>,
+  ms = 8000
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`DB query timed out after ${ms}ms`)),
+      ms
+    );
+  });
+  try {
+    return await Promise.race([fn(), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function nextJobId(): Promise<{ id: string; seq: number }> {

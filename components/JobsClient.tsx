@@ -197,14 +197,15 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
               <Link
                 key={job.id as string}
                 href={"/jobs/" + ((job.job_number as string) || (job.id as string))}
+                prefetch={false}
                 className="flex items-center gap-4 bg-[#2d2d2d] hover:bg-[#353535] rounded px-5 py-4 transition-colors group"
               >
                 <span className="font-condensed text-[#f08122] text-sm w-24 shrink-0">
                   {(job.job_number as string) || <span className="text-white/20 italic">no #</span>}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">{job.client_name as string}</p>
-                  <p className="text-white/40 text-xs truncate">{location}</p>
+                  <p className="text-white text-sm font-medium truncate">{location}</p>
+                  <p className="text-white/40 text-xs truncate">{job.client_name as string}</p>
                 </div>
                 <span className="text-white/50 text-xs hidden md:block w-32 shrink-0 truncate">
                   {(job.pm as string) || "—"}
@@ -268,14 +269,15 @@ function PipelineCard({ job }: { job: PipelineJob }) {
   return (
     <Link
       href={"/jobs/" + (job.job_number ?? job.id)}
+      prefetch={false}
       className="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-lg px-4 py-3 transition-colors"
     >
       <span className={"text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded shrink-0 " + stageCls}>
         {stageLabel}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium truncate leading-tight">{job.client_name}</p>
-        {location && <p className="text-white/40 text-xs truncate">{location}</p>}
+        <p className="text-white text-sm font-medium truncate leading-tight">{location}</p>
+        {location && <p className="text-white/40 text-xs truncate">{job.client_name}</p>}
       </div>
       <span className="text-white/40 text-xs hidden md:block shrink-0 w-28 truncate text-right">
         {job.pm ?? "—"}

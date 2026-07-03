@@ -22,7 +22,8 @@ type FinishUpdate = {
 
 type MaterialPayload = {
   finish_group_id: string;
-  role: "cab_ext" | "cab_int" | "cab_ext2" | "cab_int2";
+  // cab_ext removed: carcass material IS the cab_ext; no separate row needed.
+  role: "cab_int" | "cab_ext2" | "cab_int2";
   material_id: string | null;
   where_used:  string | null;
   notes:       string | null;
@@ -171,6 +172,37 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
   }
 
+  // ── Server-side: required hardware role validation ─────────────────────────
+  // Belt-and-suspenders check that mirrors client-side validation.
+  // The four required roles must have a non-null hardware_id — this is a hard
+  // block (422), not a warning. Protects against API callers that bypass the UI.
+  const REQUIRED_HW_ROLES = ["hinges", "drawer_slides", "door_pulls", "drawer_pulls"] as const;
+  const hwByFg = new Map<string, HardwarePayload[]>();
+  for (const h of payload.hardware ?? []) {
+    const arr = hwByFg.get(h.finish_group_id) ?? [];
+    arr.push(h);
+    hwByFg.set(h.finish_group_id, arr);
+  }
+  // Collect all finish_group_ids that appear in ANY part of the payload
+  const allFgIds = new Set<string>();
+  for (const arr of [payload.materials, payload.door_fronts, payload.drawers,
+                     payload.edgebands, payload.hardware, payload.countertops]) {
+    for (const r of arr ?? []) allFgIds.add(r.finish_group_id);
+  }
+  for (const u of payload.finish_updates ?? []) allFgIds.add(u.finish_group_id);
+  for (const fgId of allFgIds) {
+    const hwRows = hwByFg.get(fgId) ?? [];
+    for (const role of REQUIRED_HW_ROLES) {
+      const row = hwRows.find((h) => h.role === role);
+      if (!row?.hardware_id) {
+        return NextResponse.json(
+          { error: `finish_group ${fgId}: ${role} is required — select one before saving` },
+          { status: 422 }
+        );
+      }
+    }
+  }
+
   const warnings: string[] = [];
 
   try {
@@ -185,6 +217,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             warnings.push(`finish_group "${fg.label}": paint type but stain_id is set`);
           if (fg.finish_type === "stain" && u.paint_id)
             warnings.push(`finish_group "${fg.label}": stain type but paint_id is set`);
+          // DAC-1: melamine groups should not have a paint or stain color set
+          if (fg.finish_type === "melamine" && u.paint_id)
+            warnings.push(`finish_group "${fg.label}": melamine type but paint_id is set — clear it`);
+          if (fg.finish_type === "melamine" && u.stain_id)
+            warnings.push(`finish_group "${fg.label}": melamine type but stain_id is set — clear it`);
         }
         await tx`
           UPDATE finish_groups
@@ -193,7 +230,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
               glaze_id   = ${u.glaze_id},
               topcoat_id = ${u.topcoat_id},
               sheen_id   = ${u.sheen_id},
-              notes      = COALESCE(${u.notes}, notes)
+              notes      = ${u.notes}
           WHERE id = ${u.finish_group_id}
         `;
       }

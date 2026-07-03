@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 
-// ── Payload types ────────────────────────────────────────────────────────────
+// -- Payload types
 
 type FinishGroupPayload = {
   id: string;
@@ -17,6 +17,8 @@ type FinishGroupPayload = {
   carcass_id: string;
   drawer_box_id: string;
   edgeband_id: string;
+  applied_panels: "slab" | "match_door" | null;
+  species: string | null;
   notes: string;
   sort_order: number;
 };
@@ -85,7 +87,7 @@ type SavePayload = {
   materials?: MaterialPayload[];
 };
 
-// ── Validation ───────────────────────────────────────────────────────────────
+// -- Validation
 
 type Violation = { path: string; message: string };
 
@@ -140,7 +142,8 @@ function validate(payload: SavePayload): Violation[] {
     }
   }
 
-  const VALID_MATERIAL_ROLES = new Set(["cab_ext", "cab_int", "cab_ext2", "cab_int2"]);
+  // cab_ext removed: carcass material dropdown is the cab_ext selection.
+  const VALID_MATERIAL_ROLES = new Set(["cab_int", "cab_ext2", "cab_int2"]);
   for (const m of payload.materials ?? []) {
     const tag = `materials[${m.id || `${m.finish_group_id}/${m.role}`}]`;
     if (!m.finish_group_id) v.push({ path: tag, message: "finish_group_id is required" });
@@ -148,13 +151,13 @@ function validate(payload: SavePayload): Violation[] {
       v.push({ path: tag, message: `finish_group_id ${m.finish_group_id} not in finish_groups` });
     if (!m.role) v.push({ path: tag, message: "role is required" });
     if (m.role && !VALID_MATERIAL_ROLES.has(m.role))
-      v.push({ path: tag, message: `role '${m.role}' not in {cab_ext, cab_int, cab_ext2, cab_int2}` });
+      v.push({ path: tag, message: `role '${m.role}' not in {cab_int, cab_ext2, cab_int2}` });
   }
 
   return v;
 }
 
-// ── Save handler ─────────────────────────────────────────────────────────────
+// -- Save handler
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -172,11 +175,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // sql.begin() holds a single PgBouncer connection open for the entire
   // multi-statement sequence. On Vercel+Supabase, if the Lambda is killed
   // mid-transaction the connection is orphaned and blocks subsequent requests
-  // for minutes. Using individual autocommit statements avoids that — each
+  // for minutes. Using individual autocommit statements avoids that -- each
   // query gets and releases a connection immediately.
   //
   // Trade-off: not atomic. If the Lambda dies between DELETE and INSERT the
-  // spec will be empty. The user can re-save from the UI — acceptable.
+  // spec will be empty. The user can re-save from the UI -- acceptable.
   try {
     // Clear child tables in FK-safe order (each statement = its own mini-tx)
     await sql`
@@ -215,14 +218,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         INSERT INTO finish_groups
           (id, spec_id, label, finish_type, color_id, color_name,
            door_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-           notes, sort_order)
+           applied_panels, species, notes, sort_order)
         VALUES
           (${g.id}, ${id}, ${g.label}, ${g.finish_type},
            ${g.color_id || null}, ${g.color_name || null},
            ${g.door_style_id || null}, ${g.pull_id || null},
            ${g.box_material || "melamine"},
            ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-           ${g.notes || null}, ${g.sort_order ?? 0})
+           ${g.applied_panels || "slab"}, ${g.species || null}, ${g.notes || null}, ${g.sort_order ?? 0})
       `;
     }
 
@@ -297,6 +300,85 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           (${mat.id || uid()}, ${mat.finish_group_id}, ${mat.role},
            ${mat.material_id || null}, ${mat.where_used || null}, ${mat.notes || null})
       `;
+    }
+
+    // Auto-seed detail sub-tables from top-level FG fields.
+    // Only seeds if the detail table has 0 rows for this finish_group_id.
+    // Wrapped in individual try/catch so a seeding failure never breaks the save.
+    for (const g of finish_groups) {
+      const fgId = g.id;
+
+      // door_fronts -- seed one "base" row from door_style_id
+      if (g.door_style_id) {
+        try {
+          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_door_fronts WHERE finish_group_id = ${fgId}`;
+          if (Number((cnt[0] as { c: string | number }).c) === 0) {
+            await sql`
+              INSERT INTO finish_group_door_fronts (id, finish_group_id, role, style_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'base'}, ${g.door_style_id}, ${0})
+            `;
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
+
+      // drawers -- seed one "drawer_box" row from drawer_box_id
+      if (g.drawer_box_id) {
+        try {
+          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_drawers WHERE finish_group_id = ${fgId}`;
+          if (Number((cnt[0] as { c: string | number }).c) === 0) {
+            await sql`
+              INSERT INTO finish_group_drawers (id, finish_group_id, role, drawer_box_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'drawer_box'}, ${g.drawer_box_id}, ${0})
+            `;
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
+
+      // edgebands -- seed one row from edgeband_id
+      if (g.edgeband_id) {
+        try {
+          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_edgebands WHERE finish_group_id = ${fgId}`;
+          if (Number((cnt[0] as { c: string | number }).c) === 0) {
+            await sql`
+              INSERT INTO finish_group_edgebands (id, finish_group_id, code, edgeband_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'EB1'}, ${g.edgeband_id}, ${0})
+            `;
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
+
+      // hardware -- seed door_pulls and drawer_pulls rows from pull_id
+      if (g.pull_id) {
+        try {
+          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_hardware WHERE finish_group_id = ${fgId}`;
+          if (Number((cnt[0] as { c: string | number }).c) === 0) {
+            await sql`
+              INSERT INTO finish_group_hardware (id, finish_group_id, role, hardware_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'door_pulls'}, ${g.pull_id}, ${0})
+            `;
+            await sql`
+              INSERT INTO finish_group_hardware (id, finish_group_id, role, hardware_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'drawer_pulls'}, ${g.pull_id}, ${1})
+            `;
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
+
+      // finish fields -- seed paint_id or stain_id from color_id + finish_type
+      if (g.color_id && g.finish_type) {
+        try {
+          // Re-read current finish_groups row to check paint_id / stain_id
+          const fgRow = await sql`SELECT paint_id, stain_id FROM finish_groups WHERE id = ${fgId}`;
+          const row = fgRow[0] as { paint_id: string | null; stain_id: string | null } | undefined;
+          if (row && row.paint_id === null && row.stain_id === null) {
+            if (g.finish_type === 'paint') {
+              await sql`UPDATE finish_groups SET paint_id = ${g.color_id} WHERE id = ${fgId}`;
+            } else if (g.finish_type === 'stain') {
+              await sql`UPDATE finish_groups SET stain_id = ${g.color_id} WHERE id = ${fgId}`;
+            }
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
     }
 
     // Update spec updated_at

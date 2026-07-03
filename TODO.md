@@ -1,5 +1,7 @@
 # ACC Website — Implementation TODO
 
+> **HISTORICAL (as of 2026-06-02).** The active work list now lives in `PROGRESS_LOG.md` under "CURRENT LIST," and operating rules live in `AGENTS.md`. This file is kept for context on what shipped and what was decided. Do not treat items here as the live backlog — pull anything still open into the CURRENT LIST.
+
 Living document. Phases track the May 2026 road map. Each phase is broken
 into discrete steps small enough to ship as a single change. Items marked
 **[KARL]** are blocked on Karl's input — **knock these out first to unblock

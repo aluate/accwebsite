@@ -10,6 +10,50 @@ This file exists so Claude always has full project context. Read it before touch
 
 ---
 
+## CRITICAL GOTCHAS — READ BEFORE WRITING ANY CODE
+
+### Branch / Deploy
+- Production deploys from `main`. Never commit to `master` — it is deleted/archived.
+- Always push to `main`. Vercel auto-deploys from `main` only.
+- After pushing, wait for Vercel build to complete before testing. Dashboard is client-rendered — verify by git SHA in Vercel API or by checking the live site response.
+
+### Middleware
+- The Next.js 16 middleware file is `proxy.ts` — NOT `middleware.ts`.
+- Having BOTH files in the repo at the same time is fatal. Never create `middleware.ts`.
+
+### Database connections
+- `prepare: false` is REQUIRED on all Postgres/Supabase connections. The pooler (PgBouncer, port 6543, transaction mode) rejects prepared statements. Removing this will break every query.
+- Supabase pooler port is 6543 (transaction mode). Port 5432 is session mode — do not use it.
+- Booleans crash integer columns. Always pass `1` or `0`, never `true` or `false`.
+
+### Job ID formats
+- Jobs have TWO identifiers: integer job number (e.g. `99999`, appears in URLs) and ACC string ID (e.g. `ACC-2026-0181`, used as FK in all child tables and most API routes).
+- `residential_specs.job_id`, `files.job_id`, and most API routes expect the ACC string format. Passing the integer will silently fail FK constraints or return empty results.
+- Always resolve params.id to the internal ACC ID early in any route handler. Pattern: query `SELECT id FROM jobs WHERE job_number = ${params.id} OR id = ${params.id}`.
+
+### Server pages / Lambda
+- Every server page that hits the DB must use the `withDbTimeout` pattern: `Promise.race([fn(), timeoutPromise])`. Missing this causes 504 Gateway Timeout on Lambda cold starts (which can take 10–30s).
+- Use `next start` for demos. Never use Turbopack in production — it leaks memory.
+
+### Email
+- `GMAIL_USER = residentialacc2@gmail.com` — the letters in the middle are intentionally transposed. Do NOT "correct" the spelling. It is the actual Gmail address.
+
+### Git / filesystem
+- The repo lives on a CIFS network share (`C:\dev\repos\acc-website`). Git lock file warnings during `git add` are noise — verify success with `git status`, not by absence of warnings.
+- Pre-existing TypeScript errors (TS2367 pattern) exist in unrelated files. Do not fix them unless explicitly asked. Do not let them block a commit — use `--skipLibCheck` if needed for type checks.
+- If `git push` fails due to index corruption, clone fresh to `/tmp`, apply the changes, and push from the clone.
+- Never run `npm run build` locally on the network share — it is unreliable. Push to main and let Vercel build.
+
+### PDF generation
+- `@react-pdf/renderer` is used in `lib/pdf-spec.tsx`. Node.js runtime only — no Edge runtime anywhere in this project.
+- Spec PDF auto-saves to the "03 JOB SPECS" folder in file storage on generate.
+
+### Schedule / ON DECK
+- Schedule events with `start_date = NULL` appear in the ON DECK panel, not on the calendar.
+- The Ready to Schedule button checks for the presence of schedule events (any), not just unscheduled ones. Do not reset button state based on whether events have dates.
+
+---
+
 ## Stack
 
 | Layer | Choice |
@@ -293,7 +337,7 @@ The repo is mounted at `C:\dev\repos\acc-website` (NTFS). The Linux sandbox cann
 
 **Setup at the start of any session that needs to push:**
 ```bash
-TOKEN=$(grep -o 'ghp_[A-Za-z0-9]*' /sessions/*/mnt/acc-website/.git/config | head -1)
+TOKEN=$(grep -o 'ghp_[A-Za-z0-9]*' /sessions/*/mnt/repos/acc-website/.git/config | head -1)
 git clone "https://${TOKEN}@github.com/aluate/accwebsite.git" /tmp/acc-repo
 cd /tmp/acc-repo && git checkout main
 git config --global user.email "karlv@advancedcabinets.net"
@@ -311,7 +355,7 @@ cat > /tmp/push.sh << 'SCRIPT'
 #!/bin/bash
 # Usage: bash /tmp/push.sh "commit message" path/to/file1 path/to/file2 ...
 MSG="$1"; shift
-MOUNT="/sessions/stoic-eager-wright/mnt/acc-website"
+MOUNT=$(ls -d /sessions/*/mnt/repos/acc-website 2>/dev/null | head -1)
 REPO="/tmp/acc-repo"
 cd "$REPO"
 git fetch origin -q
@@ -361,3 +405,15 @@ After a push, confirm deployment at:
 `https://vercel.com/aluates-projects/accwebsite-cd58/deployments`
 
 Builds take ~35–40 seconds. Current production commit is always marked "Current" in green.
+
+---
+
+## Spec Form Design Principles
+
+### Rooms = Finish Group Applications (NOT physical rooms)
+On the residential spec, a "room" is a finish application location, not a physical room.
+- Kitchen with 3 finishes → 3 finish groups: "Kitchen Perimeter", "Kitchen Uppers", "Kitchen Island"
+- The finish group label IS the location label
+- The room matrix maps finish groups to locations
+- Never group multiple finish types under one room entry
+This has been a recurring source of confusion — treat this as a hard rule.

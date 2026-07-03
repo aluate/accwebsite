@@ -95,6 +95,30 @@ const GRAIN_OPTIONS = [
   { value: "na",         label: "N/A" },
 ];
 
+// Which standard edgeband codes auto-derive from the carcass material for melamine finish groups.
+// "face"     → match the melamine board's color_match entry in the edgeband catalog
+// "interior" → standard interior melamine band (EB-ESI-4905 / EB-HMmaple)
+// "drawer"   → drawer-box band (EB-PFMAPLE-DRAWER)
+const MELAMINE_EB_POSITIONS: Readonly<Record<string, "face" | "interior" | "drawer">> = {
+  D: "face",      // Applied Ends / Doors / Drawer Fronts — must match face color
+  E: "face",      // Cabinet Body Parts — visible surfaces, match face
+  V: "face",      // Bottom of Upper F.E. — finished end, match face
+  I: "interior",  // Adjustable Shelves — stock interior band
+  U: "interior",  // Bottom of Upper Un-F.E. — unfinished, interior band
+  B: "drawer",    // Drawer Box Sides
+  C: "drawer",    // Drawer Box Front/Back
+};
+
+/**
+ * Normalize compatible_finish_type which arrives as a plain string ("paint;stain")
+ * or a JSON array (["paint","stain"]) from the catalog loader.
+ */
+function compatibleFinishTypes(val: unknown): string[] {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.map(String);
+  return String(val).split(";").map((s) => s.trim()).filter(Boolean);
+}
+
 // ── Row types (mirror DB shape but client-side) ─────────────────────────────
 type MaterialRow   = { finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type DoorFrontRow  = { finish_group_id: string; role: string; slot_label: string | null; style_id: string | null; material_id: string | null; oe_id: string | null; ie_id: string | null; panel_id: string | null; grain: string | null; vendor: string | null; notes: string | null; sort_order: number };
@@ -285,6 +309,45 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
 
   const fgFinishUpdate = finishUpdates.find((u) => u.finish_group_id === activeFgId);
 
+  // ── Melamine edgeband auto-derive ──────────────────────────────────────────
+  // For melamine finish groups: resolve each MELAMINE_EB_POSITIONS code to the
+  // correct edgeband ID — no PM input required.
+  //   face     → match by color_match against the cab_ext carcass material name
+  //   interior → EB-ESI-4905 (maple melamine) → EB-HMmaple (fallback)
+  //   drawer   → EB-PFMAPLE-DRAWER → interior fallback
+  const melamineDerivedEbs = useMemo((): Record<string, string | null> | null => {
+    if (fg?.finish_type !== "melamine") return null;
+    const cabExtId = fgMaterials.find((m) => m.role === "cab_ext")?.material_id;
+    const cabExtMat = cabExtId ? catalogs.carcassMaterials.find((m) => m.id === cabExtId) : null;
+    const matName = (cabExtMat?.name ?? "").toLowerCase();
+    const faceEb = matName
+      ? (catalogs.edgebands.find((e) => !e.placeholder && e.color_match?.toLowerCase() === matName)
+         ?? catalogs.edgebands.find((e) => !e.placeholder && !!matName.split(" ")[0] && e.color_match?.toLowerCase().includes(matName.split(" ")[0]!)))
+      : undefined;
+    const interiorEb = catalogs.edgebands.find((e) => e.id === "EB-ESI-4905")
+      ?? catalogs.edgebands.find((e) => e.id === "EB-HMmaple");
+    const drawerEb = catalogs.edgebands.find((e) => e.id === "EB-PFMAPLE-DRAWER")
+      ?? interiorEb;
+    const result: Record<string, string | null> = {};
+    for (const [code, pos] of Object.entries(MELAMINE_EB_POSITIONS)) {
+      if (pos === "face")          result[code] = faceEb?.id ?? null;
+      else if (pos === "interior") result[code] = interiorEb?.id ?? null;
+      else if (pos === "drawer")   result[code] = drawerEb?.id ?? null;
+    }
+    return result;
+  }, [fg?.finish_type, fgMaterials, catalogs]);
+
+  // ── Edgeband options filtered to finish type (ESI PVC for paint/stain, melamine bands for melamine)
+  const filteredEdgebandOpts = useMemo(() => {
+    const ft = fg?.finish_type ?? "";
+    return catalogs.edgebands
+      .filter((e) => {
+        const types = compatibleFinishTypes(e.compatible_finish_type);
+        return types.includes(ft) || types.includes("all");
+      })
+      .map((e) => ({ id: e.id, name: e.product_name }));
+  }, [catalogs.edgebands, fg?.finish_type]);
+
   // Reducer-style updaters
   function updateMaterial(role: string, patch: Partial<MaterialRow>) {
     setMaterials((all) => {
@@ -368,6 +431,61 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
 
   // ── Save ────────────────────────────────────────────────────────────────
   const save = useCallback(async () => {
+    // ── Client-side validation: required hardware roles must be filled ──────
+    // The $70k failure mode was silent defaults. These four roles block save
+    // when empty — no exception, no workaround.
+    const REQUIRED_HW_ROLES = [
+      { role: "hinges",        label: "Hinges" },
+      { role: "drawer_slides", label: "Drawer Slides" },
+      { role: "door_pulls",    label: "Door Pulls" },
+      { role: "drawer_pulls",  label: "Drawer Pulls" },
+    ];
+    const hwErrors: string[] = [];
+    for (const fg of finishGroups) {
+      for (const { role, label } of REQUIRED_HW_ROLES) {
+        const row = hardware.find((h) => h.finish_group_id === fg.id && h.role === role);
+        if (!row?.hardware_id) {
+          hwErrors.push(`"${fg.label}": ${label} is required — select one before saving`);
+        }
+      }
+    }
+    if (hwErrors.length > 0) {
+      setSaveState("error");
+      setWarnings(hwErrors);
+      return;
+    }
+
+    // ── Apply melamine edgeband auto-derive across all finish groups ─────────
+    // For melamine finish groups each code position is resolved from the carcass
+    // material catalog match — PM should never have to pick these manually.
+    const effectiveEdgebands = edgebands.map((e) => {
+      const fgForRow = finishGroups.find((g) => g.id === e.finish_group_id);
+      if (fgForRow?.finish_type !== "melamine") return e;
+      const pos = MELAMINE_EB_POSITIONS[e.code];
+      if (!pos) return e;
+      const cabExtId = materials.find(
+        (m) => m.finish_group_id === e.finish_group_id && m.role === "cab_ext"
+      )?.material_id;
+      const cabExtMat = cabExtId ? catalogs.carcassMaterials.find((m) => m.id === cabExtId) : null;
+      const matName = (cabExtMat?.name ?? "").toLowerCase();
+      let derivedId: string | null = null;
+      if (pos === "face") {
+        const match = matName
+          ? (catalogs.edgebands.find((eb) => !eb.placeholder && eb.color_match?.toLowerCase() === matName)
+             ?? catalogs.edgebands.find((eb) => !eb.placeholder && !!matName.split(" ")[0] && eb.color_match?.toLowerCase().includes(matName.split(" ")[0]!)))
+          : undefined;
+        derivedId = match?.id ?? null;
+      } else if (pos === "interior") {
+        derivedId = (catalogs.edgebands.find((eb) => eb.id === "EB-ESI-4905")
+          ?? catalogs.edgebands.find((eb) => eb.id === "EB-HMmaple"))?.id ?? null;
+      } else if (pos === "drawer") {
+        derivedId = (catalogs.edgebands.find((eb) => eb.id === "EB-PFMAPLE-DRAWER")
+          ?? catalogs.edgebands.find((eb) => eb.id === "EB-ESI-4905"))?.id ?? null;
+      }
+      if (derivedId !== null) return { ...e, edgeband_id: derivedId };
+      return e;
+    });
+
     setSaveState("saving");
     setWarnings([]);
     try {
@@ -380,7 +498,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
             stain_id: u.stain_id, paint_id: u.paint_id, glaze_id: u.glaze_id,
             topcoat_id: u.topcoat_id, sheen_id: u.sheen_id, notes: u.notes,
           })),
-          materials, door_fronts: doorFronts, drawers, edgebands, hardware, countertops,
+          materials, door_fronts: doorFronts, drawers, edgebands: effectiveEdgebands, hardware, countertops,
         }),
       });
       const body = await res.json();
@@ -396,7 +514,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       setSaveState("error");
       setWarnings([(e as Error).message]);
     }
-  }, [specId, finishUpdates, materials, doorFronts, drawers, edgebands, hardware, countertops]);
+  }, [specId, finishGroups, catalogs, finishUpdates, materials, doorFronts, drawers, edgebands, hardware, countertops]);
 
   // 2026-05-06 — register save with parent so the page-level "Save All" button
   // in ResidentialSpecClient can fire this panel's save without the user
@@ -404,6 +522,30 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   useEffect(() => {
     onRegisterSave?.(save);
   }, [save, onRegisterSave]);
+
+  // Completeness score for current FG — must be before the early return (rules of hooks)
+  const completeness = useMemo(() => {
+    const checks: { label: string; ok: boolean }[] = [
+      { label: "Cab exterior material",   ok: !!fgMaterials.find(m => m.role === "cab_ext")?.material_id },
+      { label: "Door style (base)",        ok: !!fgDoorFronts.find(d => d.role === "base")?.style_id },
+      { label: "Door material (base)",     ok: !!fgDoorFronts.find(d => d.role === "base")?.material_id },
+      { label: "Drawer box",               ok: !!fgDrawers.find(d => d.role === "drawer_box")?.drawer_box_id },
+      { label: "Drawer slides",            ok: !!fgDrawers.find(d => d.role === "drawer_box")?.slides_id },
+      { label: "Hinges",                   ok: !!fgHardware.find(h => h.role === "hinges")?.hardware_id },
+      { label: "Drawer slides (hw)",        ok: !!fgHardware.find(h => h.role === "drawer_slides")?.hardware_id },
+      { label: "Door pulls",               ok: !!fgHardware.find(h => h.role === "door_pulls")?.hardware_id },
+      { label: "Drawer pulls",             ok: !!fgHardware.find(h => h.role === "drawer_pulls")?.hardware_id },
+      // Melamine groups have no paint/stain color — skip that check entirely so the
+      // badge never shows "Stain color: missing" for a melamine spec (DAC-2 fix).
+      ...(fg?.finish_type === "paint" || fg?.finish_type === "stain" ? [{
+        label: fg!.finish_type === "paint" ? "Paint color" : "Stain color",
+        ok:    fg!.finish_type === "paint" ? !!fgFinishUpdate?.paint_id : !!fgFinishUpdate?.stain_id,
+      }] : []),
+      { label: "Topcoat",                  ok: !!fgFinishUpdate?.topcoat_id },
+    ];
+    const done = checks.filter(c => c.ok).length;
+    return { done, total: checks.length, missing: checks.filter(c => !c.ok).map(c => c.label) };
+  }, [fgMaterials, fgDoorFronts, fgDrawers, fgHardware, fgFinishUpdate, fg?.finish_type]);
 
   if (!fg || !fgFinishUpdate) {
     return (
@@ -416,7 +558,7 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   // Build catalog options for dropdowns
   const carcassOpts   = catalogs.carcassMaterials.map((c) => ({ id: c.id, name: c.name }));
   const drawerBoxOpts = catalogs.drawerBoxes.map((d) => ({ id: d.id, name: d.name }));
-  const edgebandOpts  = catalogs.edgebands.map((e) => ({ id: e.id, name: e.product_name }));
+  // edgebandOpts removed — edgeband section uses filteredEdgebandOpts (finish-type-aware)
   const doorStyleOpts = catalogs.doorStyles.filter((d) => !d.placeholder).map((d) => ({ id: d.id, name: d.name }));
   const doorMatOpts   = catalogs.doorMaterials.map((m) => ({ id: m.id, name: m.name }));
   const cbEdgeOpts    = catalogs.cabDoorEdgeDetails.map((e) => ({ id: e.id, name: e.name }));
@@ -431,23 +573,6 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
   const ctopStyleOpts = catalogs.countertopStyles.map((s) => ({ id: s.id, name: s.name }));
   const ctopEdgeOpts  = catalogs.countertopEdges.map((e) => ({ id: e.id, name: e.name }));
   const ctopMatOpts   = catalogs.countertopMaterials.map((m) => ({ id: m.id, name: m.name }));
-
-  // Completeness score for current FG
-  const completeness = useMemo(() => {
-    const checks: { label: string; ok: boolean }[] = [
-      { label: "Cab exterior material",   ok: !!fgMaterials.find(m => m.role === "cab_ext")?.material_id },
-      { label: "Door style (base)",        ok: !!fgDoorFronts.find(d => d.role === "base")?.style_id },
-      { label: "Door material (base)",     ok: !!fgDoorFronts.find(d => d.role === "base")?.material_id },
-      { label: "Drawer box",               ok: !!fgDrawers.find(d => d.role === "drawer_box")?.drawer_box_id },
-      { label: "Drawer slides",            ok: !!fgDrawers.find(d => d.role === "drawer_box")?.slides_id },
-      { label: "Hinges",                   ok: !!fgHardware.find(h => h.role === "hinges")?.hardware_id },
-      { label: fg.finish_type === "paint" ? "Paint color" : "Stain color",
-        ok: fg.finish_type === "paint" ? !!fgFinishUpdate.paint_id : !!fgFinishUpdate.stain_id },
-      { label: "Topcoat",                  ok: !!fgFinishUpdate.topcoat_id },
-    ];
-    const done = checks.filter(c => c.ok).length;
-    return { done, total: checks.length, missing: checks.filter(c => !c.ok).map(c => c.label) };
-  }, [fgMaterials, fgDoorFronts, fgDrawers, fgHardware, fgFinishUpdate, fg.finish_type]);
 
   return (
     <div className="space-y-4">
@@ -611,19 +736,49 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
           <div className="col-span-4">Where Used</div>
           <div className="col-span-3">Notes</div>
         </div>
-        {fgEdgebands.map((e, idx) => (
-          <div key={`${e.code}-${idx}`} className="grid grid-cols-12 gap-2 items-center mb-1.5 px-1">
-            <div className="col-span-1 text-xs font-bold text-[#f08122]">{e.code}</div>
-            <div className="col-span-4"><CatalogSelect value={e.edgeband_id} onChange={(v) => updateEdgeband(idx, { edgeband_id: v })} options={edgebandOpts} /></div>
-            <div className="col-span-4">
-              <select className={SELECT} value={e.where_used ?? ""} onChange={(ev) => updateEdgeband(idx, { where_used: ev.target.value || null })}>
-                <option value="">— select —</option>
-                {EDGEBAND_WHERE_USED_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+        {fgEdgebands.map((e, idx) => {
+          // Melamine finish groups: auto-derive edgeband — no PM input for standard codes.
+          const isMelamineCode = fg.finish_type === "melamine" && e.code in MELAMINE_EB_POSITIONS;
+          const autoId      = melamineDerivedEbs?.[e.code] ?? null;
+          // autoFailed: melamine code but no match found in catalog — show warning, allow manual pick
+          const autoFailed  = isMelamineCode && autoId === null;
+          const isLocked    = isMelamineCode && !autoFailed;
+          const displayId   = isLocked ? autoId : e.edgeband_id;
+          return (
+            <div key={`${e.code}-${idx}`} className={`grid grid-cols-12 gap-2 items-center mb-1.5 px-1 rounded ${autoFailed ? "bg-yellow-900/20 border border-yellow-700/30" : ""}`}>
+              <div className="col-span-1 text-xs font-bold text-[#f08122]">
+                {e.code}
+                {isLocked   && <span className="ml-1 text-[9px] font-normal text-white/30 normal-case tracking-normal">auto</span>}
+                {autoFailed && <span className="ml-1 text-[9px] font-normal text-yellow-400 normal-case tracking-normal" title="No catalog match for this melamine — pick manually">!</span>}
+              </div>
+              <div className="col-span-4">
+                <CatalogSelect
+                  value={displayId}
+                  onChange={(v) => updateEdgeband(idx, { edgeband_id: v })}
+                  options={filteredEdgebandOpts}
+                  disabled={isLocked}
+                  placeholder={isLocked ? "(auto-derived)" : "— select —"}
+                />
+              </div>
+              <div className="col-span-4">
+                <select className={SELECT} value={e.where_used ?? ""} onChange={(ev) => updateEdgeband(idx, { where_used: ev.target.value || null })}>
+                  <option value="">— select —</option>
+                  {EDGEBAND_WHERE_USED_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div className="col-span-3">
+                <input
+                  className={INPUT}
+                  value={isLocked ? "" : (e.notes ?? "")}
+                  onChange={(ev) => updateEdgeband(idx, { notes: ev.target.value || null })}
+                  placeholder={isLocked ? "(auto-derived)" : "—"}
+                  disabled={isLocked}
+                  readOnly={isLocked}
+                />
+              </div>
             </div>
-            <div className="col-span-3"><input className={INPUT} value={e.notes ?? ""} onChange={(ev) => updateEdgeband(idx, { notes: ev.target.value || null })} placeholder="—" /></div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Hardware Schedule */}
@@ -661,15 +816,19 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       <div className={CARD}>
         <div className={SECTION_HDR}>Finish</div>
         <div className="grid grid-cols-5 gap-3">
-          <div className={fg.finish_type === "paint" ? "opacity-30 pointer-events-none" : ""}>
+          {/* Stain — greyed for paint or melamine (DAC-1 fix: melamine has no stain) */}
+          <div className={fg.finish_type !== "stain" ? "opacity-30 pointer-events-none" : ""}>
             <label className={LABEL}>Stain {fg.finish_type === "stain" && <span className="text-[#f08122]">*</span>}</label>
             <CatalogSelect value={fgFinishUpdate.stain_id} onChange={(v) => updateFinish({ stain_id: v })} options={stainOpts} />
-            {fg.finish_type === "paint" && <div className="text-[9px] text-white/30 mt-0.5">n/a — paint type</div>}
+            {fg.finish_type === "melamine" && <div className="text-[9px] text-white/30 mt-0.5">n/a — melamine type</div>}
+            {fg.finish_type === "paint"    && <div className="text-[9px] text-white/30 mt-0.5">n/a — paint type</div>}
           </div>
-          <div className={fg.finish_type === "stain" ? "opacity-30 pointer-events-none" : ""}>
+          {/* Paint — greyed for stain or melamine (DAC-1 fix: melamine has no paint) */}
+          <div className={fg.finish_type !== "paint" ? "opacity-30 pointer-events-none" : ""}>
             <label className={LABEL}>Paint {fg.finish_type === "paint" && <span className="text-[#f08122]">*</span>}</label>
             <CatalogSelect value={fgFinishUpdate.paint_id} onChange={(v) => updateFinish({ paint_id: v })} options={paintOpts} />
-            {fg.finish_type === "stain" && <div className="text-[9px] text-white/30 mt-0.5">n/a — stain type</div>}
+            {fg.finish_type === "melamine" && <div className="text-[9px] text-white/30 mt-0.5">n/a — melamine type</div>}
+            {fg.finish_type === "stain"    && <div className="text-[9px] text-white/30 mt-0.5">n/a — stain type</div>}
           </div>
           <div>
             <label className={LABEL}>Glaze</label>
@@ -748,17 +907,19 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
         <button onClick={addCountertop} className="text-xs text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest transition-colors">+ Add Countertop</button>
       </div>
 
-      {/* Save */}
-      <div className="flex justify-end pt-4 border-t border-white/10">
+      {/* Save (bottom) */}
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+        {saveState === "error" && warnings.length > 0 && (
+          <p className="text-red-400 text-xs">✗ {warnings[0]}{warnings.length > 1 ? ` (+${warnings.length - 1} more — see above)` : ""}</p>
+        )}
         <button
-          onClick={handleSave}
-          disabled={saving}
+          onClick={save}
+          disabled={saveState === "saving"}
           className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-6 py-2.5 rounded transition-colors"
         >
-          {saving ? "Saving…" : "Save Schedules"}
+          {saveState === "saving" ? "Saving…" : "Save Schedules"}
         </button>
       </div>
-      {saveError && <p className="text-red-400 text-xs mt-2 text-right">{saveError}</p>}
     </div>
   );
 }
