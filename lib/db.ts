@@ -19,7 +19,7 @@ function createSql() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
-    ssl: "require",
+    ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
     // max: 1 — Supabase free tier has only ~10 connections total.
     // Each Vercel Lambda is its own process with its own pool.
     // Sequential queries never need more than 1 connection at a time,
