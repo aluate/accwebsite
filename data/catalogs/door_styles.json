@@ -1,278 +1,62 @@
 [
   {
     "id": "DS-CD-116",
-    "name": "Cab Door #116 — Standard Shaker",
+    "name": "#116 Standard Shaker",
     "vendor": "Cab Door",
     "cabdoor_preset_id": "116",
     "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
+    "compatible_finish": ["paint", "stain"],
     "placeholder": false,
-    "notes": "ACC default shaker. 2.25\" stile/rail, 1/8\" radius on edge and profile, flat panel. Drawing label: CAB DOOR #116 or CAB DOOR #116 STANDARD SHAKER"
+    "notes": "ACC default shaker. 2.25\" stile/rail, 1/8\" radius on edge and profile, flat panel."
   },
   {
-    "id": "DS-CD-002",
-    "name": "Shaker Flat-Back",
+    "id": "DS-CD-113",
+    "name": "#113 Reverse Raised Panel",
     "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-SHAKER-FLAT",
+    "cabdoor_preset_id": "113",
     "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Slab inside look with flat raised panel"
+    "compatible_finish": ["paint", "stain"],
+    "placeholder": false,
+    "notes": "Reverse raised panel. Cab Door style #113."
   },
   {
-    "id": "DS-CD-003",
-    "name": "Classic Raised Panel",
+    "id": "DS-CD-PRESET",
+    "name": "Cab Door Preset",
     "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-RAISED-A",
+    "cabdoor_preset_id": null,
     "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Glazed-friendly raised panel"
+    "compatible_finish": ["paint", "stain"],
+    "placeholder": false,
+    "notes": "Select from Cab Door preset catalog — specify in Schedules tab."
   },
   {
-    "id": "DS-CD-004",
-    "name": "Beaded Inset",
+    "id": "DS-CD-CUSTOM",
+    "name": "Cab Door Custom",
     "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-BEADED-A",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Bead detail for traditional kitchens"
-  },
-  {
-    "id": "DS-CD-005",
-    "name": "Applied Moulding",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-APPLIED-MOULDING",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Applied moulding panel for ornate detail"
-  },
-  {
-    "id": "DS-CD-006",
-    "name": "Reverse Raised",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-REVERSE-RAISED",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Reverse raised panel"
-  },
-  {
-    "id": "DS-CD-007",
-    "name": "Lexington Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-LEXINGTON",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "3in mitre with Group A flat-back panel"
-  },
-  {
-    "id": "DS-CD-008",
-    "name": "Concord Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-CONCORD",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "3in mitre with Group A flat-back panel"
-  },
-  {
-    "id": "DS-CD-009",
-    "name": "Cherry Hill Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-CHERRY-HILL",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "3in mitre"
-  },
-  {
-    "id": "DS-CD-010",
-    "name": "Petersburg Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-PETERSBURG",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "2.25in mitre with E-32 edge"
-  },
-  {
-    "id": "DS-CD-011",
-    "name": "Williamsburg Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-WILLIAMSBURG",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "2.25in mitre with E-46 edge"
-  },
-  {
-    "id": "DS-CD-012",
-    "name": "Chantilly Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-CHANTILLY",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "2.25in mitre with rope moulding inlay"
-  },
-  {
-    "id": "DS-CD-013",
-    "name": "Hartford Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-HARTFORD",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "2.5in mitre"
-  },
-  {
-    "id": "DS-CD-014",
-    "name": "Alexandria Mitre",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-ALEXANDRIA",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "2.5in mitre"
-  },
-  {
-    "id": "DS-CD-015",
-    "name": "Brookhaven Rosewood",
-    "vendor": "Cab Door",
-    "cabdoor_preset_id": "PRESET-MITRE-BROOKHAVEN-P15",
-    "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Rosewood mitre edge"
+    "cabdoor_preset_id": null,
+    "construction": "custom",
+    "compatible_finish": ["paint", "stain"],
+    "placeholder": false,
+    "notes": "Custom Cab Door spec — specify Edge, Profile, and Panel options below."
   },
   {
     "id": "DS-SLAB-MDF",
     "name": "Slab MDF",
-    "vendor": [
-      "In-house",
-      "Cab Door"
-    ],
+    "vendor": ["In-house", "Cab Door"],
     "cabdoor_preset_id": null,
     "construction": "slab",
-    "compatible_finish": [
-      "paint",
-      "melamine"
-    ],
-    "placeholder": true,
-    "notes": "Modern slab — paint or melamine"
+    "compatible_finish": ["paint", "melamine", "plam"],
+    "placeholder": false,
+    "notes": "Modern slab — paint, melamine, or PLAM"
   },
   {
-    "id": "DS-SLAB-VENEER",
-    "name": "Slab Veneer",
-    "vendor": [
-      "In-house",
-      "Cab Door"
-    ],
-    "cabdoor_preset_id": null,
-    "construction": "slab",
-    "compatible_finish": "stain",
-    "placeholder": true,
-    "notes": "Slab door with wood veneer face"
-  },
-  {
-    "id": "DS-GLASS-CLEAR",
-    "name": "Glass Insert (Clear)",
-    "vendor": [
-      "Cab Door",
-      "Other"
-    ],
-    "cabdoor_preset_id": null,
-    "construction": "frame_and_glass",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Frame only; glass supplied separately"
-  },
-  {
-    "id": "DS-GLASS-SEEDED",
-    "name": "Glass Insert (Seeded)",
-    "vendor": [
-      "Cab Door",
-      "Other"
-    ],
-    "cabdoor_preset_id": null,
-    "construction": "frame_and_glass",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": true,
-    "notes": "Traditional character glass"
-  },
-  {
-    "id": "DS-OPEN-SHELF",
-    "name": "Open Shelf",
-    "vendor": null,
-    "cabdoor_preset_id": null,
-    "construction": "none",
-    "compatible_finish": null,
-    "placeholder": true,
-    "notes": "No door ordered — open cabinet"
-  },
-  {
-    "id": "DS-099",
-    "name": "Other / Custom",
+    "id": "DS-OTHER",
+    "name": "Other",
     "vendor": null,
     "cabdoor_preset_id": null,
     "construction": "custom",
     "compatible_finish": null,
-    "placeholder": true,
-    "notes": "Specify full detail in notes"
+    "placeholder": false,
+    "notes": "Non-Cab-Door or fully custom — specify in Notes."
   }
 ]

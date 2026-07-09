@@ -752,6 +752,27 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_paint_colors_search ON paint_colors USING gin(to_tsvector('english', name || ' ' || code))
   `;
 
+  // ── 2026-07-09 additions ─────────────────────────────────────────────────────
+  // finish_groups: drawer_style, cabdoor custom options
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS drawer_style_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_edge_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_profile_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // rooms: flooring, ceiling_height, soffit, backsplash (Room C fields)
+  for (const stmt of [
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS flooring TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS ceiling_height TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS soffit TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS backsplash TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
   console.log("Schema push complete.");
   await sql.end();
 }

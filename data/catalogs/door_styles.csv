@@ -1,22 +1,7 @@
 id,name,vendor,cabdoor_preset_id,construction,compatible_finish,placeholder,notes
-DS-CD-116,Cab Door #116 — Standard Shaker,Cab Door,116,frame_and_panel,paint;stain,false,"ACC default shaker. 2.25"" stile/rail, 1/8"" radius on edge and profile, flat panel. Drawing label: CAB DOOR #116 or CAB DOOR #116 STANDARD SHAKER"
-DS-CD-002,Shaker Flat-Back,Cab Door,PRESET-SHAKER-FLAT,frame_and_panel,paint;stain,true,Slab inside look with flat raised panel
-DS-CD-003,Classic Raised Panel,Cab Door,PRESET-RAISED-A,frame_and_panel,paint;stain,true,Glazed-friendly raised panel
-DS-CD-004,Beaded Inset,Cab Door,PRESET-BEADED-A,frame_and_panel,paint;stain,true,Bead detail for traditional kitchens
-DS-CD-005,Applied Moulding,Cab Door,PRESET-APPLIED-MOULDING,frame_and_panel,paint;stain,true,Applied moulding panel for ornate detail
-DS-CD-006,Reverse Raised,Cab Door,PRESET-REVERSE-RAISED,frame_and_panel,paint;stain,true,Reverse raised panel
-DS-CD-007,Lexington Mitre,Cab Door,PRESET-MITRE-LEXINGTON,frame_and_panel,paint;stain,true,3in mitre with Group A flat-back panel
-DS-CD-008,Concord Mitre,Cab Door,PRESET-MITRE-CONCORD,frame_and_panel,paint;stain,true,3in mitre with Group A flat-back panel
-DS-CD-009,Cherry Hill Mitre,Cab Door,PRESET-MITRE-CHERRY-HILL,frame_and_panel,paint;stain,true,3in mitre
-DS-CD-010,Petersburg Mitre,Cab Door,PRESET-MITRE-PETERSBURG,frame_and_panel,paint;stain,true,2.25in mitre with E-32 edge
-DS-CD-011,Williamsburg Mitre,Cab Door,PRESET-MITRE-WILLIAMSBURG,frame_and_panel,paint;stain,true,2.25in mitre with E-46 edge
-DS-CD-012,Chantilly Mitre,Cab Door,PRESET-MITRE-CHANTILLY,frame_and_panel,paint;stain,true,2.25in mitre with rope moulding inlay
-DS-CD-013,Hartford Mitre,Cab Door,PRESET-MITRE-HARTFORD,frame_and_panel,paint;stain,true,2.5in mitre
-DS-CD-014,Alexandria Mitre,Cab Door,PRESET-MITRE-ALEXANDRIA,frame_and_panel,paint;stain,true,2.5in mitre
-DS-CD-015,Brookhaven Rosewood,Cab Door,PRESET-MITRE-BROOKHAVEN-P15,frame_and_panel,paint;stain,true,Rosewood mitre edge
-DS-SLAB-MDF,Slab MDF,In-house;Cab Door,,slab,paint;melamine,true,Modern slab — paint or melamine
-DS-SLAB-VENEER,Slab Veneer,In-house;Cab Door,,slab,stain,true,Slab door with wood veneer face
-DS-GLASS-CLEAR,Glass Insert (Clear),Cab Door;Other,,frame_and_glass,paint;stain,true,Frame only; glass supplied separately
-DS-GLASS-SEEDED,Glass Insert (Seeded),Cab Door;Other,,frame_and_glass,paint;stain,true,Traditional character glass
-DS-OPEN-SHELF,Open Shelf,—,,none,—,true,No door ordered — open cabinet
-DS-099,Other / Custom,—,,custom,—,true,Specify full detail in notes
+DS-CD-116,#116 Standard Shaker,Cab Door,116,frame_and_panel,paint;stain,false,"ACC default shaker. 2.25"" stile/rail, 1/8"" radius on edge and profile, flat panel."
+DS-CD-113,#113 Reverse Raised Panel,Cab Door,113,frame_and_panel,paint;stain,false,Reverse raised panel. Cab Door style #113.
+DS-CD-PRESET,Cab Door Preset,Cab Door,,frame_and_panel,paint;stain,false,Select from Cab Door preset catalog — specify in Schedules tab.
+DS-CD-CUSTOM,Cab Door Custom,Cab Door,,custom,paint;stain,false,"Custom Cab Door spec — specify Edge, Profile, and Panel options below."
+DS-SLAB-MDF,Slab MDF,"In-house;Cab Door",,slab,paint;melamine;plam,false,Modern slab — paint or melamine or PLAM
+DS-OTHER,Other,,,custom,,false,Non-Cab-Door or fully custom — specify in Notes.

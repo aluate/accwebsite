@@ -67,6 +67,7 @@ export type SpecPDFData = {
   notes_install: string | null; notes_finishing: string | null;
   notes_shop: string | null; notes_client: string | null;
   job_notes: string | null;
+  lifecycle_state?: string | null;
   finish_groups: FinishGroupView[];
   rooms: RoomView[];
   accessories_rollup: AccessoryRollupRow[];
@@ -133,6 +134,9 @@ const S = StyleSheet.create({
   notesBox: { borderWidth: 0.5, borderColor: HAIR, borderRadius: 2, padding: 5, marginBottom: 4 },
   notesLbl: { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 },
   notesBody:{ fontSize: 7, color: DARK, lineHeight: 1.4 },
+  // ── DRAFT watermark ──
+  draftWrap: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center", opacity: 0.08 },
+  draftTx:   { fontSize: 120, fontFamily: "Helvetica-Bold", color: "#cc0000", transform: "rotate(-35deg)", letterSpacing: 20 },
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -157,6 +161,14 @@ const stageMap: Record<string, string> = {
 };
 
 // ─── Shared components ────────────────────────────────────────────────────────
+
+function DraftWatermark() {
+  return (
+    <View style={S.draftWrap} fixed>
+      <Text style={S.draftTx}>DRAFT</Text>
+    </View>
+  );
+}
 
 function TitleBlock({ data, code }: { data: SpecPDFData; code: string }) {
   const stageLetter = code.split(".")[0] || "F";
@@ -213,8 +225,10 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   // Column flex widths
   const COL = { fg: 0.9, color: 1.6, species: 0.9, carcass: 1.3, drawerBox: 1.3, rolloutBox: 1.3, doorStyle: 1.5, appliedPanels: 0.9, pulls: 2.2, notes: 1.6 };
 
+  const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
+      {isDraft && <DraftWatermark />}
       <TitleBlock data={data} code="F.1" />
 
       {/* FINISH SCHEDULE */}
@@ -326,8 +340,10 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
     if (fg.edgebands.length > 0) ebByFG.set(fg.id, { fg, ebs: fg.edgebands });
   }
 
+  const isDraftA = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
+      {isDraftA && <DraftWatermark />}
       <TitleBlock data={data} code="A.1" />
 
       {/* ACCESSORIES */}
@@ -432,9 +448,11 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
 function AppliancesHardwarePage({ data }: { data: SpecPDFData }) {
   const apps = data.spec_appliances_list ?? [];
   const hw   = data.spec_hardware ?? [];
+  const isDraftAP = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
 
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
+      {isDraftAP && <DraftWatermark />}
       <TitleBlock data={data} code="AP.1" />
 
       {/* APPLIANCES */}
@@ -509,8 +527,10 @@ function NotesPage({ data }: { data: SpecPDFData }) {
     { label: "Client Notes",    body: cleanNotes(data.notes_client) },
   ].filter(s => s.body);
 
+  const isDraftN = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
+      {isDraftN && <DraftWatermark />}
       <TitleBlock data={data} code="N.1" />
       <Text style={S.secHead}>NOTES</Text>
       {sections.map(({ label, body }) => (

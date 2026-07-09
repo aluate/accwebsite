@@ -26,13 +26,20 @@ type CatalogData = {
   applianceCatalog?: { type: string; manufacturer: string; model: string; cutout_w: number; cutout_h: number; cutout_d: number; notes: string }[];
   edgebands: Edgeband[];
   rooms: RoomCatalogEntry[];
+  cabDoorEdges?: { id: string; name: string }[];
+  cabDoorProfiles?: { id: string; name: string }[];
+  cabDoorPanels?: { id: string; name: string }[];
 };
 
-type FinishType = "paint" | "stain" | "melamine";
+type FinishType = "paint" | "stain" | "melamine" | "plam" | "";
 
 export type FinishGroup = {
   id: string; label: string; finish_type: FinishType;
   color_id: string; color_name: string; door_style_id: string;
+  drawer_style_id: string;
+  cabdoor_edge_id: string;
+  cabdoor_profile_id: string;
+  cabdoor_panel_id: string;
   pull_id: string; box_material: "melamine" | "plywood";
   carcass_id: string;
   drawer_box_id: string;
@@ -105,6 +112,10 @@ export type Room = {
   finish_group_id: string;
   finishes: RoomFinishLink[];
   notes: string; sort_order: number;
+  flooring: string;
+  ceiling_height: string;
+  soffit: string;
+  backsplash: string;
   accessories: { acc_id: string; qty: number; custom_note?: string }[];
   cabinets: CabinetItem[];
   trim: TrimRow[];
@@ -439,7 +450,7 @@ function ColorPicker({
 }
 
 export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, lastSaved }: Props) {
-  const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "appliances" | "summary">("finishes");
+  const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
   const [moldings, setMoldings] = useState<FinishMolding[]>([]);
@@ -462,15 +473,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // on mount; saveAll() then fires both with one click. Matches Karl's
   // "10-year-old can drive it" standard — one button, both writes.
   const [saveAllState, setSaveAllState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [bulkRoomText, setBulkRoomText] = useState("");
+  const [showBulkRoom, setShowBulkRoom] = useState(false);
 
   // violations and save must be declared BEFORE saveAll (which lists save as a dep)
   // to avoid a TDZ crash on render.
   const violations = useMemo(() => validateForSave(groups, rooms), [groups, rooms]);
 
-  const save = useCallback(async (archive?: string): Promise<boolean> => {
+  const save = useCallback(async (archive?: string, force?: boolean): Promise<boolean> => {
     if (violations.length > 0) {
       setShowViolations(true);
-      return false;
+      if (!force) return false;  // partial save: caller passes force=true
     }
     setSaveState("saving");
     try {
@@ -509,20 +522,31 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const saveAll = useCallback(async () => {
     setSaveAllState("saving");
     try {
-      const okLegacy = await save();
-      if (!okLegacy) {
+      const hasViolations = violations.length > 0;
+      const okLegacy = await save(undefined, hasViolations);
+      if (!okLegacy && !hasViolations) {
         setSaveAllState("error");
         return;
       }
-      // Schedules ref is null until the user has visited the Schedules tab at
-      // least once (lazy mount). Skipping the call when null is correct — the
-      // user can't have unsaved schedules edits if the panel never mounted.
+      // Also save appliances + hardware on Save All
+      await Promise.all([
+        fetch(`/api/specs/${specId}/appliances`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ appliances }),
+        }),
+        fetch(`/api/specs/${specId}/hardware`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hardware: specHW }),
+        }),
+      ]);
       setSaveAllState("saved");
       setTimeout(() => setSaveAllState("idle"), 2000);
     } catch {
       setSaveAllState("error");
     }
-  }, [save]);
+  }, [save, specId, appliances, specHW, violations.length]);
 
   // Dual-UI sync (2026-05-06): the Schedules · v2 tab and the inline Materials
   // sub-section both write to finish_group_materials via different endpoints.
@@ -534,7 +558,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // initial mount, and we only refetch when leaving 'schedules' specifically.
 
   const generateSpec = useCallback(async () => {
-    if (violations.length > 0) { setShowViolations(true); return; }
+    if (violations.length > 0) { setShowViolations(true); }  // flag but don't block — DRAFT watermark will show
     if (dirty) {
       const ok = await save();
       if (!ok) return;
@@ -634,10 +658,12 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     const idx = groups.length + 1;
     setGroups([...groups, {
       id: uid(),
-      label: `FG-${String(idx).padStart(2, "0")}`,
-      finish_type: "paint",
+      label: "",
+      finish_type: "",
       color_id: "", color_name: "",
-      door_style_id: "", pull_id: "",
+      door_style_id: "", drawer_style_id: "",
+      cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
+      pull_id: "",
       box_material: "melamine",
       carcass_id: "", drawer_box_id: "", edgeband_id: "",
       applied_panels: "slab",
@@ -723,11 +749,40 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   }, [specId, dirty, violations.length, save]);
 
   // ── Rooms ─────────────────────────────────────────────────────────────────
+  function addBulkRooms() {
+    const names = bulkRoomText.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (names.length === 0) return;
+    const startOrder = rooms.length;
+    const newRooms: Room[] = names.map((name, i) => ({
+      id: uid(), name,
+      finish_group_id: "", finishes: [],
+      notes: "", sort_order: startOrder + i + 1,
+      flooring: "", ceiling_height: "", soffit: "", backsplash: "",
+      accessories: [], cabinets: [], trim: [],
+    }));
+    setRooms([...rooms, ...newRooms]);
+    setBulkRoomText("");
+    setShowBulkRoom(false);
+    markDirty();
+  }
+
+  function moveRoom(id: string, dir: -1 | 1) {
+    const idx = rooms.findIndex((r) => r.id === id);
+    if (idx < 0) return;
+    const next = idx + dir;
+    if (next < 0 || next >= rooms.length) return;
+    const reordered = [...rooms];
+    [reordered[idx], reordered[next]] = [reordered[next], reordered[idx]];
+    setRooms(reordered.map((r, i) => ({ ...r, sort_order: i + 1 })));
+    markDirty();
+  }
+
   function addRoom() {
     setRooms([...rooms, {
       id: uid(), name: "",
       finish_group_id: "", finishes: [],
       notes: "", sort_order: rooms.length + 1,
+      flooring: "", ceiling_height: "", soffit: "", backsplash: "",
       accessories: [], cabinets: [], trim: [],
     }]);
     markDirty();
@@ -847,7 +902,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // ── Appliances ────────────────────────────────────────────────────────────
   function addAppliance() {
     setAppliances([...appliances, {
-      id: uid(), appliance_type: "Range", manufacturer: "", model_no: "",
+      id: uid(), appliance_type: "", manufacturer: "", model_no: "",
       room_id: "", notes: "", cutout_w: "", cutout_h: "", cutout_d: "", sort_order: appliances.length,
     }]);
     markDirty();
@@ -1009,18 +1064,29 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             </span>
           )}
           <button
-            onClick={saveAll}
-            disabled={saveAllState === "saving" || violations.length > 0}
-            title={blockedReason || "Save spec + schedules in one click"}
+            onClick={() => {
+              if (violations.length > 0) {
+                // Partial save — show violations banner but save anyway as DRAFT
+                setShowViolations(true);
+                save(undefined, true);
+              } else {
+                saveAll();
+              }
+            }}
+            disabled={saveAllState === "saving"}
+            title={violations.length > 0 ? "Save as DRAFT — blank required fields will be flagged" : "Save spec + schedules in one click"}
             className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
-              saveAllState === "saving" || violations.length > 0
+              saveAllState === "saving"
                 ? "bg-white/5 text-white/20 cursor-not-allowed"
+                : violations.length > 0
+                ? "bg-yellow-700/70 hover:bg-yellow-700 text-white"
                 : "bg-[#f08122] hover:bg-[#d9711e] text-white"
             }`}
           >
             {saveAllState === "saving" ? "Saving..." :
-             saveAllState === "saved"  ? "Saved" :
-             saveAllState === "error"  ? "Error - retry" :
+             saveAllState === "saved"  ? "Saved ✓" :
+             saveAllState === "error"  ? "Error — retry" :
+             violations.length > 0   ? "Save as Draft" :
              "Save All"}
           </button>
           {/* Legacy "Save" — fires only the spec form, NOT the Schedules tab.
@@ -1130,7 +1196,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
       {/* Tabs */}
       <div className="flex border-b border-white/10 mb-8 overflow-x-auto whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0 sticky top-0 z-10 bg-[#1a1a1a]/95 backdrop-blur-sm">
-        {(["finishes", "rooms", "cabinets", "appliances", "summary"] as const).map((t) => (
+        {(["finishes", "rooms", "specDetails", "summary"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`font-condensed uppercase tracking-widest text-xs py-3 px-3 sm:px-5 border-b-2 transition-colors ${
               tab === t ? "border-[#f08122] text-[#f08122]" : "border-transparent text-white/30 hover:text-white/60"
@@ -1138,8 +1204,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           >
             {t === "finishes" ? `Finish Groups (${groups.length})`
               : t === "rooms" ? `Rooms (${rooms.length})`
-              : t === "cabinets" ? `Cabinet Order (${rooms.reduce((n, r) => n + r.cabinets.length, 0)})`
-              : t === "appliances" ? `Appliances (${appliances.length})`
+              : t === "specDetails" ? `Spec Details (${appliances.length})`
               : "Summary"}
           </button>
         ))}
@@ -1188,13 +1253,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       value={g.finish_type}
                       onChange={(e) => {
                         const newType = e.target.value as FinishType;
-                        const typePrefix = newType === "paint" ? "PNT" : newType === "melamine" ? "MEL" : "STN";
-                        const countOfType = groups.filter((x) => x.id !== g.id && (
-                          newType === "paint" ? x.finish_type === "paint" :
-                          newType === "melamine" ? x.finish_type === "melamine" :
-                          x.finish_type === "stain"
-                        )).length;
-                        const autoLabel = `${typePrefix}-${countOfType + 1}`;
+                        const typePrefix = newType === "paint" ? "PNT" : newType === "melamine" ? "MEL" : newType === "plam" ? "PLAM" : "STN";
+                        const countOfType = groups.filter((x) => x.id !== g.id && x.finish_type === newType).length;
+                        const autoLabel = newType ? `${typePrefix}-${countOfType + 1}` : "";
                         const patch: Partial<FinishGroup> = { finish_type: newType, label: autoLabel, color_id: "", color_name: "", edgeband_id: "" };
                         // When switching to melamine, check if current door style is a slab;
                         // if not, clear it so the user must re-pick from the restricted list.
@@ -1208,9 +1269,11 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       }}
                       className={SELECT}
                     >
+                      <option value="">-- Select Type --</option>
                       <option value="paint">Paint</option>
                       <option value="stain">Stain</option>
                       <option value="melamine">Melamine / TFL</option>
+                      <option value="plam">PLAM</option>
                     </select>
                   </div>
                   <div className="sm:col-span-2">
@@ -1264,6 +1327,46 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       </p>
                     )}
                   </div>
+
+                  {/* Cab Door Custom Options — shown only when DS-CD-CUSTOM is selected */}
+                  {g.door_style_id === "DS-CD-CUSTOM" && (
+                    <div className="sm:col-span-3 grid sm:grid-cols-3 gap-3 bg-[#1a1a1a] rounded p-3 border border-[#f08122]/20">
+                      <p className="sm:col-span-3 text-[#f08122]/60 text-[10px] font-condensed uppercase tracking-widest">Cab Door Custom Options</p>
+                      <div>
+                        <label className={LABEL}>Edge Detail</label>
+                        <select value={g.cabdoor_edge_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_edge_id: e.target.value })} className={SELECT}>
+                          <option value="">-- Select Edge --</option>
+                          {(catalogs.cabDoorEdges ?? []).map((e) => <option key={e.id} value={e.id}>{e.name || e.id}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>Inside Profile</label>
+                        <select value={g.cabdoor_profile_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_profile_id: e.target.value })} className={SELECT}>
+                          <option value="">-- Select Profile --</option>
+                          {(catalogs.cabDoorProfiles ?? []).map((p) => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>Panel</label>
+                        <select value={g.cabdoor_panel_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_panel_id: e.target.value })} className={SELECT}>
+                          <option value="">-- Select Panel --</option>
+                          {(catalogs.cabDoorPanels ?? []).map((p) => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className={LABEL}>Drawer Style <span className="text-white/30 normal-case font-normal">(if different from door)</span></label>
+                    <select
+                      value={g.drawer_style_id ?? ""}
+                      onChange={(e) => updateGroup(g.id, { drawer_style_id: e.target.value })}
+                      className={SELECT}
+                    >
+                      <option value="">Same as Door</option>
+                      {catalogs.doorStyles.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
                   <div>
                     <label className={LABEL}>Applied Panels</label>
                     <select
@@ -1273,13 +1376,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     >
                       <option value="slab">Slab</option>
                       <option value="match_door">Match door style</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={LABEL}>Hardware Pull <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
-                    <select value={g.pull_id} onChange={(e) => updateGroup(g.id, { pull_id: e.target.value })} className={SELECT}>
-                      <option value="">-- Select Pull --</option>
-                      {catalogs.hardwarePulls.map((p) => <option key={p.id} value={p.id}>{p.name} - {p.brand}</option>)}
                     </select>
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
@@ -1407,18 +1503,96 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       {/* ROOMS */}
       {tab === "rooms" && (
         <div className="space-y-6">
-          <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
-            Define rooms. Each room can have multiple finishes - e.g. Kitchen Perimeter (MEL-1) + Kitchen Island (MEL-2). Add a zone label per finish if it&apos;s split.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
+              Define rooms. Multiple finishes per room supported — add zone labels if split.
+            </p>
+            <button
+              onClick={() => setShowBulkRoom(!showBulkRoom)}
+              className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1.5 transition-colors"
+            >
+              {showBulkRoom ? "Hide Bulk Entry" : "Bulk Add Rooms"}
+            </button>
+          </div>
+
+          {showBulkRoom && (
+            <div className="bg-[#2d2d2d] rounded p-4 space-y-3 border border-white/10">
+              <p className="text-white/50 text-xs font-condensed uppercase tracking-widest">One room name per line</p>
+              <textarea
+                value={bulkRoomText}
+                onChange={(e) => setBulkRoomText(e.target.value)}
+                placeholder={"Kitchen\nMaster Bath\nLaundry\nMud Room"}
+                rows={5}
+                className="w-full bg-[#1a1a1a] border border-white/10 rounded p-3 text-white text-sm font-mono focus:outline-none focus:border-[#f08122]/60 resize-y"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={addBulkRooms}
+                  className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+                >
+                  Add Rooms
+                </button>
+                <button
+                  onClick={() => { setBulkRoomText(""); setShowBulkRoom(false); }}
+                  className="text-white/30 hover:text-white/60 font-condensed uppercase tracking-widest text-xs px-4 py-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {groups.length === 0 && (
             <div className="bg-yellow-900/20 border border-yellow-700/30 rounded p-4 text-yellow-300/70 text-xs font-condensed uppercase tracking-widest">
               Define at least one finish group first.
             </div>
           )}
-          {rooms.map((room) => (
+
+          {groups.length > 0 && rooms.length > 1 && (
+            <div className="bg-[#2d2d2d] rounded p-3 border border-white/10 flex flex-wrap items-center gap-3">
+              <span className="text-white/40 font-condensed uppercase tracking-widest text-xs">Whole-job single finish:</span>
+              <select
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  setRooms(rooms.map((r) => ({
+                    ...r,
+                    finish_group_id: e.target.value,
+                    finishes: [{ finish_group_id: e.target.value, zone: "", sort_order: 0 }],
+                  })));
+                  markDirty();
+                  e.target.value = "";
+                }}
+                defaultValue=""
+                className="bg-[#1a1a1a] border border-white/10 rounded px-3 py-1.5 text-white text-xs font-condensed focus:outline-none focus:border-[#f08122]/60"
+              >
+                <option value="">Apply one FG to all rooms…</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.label}{g.finish_type ? ` · ${g.finish_type.toUpperCase()}` : ""}{g.species ? ` · ${g.species}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {rooms.map((room, roomIdx) => (
             <div key={room.id} className="bg-[#2d2d2d] rounded p-4 sm:p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <span className="text-white/50 font-condensed uppercase tracking-widest text-xs">Room</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/50 font-condensed uppercase tracking-widest text-xs">Room {roomIdx + 1}</span>
+                  <button
+                    onClick={() => moveRoom(room.id, -1)}
+                    disabled={roomIdx === 0}
+                    className="text-white/20 hover:text-white/60 disabled:opacity-20 text-xs px-1 transition-colors"
+                    title="Move up"
+                  >▲</button>
+                  <button
+                    onClick={() => moveRoom(room.id, 1)}
+                    disabled={roomIdx === rooms.length - 1}
+                    className="text-white/20 hover:text-white/60 disabled:opacity-20 text-xs px-1 transition-colors"
+                    title="Move down"
+                  >▼</button>
+                </div>
                 <button onClick={() => removeRoom(room.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
               </div>
               <div>
@@ -1450,7 +1624,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <option value="">-- Select Finish Group --</option>
                         {groups.map((g) => (
                           <option key={g.id} value={g.id}>
-                            {g.label} - {g.color_name?.split(" - ")[0] || g.finish_type}
+                            {g.label}{g.finish_type ? ` · ${g.finish_type.toUpperCase()}` : ""}{g.species ? ` · ${g.species}` : ""}{g.color_name ? ` · ${g.color_name.split(" - ")[0]}` : ""}
                           </option>
                         ))}
                       </select>
@@ -1546,6 +1720,24 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 </div>
               </div>
 
+              <div className="grid sm:grid-cols-4 gap-3">
+                <div>
+                  <label className={LABEL}>Flooring</label>
+                  <input value={room.flooring ?? ""} onChange={(e) => updateRoom(room.id, { flooring: e.target.value })} placeholder="Tile, Hardwood, Carpet..." className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Ceiling Height</label>
+                  <input value={room.ceiling_height ?? ""} onChange={(e) => updateRoom(room.id, { ceiling_height: e.target.value })} placeholder="9', 10', Vaulted..." className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Soffit</label>
+                  <input value={room.soffit ?? ""} onChange={(e) => updateRoom(room.id, { soffit: e.target.value })} placeholder="12&quot;, 18&quot;, None..." className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Backsplash</label>
+                  <input value={room.backsplash ?? ""} onChange={(e) => updateRoom(room.id, { backsplash: e.target.value })} placeholder="Tile, Stone, None..." className={INPUT} />
+                </div>
+              </div>
               <div>
                 <label className={LABEL}>Room Notes</label>
                 <input value={room.notes} onChange={(e) => updateRoom(room.id, { notes: e.target.value })} placeholder="Crown, light rail, special conditions..." className={INPUT} />
@@ -1558,8 +1750,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         </div>
       )}
 
-      {/* CABINETS — drawings-linked (Karl 2026-05 decision: option C) */}
-      {tab === "cabinets" && (
+      {/* CABINETS — removed from tabs (Karl 2026-07-09) */}
+      {false && tab === "cabinets" && (
         <CabinetsDrawingsView
           jobId={jobId}
           legacyManualEntry={
@@ -1618,8 +1810,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         />
       )}
 
-      {/* APPLIANCES (Phase 3e) */}
-      {tab === "appliances" && (
+      {/* SPEC DETAILS — appliances, accessories, hardware */}
+      {tab === "specDetails" && (
         <div className="space-y-6">
           <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
             List all appliances and plumbing fixtures. Audience: engineer (rough-in reference) and client (change tracking).
@@ -1631,11 +1823,33 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   <div>
                     <label className={LABEL}>Type</label>
-                    <select value={ap.appliance_type} onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value })} className={SELECT}>
-                      {["Range","Hood","Dishwasher","Refrigerator","Microwave","Wine Fridge","Warming Drawer","Sink","Faucet","Other"].map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
+                    {(() => {
+                      const KNOWN_TYPES = ["Range","Hood","Dishwasher","Refrigerator","Microwave","Wine Fridge","Warming Drawer","Washer/Dryer","Ice Maker","Under-Mount Sink","Apron Sink","Plumbing Fixture","Sink","Faucet","Other"];
+                      const selectVal = KNOWN_TYPES.includes(ap.appliance_type) ? ap.appliance_type : (ap.appliance_type ? "Other" : "");
+                      const isOther = selectVal === "Other";
+                      return (
+                        <>
+                          <select
+                            value={selectVal}
+                            onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value })}
+                            className={SELECT}
+                          >
+                            <option value="">-- Type --</option>
+                            {KNOWN_TYPES.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                          {isOther && (
+                            <input
+                              value={KNOWN_TYPES.includes(ap.appliance_type) ? "" : ap.appliance_type}
+                              onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value || "Other" })}
+                              placeholder="Describe…"
+                              className={INPUT + " mt-1"}
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                   <div>
                     <label className={LABEL}>Manufacturer</label>
@@ -1785,7 +1999,23 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 </div>
               ))}
             </div>
-            <div className="flex gap-3 mt-2">
+            <div className="flex gap-3 mt-2 flex-wrap">
+              {specHW.length === 0 && (
+                <button
+                  onClick={() => {
+                    const defaults: SpecHardwareItem[] = [
+                      { id: uid(), type: "Hinges", part_no: "", room: "All", qty: 1, notes: "", sort_order: 0 },
+                      { id: uid(), type: "Drawer Slides", part_no: "", room: "All", qty: 1, notes: "", sort_order: 1 },
+                      { id: uid(), type: "Shelf Clips", part_no: "", room: "All", qty: 1, notes: "", sort_order: 2 },
+                      { id: uid(), type: "Soft-Close Buffers", part_no: "", room: "All", qty: 1, notes: "", sort_order: 3 },
+                    ];
+                    setSpecHW(defaults); markDirty();
+                  }}
+                  className="bg-white/5 hover:bg-white/10 border border-white/15 text-white/50 hover:text-white font-condensed uppercase tracking-widest text-xs rounded py-3 px-5 transition-colors"
+                >
+                  Preload Standard Hardware
+                </button>
+              )}
               <button onClick={addSpecHW} className="border border-dashed border-white/20 hover:border-[#f08122] text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs rounded py-3 px-6 transition-colors">
                 + Add Hardware Row
               </button>
@@ -1893,7 +2123,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <p className="text-white text-sm font-medium">{room.name || "Unnamed Room"}</p>
                       {!hasFinish && <span className="text-yellow-400 text-[10px] font-condensed uppercase tracking-widest">⚠ no finish assigned</span>}
                     </div>
-                    {/* Finish assignments */}
                     {links.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-2">
                         {links.map((link, li) => {
@@ -1906,7 +2135,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         })}
                       </div>
                     )}
-                    {/* Accessories */}
                     {(room.accessories ?? []).filter((a) => a.acc_id).length > 0 && (
                       <div className="mb-1">
                         <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Accessories</p>
@@ -1916,7 +2144,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         })}
                       </div>
                     )}
-                    {/* Trim */}
                     {(room.trim ?? []).length > 0 && (
                       <div>
                         <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Trim</p>
@@ -2096,7 +2323,7 @@ function SumRow({ label, value, warn }: { label: string; value?: string | null; 
   return (
     <div>
       <span className="text-white/30 font-condensed uppercase tracking-wider mr-2">{label}:</span>
-      <span className={warn ? "text-yellow-400" : "text-white/70 capitalize"}>{value}</span>
+      <span className={`${warn ? "text-yellow-400" : "text-white/70 capitalize"}`}>{value}</span>
     </div>
   );
 }

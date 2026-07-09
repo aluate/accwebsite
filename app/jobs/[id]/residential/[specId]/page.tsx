@@ -8,9 +8,10 @@ import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
 
 type SpecRow    = { id: string; job_id: string; name: string; status: string; updated_at: string };
 type FGRow      = {
-  id: string; label: string; finish_type: "paint"|"stain"|"melamine";
+  id: string; label: string; finish_type: "paint"|"stain"|"melamine"|"plam"|"";
   color_id: string; color_name: string;
-  door_style_id: string; pull_id: string;
+  door_style_id: string; drawer_style_id: string | null; pull_id: string;
+  cabdoor_edge_id: string | null; cabdoor_profile_id: string | null; cabdoor_panel_id: string | null;
   box_material: "melamine"|"plywood";
   carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null;
   applied_panels: "slab" | "match_door" | null;
@@ -135,6 +136,10 @@ export default async function SpecEditorPage({
 
     return {
       ...r,
+      flooring: (r as Record<string, unknown>).flooring as string ?? "",
+      ceiling_height: (r as Record<string, unknown>).ceiling_height as string ?? "",
+      soffit: (r as Record<string, unknown>).soffit as string ?? "",
+      backsplash: (r as Record<string, unknown>).backsplash as string ?? "",
       finishes: seededFinishes,
       accessories: accessories
         .filter((a) => a.room_id === r.id)
@@ -171,6 +176,11 @@ export default async function SpecEditorPage({
 
   const finishGroupsHydrated = finish_groups.map((g) => ({
     ...g,
+    finish_type:    (g.finish_type ?? "") as "paint" | "stain" | "melamine" | "plam" | "",
+    drawer_style_id: (g as Record<string, unknown>).drawer_style_id as string ?? "",
+    cabdoor_edge_id: (g as Record<string, unknown>).cabdoor_edge_id as string ?? "",
+    cabdoor_profile_id: (g as Record<string, unknown>).cabdoor_profile_id as string ?? "",
+    cabdoor_panel_id: (g as Record<string, unknown>).cabdoor_panel_id as string ?? "",
     carcass_id:    g.carcass_id    ?? "",
     drawer_box_id: g.drawer_box_id ?? "",
     rollout_box_id: g.rollout_box_id ?? "",
@@ -249,6 +259,11 @@ export default async function SpecEditorPage({
     moldingTypes:     catalogs.moldingTypes(),
     moldingProfiles:  catalogs.moldingProfiles(),
     moldingMaterials: catalogs.moldingMaterials(),
+    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 
   return (
