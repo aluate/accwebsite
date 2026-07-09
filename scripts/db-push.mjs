@@ -726,4 +726,55 @@ async function main() {
     )
   `;
   await sql`
-  
+      CREATE INDEX IF NOT EXISTS idx_spec_appliances_spec ON spec_appliances(spec_id)
+  `;
+
+  // Add cutout columns to spec_appliances if upgrading existing DB
+  for (const col of ['cutout_w', 'cutout_h', 'cutout_d']) {
+    await sql`ALTER TABLE spec_appliances ADD COLUMN IF NOT EXISTS ${sql(col)} NUMERIC`.catch(() => {});
+  }
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS paint_colors (
+      id          SERIAL PRIMARY KEY,
+      brand       TEXT NOT NULL,
+      name        TEXT NOT NULL,
+      code        TEXT NOT NULL,
+      hex         TEXT,
+      active      BOOLEAN NOT NULL DEFAULT true,
+      UNIQUE(brand, code)
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_paint_colors_brand ON paint_colors(brand)
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_paint_colors_search ON paint_colors USING gin(to_tsvector('english', name || ' ' || code))
+  `;
+
+  // ── 2026-07-09 additions ─────────────────────────────────────────────────────
+  // finish_groups: drawer_style, cabdoor custom options
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS drawer_style_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_edge_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_profile_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // rooms: flooring, ceiling_height, soffit, backsplash (Room C fields)
+  for (const stmt of [
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS flooring TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS ceiling_height TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS soffit TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS backsplash TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  console.log("Schema push complete.");
+  await sql.end();
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
