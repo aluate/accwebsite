@@ -83,13 +83,28 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   function hardwareName(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.name??""):"";}
   function hardwareBrand(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.brand??""):"";}
 
-  // Build edgeband code map: unique edgeband_id → code (EB1, EB2, …)
-  const ebCodeMap = new Map<string, string>();
+  // Build edgeband code map from finish_group_edgebands table rows (preferred — carries where_used).
+  // Fall back to flat finish_groups.edgeband_id for FGs with no table rows.
+  const ebCodeMap = new Map<string, string>(); // edgeband_id → code
   let ebCounter = 0;
+  // Seed from table rows first (preserves insertion order per spec)
+  for (const eb of edgebands) {
+    if (eb.edgeband_id && !ebCodeMap.has(eb.edgeband_id)) {
+      ebCodeMap.set(eb.edgeband_id, `EB${++ebCounter}`);
+    }
+  }
+  // Then seed any flat-column IDs not yet covered
   for (const g of fgs) {
     if (g.edgeband_id && !ebCodeMap.has(g.edgeband_id)) {
       ebCodeMap.set(g.edgeband_id, `EB${++ebCounter}`);
     }
+  }
+  // Group finish_group_edgebands rows by FG id
+  const ebRowsByFG = new Map<string, EdgebandRow[]>();
+  for (const eb of edgebands) {
+    const arr = ebRowsByFG.get(eb.finish_group_id) ?? [];
+    arr.push(eb);
+    ebRowsByFG.set(eb.finish_group_id, arr);
   }
 
   const fgViews: FinishGroupView[] = fgs.map((g) => {
@@ -100,8 +115,25 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     const doorName = g.door_style_id ? (doorStyleIdx.get(g.door_style_id) ?? g.door_style_id) : "";
     const drawerBoxName = g.drawer_box_id ? (drawerBoxIdx.get(g.drawer_box_id) ?? g.drawer_box_id) : "";
     const rolloutBoxName = g.rollout_box_id ? (drawerBoxIdx.get(g.rollout_box_id) ?? g.rollout_box_id) : "";
-    const ebData = g.edgeband_id ? edgebandIdx.get(g.edgeband_id) : null;
-    const ebCode = g.edgeband_id ? (ebCodeMap.get(g.edgeband_id) ?? "") : "";
+
+    // Build edgebands from table rows (with where_used_label). Fall back to flat column if no rows.
+    const tableEbs = ebRowsByFG.get(g.id) ?? [];
+    let ebEntries: FinishGroupView["edgebands"];
+    if (tableEbs.length > 0) {
+      ebEntries = tableEbs.map((eb) => {
+        const id = eb.edgeband_id ?? "";
+        const code = id ? (ebCodeMap.get(id) ?? eb.code) : eb.code;
+        const data = id ? edgebandIdx.get(id) : undefined;
+        const whereUsedLabel = eb.where_used ? (EDGEBAND_WHERE_USED_LABEL[eb.where_used] ?? eb.where_used) : "";
+        return { code, edgeband_name: data?.name ?? "", supplier: data?.supplier ?? "", thickness: data?.thickness ?? "", where_used_label: whereUsedLabel, notes: eb.notes ?? "" };
+      });
+    } else {
+      // Legacy/fallback: flat column only
+      const ebData = g.edgeband_id ? edgebandIdx.get(g.edgeband_id) : undefined;
+      const ebCode = g.edgeband_id ? (ebCodeMap.get(g.edgeband_id) ?? "") : "";
+      ebEntries = ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", where_used_label: "", notes: "" }] : [];
+    }
+
     return {
       id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
@@ -114,7 +146,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
       materials: carcassName ? [{ role: "cab_ext", role_label: "Carcass", name: carcassName, where_used: "", notes: "" }] : [],
       door_fronts: doorName ? [{ role: "base", role_label: "Base Doors", slot_label: "", style_name: doorName, material_name: "", oe_name: "", ie_name: "", panel_name: "", grain: "", vendor: "", notes: "" }] : [],
       drawers: drawerBoxName ? [{ role: "drawer_box", role_label: "Drawer Box", slot_label: "", drawer_box_name: drawerBoxName, slides_name: "", notes: "" }] : [],
-      edgebands: ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", where_used_label: "", notes: "" }] : [],
+      edgebands: ebEntries,
       hardware: [], countertops: [], moldings: [],
     };
   });
@@ -154,6 +186,18 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     spec_pulls = pullsRows.map((r) => ({ id:r.id, make:r.make??"", model:r.model??"", size:r.size??"", room:r.room??"", notes:r.notes??"", qty:r.qty }));
     spec_accessories = accRows.map((r) => ({ id:r.id, type:r.type??"", part_number:r.part_number??"", description:r.description??"", qty:r.qty, handed:r.handed??"N/A", room:r.room??"", size:r.size??"", notes:r.notes??"" }));
     spec_hardware_list = hwRows.map((r) => ({ id:r.id, type:r.type, part_no:r.part_no??"", room:r.room??"", qty:r.qty, notes:r.notes??"" }));
+    // Prepend ACC standard hardware defaults. Suppress a default if the spec already has a row
+    // of that type (except Closet Rod, which always appears so the PM can fill in details).
+    const HW_DEFAULTS: SpecHardwareRow[] = [
+      { id:"def-hinge",   type:"Hinge",         part_no:"Blum 110 Int-Soft Close",                room:"", qty:0, notes:"" },
+      { id:"def-drawer",  type:"Drawer Guides",  part_no:"Full Extension Soft Close Undermount",  room:"", qty:0, notes:"" },
+      { id:"def-rollout", type:"Rollout Guides", part_no:"Full Extension Sidemount",               room:"", qty:0, notes:"" },
+      { id:"def-shelf",   type:"Shelf Clips",    part_no:"5mm Nickel",                             room:"", qty:0, notes:"" },
+       { id:"def-closet",  type:"Closet Rod",     part_no:"",                                       room:"", qty:0, notes:"" },
+    ];
+    const specHwTypes = new Set(spec_hardware_list.map(h => h.type.toLowerCase()));
+    const activeDefaults = HW_DEFAULTS.filter(d => d.type === "Closet Rod" || !specHwTypes.has(d.type.toLowerCase()));
+    spec_hardware_list = [...activeDefaults, ...spec_hardware_list];
     fg_pulls_list = fgPullsRows;
     room_trim_list = trimRows;
     db_appliances = appRows;
