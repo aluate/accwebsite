@@ -774,4 +774,15 @@ async function main() {
   // rooms: flooring, ceiling_height, soffit, backsplash (Room C fields)
   for (const stmt of [
     `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS flooring TEXT`,
-    `
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS ceiling_height TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS soffit TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS backsplash TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  console.log("Schema push complete.");
+  await sql.end();
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
