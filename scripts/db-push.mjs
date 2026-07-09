@@ -646,6 +646,14 @@ async function main() {
   }
 
 
+  // ── PM Dashboard install fields (idempotent) ─────────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_type TEXT`,
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_start_date TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
   // ── Phase 1 additions (2026-07-02) ───────────────────────────────────────────
   for (const stmt of [
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS species TEXT`,
@@ -766,15 +774,4 @@ async function main() {
   // rooms: flooring, ceiling_height, soffit, backsplash (Room C fields)
   for (const stmt of [
     `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS flooring TEXT`,
-    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS ceiling_height TEXT`,
-    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS soffit TEXT`,
-    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS backsplash TEXT`,
-  ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
-  }
-
-  console.log("Schema push complete.");
-  await sql.end();
-}
-
-main().catch((e) => { console.error(e); process.exit(1); });
+    `

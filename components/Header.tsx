@@ -26,10 +26,11 @@ const PUBLIC_NAV = [
 const INTERNAL_NAV = [
   { label: "Jobs", href: "/jobs" },
   { label: "Schedule", href: "/schedule" },
+  { label: "PM Dashboard", href: "/pm-dashboard" },
   { label: "Engineering", href: "/engineer" },
 ];
 
-const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password"];
+const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password", "/pm-dashboard"];
 
 export function Header() {
   const pathname = usePathname();
@@ -210,10 +211,4 @@ export function Header() {
                   <Link href="/contact" onClick={() => setOpen(false)} className={cn("px-3 py-2.5 text-sm font-condensed uppercase tracking-wide mt-1", pathname === "/contact" ? "text-[#f08122]" : "text-white")}>Contact</Link>
                 </nav>
               </SheetContent>
-            </Sheet>
-          </>
-        )}
-      </div>
-    </header>
-  );
-}
+           
