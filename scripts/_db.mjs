@@ -35,7 +35,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const sql = postgres(process.env.DATABASE_URL, {
-  ssl: "require",
+  ssl: process.env.DATABASE_URL?.includes("localhost") || process.env.DATABASE_URL?.includes("127.0.0.1") ? false : "require",
   max: 3,
   idle_timeout: 10,
   connect_timeout: 15,

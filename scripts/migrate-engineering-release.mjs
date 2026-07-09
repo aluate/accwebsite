@@ -35,7 +35,7 @@ try {
 const { default: postgres } = await import("postgres");
 
 const sql = postgres(process.env.DATABASE_URL, {
-  ssl: "require",
+  ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require",
   prepare: false,
   max: 1,
 });

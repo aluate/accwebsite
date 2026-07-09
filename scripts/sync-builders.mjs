@@ -21,7 +21,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: "require", max: 1, prepare: false });
+const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);

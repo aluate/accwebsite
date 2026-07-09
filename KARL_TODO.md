@@ -99,3 +99,44 @@ I ingested photos at `data/catalogs/sources/tfl-samples/` (43 new rows: 15 Steve
 - ~~Self-test harness~~ — `npm run selftest` for green/red regression check.
 - ~~Dev server start/restart script~~ — `scripts/dev-restart.ps1` and `.bat`.
 - ~~2 admin accounts~~ — `node scripts/seed-admin-accounts.mjs` → creates `residential@advancedcabinets.net` and `joshl@advancedcabinets.net` (both role: admin, temp password: `Acc2026!`). Run once on your machine.
+
+---
+
+## LOCAL POSTGRES SETUP (run once after installing PostgreSQL)
+
+Install: https://www.postgresql.org/download/windows/ — keep port 5432, set a password for the `postgres` user.
+
+**Step 1 — Create the database**
+Open pgAdmin or the SQL Shell (psql) and run:
+```sql
+CREATE DATABASE acc_website;
+```
+
+**Step 2 — Update `.env.local`**
+Comment out the Supabase URL, add local:
+```
+# LOCAL dev
+DATABASE_URL=postgresql://postgres:YOURPASSWORD@localhost:5432/acc_website
+
+# Supabase (uncomment for production deploy)
+# DATABASE_URL=postgresql://...pooler.supabase.com:6543/postgres
+```
+
+**Step 3 — Create all tables**
+```
+node scripts/db-push.mjs
+```
+
+**Step 4 — Create your admin login**
+```
+node scripts/create-admin.mjs
+```
+
+**Step 5 — Dev server**
+```
+dev.bat
+```
+
+To switch back to Supabase: swap the DATABASE_URL comment lines and restart dev.bat.
+Code already handles SSL automatically — localhost skips it, Supabase requires it.
+

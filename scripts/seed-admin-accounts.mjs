@@ -54,7 +54,7 @@ async function main() {
         (id, username, password_hash, name, company, email, active, created_at, role)
       VALUES
         (${id}, ${acct.username}, ${hash}, ${acct.name}, ${acct.company},
-         ${acct.username}, true, ${now}, ${acct.role})
+         ${acct.username}, 1, ${now}, ${acct.role})
     `;
 
     console.log(`  ✅  Created  ${acct.username}  /  ${acct.password}  (role: ${acct.role})`);

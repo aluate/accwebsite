@@ -19,7 +19,7 @@ function createSql() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
-    ssl: "require",
+    ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
     // max: 1 — Supabase free tier has only ~10 connections total.
     // Each Vercel Lambda is its own process with its own pool.
     // Sequential queries never need more than 1 connection at a time,
@@ -39,13 +39,24 @@ function createSql() {
   });
 }
 
-let _sql: ReturnType<typeof postgres> | null = null;
-function getSql() {
-  if (!_sql) _sql = createSql();
-  return _sql;
+// In dev, Next.js hot-reloads modules on every file save — re-running this
+// module creates a new postgres client and abandons the old one without closing
+// it. Over a testing session with many reloads the leaked connections pile up
+// until Supabase hits its limit and starts rejecting new ones.
+//
+// Fix: stash the client on `global` so it survives HMR cycles. In production
+// (Vercel Lambdas) each process is fresh anyway, so this has no effect there.
+declare global {
+  // eslint-disable-next-line no-var
+  var __pgClient: ReturnType<typeof postgres> | undefined;
 }
 
-// Proxy so existing `sql\`...\`` call sites work unchanged.
+function getSql() {
+  if (!global.__pgClient) global.__pgClient = createSql();
+  return global.__pgClient;
+}
+
+// Proxy so existing `sql` tagged-template call sites work unchanged.
 const sql = new Proxy(getSql as unknown as ReturnType<typeof postgres>, {
   get(_t, prop) {
     const s = getSql();
