@@ -211,4 +211,10 @@ export function Header() {
                   <Link href="/contact" onClick={() => setOpen(false)} className={cn("px-3 py-2.5 text-sm font-condensed uppercase tracking-wide mt-1", pathname === "/contact" ? "text-[#f08122]" : "text-white")}>Contact</Link>
                 </nav>
               </SheetContent>
-           
+            </Sheet>
+          </>
+        )}
+      </div>
+    </header>
+  );
+}

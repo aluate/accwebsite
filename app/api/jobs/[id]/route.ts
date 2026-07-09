@@ -63,4 +63,5 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }).catch(() => {});
   }
 
-  
+  return NextResponse.json({ ok: true });
+}
