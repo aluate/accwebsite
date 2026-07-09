@@ -246,8 +246,12 @@ export function PmDashboardClient({
   // Local mutable job state (for inline edits)
   const [jobs, setJobs] = useState<JobState[]>(initialJobs);
 
+  // Default PM filter to current user only if they actually appear in the jobs list;
+  // otherwise fall back to "all" (e.g. admin users who aren't PMs).
+  const defaultPmFilter = initialJobs.some((j) => j.pm?.trim() === currentPm) ? currentPm : "all";
+
   // Filters
-  const [pmFilter, setPmFilter] = useState<string>(currentPm);
+  const [pmFilter, setPmFilter] = useState<string>(defaultPmFilter);
   const [statusFilter, setStatusFilter] = useState<string[]>(ACTIVE_STATUSES);
   const [datePreset, setDatePreset] = useState<DatePreset>("3m");
   const [installTypeFilter, setInstallTypeFilter] = useState<string>("all");
@@ -563,7 +567,7 @@ export function PmDashboardClient({
 
                     {/* Status */}
                     <td className="py-3">
-                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
+                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
                         {statusTxt}
                       </span>
                     </td>
