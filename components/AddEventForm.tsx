@@ -20,42 +20,70 @@ export type AddEventFormProps = {
   onClose: () => void;
   onCreated: (event: JobEventWithJoins) => void;
   defaultJobId?: string;
+  // Edit mode
+  mode?: "add" | "edit";
+  initialEvent?: JobEventWithJoins;
+  onUpdated?: (event: JobEventWithJoins) => void;
+  onDeleted?: (id: string) => void;
 };
 
 const LABEL  = "block text-xs font-condensed uppercase tracking-widest text-white/50 mb-1.5";
 const INPUT  = "w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors";
 const SELECT = INPUT;
 
-export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: AddEventFormProps) {
+export function AddEventForm({
+  crews, jobs, onClose, onCreated,
+  defaultJobId,
+  mode = "add",
+  initialEvent,
+  onUpdated,
+  onDeleted,
+}: AddEventFormProps) {
   const today = new Date().toISOString().slice(0, 10);
 
-  const [jobId,       setJobId]       = useState(defaultJobId ?? "");
-  const [eventType,   setEventType]   = useState<EventType>("install");
-  const [description, setDescription] = useState("");
-  const [dateStart,   setDateStart]   = useState<string>(today);
-  const [dateEnd,     setDateEnd]     = useState<string>("");
-  const [duration,    setDuration]    = useState<string>(String(DEFAULT_DURATION["install"] ?? 1));
-  const [crewId,      setCrewId]      = useState<string>("");
-  const [status,      setStatus]      = useState<EventStatus>("scheduled");
-  const [blockedOn,   setBlockedOn]   = useState("");
-  const [note,        setNote]        = useState("");
-  const [onDeck,      setOnDeck]      = useState(false);
+  // Detect if the stored event_type is a known type; if not, treat as "other"
+  const initType = (initialEvent?.event_type && (EVENT_TYPES as readonly string[]).includes(initialEvent.event_type))
+    ? initialEvent.event_type as EventType
+    : initialEvent ? "other" as EventType : "install" as EventType;
 
-  const [submitState, setSubmitState] = useState<"idle" | "submitting" | "ok" | "error">("idle");
-  const [errorMsg,    setErrorMsg]    = useState("");
-  const [conflicts,   setConflicts]   = useState<JobEventWithJoins[]>([]);
-  const [autoLinked,  setAutoLinked]  = useState<string | undefined>();
+  const [jobId,       setJobId]       = useState(initialEvent?.job_id ?? defaultJobId ?? "");
+  const [eventType,   setEventType]   = useState<EventType>(initType);
+  const [customLabel, setCustomLabel] = useState(
+    mode === "edit" && initType === "other" ? (initialEvent?.description ?? "") : ""
+  );
+  const [description, setDescription] = useState(
+    mode === "edit" && initType !== "other" ? (initialEvent?.description ?? "") : ""
+  );
+  const [dateStart,   setDateStart]   = useState<string>(initialEvent?.date_start ?? today);
+  const [dateEnd,     setDateEnd]     = useState<string>(initialEvent?.date_end ?? "");
+  const [duration,    setDuration]    = useState<string>(
+    initialEvent?.date_start && initialEvent?.date_end
+      ? String(calculateDuration(initialEvent.date_start, initialEvent.date_end))
+      : String(DEFAULT_DURATION["install"] ?? 1)
+  );
+  const [crewId,      setCrewId]      = useState<string>(initialEvent?.crew_id ?? "");
+  const [status,      setStatus]      = useState<EventStatus>((initialEvent?.status ?? "scheduled") as EventStatus);
+  const [blockedOn,   setBlockedOn]   = useState(initialEvent?.blocked_on ?? "");
+  const [note,        setNote]        = useState(initialEvent?.note ?? "");
+  const [onDeck,      setOnDeck]      = useState(!initialEvent?.date_start);
 
-  // When event type changes, reset duration to default
+  const [submitState,  setSubmitState]  = useState<"idle" | "submitting" | "ok" | "error">("idle");
+  const [deleteState,  setDeleteState]  = useState<"idle" | "confirm" | "deleting">("idle");
+  const [errorMsg,     setErrorMsg]     = useState("");
+  const [conflicts,    setConflicts]    = useState<JobEventWithJoins[]>([]);
+
+  // When event type changes (add mode only), reset duration to default
   useEffect(() => {
-    const dur = DEFAULT_DURATION[eventType] ?? 1;
-    setDuration(String(dur));
-    if (dateStart) {
-      setDateEnd(dur > 1 ? calculateEndDate(dateStart, dur) : "");
+    if (mode === "add") {
+      const dur = DEFAULT_DURATION[eventType] ?? 1;
+      setDuration(String(dur));
+      if (dateStart) {
+        setDateEnd(dur > 1 ? calculateEndDate(dateStart, dur) : "");
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventType]);
 
-  // When start date changes, recompute end date from current duration
   function handleStartChange(val: string) {
     setDateStart(val);
     if (val) {
@@ -64,7 +92,6 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
     }
   }
 
-  // When end date changes manually, recompute duration
   function handleEndChange(val: string) {
     setDateEnd(val);
     if (val && dateStart && val >= dateStart) {
@@ -72,7 +99,6 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
     }
   }
 
-  // When duration changes, recompute end date
   function handleDurationChange(val: string) {
     setDuration(val);
     const dur = parseInt(val, 10);
@@ -84,10 +110,13 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
   async function submit() {
     setErrorMsg("");
     setConflicts([]);
-    setAutoLinked(undefined);
 
     if (!jobId)     { setErrorMsg("Pick a job."); return; }
     if (!eventType) { setErrorMsg("Pick an event type."); return; }
+    if (eventType === "other" && !customLabel.trim()) {
+      setErrorMsg("Enter a custom label for this event.");
+      return;
+    }
     if (!onDeck && !dateStart) { setErrorMsg("Pick a start date, or check On Deck."); return; }
     if (dateStart && dateEnd && dateEnd < dateStart) {
       setErrorMsg("End date is before start date.");
@@ -95,22 +124,23 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
     }
 
     setSubmitState("submitting");
+
+    const payload = {
+      job_id:      jobId,
+      event_type:  eventType,
+      description: eventType === "other" ? customLabel.trim() : (description || null),
+      date_start:  onDeck ? null : dateStart,
+      date_end:    onDeck ? null : (dateEnd || null),
+      crew_id:     crewId || null,
+      status,
+      note:        note || null,
+      blocked_on:  blockedOn || null,
+    };
+
     try {
-      const res = await fetch("/api/schedule/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          job_id:      jobId,
-          event_type:  eventType,
-          description: description || null,
-          date_start:  onDeck ? null : dateStart,
-          date_end:    onDeck ? null : (dateEnd || null),
-          crew_id:     crewId || null,
-          status,
-          note:        note || null,
-          blocked_on:  blockedOn || null,
-        }),
-      });
+      const url    = mode === "edit" ? `/api/schedule/events/${initialEvent!.id}` : "/api/schedule/events";
+      const method = mode === "edit" ? "PATCH" : "POST";
+      const res  = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const body = await res.json();
       if (!res.ok || !body.ok) {
         setErrorMsg(body.error ?? `Save failed (${res.status})`);
@@ -118,10 +148,13 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
         return;
       }
       setConflicts(body.conflicts ?? []);
-      setAutoLinked(body.auto_linked_parent);
       setSubmitState("ok");
       if ((body.conflicts ?? []).length === 0) {
-        onCreated(body.event);
+        if (mode === "edit") {
+          onUpdated?.(body.event);
+        } else {
+          onCreated(body.event);
+        }
         onClose();
       }
     } catch (e) {
@@ -130,10 +163,32 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
     }
   }
 
+  async function handleDelete() {
+    if (deleteState === "idle") { setDeleteState("confirm"); return; }
+    if (deleteState !== "confirm") return;
+    setDeleteState("deleting");
+    try {
+      const res = await fetch(`/api/schedule/events/${initialEvent!.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setErrorMsg(body.error ?? `Delete failed (${res.status})`);
+        setDeleteState("idle");
+        return;
+      }
+      onDeleted?.(initialEvent!.id);
+      onClose();
+    } catch (e) {
+      setErrorMsg(String((e as Error).message ?? e));
+      setDeleteState("idle");
+    }
+  }
+
   function acceptWithWarnings() {
     onCreated({} as JobEventWithJoins);
     onClose();
   }
+
+  const isEdit = mode === "edit";
 
   return (
     <div
@@ -142,7 +197,9 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
     >
       <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-auto">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-heading text-xl uppercase tracking-wide text-white">Add Event</h2>
+          <h2 className="font-heading text-xl uppercase tracking-wide text-white">
+            {isEdit ? "Edit Event" : "Add Event"}
+          </h2>
           <button onClick={onClose} className="text-white/40 hover:text-white text-xl leading-none">×</button>
         </div>
 
@@ -151,12 +208,18 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className={LABEL}>Job *</label>
-              <select value={jobId} onChange={(e) => setJobId(e.target.value)} className={SELECT}>
-                <option value="">— Select Job —</option>
-                {jobs.map((j) => (
-                  <option key={j.id} value={j.id}>{j.id} — {j.client_name}{j.site_address ? ` (${j.site_address})` : ""}</option>
-                ))}
-              </select>
+              {isEdit ? (
+                <p className="px-3 py-2 text-sm text-white/70 bg-[#111] border border-white/10 rounded">
+                  {initialEvent?.job_id} — {jobs.find(j => j.id === initialEvent?.job_id)?.client_name ?? initialEvent?.job_client_name ?? ""}
+                </p>
+              ) : (
+                <select value={jobId} onChange={(e) => setJobId(e.target.value)} className={SELECT}>
+                  <option value="">— Select Job —</option>
+                  {jobs.map((j) => (
+                    <option key={j.id} value={j.id}>{j.id} — {j.client_name}{j.site_address ? ` (${j.site_address})` : ""}</option>
+                  ))}
+                </select>
+              )}
             </div>
             <div>
               <label className={LABEL}>Event Type *</label>
@@ -166,16 +229,32 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
             </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <label className={LABEL}>Description</label>
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder='e.g. "ladder bases", "pulls after tops", "CO #3 fronts"'
-              className={INPUT}
-            />
-          </div>
+          {/* Custom label (Other type only) */}
+          {eventType === "other" && (
+            <div>
+              <label className={LABEL}>Custom Label *</label>
+              <input
+                value={customLabel}
+                onChange={(e) => setCustomLabel(e.target.value)}
+                placeholder='e.g. "Measure", "Site visit", "Punch CO #3"'
+                className={INPUT}
+                autoFocus
+              />
+            </div>
+          )}
+
+          {/* Description (non-Other types) */}
+          {eventType !== "other" && (
+            <div>
+              <label className={LABEL}>Description</label>
+              <input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder='e.g. "ladder bases", "pulls after tops", "CO #3 fronts"'
+                className={INPUT}
+              />
+            </div>
+          )}
 
           {/* On Deck toggle */}
           <div className="bg-[#0a0a0a] border border-white/10 rounded p-3">
@@ -232,7 +311,6 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
                   />
                 </div>
               </div>
-              {/* Duration row */}
               <div className="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 rounded px-3 py-2">
                 <label className="text-white/40 text-[10px] font-condensed uppercase tracking-widest whitespace-nowrap">
                   Duration (working days)
@@ -310,22 +388,38 @@ export function AddEventForm({ crews, jobs, onClose, onCreated, defaultJobId }: 
             </div>
           )}
 
-
           {/* Footer */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
-            <button
-              onClick={onClose}
-              className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={submit}
-              disabled={submitState === "submitting"}
-              className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-6 py-2.5 rounded transition-colors"
-            >
-              {submitState === "submitting" ? "Saving…" : "Save Event"}
-            </button>
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/5">
+            {/* Delete (edit mode only) */}
+            {isEdit && (
+              <button
+                onClick={handleDelete}
+                disabled={deleteState === "deleting"}
+                className={`font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors ${
+                  deleteState === "confirm"
+                    ? "bg-red-700 hover:bg-red-600 text-white"
+                    : "text-red-400/70 hover:text-red-400 border border-red-900/40 hover:border-red-700"
+                }`}
+              >
+                {deleteState === "deleting" ? "Deleting…" : deleteState === "confirm" ? "⚠ Confirm Delete" : "Delete Event"}
+              </button>
+            )}
+            {!isEdit && <div />}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onClose}
+                className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submit}
+                disabled={submitState === "submitting"}
+                className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-sm px-6 py-2.5 rounded transition-colors"
+              >
+                {submitState === "submitting" ? "Saving…" : isEdit ? "Update Event" : "Save Event"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

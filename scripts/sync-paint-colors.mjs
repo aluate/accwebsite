@@ -17,7 +17,7 @@ config({ path: resolve(ROOT, ".env.local") });
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: "require", max: 1, prepare: false });
+const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
 /**
  * Parse a simple CSV with quoted-field support.

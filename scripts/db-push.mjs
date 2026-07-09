@@ -16,7 +16,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: "require", max: 1, prepare: false });
+const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
 async function main() {
   console.log("Pushing schema to Supabase...");
@@ -653,6 +653,31 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
+  // ── Phase PDF-redesign additions (2026-07-08) ────────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS rollout_box_id TEXT`,
+    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS type TEXT`,
+    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS size TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_hardware (
+      id          TEXT PRIMARY KEY,
+      spec_id     TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      type        TEXT NOT NULL,
+      part_no     TEXT,
+      room        TEXT,
+      qty         INTEGER NOT NULL DEFAULT 1,
+      notes       TEXT,
+      sort_order  INTEGER NOT NULL DEFAULT 0
+    )
+  `.catch(() => {});
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_spec_hardware_spec ON spec_hardware(spec_id)
+  `.catch(() => {});
+
   await sql`
     CREATE TABLE IF NOT EXISTS finish_group_pulls (
       id              TEXT PRIMARY KEY,
@@ -694,6 +719,9 @@ async function main() {
       model_no        TEXT,
       room_id         TEXT REFERENCES rooms(id) ON DELETE SET NULL,
       notes           TEXT,
+      cutout_w        NUMERIC,
+      cutout_h        NUMERIC,
+      cutout_d        NUMERIC,
       sort_order      INTEGER NOT NULL DEFAULT 0
     )
   `;
@@ -701,6 +729,10 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_spec_appliances_spec ON spec_appliances(spec_id)
   `;
 
+  // Add cutout columns to spec_appliances if upgrading existing DB
+  for (const col of ['cutout_w', 'cutout_h', 'cutout_d']) {
+    await sql`ALTER TABLE spec_appliances ADD COLUMN IF NOT EXISTS ${sql(col)} NUMERIC`.catch(() => {});
+  }
 
   await sql`
     CREATE TABLE IF NOT EXISTS paint_colors (

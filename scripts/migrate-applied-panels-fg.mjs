@@ -15,7 +15,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 const directUrl = process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL;
 if (!directUrl) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(directUrl, { ssl: "require", max: 1, prepare: false });
+const sql = postgres(directUrl, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
 async function main() {
   console.log("Applying finish_groups.applied_panels migration...\n");

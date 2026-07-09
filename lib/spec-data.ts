@@ -1,10 +1,10 @@
 import sql from "@/lib/db";
 import { catalogs } from "@/lib/catalogs";
-import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, FGPullRow, RoomTrimEntry, ApplianceEntry } from "@/lib/pdf-spec";
+import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry } from "@/lib/pdf-spec";
 
 type SpecRow = { id: string; job_id: string; name: string; status: string };
 type JobRow = { id: string; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
-type FGRow = { id: string; label: string; finish_type: string; notes: string | null; stain_id: string | null; paint_id: string | null; glaze_id: string | null; topcoat_id: string | null; sheen_id: string | null; species: string | null };
+type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
 type AccRow = { room_id: string; acc_id: string; qty: number };
@@ -19,8 +19,9 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 type RawPullRow = { id: string; make: string|null; model: string|null; size: string|null; room: string|null; notes: string|null; qty: number };
 type DBFGPullRow = { id: string; finish_group_id: string; description: string; part_no: string|null; finish_color: string|null; where_used: string|null; qty: number; sort_order: number };
 type DBRoomTrimRow = { id: string; room_id: string; trim_type: string; size_desc: string|null; material: string|null; qty_lf: number; notes: string|null; sort_order: number };
-type DBApplianceRow = { id: string; spec_id: string; appliance_type: string; manufacturer: string|null; model_no: string|null; room_id: string|null; notes: string|null; sort_order: number };
-type RawAccRow  = { id: string; part_number: string|null; description: string|null; qty: number; handed: string; room: string|null; notes: string|null };
+type DBApplianceRow = { id: string; spec_id: string; appliance_type: string; manufacturer: string|null; model_no: string|null; room_id: string|null; notes: string|null; cutout_w: number|null; cutout_h: number|null; cutout_d: number|null; sort_order: number };
+type RawAccRow  = { id: string; type: string|null; part_number: string|null; description: string|null; qty: number; handed: string; room: string|null; size: string|null; notes: string|null };
+type DBHardwareRow = { id: string; spec_id: string; type: string; part_no: string|null; room: string|null; qty: number; notes: string|null; sort_order: number };
 
 const MATERIAL_ROLE_LABEL: Record<string, string> = { cab_ext:"Cabinet Exterior", cab_int:"Cabinet Interior", cab_ext2:"Cab Exterior 2", cab_int2:"Cab Interior 2" };
 const DOOR_FRONT_ROLE_LABEL: Record<string, string> = { base:"Base Doors", upper:"Upper Doors", applied_ends:"Applied Ends", slab_df:"Slab DF", "5pc_df":"5 PC DF" };
@@ -82,17 +83,41 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   function hardwareName(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.name??""):"";}
   function hardwareBrand(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.brand??""):"";}
 
-  const fgViews: FinishGroupView[] = fgs.map((g) => ({
-    id:g.id, label:g.label, finish_type:g.finish_type, notes:g.notes??"", species:g.species??"",
-    finish:{stain_name:g.stain_id?(stainIdx.get(g.stain_id)??g.stain_id):"",paint_name:g.paint_id?(paintIdx.get(g.paint_id)??g.paint_id):"",glaze_name:g.glaze_id?(glazeIdx.get(g.glaze_id)??g.glaze_id):"",topcoat_name:g.topcoat_id?(topcoatIdx.get(g.topcoat_id)??g.topcoat_id):"",sheen_name:g.sheen_id?(sheenIdx.get(g.sheen_id)??g.sheen_id):""},
-    materials:materials.filter(m=>m.finish_group_id===g.id).map(m=>({role:m.role,role_label:MATERIAL_ROLE_LABEL[m.role]??m.role,name:m.material_id?(carcassIdx.get(m.material_id)??m.material_id):"",where_used:m.where_used??"",notes:m.notes??""})),
-    door_fronts:doorFronts.filter(d=>d.finish_group_id===g.id).map(d=>({role:d.role,role_label:DOOR_FRONT_ROLE_LABEL[d.role]??d.role,slot_label:d.slot_label??"",style_name:d.style_id?(doorStyleIdx.get(d.style_id)??d.style_id):"",material_name:d.material_id?(doorMatIdx.get(d.material_id)??d.material_id):"",oe_name:d.oe_id?(cabdoorEdgeIdx.get(d.oe_id)??d.oe_id):"",ie_name:d.ie_id?(cabdoorInsideIdx.get(d.ie_id)??d.ie_id):"",panel_name:d.panel_id?(cabdoorPanelIdx.get(d.panel_id)??d.panel_id):"",grain:d.grain??"",vendor:d.vendor??"",notes:d.notes??""})),
-    drawers:drawers.filter(d=>d.finish_group_id===g.id).map(d=>({role:d.role,role_label:DRAWER_ROLE_LABEL[d.role]??d.role,slot_label:d.slot_label??"",drawer_box_name:d.drawer_box_id?(drawerBoxIdx.get(d.drawer_box_id)??d.drawer_box_id):"",slides_name:d.slides_id?(drawerSlideIdx.get(d.slides_id)??d.slides_id):"",notes:d.notes??""})),
-    edgebands:edgebands.filter(e=>e.finish_group_id===g.id).map(e=>{const eb=e.edgeband_id?edgebandIdx.get(e.edgeband_id):null;return{code:e.code,edgeband_name:eb?.name??(e.edgeband_id??""),supplier:eb?.supplier??"",thickness:eb?.thickness??"",where_used_label:e.where_used?(EDGEBAND_WHERE_USED_LABEL[e.where_used]??e.where_used):"",notes:e.notes??""}}),
-    hardware:hardware.filter(h=>h.finish_group_id===g.id).map(h=>({role:h.role,role_label:HW_ROLE_LABEL[h.role]??h.role,slot_label:h.slot_label??"",hardware_name:hardwareName(h.role,h.hardware_id),brand:hardwareBrand(h.role,h.hardware_id),qty:h.qty,location:h.location??"",vendor:h.vendor??"",notes:h.notes??""})),
-    countertops:countertops.filter(c=>c.finish_group_id===g.id).map(c=>({location:c.location??"",style_name:c.style_id?(ctopStyleIdx.get(c.style_id)??c.style_id):"",edge_name:c.edge_id?(ctopEdgeIdx.get(c.edge_id)??c.edge_id):"",splash_style:c.splash_style??"",splash_edge_name:c.splash_edge_id?(ctopEdgeIdx.get(c.splash_edge_id)??c.splash_edge_id):"",material_name:c.material_id?(ctopMatIdx.get(c.material_id)??c.material_id):"",buildup_in:c.buildup_in,core_substrate:c.core_substrate??"",brackets:c.brackets??"",notes:c.notes??""})),
-    moldings:moldings.filter(m=>m.finish_group_id===g.id).map(m=>({molding_type:m.molding_type,type_label:MOLDING_TYPE_LABEL[m.molding_type]??m.molding_type,profile_name:m.molding_profile_id?(moldingProfIdx.get(m.molding_profile_id)??m.molding_profile_id):"",size_in:m.size_in,material_name:m.material_id?(moldingMatIdx.get(m.material_id)??m.material_id):"",qty_lf:m.qty_lf,where_used:moldingRooms.filter(mr=>mr.molding_id===m.id).map(mr=>roomNameIdx.get(mr.room_id)??mr.room_id),notes:m.notes??""})),
-  }));
+  // Build edgeband code map: unique edgeband_id → code (EB1, EB2, …)
+  const ebCodeMap = new Map<string, string>();
+  let ebCounter = 0;
+  for (const g of fgs) {
+    if (g.edgeband_id && !ebCodeMap.has(g.edgeband_id)) {
+      ebCodeMap.set(g.edgeband_id, `EB${++ebCounter}`);
+    }
+  }
+
+  const fgViews: FinishGroupView[] = fgs.map((g) => {
+    // Color display: use stored color_name directly (handles both catalog and custom)
+    const colorName = g.color_name ?? "";
+    const isStain = g.finish_type === "stain";
+    const carcassName = g.carcass_id ? (carcassIdx.get(g.carcass_id) ?? g.carcass_id) : "";
+    const doorName = g.door_style_id ? (doorStyleIdx.get(g.door_style_id) ?? g.door_style_id) : "";
+    const drawerBoxName = g.drawer_box_id ? (drawerBoxIdx.get(g.drawer_box_id) ?? g.drawer_box_id) : "";
+    const rolloutBoxName = g.rollout_box_id ? (drawerBoxIdx.get(g.rollout_box_id) ?? g.rollout_box_id) : "";
+    const ebData = g.edgeband_id ? edgebandIdx.get(g.edgeband_id) : null;
+    const ebCode = g.edgeband_id ? (ebCodeMap.get(g.edgeband_id) ?? "") : "";
+    return {
+      id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
+      applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
+      finish: {
+        stain_name: isStain ? colorName : "",
+        paint_name: !isStain ? colorName : "",
+        glaze_name: "", topcoat_name: "", sheen_name: "",
+      },
+      // Populate sub-arrays from flat columns for PDF compat
+      materials: carcassName ? [{ role: "cab_ext", role_label: "Carcass", name: carcassName, where_used: "", notes: "" }] : [],
+      door_fronts: doorName ? [{ role: "base", role_label: "Base Doors", slot_label: "", style_name: doorName, material_name: "", oe_name: "", ie_name: "", panel_name: "", grain: "", vendor: "", notes: "" }] : [],
+      drawers: drawerBoxName ? [{ role: "drawer_box", role_label: "Drawer Box", slot_label: "", drawer_box_name: drawerBoxName, slides_name: "", notes: "" }] : [],
+      edgebands: ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", where_used_label: "", notes: "" }] : [],
+      hardware: [], countertops: [], moldings: [],
+    };
+  });
 
   const fgLabelIdx=new Map(fgViews.map(v=>[v.id,v.label]));
   const roomViews: RoomView[] = rooms.map((r) => {
@@ -109,28 +134,31 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   for(const fg of fgViews)for(const m of fg.moldings){if(!m.profile_name&&!m.qty_lf&&!m.material_name)continue;const key=`${m.molding_type}|${m.profile_name}|${m.size_in??""}|${m.material_name}`;const cur=mldRollupMap.get(key)??{type_label:m.type_label,profile_name:m.profile_name,size_in:m.size_in,material_name:m.material_name,total_lf:0,finishes:[]};if(typeof m.qty_lf==="number")cur.total_lf+=m.qty_lf;if(!cur.finishes.includes(fg.label))cur.finishes.push(fg.label);mldRollupMap.set(key,cur);}
   const moldings_rollup=Array.from(mldRollupMap.values()).sort((a,b)=>a.type_label.localeCompare(b.type_label)||a.profile_name.localeCompare(b.profile_name));
 
-  // Load spec-level pulls and accessories (tables may not exist yet on first deploy)
+  // Load spec-level pulls, accessories, hardware (tables may not exist yet on first deploy)
   let spec_pulls: SpecPullRow[] = [];
   let spec_accessories: SpecAccessoryRow[] = [];
+  let spec_hardware_list: SpecHardwareRow[] = [];
   let fg_pulls_list: DBFGPullRow[] = [];
   let room_trim_list: DBRoomTrimRow[] = [];
   let db_appliances: DBApplianceRow[] = [];
 
   try {
-    const [pullsRows, accRows, fgPullsRows, trimRows, appRows] = await Promise.all([
+    const [pullsRows, accRows, hwRows, fgPullsRows, trimRows, appRows] = await Promise.all([
       sql<RawPullRow[]>`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`,
       sql<RawAccRow[]>`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`,
+      sql<DBHardwareRow[]>`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order`,
       fgIds.length ? sql<DBFGPullRow[]>`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : Promise.resolve([] as DBFGPullRow[]),
       roomIds.length ? sql<DBRoomTrimRow[]>`SELECT * FROM room_trim WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` : Promise.resolve([] as DBRoomTrimRow[]),
       sql<DBApplianceRow[]>`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order`,
     ]);
     spec_pulls = pullsRows.map((r) => ({ id:r.id, make:r.make??"", model:r.model??"", size:r.size??"", room:r.room??"", notes:r.notes??"", qty:r.qty }));
-    spec_accessories = accRows.map((r) => ({ id:r.id, part_number:r.part_number??"", description:r.description??"", qty:r.qty, handed:r.handed??"N/A", room:r.room??"", notes:r.notes??"" }));
+    spec_accessories = accRows.map((r) => ({ id:r.id, type:r.type??"", part_number:r.part_number??"", description:r.description??"", qty:r.qty, handed:r.handed??"N/A", room:r.room??"", size:r.size??"", notes:r.notes??"" }));
+    spec_hardware_list = hwRows.map((r) => ({ id:r.id, type:r.type, part_no:r.part_no??"", room:r.room??"", qty:r.qty, notes:r.notes??"" }));
     fg_pulls_list = fgPullsRows;
     room_trim_list = trimRows;
     db_appliances = appRows;
   } catch {
-    // Tables not yet created — empty arrays, accessories page will be skipped
+    // Tables not yet created — empty arrays, page will be skipped
   }
 
   // Build keyed maps for PDF
@@ -158,8 +186,26 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     id: a.id, appliance_type: a.appliance_type,
     manufacturer: a.manufacturer ?? "", model_no: a.model_no ?? "",
     room_name: a.room_id ? (roomNameIdx.get(a.room_id) ?? "") : "",
-    notes: a.notes ?? "", sort_order: a.sort_order,
+    notes: a.notes ?? "",
+    cutout_w: a.cutout_w ?? null,
+    cutout_h: a.cutout_h ?? null,
+    cutout_d: a.cutout_d ?? null,
+    sort_order: a.sort_order,
   }));
 
-  return{job_id:spec.job_id,spec_name:spec.name,generated_at:new Date().toISOString(),client_name:job.client_name,client_email:job.client_email,builder_name:job.builder_name,builder_company:job.builder_company,pm:job.pm,site_address:job.site_address,city:job.city,delivery_date:job.delivery_date,notes_install:job.notes_install,notes_finishing:job.notes_finishing,notes_shop:job.notes_shop,notes_client:job.notes_client,finish_groups:fgViews,rooms:roomViews,accessories_rollup,moldings_rollup,spec_pulls,spec_accessories,finish_group_pulls,room_trim,spec_appliances_list,job_notes:job.notes??null};
+  return {
+    job_id: spec.job_id, spec_name: spec.name,
+    generated_at: new Date().toISOString(),
+    client_name: job.client_name, client_email: job.client_email,
+    builder_name: job.builder_name, builder_company: job.builder_company,
+    pm: job.pm, site_address: job.site_address, city: job.city,
+    delivery_date: job.delivery_date,
+    notes_install: job.notes_install, notes_finishing: job.notes_finishing,
+    notes_shop: job.notes_shop, notes_client: job.notes_client,
+    job_notes: job.notes ?? null,
+    finish_groups: fgViews, rooms: roomViews,
+    accessories_rollup, moldings_rollup,
+    spec_pulls, spec_accessories, spec_hardware: spec_hardware_list,
+    finish_group_pulls, room_trim, spec_appliances_list,
+  };
 }

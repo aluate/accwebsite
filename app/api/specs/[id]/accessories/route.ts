@@ -21,11 +21,13 @@ type PullPayload = {
 };
 
 type AccessoryPayload = {
+  type: string | null;
   part_number: string | null;
   description: string | null;
   qty: number;
   handed: string;
   room: string | null;
+  size: string | null;
   notes: string | null;
 };
 
@@ -126,12 +128,12 @@ export async function POST(
       for (let i = 0; i < accessories.length; i++) {
         const a = accessories[i];
         await tx`
-          INSERT INTO spec_accessories (id, spec_id, part_number, description, qty, handed, room, notes, sort_order)
+          INSERT INTO spec_accessories (id, spec_id, type, part_number, description, qty, handed, room, size, notes, sort_order)
           VALUES (
             ${uid()}, ${specId},
-            ${a.part_number ?? null}, ${a.description ?? null},
+            ${a.type ?? null}, ${a.part_number ?? null}, ${a.description ?? null},
             ${a.qty ?? 1}, ${a.handed ?? "N/A"},
-            ${a.room ?? null}, ${a.notes ?? null},
+            ${a.room ?? null}, ${a.size ?? null}, ${a.notes ?? null},
             ${i}
           )
         `;

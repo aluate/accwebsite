@@ -3,21 +3,9 @@ export const dynamic = "force-dynamic";
 import { requireBuilder } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { listCrews, forwardEvents, onDeckEvents, isoDateOffset } from "@/lib/schedule";
+import type { CrewPto } from "@/lib/schedule-types";
 import { ScheduleWallClient } from "@/components/ScheduleWallClient";
 
-/**
- * Wall calendar page — the office TV display.
- *
- *   /schedule
- *
- * Server-rendered initial state for fast wall-mount load. Data fetched
- * directly via lib/schedule (no API round-trip). The client component
- * handles layout + future drag/drop interactions.
- *
- * Default window: today minus 7 days through today plus 28 days. Past
- * events stay greyed for 7 days so end-of-week verification can review
- * them without leaving the wall view.
- */
 export default async function SchedulePage() {
   const session = await requireBuilder();
   const isAdmin = session.role === "admin";
@@ -26,14 +14,20 @@ export default async function SchedulePage() {
 
   const [crews, fwdEvents, deckEvents, jobs] = await Promise.all([
     listCrews({ activeOnly: true }),
-    forwardEvents({
-      todayIso: today,
-      windowDaysBack: 30,
-      windowDaysForward: 60,
-    }),
+    forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 }),
     onDeckEvents(),
-    sql`SELECT id, client_name, site_address FROM jobs ORDER BY created_at DESC` as Promise<{ id: string; client_name: string; site_address: string }[]>,
+    sql`SELECT id, client_name, site_address, city, client_phone, client_email FROM jobs ORDER BY created_at DESC` as Promise<{ id: string; client_name: string; site_address: string; city: string | null; client_phone: string | null; client_email: string | null }[]>,
   ]);
+
+  type PtoWithCrew = CrewPto & { crew_name: string };
+  let ptoRows: PtoWithCrew[] = [];
+  try {
+    ptoRows = (await sql`
+      SELECT p.*, c.name AS crew_name
+      FROM crew_pto p JOIN crews c ON c.id = p.crew_id
+      ORDER BY p.date_start
+    `) as unknown as PtoWithCrew[];
+  } catch { /* crew_pto may not exist on older deployments */ }
 
   const data = {
     today,
@@ -41,9 +35,10 @@ export default async function SchedulePage() {
     forwardEvents: fwdEvents,
     onDeckEvents:  deckEvents,
     jobs,
+    ptoRows,
     isAdmin,
     windowStartIso: isoDateOffset(today, -30),
-    windowEndIso:   isoDateOffset(today, +60),
+    windowEndIso:   isoDateOffset(today, 60),
   };
 
   return <ScheduleWallClient {...data} />;

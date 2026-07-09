@@ -11,6 +11,7 @@ export const EVENT_TYPES = [
   "service",
   "punch",
   "final_walkthrough",
+  "other",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -21,6 +22,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   service:           "Service",
   punch:             "Punch",
   final_walkthrough: "Final Walkthrough",
+  other:             "Other / Custom",
 };
 
 export const EVENT_STATUSES = [

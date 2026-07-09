@@ -20,7 +20,7 @@ if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 if (!SUPABASE_URL) { console.error("NEXT_PUBLIC_SUPABASE_URL not set"); process.exit(1); }
 if (!SERVICE_KEY)  { console.error("SUPABASE_SERVICE_ROLE_KEY not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: "require", max: 1, prepare: false });
+const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
 async function main() {
   // ── 1. DB table ───────────────────────────────────────────────────────────
