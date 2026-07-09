@@ -74,21 +74,23 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
   }
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     setErr("");
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("kind", kind);
-      const res = await fetch(`/api/jobs/${jobId}/files`, { method: "POST", body: fd });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setErr(body.error ?? "Upload failed");
-      } else {
-        await refresh();
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("kind", kind);
+        const res = await fetch(`/api/jobs/${jobId}/files`, { method: "POST", body: fd });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          setErr(body.error ?? "Upload failed");
+          break;
+        }
       }
+      await refresh();
     } catch {
       setErr("Upload failed");
     } finally {
@@ -128,12 +130,13 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
                 </label>
                 <label className="flex-1 flex items-center justify-center gap-1.5 bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded cursor-pointer transition-colors">
                   Gallery
-                  <input type="file" accept="image/*,video/*" onChange={onUpload} disabled={uploading} className="hidden" />
+                  <input type="file" accept="image/*,video/*" multiple onChange={onUpload} disabled={uploading} className="hidden" />
                 </label>
               </div>
             ) : (
               <input
                 type="file"
+                multiple
                 onChange={onUpload}
                 disabled={uploading}
                 className="block w-full text-xs text-white/70 file:bg-[#f08122] file:hover:bg-[#d9711e] file:text-white file:font-condensed file:uppercase file:tracking-widest file:text-xs file:py-1.5 file:px-3 file:rounded file:border-0 file:cursor-pointer"

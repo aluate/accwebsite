@@ -10,27 +10,37 @@
     "notes": "No hinge — push-to-open or trackball"
   },
   {
-    "id": "HH-BLU-001",
+    "id": "HH-BLU-110",
+    "name": "Blum 110 CLIP top Blumotion Soft Close",
+    "brand": "Blum",
+    "model": "71B3550",
+    "type": "euro_concealed",
+    "overlay": "full",
+    "close": "soft-close",
+    "notes": "Standard ACC hinge — drawing label: Blum 110 Int-Soft Close"
+  },
+  {
+    "id": "HH-BLU-120",
+    "name": "Blum 120 CLIP top Blumotion Soft Close",
+    "brand": "Blum",
+    "model": "71B3750",
+    "type": "euro_concealed",
+    "overlay": "full",
+    "close": "soft-close",
+    "notes": "Wide-opening variant — drawing label: Blum 120, Soft Close. Used on pantries, corner cabs. Spivey, Bissell (2026 jobs)."
+  },
+  {
+    "id": "HH-BLU-38N",
     "name": "Blum Compact 38N Blumotion 1/2 Overlay",
     "brand": "Blum",
     "model": "38N355B.08",
     "type": "euro_concealed",
     "overlay": "1/2",
     "close": "soft-close",
-    "notes": "Most common ACC hinge"
+    "notes": "Half overlay variant"
   },
   {
-    "id": "HH-BLU-002",
-    "name": "Blum Compact 38N Blumotion Full Overlay",
-    "brand": "Blum",
-    "model": "38N355B.16",
-    "type": "euro_concealed",
-    "overlay": "full",
-    "close": "soft-close",
-    "notes": "Full overlay variant"
-  },
-  {
-    "id": "HH-BLU-003",
+    "id": "HH-BLU-INSET",
     "name": "Blum Compact 38N Inset",
     "brand": "Blum",
     "model": "38N355B.00",
@@ -38,26 +48,6 @@
     "overlay": "inset",
     "close": "soft-close",
     "notes": "Inset doors"
-  },
-  {
-    "id": "HH-BLU-004",
-    "name": "Blum CLIP top BLUMOTION 110-degree",
-    "brand": "Blum",
-    "model": "71B3550",
-    "type": "euro_concealed",
-    "overlay": "full",
-    "close": "soft-close",
-    "notes": "Premium concealed hinge"
-  },
-  {
-    "id": "HH-SAL-001",
-    "name": "Salice Series 200 Soft-Close 1/2 Overlay",
-    "brand": "Salice",
-    "model": "C2APE99",
-    "type": "euro_concealed",
-    "overlay": "1/2",
-    "close": "soft-close",
-    "notes": "Salice equivalent"
   },
   {
     "id": "HH-099",

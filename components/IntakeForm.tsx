@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 type PmOption = { name: string; email: string | null };
+type BuilderOption = { id: string; company: string; contact_name: string; phone: string; email: string; typical_pm: string };
 
 const SECTION = "mb-8";
 const LABEL = "block text-xs font-condensed uppercase tracking-widest text-white/50 mb-1.5";
@@ -27,6 +28,49 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
   const [error, setError] = useState("");
   const isEdit = !!initial?.id;
   const [pms, setPms] = useState<PmOption[]>([]);
+
+  // Builder autocomplete
+  const [builderCompany, setBuilderCompany] = useState(initial?.builder_company ?? "");
+  const [builderName, setBuilderName] = useState(initial?.builder_name ?? "");
+  const [builderEmail, setBuilderEmail] = useState(initial?.builder_email ?? "");
+  const [builderPhone, setBuilderPhone] = useState(initial?.builder_phone ?? "");
+  const [builderSuggestions, setBuilderSuggestions] = useState<BuilderOption[]>([]);
+  const [showBuilderDropdown, setShowBuilderDropdown] = useState(false);
+  const builderDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const builderRef = useRef<HTMLDivElement>(null);
+
+  const searchBuilders = useCallback((q: string) => {
+    if (builderDebounce.current) clearTimeout(builderDebounce.current);
+    if (q.length < 1) { setBuilderSuggestions([]); setShowBuilderDropdown(false); return; }
+    builderDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/builders?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setBuilderSuggestions(data.builders ?? []);
+        setShowBuilderDropdown(true);
+      } catch { /* ignore */ }
+    }, 200);
+  }, []);
+
+  function applyBuilder(b: BuilderOption) {
+    setBuilderCompany(b.company);
+    setBuilderName(b.contact_name ?? "");
+    setBuilderEmail(b.email ?? "");
+    setBuilderPhone(b.phone ?? "");
+    setBuilderSuggestions([]);
+    setShowBuilderDropdown(false);
+  }
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (builderRef.current && !builderRef.current.contains(e.target as Node)) {
+        setShowBuilderDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Address autocomplete state
   const addressRef = useRef<HTMLInputElement>(null);
@@ -95,10 +139,10 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       site_address:     addressValue || fd.get("site_address"),
       city:             cityValue || fd.get("city"),
       pm:               fd.get("pm"),
-      builder_name:     fd.get("builder_name"),
-      builder_email:    fd.get("builder_email"),
-      builder_phone:    fd.get("builder_phone"),
-      builder_company:  fd.get("builder_company"),
+      builder_name:     builderName,
+      builder_email:    builderEmail,
+      builder_phone:    builderPhone,
+      builder_company:  builderCompany,
       delivery_date:    fd.get("delivery_date"),
       notes:            fd.get("notes"),
       notes_install:    fd.get("notes_install"),
@@ -235,21 +279,45 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       <div className={SECTION}>
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-4">Builder / Contractor</p>
         <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className={LABEL}>Name</label>
-            <input name="builder_name" defaultValue={initial?.builder_name ?? ""} className={INPUT} />
+          <div className="sm:col-span-2" ref={builderRef}>
+            <label className={LABEL}>Company <span className="text-white/30 normal-case tracking-normal">(type to search existing builders)</span></label>
+            <div className="relative">
+              <input
+                name="builder_company"
+                value={builderCompany}
+                onChange={(e) => { setBuilderCompany(e.target.value); searchBuilders(e.target.value); }}
+                onFocus={() => builderCompany.length > 0 && builderSuggestions.length > 0 && setShowBuilderDropdown(true)}
+                autoComplete="off"
+                className={INPUT}
+              />
+              {showBuilderDropdown && builderSuggestions.length > 0 && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#2d2d2d] border border-white/20 rounded shadow-xl max-h-48 overflow-y-auto">
+                  {builderSuggestions.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); applyBuilder(b); }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-[#3d3d3d] transition-colors"
+                    >
+                      <span className="text-white text-sm font-medium">{b.company}</span>
+                      {b.contact_name && <span className="text-white/40 text-xs ml-2">· {b.contact_name}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div>
-            <label className={LABEL}>Company</label>
-            <input name="builder_company" defaultValue={initial?.builder_company ?? ""} className={INPUT} />
+            <label className={LABEL}>Contact Name</label>
+            <input name="builder_name" value={builderName} onChange={(e) => setBuilderName(e.target.value)} className={INPUT} />
           </div>
           <div>
             <label className={LABEL}>Email</label>
-            <input name="builder_email" type="email" defaultValue={initial?.builder_email ?? ""} className={INPUT} />
+            <input name="builder_email" type="email" value={builderEmail} onChange={(e) => setBuilderEmail(e.target.value)} className={INPUT} />
           </div>
           <div>
             <label className={LABEL}>Phone</label>
-            <input name="builder_phone" type="tel" defaultValue={initial?.builder_phone ?? ""} className={INPUT} />
+            <input name="builder_phone" type="tel" value={builderPhone} onChange={(e) => setBuilderPhone(e.target.value)} className={INPUT} />
           </div>
         </div>
       </div>

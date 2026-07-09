@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 
-// -- Types ------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────
 
 export type PullRow = {
   id: string;
@@ -34,7 +34,7 @@ type Props = {
   initialData: AccessoriesData;
 };
 
-// -- Helpers ----------------------------------------------------------------
+// ── Helpers ────────────────────────────────────────────────────────────────
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
@@ -50,7 +50,7 @@ function blankAccessory(): AccessoryRow {
   return { id: uid(), part_number: "", description: "", qty: 1, handed: "N/A", room: "", notes: "" };
 }
 
-// -- Component --------------------------------------------------------------
+// ── Component ──────────────────────────────────────────────────────────────
 
 export function AccessoriesTab({ specId, initialData }: Props) {
   const [pulls, setPulls] = useState<PullRow[]>(initialData.pulls);
@@ -58,7 +58,7 @@ export function AccessoriesTab({ specId, initialData }: Props) {
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  // -- Pulls handlers -------------------------------------------------------
+  // ── Pulls handlers ─────────────────────────────────────────────────────
   function addPull() {
     setPulls((p) => [...p, blankPull()]);
     setSaveState("idle");
@@ -72,7 +72,7 @@ export function AccessoriesTab({ specId, initialData }: Props) {
     setSaveState("idle");
   }
 
-  // -- Accessories handlers -------------------------------------------------
+  // ── Accessories handlers ───────────────────────────────────────────────
   function addAccessory() {
     setAccessories((a) => [...a, blankAccessory()]);
     setSaveState("idle");
@@ -86,7 +86,7 @@ export function AccessoriesTab({ specId, initialData }: Props) {
     setSaveState("idle");
   }
 
-  // -- Save -----------------------------------------------------------------
+  // ── Save ───────────────────────────────────────────────────────────────
   const save = useCallback(async () => {
     setSaveState("saving");
     setErrorMsg("");
@@ -98,14 +98,14 @@ export function AccessoriesTab({ specId, initialData }: Props) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setErrorMsg((body as { error?: string }).error ?? `Save failed (${res.status})`);
+        setErrorMsg(body.error ?? `Save failed (${res.status})`);
         setSaveState("error");
         return;
       }
       setSaveState("saved");
       setTimeout(() => setSaveState("idle"), 2500);
     } catch {
-      setErrorMsg("Network error -- try again");
+      setErrorMsg("Network error — try again");
       setSaveState("error");
     }
   }, [specId, pulls, accessories]);
@@ -113,18 +113,18 @@ export function AccessoriesTab({ specId, initialData }: Props) {
   const saveLabel =
     saveState === "saving" ? "Saving..." :
     saveState === "saved"  ? "Saved" :
-    saveState === "error"  ? "Error -- retry" : "Save Accessories";
+    saveState === "error"  ? "Error — retry" : "Save Accessories";
 
   return (
     <div className="space-y-10">
 
-      {/* -- PULLS --------------------------------------------------------- */}
+      {/* ── PULLS ──────────────────────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-[#f08122] font-condensed uppercase tracking-widest text-sm">Pulls</p>
             <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mt-0.5">
-              List each pull variation -- different sizes, rooms, or models
+              List each pull variation — different sizes, rooms, or models
             </p>
           </div>
         </div>
@@ -227,7 +227,7 @@ export function AccessoriesTab({ specId, initialData }: Props) {
         </button>
       </section>
 
-      {/* -- REVASHELF / ACCESSORIES --------------------------------------- */}
+      {/* ── REVASHELF / ACCESSORIES ────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -339,7 +339,7 @@ export function AccessoriesTab({ specId, initialData }: Props) {
         </button>
       </section>
 
-      {/* -- Save button --------------------------------------------------- */}
+      {/* ── Save button ────────────────────────────────────────────────── */}
       <div className="flex items-center gap-4 pt-4 border-t border-white/10">
         <button
           onClick={save}

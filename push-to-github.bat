@@ -10,6 +10,15 @@ if exist ".git\index.lock" (
     del /f ".git\index.lock"
 )
 
+REM Pull latest from remote first (rebase to keep history clean)
+echo Pulling latest from GitHub...
+git pull --rebase origin master
+if %errorlevel% neq 0 (
+    echo ERROR: git pull failed. Resolve conflicts and try again.
+    pause
+    exit /b 1
+)
+
 REM Stage everything
 git add -A
 if %errorlevel% neq 0 (
@@ -18,20 +27,14 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Commit
-git commit -m "Migrate to Supabase Postgres + Vercel deployment
+REM Commit — use first argument as message, or prompt for one
+if "%~1"=="" (
+    set /p MSG="Commit message: "
+) else (
+    set MSG=%~1
+)
 
-- Replace better-sqlite3 with postgres npm package (Supabase)
-- Convert all 55+ files from sync SQLite to async Postgres tagged templates
-- Migrate file storage from local disk to Supabase Storage
-- Add export const runtime = nodejs to all PDF routes
-- Fix hardcoded localhost in portal logout route
-- Rewrite lib/mailer.ts to use GMAIL_USER/GMAIL_APP_PASSWORD
-- Add scripts/_db.mjs shared Postgres helper for local scripts
-- Rewrite all scripts to use Postgres instead of better-sqlite3
-- Add db-push.mjs for idempotent Supabase schema push
-- Add Vercel guard on catalog PUT (filesystem not writable in prod)"
-
+git commit -m "%MSG%"
 if %errorlevel% neq 0 (
     echo Nothing new to commit - already up to date
 )
@@ -41,12 +44,12 @@ echo.
 echo Pushing to GitHub...
 git push origin master
 if %errorlevel% neq 0 (
-    echo Trying to set upstream...
-    git push --set-upstream origin master
+    echo ERROR: push failed.
+    pause
+    exit /b 1
 )
 
 echo.
-echo === Done! ===
-echo Next: Go to Vercel dashboard and add environment variables.
-echo See VERCEL_ENV_VARS.txt in this folder.
+echo === Done! Vercel will deploy automatically. ===
+echo Watch: https://vercel.com/aluates-projects/accwebsite-cd58/deployments
 pause

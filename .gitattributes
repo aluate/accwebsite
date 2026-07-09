@@ -1,0 +1,25 @@
+# Default: text files use LF; binary files are left alone.
+# Vercel/Linux deploy is LF-native, so this keeps the repo deterministic
+# across Windows editors and the deploy environment.
+* text=auto eol=lf
+
+# Windows-only files: keep CRLF so they don't break in cmd.exe / PowerShell.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+
+# Explicit binaries (git should already detect these, but be safe).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+*.xlsm binary
+*.zip  binary
+*.ttf  binary
+*.woff binary
+*.woff2 binary
+*.eot  binary

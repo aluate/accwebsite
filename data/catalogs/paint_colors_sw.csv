@@ -1,0 +1,1527 @@
+brand,name,code,hex
+SW,Mulberry Silk,SW0001,#94766c
+SW,Chelsea Mauve,SW0002,#beac9f
+SW,Cabbage Rose,SW0003,#c59f91
+SW,Rose Brocade,SW0004,#996c6e
+SW,Deepest Mauve,SW0005,#6d595a
+SW,Toile Red,SW0006,#8b534e
+SW,Decorous Amber,SW0007,#ac7559
+SW,Cajun Red,SW0008,#8d422f
+SW,Eastlake Gold,SW0009,#c28e61
+SW,Wickerwork,SW0010,#c19e80
+SW,Crewel Tan,SW0011,#cbb99b
+SW,Empire Gold,SW0012,#c19f6e
+SW,Majolica Green,SW0013,#aeb08f
+SW,Sheraton Sage,SW0014,#8f8666
+SW,Gallery Green,SW0015,#708672
+SW,Billiard Green,SW0016,#45584d
+SW,Calico,SW0017,#8ca49c
+SW,Teal Stencil,SW0018,#627f7b
+SW,Festoon Aqua,SW0019,#a0bbb8
+SW,Peacock Plume,SW0020,#739694
+SW,Queen Anne Lilac,SW0021,#c0b6b4
+SW,Patchwork Plum,SW0022,#7e696a
+SW,Pewter Tankard,SW0023,#a39b90
+SW,Curio Gray,SW0024,#988977
+SW,Rosedust,SW0025,#cc8d84
+SW,Rachel Pink,SW0026,#e8b9ae
+SW,Aristocrat Peach,SW0027,#ecceb9
+SW,Caen Stone,SW0028,#ecd0b1
+SW,Acanthus,SW0029,#cdcdb4
+SW,Colonial Yellow,SW0030,#efc488
+SW,Dutch Tile Blue,SW0031,#9aabab
+SW,Needlepoint Navy,SW0032,#546670
+SW,Rembrandt Ruby,SW0033,#974f49
+SW,Roycroft Rose,SW0034,#c08f80
+SW,Warm Beige,SW0035,#eedac3
+SW,Buckram Binding,SW0036,#d9c3a6
+SW,Morris Room Grey,SW0037,#ada193
+SW,Library Pewter,SW0038,#7f7263
+SW,Mellow Mauve,SW0039,#c4957a
+SW,Roycroft Adobe,SW0040,#a76251
+SW,Dard Hunter Green,SW0041,#3a4a3f
+SW,Ruskin Room Green,SW0042,#aca17d
+SW,Peristyle Brass,SW0043,#ae905e
+SW,Hubbard Squash,SW0044,#e9bf8c
+SW,Antiquarian Brown,SW0045,#946644
+SW,White Hyacinth,SW0046,#f3e5d1
+SW,Studio Blue Green,SW0047,#6d817b
+SW,Bunglehouse Blue,SW0048,#47626f
+SW,Silver Gray,SW0049,#b8b2a2
+SW,Classic Light Buff,SW0050,#f0eadc
+SW,Classic Ivory,SW0051,#f2e0c3
+SW,Pearl Gray,SW0052,#cbcec5
+SW,Porcelain,SW0053,#e9e0d5
+SW,Twilight Gray,SW0054,#c8bfb5
+SW,Light French Gray,SW0055,#c2c0bb
+SW,Classic Sand,SW0056,#d6bcaa
+SW,Chinese Red,SW0057,#9e3e33
+SW,Jazz Age Coral,SW0058,#f1bfb1
+SW,Frostwork,SW0059,#cbd0c2
+SW,Alexandrite,SW0060,#598c74
+SW,Salon Rose,SW0061,#ab7878
+SW,Studio Mauve,SW0062,#c6b9b8
+SW,Blue Sky,SW0063,#abd1c9
+SW,Blue Peacock,SW0064,#014e4c
+SW,Vogue Green,SW0065,#4b5645
+SW,Cascade Green,SW0066,#acb19f
+SW,Belvedere Cream,SW0067,#f0cda0
+SW,Copen Blue,SW0068,#c2ccc4
+SW,Rose Tan,SW0069,#cd9c85
+SW,Pink Shadow,SW0070,#dec3b9
+SW,Orchid,SW0071,#bc9c9e
+SW,Deep Maroon,SW0072,#623f45
+SW,Chartreuse,SW0073,#e1d286
+SW,Radiant Lilac,SW0074,#a489a0
+SW,Holiday Turquoise,SW0075,#8ac6bd
+SW,Appleblossom,SW0076,#dab5b4
+SW,Classic French Gray,SW0077,#888782
+SW,Sunbeam Yellow,SW0078,#f0d39d
+SW,Pinky Beige,SW0079,#c9aa98
+SW,Pink Flamingo,SW0080,#cd717b
+SW,Skyline Steel,SW1015,#c6bfb3
+SW,Venetian Yellow,SW1666,#f6e3a1
+SW,Icy Lemonade,SW1667,#f4e8b2
+SW,Pineapple Cream,SW1668,#f2eac3
+SW,Merlot,SW2704,#51323b
+SW,Rockweed,SW2735,#443735
+SW,Charcoal Blue,SW2739,#3d4450
+SW,Mineral Gray,SW2740,#515763
+SW,Rookwood Dark Red,SW2801,#4b2929
+SW,Rookwood Red,SW2802,#622f2d
+SW,Rookwood Terra Cotta,SW2803,#975840
+SW,Renwick Rose Beige,SW2804,#af8871
+SW,Renwick Beige,SW2805,#c3b09d
+SW,Rookwood Brown,SW2806,#7f614a
+SW,Rookwood Medium Brown,SW2807,#6e5241
+SW,Rookwood Dark Brown,SW2808,#5f4d43
+SW,Rookwood Shutter Green,SW2809,#303b39
+SW,Rookwood Sash Green,SW2810,#506a67
+SW,Rookwood Blue Green,SW2811,#738478
+SW,Rookwood Jade,SW2812,#979f7f
+SW,Downing Straw,SW2813,#caab7d
+SW,Rookwood Antique Gold,SW2814,#a58258
+SW,Renwick Olive,SW2815,#97896a
+SW,Rookwood Dark Green,SW2816,#565c4a
+SW,Rookwood Amber,SW2817,#c08650
+SW,Renwick Heather,SW2818,#8b7d7b
+SW,Downing Slate,SW2819,#777f86
+SW,Downing Earth,SW2820,#887b67
+SW,Downing Stone,SW2821,#a6a397
+SW,Downing Sand,SW2822,#cbbca5
+SW,Rookwood Clay,SW2823,#9a7e64
+SW,Renwick Golden Oak,SW2824,#96724c
+SW,Colonial Revival Green Stone,SW2826,#a39b7e
+SW,Colonial Revival Stone,SW2827,#a7947c
+SW,Colonial Revival Tan,SW2828,#d3b699
+SW,Classical White,SW2829,#ece1cb
+SW,Classical Gold,SW2831,#ebb875
+SW,Colonial Revival Gray,SW2832,#b4b9b9
+SW,Roycroft Vellum,SW2833,#e8d9bd
+SW,Birdseye Maple,SW2834,#e4c495
+SW,Craftsman Brown,SW2835,#ae9278
+SW,Quartersawn Oak,SW2836,#85695b
+SW,Aurora Brown,SW2837,#6a4238
+SW,Polished Mahogany,SW2838,#432722
+SW,Roycroft Copper Red,SW2839,#7b3728
+SW,Hammered Silver,SW2840,#978a7f
+SW,Weathered Shingle,SW2841,#937f68
+SW,Roycroft Suede,SW2842,#a79473
+SW,Roycroft Brass,SW2843,#7a6a51
+SW,Roycroft Mist Gray,SW2844,#c2bdb1
+SW,Bunglehouse Gray,SW2845,#988f7b
+SW,Roycroft Bronze Green,SW2846,#575449
+SW,Roycroft Bottle Green,SW2847,#324038
+SW,Roycroft Pewter,SW2848,#616564
+SW,Westchester Gray,SW2849,#797978
+SW,Chelsea Gray,SW2850,#b6b7b0
+SW,Sage Green Light,SW2851,#73705e
+SW,New Colonial Yellow,SW2853,#d9ad7f
+SW,Caribbean Coral,SW2854,#be795e
+SW,Sycamore Tan,SW2855,#9c8a79
+SW,Fairfax Brown,SW2856,#61463a
+SW,Peace Yellow,SW2857,#eecf9e
+SW,Harvest Gold,SW2858,#d9a06a
+SW,Beige,SW2859,#dfc8b5
+SW,Sage,SW2860,#b3ae95
+SW,Avocado,SW2861,#857c5d
+SW,Powder Blue,SW2863,#89a4ad
+SW,Classical Yellow,SW2865,#f8d492
+SW,Snowfall,SW6000,#e0deda
+SW,Grayish,SW6001,#cfcac7
+SW,Essential Gray,SW6002,#bcb8b6
+SW,Proper Gray,SW6003,#ada8a5
+SW,Mink,SW6004,#847b77
+SW,Folkstone,SW6005,#6d6562
+SW,Black Bean,SW6006,#403330
+SW,Smart White,SW6007,#e4dbd8
+SW,Individual White,SW6008,#d4cdca
+SW,Imagine,SW6009,#c2b6b6
+SW,Flexible Gray,SW6010,#b1a3a1
+SW,Chinchilla,SW6011,#867875
+SW,Browse Brown,SW6012,#6e615f
+SW,Bitter Chocolate,SW6013,#4d3c3c
+SW,Vaguely Mauve,SW6015,#d1c5c4
+SW,Chaise Mauve,SW6016,#c1b2b3
+SW,Intuitive,SW6017,#b3a3a5
+SW,Enigma,SW6018,#8b7c7e
+SW,Poetry Plum,SW6019,#6f5c5f
+SW,Marooned,SW6020,#4e3132
+SW,Dreamy White,SW6021,#e3d9d5
+SW,Breathless,SW6022,#d6c2be
+SW,Insightful Rose,SW6023,#c9b0ab
+SW,Dressy Rose,SW6024,#b89d9a
+SW,Socialite,SW6025,#907676
+SW,River Rouge,SW6026,#76595d
+SW,Cordovan,SW6027,#5f3d3f
+SW,Cultured Pearl,SW6028,#e5dcd6
+SW,White Truffle,SW6029,#d7c8c2
+SW,Artistic Taupe,SW6030,#c3b1ac
+SW,Glamour,SW6031,#b6a09a
+SW,Dutch Cocoa,SW6032,#8c706a
+SW,Bateau Brown,SW6033,#7a5f5a
+SW,Dark Auburn,SW6034,#5a3532
+SW,Gauzy White,SW6035,#e3dbd4
+SW,Angora,SW6036,#d1c5be
+SW,Temperate Taupe,SW6037,#bfb1aa
+SW,Truly Taupe,SW6038,#ac9e97
+SW,Poised Taupe,SW6039,#8c7e78
+SW,Nutshell,SW6040,#756761
+SW,Otter,SW6041,#56433b
+SW,Hush White,SW6042,#e5dad4
+SW,Unfussy Beige,SW6043,#d6c8c0
+SW,Doeskin,SW6044,#c6b3a9
+SW,Emerging Taupe,SW6045,#b8a196
+SW,Swing Brown,SW6046,#947569
+SW,Hot Cocoa,SW6047,#806257
+SW,Terra Brun,SW6048,#5a382d
+SW,Gorgeous White,SW6049,#e7dbd3
+SW,Abalone Shell,SW6050,#dbc7bd
+SW,Sashay Sand,SW6051,#cfb4a8
+SW,Sandbank,SW6052,#c3a497
+SW,Reddened Earth,SW6053,#9c6e63
+SW,Canyon Clay,SW6054,#85594f
+SW,Fiery Brown,SW6055,#5d3831
+SW,Polite White,SW6056,#e9ddd4
+SW,Malted Milk,SW6057,#decabd
+SW,Likeable Sand,SW6058,#d1b7a8
+SW,Interface Tan,SW6059,#c1a392
+SW,Moroccan Spice,SW6060,#9d7868
+SW,Tanbark,SW6061,#896656
+SW,Vintage Leather,SW6062,#694336
+SW,Nice White,SW6063,#e6ddd5
+SW,Reticence,SW6064,#d9cdc3
+SW,Bona Fide Beige,SW6065,#cbb9ab
+SW,Sand Trap,SW6066,#bba595
+SW,Mocha,SW6067,#967a6a
+SW,Brevity Brown,SW6068,#715243
+SW,French Roast,SW6069,#4f3426
+SW,Heron Plume,SW6070,#e5e1d8
+SW,Popular Gray,SW6071,#d4ccc3
+SW,Versatile Gray,SW6072,#c1b6ab
+SW,Perfect Greige,SW6073,#b7ab9f
+SW,Spalding Gray,SW6074,#8d7f75
+SW,Garret Gray,SW6075,#756861
+SW,Turkish Coffee,SW6076,#4d3930
+SW,Everyday White,SW6077,#e4dcd4
+SW,Realist Beige,SW6078,#d3c8bd
+SW,Diverse Beige,SW6079,#c2b4a7
+SW,Utterly Beige,SW6080,#b5a597
+SW,Down Home,SW6081,#907865
+SW,Cobble Brown,SW6082,#7a6455
+SW,Sable,SW6083,#5f4b3f
+SW,Modest White,SW6084,#e6ddd4
+SW,Simplify Beige,SW6085,#d6c7b9
+SW,Sand Dune,SW6086,#c5b1a2
+SW,Trusty Tan,SW6087,#b59f8f
+SW,Nuthatch,SW6088,#8e725f
+SW,Grounded,SW6089,#785b47
+SW,Java,SW6090,#634533
+SW,Reliable White,SW6091,#e8ded3
+SW,Lightweight Beige,SW6092,#dac8b8
+SW,Familiar Beige,SW6093,#cab3a0
+SW,Sensational Sand,SW6094,#bfa38d
+SW,Toasty,SW6095,#957258
+SW,Jute Brown,SW6096,#815d40
+SW,Sturdy Brown,SW6097,#69482c
+SW,Pacer White,SW6098,#e5ddd0
+SW,Sand Dollar,SW6099,#d7c5b3
+SW,Practical Beige,SW6100,#c9b29c
+SW,Sands of Time,SW6101,#bca38b
+SW,Portabello,SW6102,#947a62
+SW,Tea Chest,SW6103,#7d644d
+SW,Kaffee,SW6104,#65503d
+SW,Divine White,SW6105,#e6dccd
+SW,Kilim Beige,SW6106,#d7c5ae
+SW,Nomadic Desert,SW6107,#c7b198
+SW,Latte,SW6108,#baa185
+SW,Hopsack,SW6109,#9e8163
+SW,Steady Brown,SW6110,#8a6b4d
+SW,Coconut Husk,SW6111,#70573f
+SW,Biscuit,SW6112,#ebddcb
+SW,Interactive Cream,SW6113,#e4caad
+SW,Bagel,SW6114,#d7b593
+SW,Totally Tan,SW6115,#cca683
+SW,Tatami Tan,SW6116,#ba8c64
+SW,Smokey Topaz,SW6117,#a57955
+SW,Leather Bound,SW6118,#8d623d
+SW,Antique White,SW6119,#e8dcc6
+SW,Believable Buff,SW6120,#dbc7a8
+SW,Whole Wheat,SW6121,#cdb592
+SW,Camelback,SW6122,#c5aa85
+SW,Baguette,SW6123,#b39167
+SW,Cardboard,SW6124,#9c7a56
+SW,Craft Paper,SW6125,#8a6645
+SW,Navajo White,SW6126,#e9dcc6
+SW,Ivoire,SW6127,#e4ceac
+SW,Blonde,SW6128,#dcbd92
+SW,Restrained Gold,SW6129,#d2b084
+SW,Mannered Gold,SW6130,#c19763
+SW,Chamois,SW6131,#ad8451
+SW,Relic Bronze,SW6132,#906a3a
+SW,Muslin,SW6133,#eadfc9
+SW,Netsuke,SW6134,#e0cfb0
+SW,Ecru,SW6135,#d0ba94
+SW,Harmonic Tan,SW6136,#c6b08a
+SW,Burlap,SW6137,#ac9571
+SW,Artifact,SW6138,#9a815e
+SW,Mossy Gold,SW6139,#7f6743
+SW,Moderate White,SW6140,#e9decf
+SW,Softer Tan,SW6141,#dacab2
+SW,Macadamia,SW6142,#ccb79b
+SW,Basket Beige,SW6143,#c0a98b
+SW,Dapper Tan,SW6144,#947f65
+SW,Thatch Brown,SW6145,#867057
+SW,Umber,SW6146,#6e543c
+SW,Panda White,SW6147,#eae2d4
+SW,Wool Skein,SW6148,#d9cfba
+SW,Relaxed Khaki,SW6149,#c8bba3
+SW,Universal Khaki,SW6150,#b8a992
+SW,Quiver Tan,SW6151,#8e7f6a
+SW,Superior Bronze,SW6152,#786957
+SW,Protégé Bronze,SW6153,#66543e
+SW,Nacre,SW6154,#e8e2d4
+SW,Rice Grain,SW6155,#dbd0b9
+SW,Ramie,SW6156,#cdbda2
+SW,Favorite Tan,SW6157,#c1ae91
+SW,Sawdust,SW6158,#998970
+SW,High Tea,SW6159,#7e6f59
+SW,Best Bronze,SW6160,#5d513e
+SW,Nonchalant White,SW6161,#deddd1
+SW,Ancient Marble,SW6162,#d1ccb9
+SW,Grassland,SW6163,#c1bca7
+SW,Svelte Sage,SW6164,#b2ac96
+SW,Connected Gray,SW6165,#898473
+SW,Eclipse,SW6166,#6b6757
+SW,Garden Gate,SW6167,#5e5949
+SW,Moderne White,SW6168,#e2e0d7
+SW,Sedate Gray,SW6169,#d1cdbf
+SW,Techno Gray,SW6170,#bfb9aa
+SW,Chatroom,SW6171,#b0ab9c
+SW,Hardware,SW6172,#8b8372
+SW,Cocoon,SW6173,#726b5b
+SW,Andiron,SW6174,#424036
+SW,Sagey,SW6175,#e2e2d1
+SW,Liveable Green,SW6176,#cecebd
+SW,Softened Green,SW6177,#bbbca7
+SW,Clary Sage,SW6178,#acad97
+SW,Artichoke,SW6179,#7f8266
+SW,Oakmoss,SW6180,#65684c
+SW,Secret Garden,SW6181,#4f523a
+SW,Ethereal White,SW6182,#e3e2d9
+SW,Conservative Gray,SW6183,#d1d0c6
+SW,Austere Gray,SW6184,#bebfb2
+SW,Escape Gray,SW6185,#abac9f
+SW,Dried Thyme,SW6186,#7b8070
+SW,Rosemary,SW6187,#64695c
+SW,Shade‐Grown,SW6188,#4e5147
+SW,Opaline,SW6189,#dcdfd7
+SW,Filmy Green,SW6190,#d1d3c7
+SW,Contented,SW6191,#bdc0b3
+SW,Coastal Plain,SW6192,#9fa694
+SW,Privilege Green,SW6193,#7a8775
+SW,Basil,SW6194,#626e60
+SW,Rock Garden,SW6195,#465448
+SW,Frosty White,SW6196,#ddddd6
+SW,Aloof Gray,SW6197,#c9c9c0
+SW,Sensible Hue,SW6198,#b6b5ab
+SW,Rare Gray,SW6199,#a6a69b
+SW,Link Gray,SW6200,#7f7e72
+SW,Thunderous,SW6201,#6d6c62
+SW,Cast Iron,SW6202,#64645a
+SW,Spare White,SW6203,#e4e4dd
+SW,Sea Salt,SW6204,#cdd2ca
+SW,Comfort Gray,SW6205,#bec3bb
+SW,Oyster Bay,SW6206,#aeb3a9
+SW,Retreat,SW6207,#7a8076
+SW,Pewter Green,SW6208,#5e6259
+SW,Ripe Olive,SW6209,#44483d
+SW,Window Pane,SW6210,#d7dfd8
+SW,Rainwashed,SW6211,#c2cdc5
+SW,Quietude,SW6212,#adbbb2
+SW,Halcyon Green,SW6213,#9baaa2
+SW,Underseas,SW6214,#7c8e87
+SW,Rocky River,SW6215,#5e706a
+SW,Jasper,SW6216,#343b36
+SW,Topsail,SW6217,#dae2e0
+SW,Tradewind,SW6218,#c2cfcf
+SW,Rain,SW6219,#abbebf
+SW,Interesting Aqua,SW6220,#9bafb2
+SW,Moody Blue,SW6221,#7a9192
+SW,Riverway,SW6222,#5d7274
+SW,Still Water,SW6223,#4a5d5f
+SW,Mountain Air,SW6224,#d8e0df
+SW,Sleepy Blue,SW6225,#bccbce
+SW,Languid Blue,SW6226,#a4b7bd
+SW,Meditative,SW6227,#96aab0
+SW,Refuge,SW6228,#607d84
+SW,Tempe Star,SW6229,#47626a
+SW,Rainstorm,SW6230,#244653
+SW,Rock Candy,SW6231,#dee1df
+SW,Misty,SW6232,#cdd2d2
+SW,Samovar Silver,SW6233,#b8bebe
+SW,Uncertain Gray,SW6234,#a9b0b1
+SW,Foggy Day,SW6235,#727c7f
+SW,Grays Harbor,SW6236,#596368
+SW,Dark Night,SW6237,#23383f
+SW,Icicle,SW6238,#dbdfe0
+SW,Upward,SW6239,#bfc9d0
+SW,Windy Blue,SW6240,#aabac6
+SW,Aleutian,SW6241,#98a9b7
+SW,Bracing Blue,SW6242,#768b9a
+SW,Distance,SW6243,#5d6f7f
+SW,Naval,SW6244,#2f3d4c
+SW,Quicksilver,SW6245,#dde2e0
+SW,North Star,SW6246,#cad0d2
+SW,Krypton,SW6247,#b8c0c3
+SW,Jubilee,SW6248,#adb5b9
+SW,Storm Cloud,SW6249,#7a848d
+SW,Granite Peak,SW6250,#606b75
+SW,Outerspace,SW6251,#586168
+SW,Ice Cube,SW6252,#e3e4e1
+SW,Olympus White,SW6253,#d4d8d7
+SW,Lazy Gray,SW6254,#bec1c3
+SW,Morning Fog,SW6255,#a8aeb1
+SW,Serious Gray,SW6256,#7d848b
+SW,Gibraltar,SW6257,#626970
+SW,Tricorn Black,SW6258,#2f2f30
+SW,Spatial White,SW6259,#dddcdb
+SW,Unique Gray,SW6260,#cbc9c9
+SW,Swanky Gray,SW6261,#b5b1b5
+SW,Mysterious Mauve,SW6262,#a6a3a9
+SW,Exclusive Plum,SW6263,#736f78
+SW,Midnight,SW6264,#5d5962
+SW,Quixotic Plum,SW6265,#4a4653
+SW,Sensitive Tint,SW6267,#cec9cc
+SW,Veiled Violet,SW6268,#bdb5b9
+SW,Beguiling Mauve,SW6269,#afa7ac
+SW,Soulmate,SW6270,#85777b
+SW,Expressive Plum,SW6271,#695c62
+SW,Plum Brown,SW6272,#4e4247
+SW,Destiny,SW6274,#cfc9c8
+SW,Fashionable Gray,SW6275,#bdb8b8
+SW,Mystical Shade,SW6276,#aea9aa
+SW,Special Gray,SW6277,#7b787d
+SW,Cloak Gray,SW6278,#605e63
+SW,Black Swan,SW6279,#3a373e
+SW,Wallflower,SW6281,#dbcfd4
+SW,Mauve Finery,SW6282,#cbb8c0
+SW,Thistle,SW6283,#aa8e9a
+SW,Plum Dandy,SW6284,#8b6878
+SW,Grape Harvest,SW6285,#7e5a6d
+SW,Mature Grape,SW6286,#5f3f54
+SW,Rosebud,SW6288,#e0cdd1
+SW,Delightful,SW6289,#d2b6be
+SW,Rosé,SW6290,#b995a1
+SW,Moss Rose,SW6291,#9e6d79
+SW,Berry Bush,SW6292,#8d5869
+SW,Fabulous Grape,SW6293,#6d344f
+SW,Demure,SW6295,#e8d4d5
+SW,Fading Rose,SW6296,#dabdc1
+SW,Rose Embroidery,SW6297,#c79ea2
+SW,Concerto,SW6298,#9e6b75
+SW,Aged Wine,SW6299,#895460
+SW,Burgundy,SW6300,#63333e
+SW,Innocence,SW6302,#ebd1cf
+SW,Rose Colored,SW6303,#dcb6b5
+SW,Pressed Flower,SW6304,#c39393
+SW,Rambling Rose,SW6305,#995d62
+SW,Cordial,SW6306,#864c52
+SW,Fine Wine,SW6307,#723941
+SW,Charming Pink,SW6309,#edd3d2
+SW,Lotus Flower,SW6310,#e6bdbd
+SW,Memorable Rose,SW6311,#cf8a8d
+SW,Redbud,SW6312,#ad5e65
+SW,Kirsch Red,SW6313,#974953
+SW,Luxurious Red,SW6314,#863a42
+SW,Rosy Outlook,SW6316,#ebcecb
+SW,Gracious Rose,SW6317,#e3b7b1
+SW,Resounding Rose,SW6318,#cd8e89
+SW,Reddish,SW6319,#b56966
+SW,Bravado Red,SW6320,#a0524e
+SW,Red Bay,SW6321,#8e3738
+SW,Intimate White,SW6322,#f0e1d8
+SW,Romance,SW6323,#ebcfc3
+SW,Mellow Coral,SW6324,#e3b5a8
+SW,Constant Coral,SW6325,#cd8e7f
+SW,Henna Shade,SW6326,#b3675d
+SW,Bold Brick,SW6327,#a0584f
+SW,Fireweed,SW6328,#7b3730
+SW,Faint Coral,SW6329,#eeded5
+SW,Quaint Peche,SW6330,#eacdc1
+SW,Smoky Salmon,SW6331,#e2b6a7
+SW,Coral Island,SW6332,#ce9382
+SW,Foxy,SW6333,#a85e53
+SW,Flower Pot,SW6334,#8f4438
+SW,Fired Brick,SW6335,#83382a
+SW,Nearly Peach,SW6336,#efded1
+SW,Spun Sugar,SW6337,#edd2c0
+SW,Warming Peach,SW6338,#e4b9a2
+SW,Persimmon,SW6339,#d9987c
+SW,Baked Clay,SW6340,#c1785c
+SW,Red Cent,SW6341,#ad654c
+SW,Spicy Hue,SW6342,#994b35
+SW,Alluring White,SW6343,#efe1d2
+SW,Peach Fuzz,SW6344,#eccfbb
+SW,Sumptuous Peach,SW6345,#e5b99b
+SW,Fame Orange,SW6346,#db9c7b
+SW,Chrysanthemum,SW6347,#c47b5b
+SW,Reynard,SW6348,#b46848
+SW,Pennywise,SW6349,#a2583a
+SW,Intricate Ivory,SW6350,#edddca
+SW,Sweet Orange,SW6351,#ebccb3
+SW,Soft Apricot,SW6352,#e0b392
+SW,Chivalry Copper,SW6353,#d4966e
+SW,Armagnac,SW6354,#c38058
+SW,Truepenny,SW6355,#b46c42
+SW,Copper Mountain,SW6356,#a6613c
+SW,Choice Cream,SW6357,#f0e1d0
+SW,Creamery,SW6358,#edd0b6
+SW,Sociable,SW6359,#e8be9b
+SW,Folksy Gold,SW6360,#d69969
+SW,Autumnal,SW6361,#cd8c5d
+SW,Tigereye,SW6362,#bb7748
+SW,Gingery,SW6363,#b06c3e
+SW,Eggwhite,SW6364,#f3e5d2
+SW,Cachet Cream,SW6365,#f3d9ba
+SW,Ambitious Amber,SW6366,#f0cb97
+SW,Viva Gold,SW6367,#e3ac72
+SW,Bakelite Gold,SW6368,#d7995d
+SW,Tassel,SW6369,#c6884a
+SW,Saucy Gold,SW6370,#b6743b
+SW,Vanillin,SW6371,#f2e3ca
+SW,Inviting Ivory,SW6372,#f2d5b0
+SW,Harvester,SW6373,#edc38e
+SW,Torchlight,SW6374,#e5ae6b
+SW,Honeycomb,SW6375,#d59858
+SW,Gold Coast,SW6376,#c78538
+SW,Butterscotch,SW6377,#b67d3c
+SW,Crisp Linen,SW6378,#f3e6d4
+SW,Jersey Cream,SW6379,#f5debb
+SW,Humble Gold,SW6380,#edc796
+SW,Anjou Pear,SW6381,#ddac6d
+SW,Ceremonial Gold,SW6382,#d69e59
+SW,Golden Rule,SW6383,#cc9249
+SW,Cut the Mustard,SW6384,#ba7f38
+SW,Dover White,SW6385,#f0eadc
+SW,Napery,SW6386,#efddc1
+SW,Compatible Cream,SW6387,#e8c89e
+SW,Golden Fleece,SW6388,#d6ad78
+SW,Butternut,SW6389,#cc9b5c
+SW,Bosc Pear,SW6390,#c09056
+SW,Gallant Gold,SW6391,#a4763c
+SW,Vital Yellow,SW6392,#ede0c5
+SW,Convivial Yellow,SW6393,#e9d6b0
+SW,Sequin,SW6394,#e1c28d
+SW,Alchemy,SW6395,#c99e53
+SW,Different Gold,SW6396,#bc934d
+SW,Nankeen,SW6397,#aa803a
+SW,Sconce Gold,SW6398,#996f32
+SW,Chamomile,SW6399,#e9e0c5
+SW,Lucent Yellow,SW6400,#e4d0a5
+SW,Independent Gold,SW6401,#d2ba83
+SW,Antiquity,SW6402,#c2a462
+SW,Escapade Gold,SW6403,#b89b59
+SW,Grandiose,SW6404,#9c7f41
+SW,Fervent Brass,SW6405,#95793d
+SW,Ionic Ivory,SW6406,#e7dfc5
+SW,Ancestral Gold,SW6407,#ddcda6
+SW,Wheat Grass,SW6408,#cbb584
+SW,Edgy Gold,SW6409,#b1975f
+SW,Brassy,SW6410,#9d8344
+SW,Bengal Grass,SW6411,#8e773f
+SW,Eminent Bronze,SW6412,#7a6841
+SW,Restoration Ivory,SW6413,#e9e1ca
+SW,Rice Paddy,SW6414,#dfd4b0
+SW,Hearts of Palm,SW6415,#cfc291
+SW,Sassy Green,SW6416,#bba86a
+SW,Tupelo Tree,SW6417,#9c9152
+SW,Rural Green,SW6418,#8d844d
+SW,Saguaro,SW6419,#655f2d
+SW,Queen Anne's Lace,SW6420,#ecead5
+SW,Celery,SW6421,#e0ddbd
+SW,Shagreen,SW6422,#cbc99d
+SW,Ryegrass,SW6423,#aeac7a
+SW,Tansy Green,SW6424,#95945c
+SW,Relentless Olive,SW6425,#71713e
+SW,Basque Green,SW6426,#5f6033
+SW,Sprout,SW6427,#e4e4ce
+SW,Honeydew,SW6428,#dbddbd
+SW,Baize Green,SW6429,#c7cda8
+SW,Great Green,SW6430,#abb486
+SW,Leapfrog,SW6431,#88915d
+SW,Garden Spot,SW6432,#6d7645
+SW,Inverness,SW6433,#576238
+SW,Spinach White,SW6434,#e4e8da
+SW,Gratifying Green,SW6435,#dae2cd
+SW,Bonsai Tint,SW6436,#c5d1b2
+SW,Haven,SW6437,#a3b48c
+SW,Dill,SW6438,#788d60
+SW,Greenfield,SW6439,#60724f
+SW,Courtyard,SW6440,#475842
+SW,White Mint,SW6441,#e0e7da
+SW,Supreme Green,SW6442,#cfddc7
+SW,Relish,SW6443,#b3cbaa
+SW,Lounge Green,SW6444,#8ba97f
+SW,Garden Grove,SW6445,#5e7f57
+SW,Arugula,SW6446,#42603c
+SW,Evergreens,SW6447,#405840
+SW,Topiary Tint,SW6449,#c8d8c4
+SW,Easy Green,SW6450,#acc2a8
+SW,Nurture Green,SW6451,#98b092
+SW,Inland,SW6452,#6c8867
+SW,Cilantro,SW6453,#537150
+SW,Shamrock,SW6454,#205134
+SW,Fleeting Green,SW6455,#d8e2d8
+SW,Slow Green,SW6456,#c6d5c9
+SW,Kind Green,SW6457,#aac2b3
+SW,Restful,SW6458,#91af9d
+SW,Jadite,SW6459,#61826c
+SW,Kale Green,SW6460,#4f6a56
+SW,Isle of Pines,SW6461,#3d5541
+SW,Green Trance,SW6462,#d7e4db
+SW,Breaktime,SW6463,#c4d9ce
+SW,Aloe,SW6464,#accabc
+SW,Spearmint,SW6465,#94b5a6
+SW,Grandview,SW6466,#6b927f
+SW,Kendal Green,SW6467,#547867
+SW,Hunt Club,SW6468,#2a4f43
+SW,Waterscape,SW6470,#bfd2c9
+SW,Hazel,SW6471,#a8c1b7
+SW,Composed,SW6472,#7ea298
+SW,Surf Green,SW6473,#5f887d
+SW,Raging Sea,SW6474,#476f65
+SW,Country Squire,SW6475,#124a42
+SW,Glimmer,SW6476,#e0e7e2
+SW,Tidewater,SW6477,#c3d7d3
+SW,Watery,SW6478,#b4ccc9
+SW,Drizzle,SW6479,#8caeab
+SW,Lagoon,SW6480,#518682
+SW,Green Bay,SW6481,#2e6864
+SW,Cape Verde,SW6482,#01554f
+SW,Meander Blue,SW6484,#bedbd8
+SW,Raindrop,SW6485,#9ec6c6
+SW,Reflecting Pool,SW6486,#7bb1b2
+SW,Cloudburst,SW6487,#5c9598
+SW,Grand Canal,SW6488,#3c797d
+SW,Really Teal,SW6489,#016367
+SW,Open Air,SW6491,#c7dfe0
+SW,Jetstream,SW6492,#b0d2d6
+SW,Ebbtide,SW6493,#84b4be
+SW,Lakeshore,SW6494,#5b96a2
+SW,Great Falls,SW6495,#217786
+SW,Oceanside,SW6496,#015a6b
+SW,Blue Horizon,SW6497,#d8e7e6
+SW,Byte Blue,SW6498,#c5dce0
+SW,Stream,SW6499,#adccd3
+SW,Open Seas,SW6500,#83afbc
+SW,Manitou Blue,SW6501,#5b92a2
+SW,Loch Blue,SW6502,#2f778b
+SW,Bosporus,SW6503,#015d75
+SW,Sky High,SW6504,#dce7e8
+SW,Atmospheric,SW6505,#c2dae0
+SW,Vast Sky,SW6506,#a9c9d7
+SW,Resolute Blue,SW6507,#85b0c4
+SW,Secure Blue,SW6508,#5389a1
+SW,Georgian Bay,SW6509,#22657f
+SW,Loyal Blue,SW6510,#01455e
+SW,Snowdrop,SW6511,#e0e8e7
+SW,Balmy,SW6512,#c5d8de
+SW,Take Five,SW6513,#b3c9d3
+SW,Respite,SW6514,#97b4c3
+SW,Leisure Blue,SW6515,#6a8ea1
+SW,Down Pour,SW6516,#43718b
+SW,Regatta,SW6517,#215772
+SW,Hinting Blue,SW6519,#ced9dd
+SW,Honest Blue,SW6520,#b2c7d3
+SW,Notable Hue,SW6521,#8ba7bb
+SW,Sporty Blue,SW6522,#6a8aa4
+SW,Denim,SW6523,#506b84
+SW,Commodore,SW6524,#25476a
+SW,Rarified Air,SW6525,#e1e6e6
+SW,Icelandic,SW6526,#cbd8e1
+SW,Blissful Blue,SW6527,#b2c8d8
+SW,Cosmos,SW6528,#8ea9c2
+SW,Scanda,SW6529,#6b8ca9
+SW,Revel Blue,SW6530,#4c6b8a
+SW,Indigo,SW6531,#284a70
+SW,Mild Blue,SW6533,#cbd5db
+SW,Icy,SW6534,#bbc7d2
+SW,Solitude,SW6535,#99a7b8
+SW,Searching Blue,SW6536,#6c7f9a
+SW,Luxe Blue,SW6537,#516582
+SW,Dignified,SW6538,#3b496d
+SW,Starry Night,SW6540,#d6d9de
+SW,Daydream,SW6541,#bdc3cd
+SW,Vesper Violet,SW6542,#99a0b2
+SW,Soulful Blue,SW6543,#757c91
+SW,Mesmerize,SW6544,#5d657b
+SW,Majestic Purple,SW6545,#3b3c5a
+SW,Silver Peony,SW6547,#dad6db
+SW,Grape Mist,SW6548,#c5c0c9
+SW,Ash Violet,SW6549,#a29baa
+SW,Mythical,SW6550,#7e778e
+SW,Purple Passage,SW6551,#645e77
+SW,Dewberry,SW6552,#3e385a
+SW,Lite Lavender,SW6554,#e0dadf
+SW,Enchant,SW6555,#d1c6d2
+SW,Obi Lilac,SW6556,#b0a3b6
+SW,Wood Violet,SW6557,#7a6b85
+SW,Plummy,SW6558,#675a75
+SW,Concord Grape,SW6559,#443757
+SW,Teaberry,SW6561,#ebd1db
+SW,Irresistible,SW6562,#e3c0cf
+SW,Rosebay,SW6563,#cb9aad
+SW,Red Clover,SW6564,#b87e93
+SW,Grandeur Plum,SW6565,#92576f
+SW,Framboise,SW6566,#7c3655
+SW,Lighthearted Pink,SW6568,#edd5dd
+SW,Childlike,SW6569,#e8c0cf
+SW,Haute Pink,SW6570,#d899b1
+SW,Cyclamen,SW6571,#c47b95
+SW,Ruby Shade,SW6572,#a2566f
+SW,Juneberry,SW6573,#854158
+SW,Priscilla,SW6575,#f1d3da
+SW,Azalea Flower,SW6576,#efc0cb
+SW,Jaipur Pink,SW6577,#e392a1
+SW,Tuberose,SW6578,#d47c8c
+SW,Gala Pink,SW6579,#b04b63
+SW,Cerise,SW6580,#99324e
+SW,Impatiens Petal,SW6582,#f1d2d7
+SW,In the Pink,SW6583,#f0bcc9
+SW,Cheery,SW6584,#eb92a3
+SW,Coming up Roses,SW6585,#dd7788
+SW,Heartfelt,SW6586,#bd4c5f
+SW,Valentine,SW6587,#a53a4e
+SW,Alyssum,SW6589,#f2d5d7
+SW,Loveable,SW6590,#f0c1c6
+SW,Amaryllis,SW6591,#ed939d
+SW,Grenadine,SW6592,#d66972
+SW,Coral Bells,SW6593,#bb4b51
+SW,Poinsettia,SW6594,#9d373c
+SW,Bella Pink,SW6596,#f1c6c4
+SW,Hopeful,SW6597,#f0b3b2
+SW,Dishy Coral,SW6598,#ed9190
+SW,Begonia,SW6599,#d76c6e
+SW,Enticing Red,SW6600,#b74e4f
+SW,Tanager,SW6601,#a43834
+SW,Oleander,SW6603,#f2ccc5
+SW,Youthful Coral,SW6604,#f0afa8
+SW,Charisma,SW6605,#ee9489
+SW,Coral Reef,SW6606,#d9766c
+SW,Red Tomato,SW6607,#b24743
+SW,Rave Red,SW6608,#a13b34
+SW,Koral Kicks,SW6610,#f2d1c3
+SW,Jovial,SW6611,#f2b8a7
+SW,Ravishing Coral,SW6612,#e79580
+SW,Lei Flower,SW6613,#d87b6a
+SW,Quite Coral,SW6614,#c76356
+SW,Peppery,SW6615,#b85444
+SW,Blushing,SW6617,#f0d1c3
+SW,Cosmetic Peach,SW6618,#f3c1ab
+SW,Sockeye,SW6619,#e49780
+SW,Rejuvenate,SW6620,#dd7861
+SW,Emotional,SW6621,#c65f47
+SW,Hearty Orange,SW6622,#b44b34
+SW,Peach Blossom,SW6624,#f3d0bd
+SW,Certain Peach,SW6625,#f2bda2
+SW,Sunset,SW6626,#e2946f
+SW,Emberglow,SW6627,#d67c56
+SW,Robust Orange,SW6628,#c4633e
+SW,Jalapeño,SW6629,#b1533c
+SW,Naive Peach,SW6631,#f3d3bf
+SW,Neighborly Peach,SW6632,#f3c1a3
+SW,Inventive Orange,SW6633,#e89d6f
+SW,Copper Harbor,SW6634,#d57e52
+SW,Determined Orange,SW6635,#c56639
+SW,Husky Orange,SW6636,#bb613e
+SW,Flattering Peach,SW6638,#f4d3b3
+SW,Avid Apricot,SW6639,#f4c69f
+SW,Tangerine,SW6640,#f2ac78
+SW,Outgoing Orange,SW6641,#e6955f
+SW,Rhumba Orange,SW6642,#cb7841
+SW,Yam,SW6643,#c36f3e
+SW,Champagne,SW6644,#f2e3ce
+SW,Flan,SW6652,#f4d4af
+SW,Delicious Melon,SW6653,#f5c894
+SW,Surprise Amber,SW6654,#efb57a
+SW,Adventure Orange,SW6655,#e69f5f
+SW,Serape,SW6656,#d88b4d
+SW,Amber Wave,SW6657,#d28240
+SW,Welcome White,SW6658,#f3e3ca
+SW,Captivating Cream,SW6659,#f4d9b1
+SW,Honey Blush,SW6660,#f5cf9b
+SW,Papaya,SW6661,#efb97b
+SW,Summer Day,SW6662,#eaaa62
+SW,Saffron Thread,SW6663,#df984e
+SW,Marigold,SW6664,#d28233
+SW,Gardenia,SW6665,#f3e2c9
+SW,Enjoyable Yellow,SW6666,#f5d6a9
+SW,Afterglow,SW6667,#f6cd8e
+SW,Sunrise,SW6668,#f4bf77
+SW,Yarrow,SW6669,#ebad5e
+SW,Gold Crest,SW6670,#df9938
+SW,Curry,SW6671,#d88f32
+SW,Morning Sun,SW6672,#f3e6ce
+SW,Banana Cream,SW6673,#f5deaf
+SW,Jonquil,SW6674,#f7d391
+SW,Afternoon,SW6675,#fbcb78
+SW,Butterfield,SW6676,#f7be5b
+SW,Goldenrod,SW6677,#f2af46
+SW,Sunflower,SW6678,#e39a33
+SW,Full Moon,SW6679,#f4e3bc
+SW,Friendly Yellow,SW6680,#f5e0b1
+SW,Butter Up,SW6681,#f6dda3
+SW,June Day,SW6682,#f6c973
+SW,Bee,SW6683,#f1ba55
+SW,Brittlebush,SW6684,#eaae47
+SW,Trinket,SW6685,#d69835
+SW,Lemon Chiffon,SW6686,#f5e5bc
+SW,Lantern Light,SW6687,#f4e1ae
+SW,Solaria,SW6688,#f5d68f
+SW,Overjoy,SW6689,#eec25f
+SW,Gambol Gold,SW6690,#e1b047
+SW,Glitzy Gold,SW6691,#d6a02b
+SW,Auric,SW6692,#c48919
+SW,Lily,SW6693,#f3e8c2
+SW,Glad Yellow,SW6694,#f5e1ac
+SW,Midday,SW6695,#f7d78a
+SW,Quilt Gold,SW6696,#eac365
+SW,Nugget,SW6697,#dbb04a
+SW,Kingdom Gold,SW6698,#d1a436
+SW,Crispy Gold,SW6699,#c49832
+SW,Daybreak,SW6700,#f3eac6
+SW,Moonraker,SW6701,#eee3b2
+SW,Lively Yellow,SW6702,#e6d88e
+SW,Frolic,SW6703,#d9c661
+SW,Hep Green,SW6704,#c4b146
+SW,High Strung,SW6705,#ac9825
+SW,Offbeat Green,SW6706,#9c8b1f
+SW,Springtime,SW6708,#e9e5b3
+SW,Gleeful,SW6709,#dad790
+SW,Mélange Green,SW6710,#c4c476
+SW,Parakeet,SW6711,#b4b05a
+SW,Luau Green,SW6712,#989746
+SW,Verdant,SW6713,#847e35
+SW,Lime Granita,SW6715,#dce1b8
+SW,Dancing Green,SW6716,#c5cd8f
+SW,Lime Rickey,SW6717,#afb96a
+SW,Overt Green,SW6718,#97a554
+SW,Gecko,SW6719,#7a8833
+SW,Paradise,SW6720,#6c7b30
+SW,Cucumber,SW6722,#d3dfc3
+SW,Jardin,SW6723,#bdd0ab
+SW,Mesclun Green,SW6724,#9db682
+SW,Pickle,SW6725,#85a16a
+SW,Talipot Palm,SW6726,#648149
+SW,Houseplant,SW6727,#58713f
+SW,Lacewing,SW6729,#d7e3ca
+SW,Romaine,SW6730,#c0d2ad
+SW,Picnic,SW6731,#99c285
+SW,Organic Green,SW6732,#7fac6e
+SW,Grasshopper,SW6733,#4f854a
+SW,Espalier,SW6734,#2f5f3a
+SW,Jocular Green,SW6736,#cce2ca
+SW,Kiwi,SW6737,#aed2b0
+SW,Vegan,SW6738,#8ec298
+SW,Eco Green,SW6739,#68a678
+SW,Kilkenny,SW6740,#498555
+SW,Derbyshire,SW6741,#245e36
+SW,Mint Condition,SW6743,#d1e3d2
+SW,Reclining Green,SW6744,#b7d7bf
+SW,Lark Green,SW6745,#8ac1a1
+SW,Julep,SW6746,#57aa80
+SW,Argyle,SW6747,#348a5d
+SW,Greens,SW6748,#016844
+SW,Embellished Blue,SW6749,#d7ebe2
+SW,Waterfall,SW6750,#c0e3da
+SW,Refresh,SW6751,#a1d4c8
+SW,Larchmere,SW6752,#70baa7
+SW,Jargon Jade,SW6753,#53a38f
+SW,Ionian,SW6754,#368976
+SW,Starboard,SW6755,#016c4f
+SW,Tame Teal,SW6757,#c1e6df
+SW,Aqueduct,SW6758,#a1d5cb
+SW,Cooled Blue,SW6759,#75b9ae
+SW,Rivulet,SW6760,#61a89d
+SW,Thermal Spring,SW6761,#3b8c80
+SW,Poseidon,SW6762,#016d60
+SW,Swimming,SW6764,#c2e5e5
+SW,Spa,SW6765,#a7dcdc
+SW,Mariner,SW6766,#6ec2c4
+SW,Aquarium,SW6767,#3aa9ae
+SW,Gulfstream,SW6768,#01858b
+SW,Maxi Teal,SW6769,#017478
+SW,Bathe Blue,SW6771,#c2e0e3
+SW,Cay,SW6772,#a6d0d6
+SW,Rapture Blue,SW6773,#7dc1cb
+SW,Freshwater,SW6774,#4da6b2
+SW,Briny,SW6775,#08808e
+SW,Blue Nile,SW6776,#01717e
+SW,Aviary Blue,SW6778,#c6e3e8
+SW,Liquid Blue,SW6779,#a6d4de
+SW,Nautilus,SW6780,#71b8c7
+SW,Jamaica Bay,SW6781,#34a3b6
+SW,Cruising,SW6782,#018498
+SW,Amalfi,SW6783,#016e85
+SW,Bravo Blue,SW6784,#d3e7e9
+SW,Quench Blue,SW6785,#b4e0e7
+SW,Cloudless,SW6786,#8fd0dd
+SW,Fountain,SW6787,#56b5ca
+SW,Capri,SW6788,#01a0b8
+SW,Blue Mosque,SW6789,#01819e
+SW,Adriatic Sea,SW6790,#016081
+SW,Minor Blue,SW6792,#b7dfe8
+SW,Bluebell,SW6793,#a2d5e7
+SW,Flyway,SW6794,#5db3d4
+SW,Major Blue,SW6795,#289ec4
+SW,Blue Plate,SW6796,#017ca7
+SW,Jay Blue,SW6797,#015d87
+SW,Iceberg,SW6798,#d6e4e7
+SW,Soar,SW6799,#c3dfe8
+SW,Something Blue,SW6800,#b0d6e6
+SW,Regale Blue,SW6801,#7db5d3
+SW,Jacaranda,SW6802,#5a9ec0
+SW,Danube,SW6803,#2377a2
+SW,Dignity Blue,SW6804,#094c73
+SW,Rhythmic Blue,SW6806,#ccdbe5
+SW,Wondrous Blue,SW6807,#b8cddd
+SW,Celestial,SW6808,#97b3d0
+SW,Lobelia,SW6809,#7498be
+SW,Lupine,SW6810,#4e739f
+SW,Honorable Blue,SW6811,#164576
+SW,Wishful Blue,SW6813,#d8dde6
+SW,Breathtaking,SW6814,#c7d1e2
+SW,Awesome Violet,SW6815,#a7b2d4
+SW,Dahlia,SW6816,#8b98c4
+SW,Gentian,SW6817,#6572a5
+SW,Valiant Violet,SW6818,#3e4371
+SW,Inspired Lilac,SW6820,#dfd9e4
+SW,Potentially Purple,SW6821,#d1cbdf
+SW,Wisteria,SW6822,#bdb4d4
+SW,Brave Purple,SW6823,#968db8
+SW,Forget‐Me‐Not,SW6824,#716998
+SW,Izmir Purple,SW6825,#4d426e
+SW,Elation,SW6827,#dfdce5
+SW,Rhapsody Lilac,SW6828,#d2c8dd
+SW,Magical,SW6829,#c0afd0
+SW,Kismet,SW6830,#a18ab7
+SW,Clematis,SW6831,#7e6596
+SW,Impulsive Purple,SW6832,#624977
+SW,Spangle,SW6834,#e5dbe5
+SW,Euphoric Lilac,SW6835,#dac7da
+SW,Novel Lilac,SW6836,#c2a4c2
+SW,Baroness,SW6837,#a785a7
+SW,Vigorous Violet,SW6838,#7c5a7e
+SW,Kimono Violet,SW6839,#5d395f
+SW,Exuberant Pink,SW6840,#b54d7f
+SW,Dynamo,SW6841,#953d68
+SW,Forward Fuchsia,SW6842,#92345b
+SW,Hot,SW6843,#ac4362
+SW,Dragon Fruit,SW6855,#cc617f
+SW,Eros Pink,SW6860,#c84f68
+SW,Radish,SW6861,#a42e41
+SW,Cherries Jubilee,SW6862,#ab3c51
+SW,Heartthrob,SW6866,#a82e33
+SW,Real Red,SW6868,#bf2d32
+SW,Stop,SW6869,#c33a36
+SW,Positive Red,SW6871,#ad2c34
+SW,Comical Coral,SW6876,#f3d1c8
+SW,Cayenne,SW6881,#c04d35
+SW,Raucous Orange,SW6883,#c35530
+SW,Obstinate Orange,SW6884,#d7552a
+SW,Knockout Orange,SW6885,#e16f3e
+SW,Invigorate,SW6886,#e47237
+SW,Navel,SW6887,#ec8430
+SW,Osage Orange,SW6890,#f4a045
+SW,Carnival,SW6892,#eb882c
+SW,Solé,SW6896,#f7dda1
+SW,Optimistic Yellow,SW6900,#f5e1a6
+SW,Daffodil,SW6901,#fad97a
+SW,Decisive Yellow,SW6902,#fdcc4e
+SW,Cheerful,SW6903,#ffc723
+SW,Gusto Gold,SW6904,#f8ac1d
+SW,Goldfinch,SW6905,#fdb702
+SW,Forsythia,SW6907,#ffc801
+SW,Fun Yellow,SW6908,#f7e594
+SW,Lemon Twist,SW6909,#fed95d
+SW,Daisy,SW6910,#fed340
+SW,Confident Yellow,SW6911,#fecb01
+SW,Funky Yellow,SW6913,#edd26f
+SW,Eye Catching,SW6914,#ddb835
+SW,Citronella,SW6915,#cba901
+SW,Humorous Green,SW6918,#c6b836
+SW,Center Stage,SW6920,#b2c216
+SW,Electric Lime,SW6921,#9aba25
+SW,Direct Green,SW6924,#3f8a24
+SW,Envy,SW6925,#358c3f
+SW,Lucky Green,SW6926,#238652
+SW,Greenbelt,SW6927,#017244
+SW,Green Vibes,SW6928,#d4e7c3
+SW,Tantalizing Teal,SW6937,#87dcce
+SW,Nifty Turquoise,SW6941,#019187
+SW,Splashy,SW6942,#019196
+SW,Intense Teal,SW6943,#017680
+SW,Calypso,SW6950,#01b0bb
+SW,Undercool,SW6957,#7fc3e1
+SW,Dynamic Blue,SW6958,#0192c6
+SW,Blue Chip,SW6959,#016ea7
+SW,Hyper Blue,SW6965,#015f97
+SW,Blueblood,SW6966,#015086
+SW,Frank Blue,SW6967,#225288
+SW,Hyacinth Tint,SW6968,#c2cbe0
+SW,Morning Glory,SW6971,#3c4c80
+SW,Free Spirit,SW6973,#cab2d2
+SW,Passionate Purple,SW6981,#795484
+SW,African Violet,SW6982,#665385
+SW,Fully Purple,SW6983,#514c7e
+SW,Jitterbug Jade,SW6987,#019d6e
+SW,Bohemian Black,SW6988,#3b373c
+SW,Domino,SW6989,#353337
+SW,Caviar,SW6990,#313031
+SW,Black Magic,SW6991,#323132
+SW,Inkwell,SW6992,#31363a
+SW,Black of Night,SW6993,#323639
+SW,Greenblack,SW6994,#373a3a
+SW,Ibis White,SW7000,#f2ece6
+SW,Marshmallow,SW7001,#eee9e0
+SW,Downy,SW7002,#efe8dd
+SW,Toque White,SW7003,#e7e2da
+SW,Snowbound,SW7004,#edeae5
+SW,Pure White,SW7005,#edece6
+SW,Extra White,SW7006,#eeefea
+SW,Ceiling Bright White,SW7007,#e9ebe7
+SW,Alabaster,SW7008,#edeae0
+SW,Pearly White,SW7009,#e8e3d9
+SW,White Duck,SW7010,#e5dfd2
+SW,Natural Choice,SW7011,#e3ded0
+SW,Creamy,SW7012,#efe8db
+SW,Ivory Lace,SW7013,#ece5d8
+SW,Eider White,SW7014,#e2ded8
+SW,Repose Gray,SW7015,#ccc9c0
+SW,Mindful Gray,SW7016,#bcb7ad
+SW,Dorian Gray,SW7017,#aca79e
+SW,Dovetail,SW7018,#908a83
+SW,Gauntlet Gray,SW7019,#78736e
+SW,Black Fox,SW7020,#4f4842
+SW,Simple White,SW7021,#dfd9d2
+SW,Alpaca,SW7022,#ccc5bd
+SW,Requisite Gray,SW7023,#b9b2a9
+SW,Functional Gray,SW7024,#aba39a
+SW,Backdrop,SW7025,#867a6f
+SW,Griffin,SW7026,#6f6459
+SW,Hickory Smoke,SW7027,#564537
+SW,Incredible White,SW7028,#e3ded7
+SW,Agreeable Gray,SW7029,#d1cbc1
+SW,Anew Gray,SW7030,#bfb6aa
+SW,Mega Greige,SW7031,#ada295
+SW,Warm Stone,SW7032,#887b6c
+SW,Brainstorm Bronze,SW7033,#74685a
+SW,Status Bronze,SW7034,#5c4d3c
+SW,Aesthetic White,SW7035,#e3ddd3
+SW,Accessible Beige,SW7036,#d1c7b8
+SW,Balanced Beige,SW7037,#c0b2a2
+SW,Tony Taupe,SW7038,#b1a290
+SW,Virtual Taupe,SW7039,#8a7a6a
+SW,Smokehouse,SW7040,#716354
+SW,Van Dyke Brown,SW7041,#564536
+SW,Shoji White,SW7042,#e6dfd3
+SW,Worldly Gray,SW7043,#cec6bb
+SW,Amazing Gray,SW7044,#beb5a9
+SW,Intellectual Gray,SW7045,#a8a093
+SW,Anonymous,SW7046,#817a6e
+SW,Porpoise,SW7047,#6b645b
+SW,Urbane Bronze,SW7048,#54504a
+SW,Nuance,SW7049,#e2e0d6
+SW,Useful Gray,SW7050,#cfcabd
+SW,Analytical Gray,SW7051,#bfb6a7
+SW,Gray Area,SW7052,#afa696
+SW,Adaptive Shade,SW7053,#867e70
+SW,Oak Leaf Brown,SW7054,#645a4b
+SW,Enduring Bronze,SW7055,#554c3e
+SW,Reserved White,SW7056,#e0e0d9
+SW,Silver Strand,SW7057,#c8cbc4
+SW,Magnetic Gray,SW7058,#b2b5af
+SW,Unusual Gray,SW7059,#a3a7a0
+SW,Attitude Gray,SW7060,#7c7d75
+SW,Night Owl,SW7061,#63655f
+SW,Rock Bottom,SW7062,#484c49
+SW,Nebulous White,SW7063,#dedfdc
+SW,Passive,SW7064,#cbccc9
+SW,Argos,SW7065,#bdbdb7
+SW,Gray Matters,SW7066,#a7a8a2
+SW,Cityscape,SW7067,#7f817e
+SW,Grizzle Gray,SW7068,#636562
+SW,Iron Ore,SW7069,#434341
+SW,Site White,SW7070,#dcdedc
+SW,Gray Screen,SW7071,#c6caca
+SW,Online,SW7072,#b0b5b5
+SW,Network Gray,SW7073,#a0a5a7
+SW,Software,SW7074,#7f8486
+SW,Web Gray,SW7075,#616669
+SW,Cyberspace,SW7076,#44484d
+SW,Original White,SW7077,#e2dedb
+SW,Minute Mauve,SW7078,#cfc9c8
+SW,Ponder,SW7079,#bcb6b6
+SW,Quest Gray,SW7080,#ada5a5
+SW,Sensuous Gray,SW7081,#837d7f
+SW,Stunning Shade,SW7082,#676064
+SW,Darkroom,SW7083,#443e40
+SW,Arcade White,SW7100,#f3eee7
+SW,Futon,SW7101,#ede6db
+SW,White Flour,SW7102,#f4efe5
+SW,Whitetail,SW7103,#f4efe4
+SW,Cotton White,SW7104,#f7efe3
+SW,Paperwhite,SW7105,#f7efde
+SW,Honied White,SW7106,#f8eedb
+SW,Threshold Taupe,SW7501,#ac9a8a
+SW,Dry Dock,SW7502,#a18d7d
+SW,Sticks & Stones,SW7503,#a49689
+SW,Keystone Gray,SW7504,#9e9284
+SW,Manor House,SW7505,#665d57
+SW,Loggia,SW7506,#c4b7a5
+SW,Stone Lion,SW7507,#b3a491
+SW,Tavern Taupe,SW7508,#9c8a79
+SW,Tiki Hut,SW7509,#826f5e
+SW,Chateau Brown,SW7510,#5b4b44
+SW,Bungalow Beige,SW7511,#cdbfb0
+SW,Pavilion Beige,SW7512,#c5b6a4
+SW,Sanderling,SW7513,#a79582
+SW,Foothills,SW7514,#827466
+SW,Homestead Brown,SW7515,#6e5f53
+SW,Kestrel White,SW7516,#e0d6c8
+SW,Rivers Edge,SW7517,#dbcebd
+SW,Beach House,SW7518,#c9b29c
+SW,Mexican Sand,SW7519,#af9781
+SW,Plantation Shutters,SW7520,#6a5143
+SW,Dormer Brown,SW7521,#ad947c
+SW,Meadowlark,SW7522,#9f8267
+SW,Burnished Brandy,SW7523,#7c5c43
+SW,Dhurrie Beige,SW7524,#cabaa8
+SW,Tree Branch,SW7525,#8a7362
+SW,Maison Blanche,SW7526,#dfd2bf
+SW,Nantucket Dune,SW7527,#d0bfaa
+SW,Windsor Greige,SW7528,#c4b49c
+SW,Sand Beach,SW7529,#d4c5ad
+SW,Barcelona Beige,SW7530,#c4b39c
+SW,Canvas Tan,SW7531,#dcd1bf
+SW,Urban Putty,SW7532,#cfc0ab
+SW,Khaki Shade,SW7533,#c0af97
+SW,Outerbanks,SW7534,#b7a48b
+SW,Sandy Ridge,SW7535,#a18e77
+SW,Bittersweet Stem,SW7536,#cbb49a
+SW,Irish Cream,SW7537,#e3d2b8
+SW,Tamarind,SW7538,#c0a588
+SW,Cork Wedge,SW7539,#c1a98a
+SW,Artisan Tan,SW7540,#b09879
+SW,Grecian Ivory,SW7541,#d8cfbe
+SW,Naturel,SW7542,#cbc0ad
+SW,Avenue Tan,SW7543,#bcb099
+SW,Fenland,SW7544,#ac9d83
+SW,Pier,SW7545,#63523d
+SW,Prairie Grass,SW7546,#b1a38e
+SW,Sandbar,SW7547,#cbbfad
+SW,Portico,SW7548,#bbab95
+SW,Studio Taupe,SW7549,#ad9c85
+SW,Resort Tan,SW7550,#907d66
+SW,Greek Villa,SW7551,#f0ece2
+SW,Bauhaus Buff,SW7552,#e7dbcc
+SW,Fragile Beauty,SW7553,#e7d7c6
+SW,Steamed Milk,SW7554,#ece1d1
+SW,Patience,SW7555,#e2d3bf
+SW,Crème,SW7556,#f4e8d2
+SW,Summer White,SW7557,#f4e9d6
+SW,Medici Ivory,SW7558,#f3e9d7
+SW,Décor White,SW7559,#f2e5cf
+SW,Impressive Ivory,SW7560,#f4dec3
+SW,Lemon Meringue,SW7561,#f5eacc
+SW,Roman Column,SW7562,#f6f0e2
+SW,Restful White,SW7563,#eee8d7
+SW,Polar Bear,SW7564,#e8dfca
+SW,Oyster Bar,SW7565,#dbd0bb
+SW,Westhighland White,SW7566,#f3eee3
+SW,Natural Tan,SW7567,#dcd2c3
+SW,Neutral Ground,SW7568,#e2daca
+SW,Stucco,SW7569,#dccfba
+SW,Egret White,SW7570,#dfd9cf
+SW,Casa Blanca,SW7571,#ede1ce
+SW,Lotus Pod,SW7572,#e7d7c2
+SW,Eaglet Beige,SW7573,#e9d9c0
+SW,Echelon Ecru,SW7574,#e7d8be
+SW,Chopsticks,SW7575,#e0d1b8
+SW,Blackberry,SW7577,#533640
+SW,Borscht,SW7578,#72353d
+SW,Alaea,SW7579,#81585b
+SW,Carnelian,SW7580,#573e3e
+SW,Salute,SW7582,#803532
+SW,Wild Currant,SW7583,#7c3239
+SW,Red Theatre,SW7584,#6e3637
+SW,Sun Dried Tomato,SW7585,#692b2b
+SW,Stolen Kiss,SW7586,#813235
+SW,Antique Red,SW7587,#9f4442
+SW,Show Stopper,SW7588,#a42e37
+SW,Habanero Chile,SW7589,#b8473d
+SW,Red Barn,SW7591,#7c453d
+SW,Crabby Apple,SW7592,#753531
+SW,Rustic Red,SW7593,#703229
+SW,Carriage Door,SW7594,#6e423e
+SW,Sommelier,SW7595,#5d3736
+SW,Only Natural,SW7596,#e2d3c4
+SW,Sierra Redwood,SW7598,#924e3c
+SW,Brick Paver,SW7599,#93402f
+SW,Bolero,SW7600,#903934
+SW,Dockside Blue,SW7601,#a0b3bc
+SW,Indigo Batik,SW7602,#3e5063
+SW,Poolhouse,SW7603,#8095a0
+SW,Smoky Blue,SW7604,#596e79
+SW,Gale Force,SW7605,#35454e
+SW,Blue Cruise,SW7606,#6591a8
+SW,Santorini Blue,SW7607,#416d83
+SW,Adrift,SW7608,#87aab9
+SW,Georgian Revival Blue,SW7609,#5b8d9f
+SW,Turkish Tile,SW7610,#3e758a
+SW,Tranquil Aqua,SW7611,#7c9aa0
+SW,Mountain Stream,SW7612,#679199
+SW,Aqua‐Sphere,SW7613,#9cb0b3
+SW,St. Bart's,SW7614,#577c88
+SW,Sea Serpent,SW7615,#3e4b54
+SW,Breezy,SW7616,#a0aeaf
+SW,Mediterranean,SW7617,#60797d
+SW,Deep Sea Dive,SW7618,#376167
+SW,Labradorite,SW7619,#657b83
+SW,Seaworthy,SW7620,#314d58
+SW,Silvermist,SW7621,#b0b8b2
+SW,Homburg Gray,SW7622,#666d69
+SW,Cascades,SW7623,#273e3e
+SW,Slate Tile,SW7624,#606e74
+SW,Mount Etna,SW7625,#3d484c
+SW,Zurich White,SW7626,#e6e1d9
+SW,White Heron,SW7627,#e7e1d7
+SW,Windfresh White,SW7628,#ded8cf
+SW,Grapy,SW7629,#786e70
+SW,Raisin,SW7630,#392b2d
+SW,City Loft,SW7631,#dfdad1
+SW,Modern Gray,SW7632,#d6cec3
+SW,Taupe Tone,SW7633,#ada090
+SW,Pediment,SW7634,#d3ccc4
+SW,Palisade,SW7635,#aa9e95
+SW,Origami White,SW7636,#e5e2da
+SW,Oyster White,SW7637,#e2ddd0
+SW,Jogging Path,SW7638,#c0b9a9
+SW,Ethereal Mood,SW7639,#aea594
+SW,Fawn Brindle,SW7640,#a7a094
+SW,Colonnade Gray,SW7641,#c6c0b6
+SW,Pavestone,SW7642,#a0998f
+SW,Pussywillow,SW7643,#b2ada4
+SW,Gateway Gray,SW7644,#b2ac9c
+SW,Thunder Gray,SW7645,#57534c
+SW,First Star,SW7646,#dad9d4
+SW,Crushed Ice,SW7647,#d6d3cc
+SW,Big Chill,SW7648,#d0cec9
+SW,Silverplate,SW7649,#c2c0ba
+SW,Ellie Gray,SW7650,#aaa9a4
+SW,Front Porch,SW7651,#ccccc5
+SW,Mineral Deposit,SW7652,#abb0ac
+SW,Silverpointe,SW7653,#d1d2cb
+SW,Lattice,SW7654,#cecec6
+SW,Stamped Concrete,SW7655,#a0a09a
+SW,Rhinestone,SW7656,#dee0de
+SW,Tinsmith,SW7657,#c5c8c4
+SW,Gray Clouds,SW7658,#b7b7b2
+SW,Gris,SW7659,#a5a9a8
+SW,Earl Grey,SW7660,#969a96
+SW,Reflection,SW7661,#d3d5d3
+SW,Evening Shadow,SW7662,#c9cccd
+SW,Monorail Silver,SW7663,#b8bcbb
+SW,Steely Gray,SW7664,#90979b
+SW,Wall Street,SW7665,#656d73
+SW,Fleur de Sel,SW7666,#dcddd8
+SW,Zircon,SW7667,#cac9c6
+SW,March Wind,SW7668,#bab9b6
+SW,Summit Gray,SW7669,#959491
+SW,Gray Shingle,SW7670,#949392
+SW,On the Rocks,SW7671,#d0cec8
+SW,Knitting Needles,SW7672,#c3c1bc
+SW,Pewter Cast,SW7673,#9b9893
+SW,Peppercorn,SW7674,#585858
+SW,Sealskin,SW7675,#48423c
+SW,Paper Lantern,SW7676,#f2e0c4
+SW,Gold Vessel,SW7677,#eaba8a
+SW,Cottage Cream,SW7678,#eddbbd
+SW,Golden Gate,SW7679,#d9ad7f
+SW,Lanyard,SW7680,#c09972
+SW,Tea Light,SW7681,#f8e4c2
+SW,Bee's Wax,SW7682,#eabf86
+SW,Buff,SW7683,#f1dfc1
+SW,Concord Buff,SW7684,#edd6b1
+SW,White Raisin,SW7685,#e5c28b
+SW,Hinoki,SW7686,#f8ddb7
+SW,August Moon,SW7687,#e7c7a0
+SW,Sundew,SW7688,#e1cdae
+SW,Row House Tan,SW7689,#d2bb9d
+SW,Townhall Tan,SW7690,#c3aa8c
+SW,Pale Yellow,SW7691,#e3c9a1
+SW,Cupola Yellow,SW7692,#dcbc8e
+SW,Stonebriar,SW7693,#cba97e
+SW,Dromedary Camel,SW7694,#caad87
+SW,Mesa Tan,SW7695,#bd9c77
+SW,Toasted Pine Nut,SW7696,#dcc6a6
+SW,Safari,SW7697,#ccb18b
+SW,Straw Harvest,SW7698,#dbc8a2
+SW,Rustic City,SW7699,#ba9a67
+SW,Olde World Gold,SW7700,#8f6c3e
+SW,Cavern Clay,SW7701,#ac6b53
+SW,Spiced Cider,SW7702,#b0785c
+SW,Earthen Jug,SW7703,#a85e39
+SW,Tower Tan,SW7704,#d5b59b
+SW,Wheat Penny,SW7705,#976b53
+SW,Copper Wire,SW7707,#c67b57
+SW,Copper Pot,SW7709,#b16a37
+SW,Brandywine,SW7710,#a56c4a
+SW,Pueblo,SW7711,#e6d0bd
+SW,Townhouse Tan,SW7712,#dfc8b5
+SW,Tawny Tan,SW7713,#ccb299
+SW,Oak Barrel,SW7714,#bfa287
+SW,Pottery Urn,SW7715,#aa866e
+SW,Croissant,SW7716,#dbc5a7
+SW,Ligonier Tan,SW7717,#d2b18f
+SW,Oak Creek,SW7718,#bb8d6b
+SW,Fresco Cream,SW7719,#d8c4ae
+SW,Deer Valley,SW7720,#c7a485
+SW,Crescent Cream,SW7721,#edd1b1
+SW,Travertine,SW7722,#ecd3b3
+SW,Colony Buff,SW7723,#ddc6ab
+SW,Canoe,SW7724,#b7987b
+SW,Yearling,SW7725,#ad896a
+SW,Lemon Verbena,SW7726,#9d986f
+SW,Koi Pond,SW7727,#b9b292
+SW,Green Sprout,SW7728,#a29f80
+SW,Edamame,SW7729,#827c5a
+SW,Forestwood,SW7730,#4d5346
+SW,San Antonio Sage,SW7731,#a69474
+SW,Lemongrass,SW7732,#c8bd98
+SW,Bamboo Shoot,SW7733,#b3a479
+SW,Olive Grove,SW7734,#857c5d
+SW,Palm Leaf,SW7735,#635936
+SW,Garden Sage,SW7736,#b1a584
+SW,Meadow Trail,SW7737,#8d8168
+SW,Cargo Pants,SW7738,#cdc4ae
+SW,Herbal Wash,SW7739,#a49b82
+SW,Messenger Bag,SW7740,#7d745e
+SW,Willow Tree,SW7741,#aaad9c
+SW,Agate Green,SW7742,#8ea486
+SW,Mountain Road,SW7743,#868578
+SW,Zeus,SW7744,#99907e
+SW,Muddled Basil,SW7745,#5a5243
+SW,Rushing River,SW7746,#a19c8f
+SW,Recycled Glass,SW7747,#bdc0a0
+SW,Green Earth,SW7748,#9a9883
+SW,Laurel Woods,SW7749,#44493d
+SW,Olympic Range,SW7750,#424c44
+SW,High Reflective White,SW7757,#f7f7f1
+SW,Shell White,SW8917,#f0ebe0
+SW,Audrey's Blush,SW9001,#ae8087
+SW,Carley's Rose,SW9002,#a87376
+SW,Rita's Rouge,SW9003,#ba7176
+SW,Coral Rose,SW9004,#c37f7a
+SW,Coral Clay,SW9005,#bf796e
+SW,Rojo Dust,SW9006,#b57466
+SW,Melón Meloso,SW9007,#f2b88c
+SW,Bellini Fizz,SW9008,#f5c78e
+SW,Subdued Sienna,SW9009,#cc896c
+SW,Windswept Canyon,SW9010,#dba480
+SW,Sun Bleached Ochre,SW9011,#e3ab7b
+SW,Polvo de Oro,SW9012,#e8b87f
+SW,Olden Amber,SW9013,#eeb76b
+SW,Pollen Powder,SW9014,#fbd187
+SW,They call it Mellow,SW9015,#fbe4b3
+SW,La Luna Amarilla,SW9016,#fddfa0
+SW,Sunny Veranda,SW9017,#fedf94
+SW,Honey Bees,SW9018,#fbd682
+SW,Golden Plumeria,SW9019,#fbd073
+SW,Rayo de Sol,SW9020,#f4c454
+SW,Naples Yellow,SW9021,#f6d58f
+SW,Yellow Bird,SW9022,#f1cd7b
+SW,Dakota Wheat,SW9023,#e1bd8e
+SW,Vintage Gold,SW9024,#cba576
+SW,Coriander Powder,SW9025,#ba9c75
+SW,Tarnished Trumpet,SW9026,#d5b176
+SW,Pale Moss,SW9027,#dcc797
+SW,Dusted Olive,SW9028,#bea775
+SW,Cool Avocado,SW9029,#c4b47d
+SW,Limón Fresco,SW9030,#cebc55
+SW,Primavera,SW9031,#d2d083
+SW,Stay in Lime,SW9032,#9fac5c
+SW,Oh Pistachio,SW9033,#abca99
+SW,Seawashed Glass,SW9034,#a9c095
+SW,Frosted Emerald,SW9035,#78b185
+SW,Retro Mint,SW9036,#9fcdb1
+SW,Baby Bok Choy,SW9037,#bbb98a
+SW,Cucuzza Verde,SW9038,#9ba373
+SW,Broccoflower,SW9039,#8fa277
+SW,Reseda Green,SW9040,#75946b
+SW,Parisian Patina,SW9041,#7d9b89
+SW,Verdigreen,SW9042,#81a595
+SW,Aquastone,SW9043,#89c6b7
+SW,Little Blue Box,SW9044,#8ac5ba
+SW,Bora Bora Shore,SW9045,#92d0d0
+SW,Gentle Aquamarine,SW9046,#97cbd2
+SW,After the Rain,SW9047,#8bc4d1
+SW,Surfin',SW9048,#73c0d2
+SW,Sky Fall,SW9049,#89c6df
+SW,Vintage Vessel,SW9050,#94b2a6
+SW,Aquaverde,SW9051,#a3c0bd
+SW,Blithe Blue,SW9052,#90bdbd
+SW,Agua Fría,SW9053,#9fc5cc
+SW,Little Boy Blu,SW9054,#c7d8db
+SW,Billowy Breeze,SW9055,#afc7cd
+SW,French Moire,SW9056,#9fbbc3
+SW,Aquitaine,SW9057,#88abb4
+SW,Secret Cove,SW9058,#68909d
+SW,Silken Peacock,SW9059,#427584
+SW,Connor's Lakefront,SW9060,#175a6c
+SW,Rest Assured,SW9061,#9bbfc9
+SW,Bluebird Feather,SW9062,#6f9db3
+SW,Porch Ceiling,SW9063,#9bc8de
+SW,Bluesy Note,SW9064,#7c9ab5
+SW,Perfect Periwinkle,SW9065,#6487b0
+SW,Agapanthus,SW9066,#bbc5de
+SW,Forever Lilac,SW9067,#afa5c7
+SW,Berry Frappé,SW9068,#b3a1c6
+SW,Veri Berri,SW9069,#937496
+SW,Baby Blue Eyes,SW9070,#83a2b4
+SW,Dyer's Woad,SW9071,#7b99b0
+SW,Dried Lavender,SW9072,#8595aa
+SW,Dusty Heather,SW9073,#8990a3
+SW,Gentle Grape,SW9074,#908a9b
+SW,Berry Cream,SW9075,#9a8ca2
+SW,Ruby Violet,SW9076,#9b7e8b
+SW,Rosaline Pearl,SW9077,#a38887
+SW,Cocoa Berry,SW9078,#a08882
+SW,Velvety Chestnut,SW9079,#a2877d
+SW,Hushed Auburn,SW9080,#a8857a
+SW,Redend Point,SW9081,#ae8e7e
+SW,Chocolate Powder,SW9082,#a58c7b
+SW,Dusted Truffle,SW9083,#9c8373
+SW,Cocoa Whip,SW9084,#a08e7e
+SW,Touch of Sand,SW9085,#d5c7ba
+SW,Cool Beige,SW9086,#c6b5a7
+SW,Smoky Beige,SW9087,#b9a796
+SW,Utaupeia,SW9088,#a58f7b
+SW,Llama Wool,SW9089,#917864
+SW,Caraïbe,SW9090,#785f4c
+SW,Half‐Caff,SW9091,#604c3d
+SW,Iced Mocha,SW9092,#a3846c
+SW,Nearly Brown,SW9093,#a88e76
+SW,Playa Arenosa,SW9094,#dcc7b3
+SW,Ginger Root,SW9095,#d2b79e
+SW,Beige Intenso,SW9096,#c5a88d
+SW,Soft Fawn,SW9097,#b59778
+SW,Baked Cookie,SW9098,#89674a
+SW,Saddle Up,SW9099,#725237
+SW,Umber Rust,SW9100,#765138
+SW,Tres Naturale,SW9101,#dcc7ad
+SW,Quinoa,SW9102,#cfb597
+SW,Farro,SW9103,#c1a485
+SW,Woven Wicker,SW9104,#b99974
+SW,Almond Roca,SW9105,#a78361
+SW,El Caramelo,SW9106,#946e48
+SW,Über Umber,SW9107,#7b5838
+SW,Double Latte,SW9108,#a78c71
+SW,Natural Linen,SW9109,#dfd3c3
+SW,Malabar,SW9110,#cfbea9
+SW,Antler Velvet,SW9111,#c0ad96
+SW,Song Thrush,SW9112,#af987f
+SW,Mudslide,SW9113,#a08568
+SW,Fallen Leaves,SW9114,#8f7659
+SW,Cowboy Boots,SW9115,#695239
+SW,Serengeti Grass,SW9116,#ab9579
+SW,Urban Jungle,SW9117,#a4947e
+SW,Tarnished Treasure,SW9118,#b9a47e
+SW,Dirty Martini,SW9119,#ddd0b6
+SW,Tumblin' Tumbleweed,SW9120,#cdbb9c
+SW,Sawgrass Basket,SW9121,#c3b090
+SW,Dried Edamame,SW9122,#b19f80
+SW,Barro Verde,SW9123,#9f8e71
+SW,Verde Marrón,SW9124,#877459
+SW,Oliva Oscuro,SW9125,#665439
+SW,Honed Soapstone,SW9126,#9d9887
+SW,At Ease Soldier,SW9127,#9e9985
+SW,Green Onyx,SW9128,#989a82
+SW,Jade Dragon,SW9129,#909886
+SW,Evergreen Fog,SW9130,#95978a
+SW,Cornwall Slate,SW9131,#949488
+SW,Acacia Haze,SW9132,#969c92
+SW,Jasper Stone,SW9133,#8d9e97
+SW,Delft,SW9134,#8b9fa0
+SW,Whirlpool,SW9135,#80969d
+SW,Lullaby,SW9136,#cbd4d4
+SW,Niebla Azul,SW9137,#b6c3c4
+SW,Stardew,SW9138,#a6b2b5
+SW,Debonair,SW9139,#90a0a6
+SW,Blustery Sky,SW9140,#6f848c
+SW,Waterloo,SW9141,#536872
+SW,Moscow Midnight,SW9142,#204652
+SW,Cadet,SW9143,#91999c
+SW,Moonmist,SW9144,#c9d9e0
+SW,Sleepy Hollow,SW9145,#b7c9d1
+SW,Faded Flaxflower,SW9146,#9eb4c0
+SW,Favorite Jeans,SW9147,#8aa3b1
+SW,Smoky Azurite,SW9148,#708d9e
+SW,Inky Blue,SW9149,#4e7287
+SW,Endless Sea,SW9150,#32586e
+SW,Daphne,SW9151,#899caa
+SW,Let it Rain,SW9152,#979fa5
+SW,Moonlit Orchid,SW9153,#949194
+SW,Perle Noir,SW9154,#4f4d51
+SW,Slate Violet,SW9155,#989192
+SW,Gris Morado,SW9156,#8f8a91
+SW,Autumn Orchid,SW9157,#9d9093
+SW,Coquina,SW9158,#9d8d8e
+SW,Auger Shell,SW9159,#9f9291
+SW,Armadillo,SW9160,#9e9089
+SW,Dustblu,SW9161,#959ba0
+SW,African Gray,SW9162,#939899
+SW,Tin Lizzie,SW9163,#939591
+SW,Illusive Green,SW9164,#92948d
+SW,Gossamer Veil,SW9165,#d3cec4
+SW,Drift of Mist,SW9166,#dcd8d0
+SW,Polished Concrete,SW9167,#9e9793
+SW,Elephant Ear,SW9168,#988f85
+SW,Chatura Gray,SW9169,#a09287
+SW,Acier,SW9170,#9e9991
+SW,Felted Wool,SW9171,#979083
+SW,Studio Clay,SW9172,#958d7f
+SW,Shiitake,SW9173,#c8bcab
+SW,Moth Wing,SW9174,#a0907f
+SW,Deep Forest Brown,SW9175,#393437
+SW,Dress Blues,SW9176,#2b4360
+SW,Salty Dog,SW9177,#234058
+SW,In the Navy,SW9178,#283849
+SW,Anchors Aweigh,SW9179,#2b3441
+SW,Aged White,SW9180,#e8decd
+SW,Rojo Marrón,SW9182,#4b3029
+SW,Dark Clove,SW9183,#4c3d31
+SW,Foxhall Green,SW9184,#454b40
+SW,Marea Baja,SW9185,#2e5464
+SW,Caramelized,SW9186,#c29871

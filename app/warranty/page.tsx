@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { sql, withDbTimeout } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 
 type WarrantyRow = {
@@ -29,9 +29,9 @@ function fmtDate(iso: string) {
 }
 
 export default async function WarrantyListPage() {
-  const [, items] = await withDbTimeout(() => Promise.all([
-    requireRole(["admin", "pm"]),
-    sql`
+  await requireRole(["admin", "pm"]);
+
+  const items = await sql`
     SELECT w.*, j.client_name, j.job_number
     FROM warranty_items w
     JOIN jobs j ON j.id = w.job_id
@@ -39,8 +39,7 @@ export default async function WarrantyListPage() {
       CASE w.status WHEN 'open' THEN 0 WHEN 'in_progress' THEN 1 ELSE 2 END,
       CASE w.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END,
       w.reported_at DESC
-  ` as Promise<WarrantyRow[]>,
-  ]));
+  ` as WarrantyRow[];
 
   const openCount = items.filter((i) => i.status === "open").length;
   const activeCount = items.filter((i) => i.status === "in_progress").length;

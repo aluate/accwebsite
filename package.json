@@ -21,7 +21,10 @@
     "health": "node scripts/health.mjs",
     "send-test-email": "node scripts/send-test-email.mjs",
     "portal-seed-account": "node scripts/portal-seed-account.mjs",
-    "db:push": "node scripts/db-push.mjs"
+    "db:push": "node scripts/db-push.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "sync-builders": "node scripts/sync-builders.mjs",
+    "sync-paint-colors": "node scripts/sync-paint-colors.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

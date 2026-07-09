@@ -16,7 +16,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: "require", max: 1, prepare: false });
+const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
 async function main() {
   console.log("Pushing schema to Supabase...");
@@ -100,8 +100,11 @@ async function main() {
     CREATE TABLE IF NOT EXISTS room_accessories (
       id TEXT PRIMARY KEY,
       room_id TEXT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-      acc_id TEXT NOT NULL, qty INTEGER NOT NULL DEFAULT 1
+      acc_id TEXT NOT NULL, qty INTEGER NOT NULL DEFAULT 1,
+      notes TEXT
     );
+    -- Add notes column if upgrading from schema without it
+    ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS notes TEXT;
 
     CREATE TABLE IF NOT EXISTS finish_group_materials (
       id TEXT PRIMARY KEY,
@@ -640,6 +643,142 @@ async function main() {
       VALUES (${label}, ${sort_order}, 1)
       ON CONFLICT (label) DO NOTHING
     `;
+  }
+
+
+  // ── PM Dashboard install fields (idempotent) ─────────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_type TEXT`,
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_start_date TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // ── Phase 1 additions (2026-07-02) ───────────────────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS species TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // ── Phase PDF-redesign additions (2026-07-08) ────────────────────────────────
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS rollout_box_id TEXT`,
+    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS type TEXT`,
+    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS size TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_hardware (
+      id          TEXT PRIMARY KEY,
+      spec_id     TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      type        TEXT NOT NULL,
+      part_no     TEXT,
+      room        TEXT,
+      qty         INTEGER NOT NULL DEFAULT 1,
+      notes       TEXT,
+      sort_order  INTEGER NOT NULL DEFAULT 0
+    )
+  `.catch(() => {});
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_spec_hardware_spec ON spec_hardware(spec_id)
+  `.catch(() => {});
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS finish_group_pulls (
+      id              TEXT PRIMARY KEY,
+      finish_group_id TEXT NOT NULL REFERENCES finish_groups(id) ON DELETE CASCADE,
+      description     TEXT NOT NULL,
+      part_no         TEXT,
+      finish_color    TEXT,
+      where_used      TEXT,
+      qty             INTEGER NOT NULL DEFAULT 0,
+      sort_order      INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_fg_pulls_fg ON finish_group_pulls(finish_group_id)
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS room_trim (
+      id          TEXT PRIMARY KEY,
+      room_id     TEXT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+      trim_type   TEXT NOT NULL,
+      size_desc   TEXT,
+      material    TEXT,
+      qty_lf      REAL NOT NULL DEFAULT 0,
+      notes       TEXT,
+      sort_order  INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_room_trim_room ON room_trim(room_id)
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_appliances (
+      id              TEXT PRIMARY KEY,
+      spec_id         TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      appliance_type  TEXT NOT NULL,
+      manufacturer    TEXT,
+      model_no        TEXT,
+      room_id         TEXT REFERENCES rooms(id) ON DELETE SET NULL,
+      notes           TEXT,
+      cutout_w        NUMERIC,
+      cutout_h        NUMERIC,
+      cutout_d        NUMERIC,
+      sort_order      INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`
+      CREATE INDEX IF NOT EXISTS idx_spec_appliances_spec ON spec_appliances(spec_id)
+  `;
+
+  // Add cutout columns to spec_appliances if upgrading existing DB
+  for (const col of ['cutout_w', 'cutout_h', 'cutout_d']) {
+    await sql`ALTER TABLE spec_appliances ADD COLUMN IF NOT EXISTS ${sql(col)} NUMERIC`.catch(() => {});
+  }
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS paint_colors (
+      id          SERIAL PRIMARY KEY,
+      brand       TEXT NOT NULL,
+      name        TEXT NOT NULL,
+      code        TEXT NOT NULL,
+      hex         TEXT,
+      active      BOOLEAN NOT NULL DEFAULT true,
+      UNIQUE(brand, code)
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_paint_colors_brand ON paint_colors(brand)
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_paint_colors_search ON paint_colors USING gin(to_tsvector('english', name || ' ' || code))
+  `;
+
+  // ── 2026-07-09 additions ─────────────────────────────────────────────────────
+  // finish_groups: drawer_style, cabdoor custom options
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS drawer_style_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_edge_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_profile_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // rooms: flooring, ceiling_height, soffit, backsplash (Room C fields)
+  for (const stmt of [
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS flooring TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS ceiling_height TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS soffit TEXT`,
+    `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS backsplash TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
   console.log("Schema push complete.");

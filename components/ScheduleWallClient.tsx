@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import type { Crew, JobEventWithJoins, EventType } from "@/lib/schedule-types";
+import type { Crew, CrewPto, JobEventWithJoins, EventType } from "@/lib/schedule-types";
 import { EVENT_TYPE_LABELS, isoDateOffset, isoWeekStart } from "@/lib/schedule-types";
 import { getHolidaysForYear, type Holiday } from "@/lib/schedule-holidays";
 import { calculateDuration, calculateEndDate, addWorkingDays, HOT_EVENT_TYPES, DEFAULT_DURATION } from "@/lib/schedule-utils";
@@ -16,15 +16,23 @@ type JobMini = {
   client_email: string | null;
 };
 
+// ── Props — only auth/date context; data fetched client-side ─────────────────
+
 export type ScheduleWallProps = {
+  today: string;
+  isAdmin?: boolean;
+};
+
+// Shape returned by GET /api/schedule/data
+type ScheduleData = {
   today: string;
   crews: Crew[];
   forwardEvents: JobEventWithJoins[];
   onDeckEvents: JobEventWithJoins[];
   jobs: JobMini[];
+  ptoRows: (CrewPto & { crew_name: string })[];
   windowStartIso: string;
   windowEndIso: string;
-  isAdmin?: boolean;
 };
 
 // ── Color palette ─────────────────────────────────────────────────────────────
@@ -40,6 +48,20 @@ const CREW_PALETTE = [
 const UNASSIGNED_COLOR = { bg: "rgba(220,38,38,0.22)", bar: "#dc2626", text: "#fca5a5" };
 const HOT_STRIPE = "#f97316"; // thick left-border stripe for service/punch
 
+// Event-type color palette (Karl to refine shades — mechanism in place)
+const EVENT_TYPE_COLOR: Record<string, { bg: string; bar: string; text: string }> = {
+  cab_delivery:      { bg: "rgba(96,165,250,0.22)",  bar: "#60a5fa", text: "#93c5fd" }, // blue — shipping
+  top_delivery:      { bg: "rgba(34,211,238,0.20)",  bar: "#22d3ee", text: "#67e8f9" }, // cyan — tops
+  install:           { bg: "rgba(249,115,22,0.22)",  bar: "#f97316", text: "#fb923c" }, // orange-red — install
+  service:           { bg: "rgba(250,204,21,0.22)",  bar: "#facc15", text: "#fde047" }, // amber — service
+  punch:             { bg: "rgba(251,113,133,0.22)", bar: "#fb7185", text: "#fda4af" }, // rose — punch
+  final_walkthrough: { bg: "rgba(74,222,128,0.22)",  bar: "#4ade80", text: "#86efac" }, // green — final
+  other:             { bg: "rgba(148,163,184,0.18)", bar: "#94a3b8", text: "#cbd5e1" }, // slate — other
+};
+function eventTypeColor(eventType: string) {
+  return EVENT_TYPE_COLOR[eventType] ?? UNASSIGNED_COLOR;
+}
+
 function crewColor(crewId: string | null, crews: Crew[]) {
   if (!crewId) return UNASSIGNED_COLOR;
   const idx = crews.findIndex((c) => c.id === crewId);
@@ -53,6 +75,7 @@ const EVENT_TYPE_ICON: Record<EventType, string> = {
   service:           "🛠️",
   punch:             "✓",
   final_walkthrough: "🏁",
+  other:             "•",
 };
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
@@ -111,22 +134,129 @@ function assignLanes(events: JobEventWithJoins[]): Map<string, number> {
   return laneMap;
 }
 
+// ── Loading skeleton ──────────────────────────────────────────────────────────
+
+function ScheduleSkeleton() {
+  return (
+    <section className="min-h-screen bg-[#0a0a0a] text-white">
+      <header className="px-6 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
+        <div className="h-6 w-24 bg-white/10 rounded animate-pulse" />
+      </header>
+      <div className="hidden md:flex" style={{ minHeight: "calc(100vh - 64px)" }}>
+        <div className="flex-1 p-3 space-y-2">
+          {/* Day-of-week header */}
+          <div className="grid grid-cols-5 gap-px mb-1">
+            {["Mon","Tue","Wed","Thu","Fri"].map((d) => (
+              <div key={d} className="h-5 bg-white/5 rounded animate-pulse" />
+            ))}
+          </div>
+          {/* Week rows */}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-5 gap-px">
+              {Array.from({ length: 5 }).map((_, j) => (
+                <div key={j} className="h-20 bg-white/5 rounded animate-pulse" />
+              ))}
+            </div>
+          ))}
+        </div>
+        <aside className="w-72 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
+          <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-12 bg-white/5 rounded animate-pulse" />
+          ))}
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+// ── Error banner ──────────────────────────────────────────────────────────────
+
+function ScheduleErrorBanner({ onRetry, loading }: { onRetry: () => void; loading: boolean }) {
+  return (
+    <section className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center gap-4">
+      <p className="text-white/50 text-sm font-condensed">
+        Couldn&apos;t load schedule data.
+      </p>
+      <button
+        onClick={onRetry}
+        disabled={loading}
+        className="flex items-center gap-2 bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+      >
+        {loading ? (
+          <>
+            <span className="inline-block w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            Retrying…
+          </>
+        ) : (
+          "Try Again"
+        )}
+      </button>
+    </section>
+  );
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 
-export function ScheduleWallClient(props: ScheduleWallProps) {
-  const { today, crews, jobs, isAdmin = false } = props;
+export function ScheduleWallClient({ today: initialToday, isAdmin = false }: ScheduleWallProps) {
+  // ── Data-fetch state ──────────────────────────────────────────────────────
+  const [data, setData] = useState<ScheduleData | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [fetching, setFetching]   = useState(false);
 
-  const [forwardEvents, setForwardEvents] = useState<JobEventWithJoins[]>(props.forwardEvents);
-  const [onDeckEvents,  setOnDeckEvents]  = useState<JobEventWithJoins[]>(props.onDeckEvents);
+  // TV mode: /schedule?tv=1 — read once on mount
+  const [tvMode] = useState(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
+  );
 
-  // Month navigation: default to the month containing today
-  const [viewMonth, setViewMonth] = useState(() => monthKey(today));
+  const fetchData = useCallback(async () => {
+    setFetching(true);
+    setLoadError(false);
+    try {
+      const res = await fetch("/api/schedule/data");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json() as ScheduleData;
+      setData(json);
+      setForwardEvents(json.forwardEvents);
+      setOnDeckEvents(json.onDeckEvents);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+
+  // Initial fetch + 60-second poll for TV mode
+  useEffect(() => {
+    fetchData();
+    if (tvMode) {
+      const id = setInterval(fetchData, 60_000);
+      return () => clearInterval(id);
+    }
+  }, [fetchData, tvMode]);
+
+  // ── Local mutable event state (optimistic updates for drag/drop) ──────────
+  const [forwardEvents, setForwardEvents] = useState<JobEventWithJoins[]>([]);
+  const [onDeckEvents,  setOnDeckEvents]  = useState<JobEventWithJoins[]>([]);
+
+  // Keep local state in sync whenever a fresh fetch lands
+  // (handled inside fetchData above)
+
+  const today   = data?.today ?? initialToday;
+  const crews   = data?.crews ?? [];
+  const jobs    = data?.jobs  ?? [];
+  const ptoRows = data?.ptoRows ?? [];
+
+  // ── Month navigation: default to the month containing today ───────────────
+  const [viewMonth, setViewMonth] = useState(() => monthKey(initialToday));
   const [jumpValue, setJumpValue] = useState("");
 
   const [showAddForm, setShowAddForm]   = useState(false);
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<JobEventWithJoins | null>(null);
-  const [mobileWeekStart, setMobileWeekStart] = useState<string>(() => isoWeekStart(today));
+  const [selectedEvent,  setSelectedEvent]  = useState<JobEventWithJoins | null>(null);
+  const [editingEvent,   setEditingEvent]   = useState<JobEventWithJoins | null>(null);
+  const [mobileWeekStart, setMobileWeekStart] = useState<string>(() => isoWeekStart(initialToday));
 
   const [draggingId,    setDraggingId]    = useState<string | null>(null);
   const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
@@ -135,11 +265,6 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
     eventId: string; conflicts: JobEventWithJoins[];
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
-
-  // TV mode: /schedule?tv=1 — read once on mount
-  const [tvMode] = useState(() =>
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
-  );
 
   // ── Weeks visible for the current view month ──────────────────────────────
   const weeks: string[][] = useMemo(() => {
@@ -172,6 +297,24 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
     }
     return m;
   }, [visibleStart, visibleEnd]);
+
+  // ── PTO map: date → list of crew PTO entries covering that date ───────────
+  const ptoMap = useMemo<Map<string, (CrewPto & { crew_name: string })[]>>(() => {
+    const m = new Map<string, (CrewPto & { crew_name: string })[]>();
+    for (const p of ptoRows) {
+      let cur = p.date_start;
+      while (cur <= p.date_end) {
+        const list = m.get(cur) ?? [];
+        list.push(p);
+        m.set(cur, list);
+        // advance one day
+        const d = new Date(cur + "T12:00:00Z");
+        d.setUTCDate(d.getUTCDate() + 1);
+        cur = d.toISOString().slice(0, 10);
+      }
+    }
+    return m;
+  }, [ptoRows]);
 
   // ── Lane assignment (global, computed once per event list change) ─────────
   const filteredForward = useMemo(() =>
@@ -304,6 +447,13 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
     }
   }
 
+  // ── Render guards ─────────────────────────────────────────────────────────
+
+  if (!data && fetching) return <ScheduleSkeleton />;
+  if (!data && loadError) return <ScheduleErrorBanner onRetry={fetchData} loading={fetching} />;
+  // Still loading on first mount and not yet errored — show skeleton
+  if (!data) return <ScheduleSkeleton />;
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <section className="min-h-screen bg-[#0a0a0a] text-white">
@@ -413,6 +563,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
             crews={crews}
             splitLabels={splitLabels}
             holidayMap={holidayMap}
+            ptoMap={ptoMap}
             draggingId={draggingId}
             dropTargetKey={dropTargetKey}
             isAdmin={isAdmin && !tvMode}
@@ -443,10 +594,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
             {onDeckEvents.length === 0 ? (
               <p className="text-white/15 text-xs italic">Nothing on deck.</p>
             ) : onDeckEvents.map((ev) => {
-              const isHot = HOT_EVENT_TYPES.has(ev.event_type);
-              const col = isHot
-                ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
-                : crewColor(ev.crew_id, crews);
+              const col = eventTypeColor(ev.event_type);
               const job = jobs.find((j) => j.id === ev.job_id);
               return (
                 <div
@@ -457,12 +605,12 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
                   className={`mb-1.5 rounded px-2 py-1.5 select-none ${isAdmin ? "cursor-grab" : "cursor-default"}`}
                   style={{
                     background: col.bg,
-                    borderLeft: isHot ? `4px solid ${HOT_STRIPE}` : `3px solid ${col.bar}`,
+                    borderLeft: `3px solid ${col.bar}`,
                   }}
                 >
                   <p className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
                     {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
-                    {isHot && <span className="ml-1 text-[#fb923c]">●</span>}
+
                   </p>
                   <p className="text-xs text-white/70 truncate">{job?.client_name ?? ev.job_id}</p>
                   {ev.blocked_on && (
@@ -562,10 +710,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
                 ) : (
                   <div className="px-3 pb-3 space-y-1.5">
                     {dayEvents.map((ev) => {
-                      const isHot = HOT_EVENT_TYPES.has(ev.event_type);
-                      const col = isHot
-                        ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
-                        : crewColor(ev.crew_id, crews);
+                      const col = eventTypeColor(ev.event_type);
                       const job = jobs.find((j) => j.id === ev.job_id);
                       const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
                       return (
@@ -610,10 +755,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
               </p>
               <div className="space-y-1.5">
                 {onDeckEvents.map((ev) => {
-                  const isHot = HOT_EVENT_TYPES.has(ev.event_type);
-                  const col = isHot
-                    ? { bg: "rgba(249,115,22,0.18)", bar: HOT_STRIPE, text: "#fb923c" }
-                    : crewColor(ev.crew_id, crews);
+                  const col = eventTypeColor(ev.event_type);
                   const job = jobs.find((j) => j.id === ev.job_id);
                   return (
                     <button
@@ -694,11 +836,35 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
           }}
         />
       )}
+
+      {/* Edit event form */}
+      {editingEvent && isAdmin && (
+        <AddEventForm
+          mode="edit"
+          initialEvent={editingEvent}
+          crews={crews}
+          jobs={jobs}
+          onClose={() => setEditingEvent(null)}
+          onCreated={() => {}}
+          onUpdated={(ev) => {
+            const update = (prev: JobEventWithJoins[]) =>
+              prev.map((e) => e.id === ev.id ? { ...e, ...ev } : e);
+            setForwardEvents(update);
+            setOnDeckEvents(update);
+            setEditingEvent(null);
+          }}
+          onDeleted={(id) => {
+            setForwardEvents((prev) => prev.filter((e) => e.id !== id));
+            setOnDeckEvents((prev) => prev.filter((e) => e.id !== id));
+            setEditingEvent(null);
+          }}
+        />
+      )}
 {/* ── Job detail modal ─────────────────────────────────────────────── */}
 {selectedEvent && (() => {
   const ev  = selectedEvent;
   const job = jobs.find((j) => j.id === ev.job_id);
-  const col = crewColor(ev.crew_id, crews);
+  const col = eventTypeColor(ev.event_type);
   const address = [job?.site_address, job?.city].filter(Boolean).join(", ");
   return (
     <div
@@ -782,6 +948,32 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
               )}
             </div>
           )}
+          {isAdmin && (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => { setEditingEvent(ev); setSelectedEvent(null); }}
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white font-condensed uppercase tracking-widest text-xs py-2.5 rounded-lg transition-colors"
+              >
+                ✏ Edit
+              </button>
+              <button
+                onClick={async () => {
+                  if (!confirm(`Delete this event? This cannot be undone.`)) return;
+                  const r = await fetch(`/api/schedule/events/${ev.id}`, { method: "DELETE" });
+                  if (r.ok) {
+                    setForwardEvents((prev) => prev.filter((e) => e.id !== ev.id));
+                    setOnDeckEvents((prev) => prev.filter((e) => e.id !== ev.id));
+                    setSelectedEvent(null);
+                  } else {
+                    alert("Delete failed — check console.");
+                  }
+                }}
+                className="flex items-center justify-center gap-1.5 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-condensed uppercase tracking-widest text-xs py-2.5 rounded-lg transition-colors"
+              >
+                🗑 Delete
+              </button>
+            </div>
+          )}
           <a
             href={`/jobs/${ev.job_id}`}
             className="flex items-center justify-center gap-2 w-full bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-3 rounded-lg transition-colors"
@@ -823,6 +1015,7 @@ type SpanningCalendarProps = {
   crews: Crew[];
   splitLabels: Map<string, string>;
   holidayMap: Map<string, string>;
+  ptoMap: Map<string, (CrewPto & { crew_name: string })[]>;
   draggingId: string | null;
   dropTargetKey: string | null;
   isAdmin: boolean;
@@ -834,7 +1027,7 @@ type SpanningCalendarProps = {
 };
 
 function SpanningCalendar({
-  weeks, today, events, laneMap, crews, splitLabels, holidayMap,
+  weeks, today, events, laneMap, crews, splitLabels, holidayMap, ptoMap,
   draggingId, dropTargetKey, isAdmin,
   onDragStart, onDragEnd, onDragOverCell, onDrop, onEventClick,
 }: SpanningCalendarProps) {
@@ -845,9 +1038,9 @@ function SpanningCalendar({
     return max + 1;
   }, [laneMap]);
 
-  const ROW_HEADER_H = 24;
-  const LANE_H       = 22;
-  const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 8;
+  const ROW_HEADER_H = 36;
+  const LANE_H       = 26;
+  const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
 
   // Compute bar segments per week row
   const segmentsByWeek = useMemo<BarSegment[][]>(() =>
@@ -903,6 +1096,7 @@ function SpanningCalendar({
             {week.map((iso) => {
               const isToday     = iso === today;
               const holiday     = holidayMap.get(iso);
+              const ptoDayList  = ptoMap.get(iso) ?? [];
               const isDropTarget = dropTargetKey === iso;
               return (
                 <div
@@ -916,7 +1110,7 @@ function SpanningCalendar({
                   }`}
                   style={{ minHeight: CELL_MIN_H }}
                   onDragOver={(e) => { if (draggingId) { e.preventDefault(); onDragOverCell(iso); } }}
-                  onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
+                      onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
                 >
                   <div className="flex items-baseline gap-1 px-1 pt-0.5" style={{ height: ROW_HEADER_H }}>
                     <span className={`text-[10px] font-condensed ${isToday ? "text-[#f08122]" : "text-white/20"}`}>
@@ -924,29 +1118,40 @@ function SpanningCalendar({
                     </span>
                     {holiday && (
                       <span
-                        className="text-[8px] text-yellow-400/40 truncate"
+                        className="text-[9px] font-condensed bg-yellow-400/15 text-yellow-300/80 rounded px-1 truncate max-w-[90px]"
                         title={holiday}
                       >
-                        {holiday.length > 7 ? holiday.slice(0, 6) + "…" : holiday}
+                        {holiday}
                       </span>
                     )}
+                  {ptoDayList.map((p) => {
+                    const crewIdx = crews.findIndex((c) => c.id === p.crew_id);
+                    const crewCol = crewIdx === -1 ? UNASSIGNED_COLOR : CREW_PALETTE[crewIdx % CREW_PALETTE.length];
+                    return (
+                      <div
+                        key={p.id}
+                        className="mx-1 mb-0.5 rounded px-1.5 py-0.5 text-[8px] font-condensed uppercase tracking-widest truncate"
+                        style={{ background: crewCol.bg, color: crewCol.text, borderLeft: `2px solid ${crewCol.bar}` }}
+                        title={`PTO: ${p.crew_name}${p.note ? ` - ${p.note}` : ""}`}
+                      >
+                        {p.crew_name}
+                      </div>
+                    );
+                  })}
                   </div>
                 </div>
               );
             })}
 
-            {/* ── Event bars (absolute positioned over the grid cells) ── */}
+            {/* Event bars (absolute positioned over the grid cells) */}
             {segments.map((seg) => {
               const ev = events.find((e) => e.id === seg.eventId);
               if (!ev) return null;
-              const lane   = laneMap.get(ev.id) ?? 0;
-              const isHot  = HOT_EVENT_TYPES.has(ev.event_type);
-              const col    = isHot
-                ? { bg: "rgba(249,115,22,0.22)", bar: HOT_STRIPE, text: "#fb923c" }
-                : crewColor(ev.crew_id, crews);
+              const lane        = laneMap.get(ev.id) ?? 0;
+              const col         = eventTypeColor(ev.event_type);
               const colSpan     = seg.colEnd - seg.colStart + 1;
-              const split        = splitLabels.get(ev.id);
-              const clientLabel  = ev.job_client_name ?? ev.job_id;
+              const split       = splitLabels.get(ev.id);
+              const clientLabel = ev.job_client_name ?? ev.job_id;
 
               return (
                 <div
@@ -964,7 +1169,7 @@ function SpanningCalendar({
                     width:      `calc(${colSpan} / 5 * 100% - 3px)`,
                     height:     LANE_H - 3,
                     background: col.bg,
-                    borderLeft: `${isHot ? 5 : 3}px solid ${col.bar}`,
+                    borderLeft: `3px solid ${col.bar}`,
                     borderRadius: seg.isContinuation
                       ? "0 3px 3px 0"
                       : seg.continuesNext
@@ -975,23 +1180,26 @@ function SpanningCalendar({
                     paddingRight: seg.continuesNext ? 2 : 4,
                     zIndex:       10 + lane,
                   }}
-                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` — ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
+                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
                 >
                   {seg.isContinuation && (
-                    <span className="mr-0.5 opacity-40 text-[8px]">‹</span>
+                    <span className="mr-0.5 opacity-40 text-[8px]">&#8249;</span>
                   )}
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
                     {!seg.isContinuation && clientLabel}
+                    {!seg.isContinuation && ev.crew_name && (
+                      <span className="opacity-60"> &middot; {ev.crew_name}</span>
+                    )}
                     {!seg.isContinuation && ev.description && (
-                      <span className="opacity-55"> — {ev.description}</span>
+                      <span className="opacity-55"> &mdash; {ev.description}</span>
                     )}
                     {split && (
                       <span className="opacity-45"> [{split}]</span>
                     )}
                   </span>
                   {seg.continuesNext && (
-                    <span className="ml-auto shrink-0 opacity-40 text-[8px] pl-0.5">›</span>
+                    <span className="ml-auto shrink-0 opacity-40 text-[8px] pl-0.5">&#8250;</span>
                   )}
                 </div>
               );

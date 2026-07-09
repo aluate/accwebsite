@@ -12,6 +12,7 @@ import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
 import { GateCheckinButton } from "@/components/GateCheckinButton";
 import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
+import { JobInlineEditClient } from "@/components/JobInlineEditClient";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -245,7 +246,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <div className="flex flex-wrap items-center gap-2">
             {job.builder_name && (
               <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
-                Express
+                SPEC
               </span>
             )}
             <span className={"text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 " + (STATUS_COLOR[job.status] ?? STATUS_COLOR.intake)}>
@@ -270,7 +271,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <div className="flex items-center gap-2">
             {job.builder_name && (
               <span className="text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 text-[#f08122] bg-[#f08122]/15 border border-[#f08122]/20">
-                Express
+                SPEC
               </span>
             )}
             <span className={"text-xs font-condensed uppercase tracking-widest rounded px-3 py-1 " + (STATUS_COLOR[job.status] ?? STATUS_COLOR.intake)}>
@@ -307,29 +308,24 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       <div className="grid md:grid-cols-3 gap-8">
 
         <div className="md:col-span-1 space-y-6">
-          <DetailCard title="Client">
-            <Row label="Email"   value={job.client_email} href={"mailto:" + job.client_email} />
-            <Row label="Phone"   value={job.client_phone} href={"tel:" + job.client_phone} />
-            <Row label="Address" value={job.site_address} />
-          </DetailCard>
-
-          <DetailCard title="Project Manager">
-            <Row label="PM" value={job.pm || "—"} />
-          </DetailCard>
-
-          <DetailCard title="Builder">
-            <Row label="Name"    value={job.builder_name} />
-            <Row label="Company" value={job.builder_company} />
-            <Row label="Email"   value={job.builder_email} href={"mailto:" + job.builder_email} />
-            <Row label="Phone"   value={job.builder_phone} href={"tel:" + job.builder_phone} />
-          </DetailCard>
-
-          {(job.delivery_date || job.notes) && (
-            <DetailCard title="Notes">
-              <Row label="Delivery" value={job.delivery_date} />
-              {job.notes && <p className="text-white/60 text-sm leading-relaxed mt-2">{job.notes}</p>}
-            </DetailCard>
-          )}
+          <JobInlineEditClient
+            jobId={internalId}
+            initialValues={{
+              client_name:    job.client_name,
+              client_email:   job.client_email,
+              client_phone:   job.client_phone,
+              site_address:   job.site_address,
+              city:           job.city,
+              pm:             job.pm,
+              job_number:     job.job_number,
+              builder_name:   job.builder_name,
+              builder_company: job.builder_company,
+              builder_email:  job.builder_email,
+              builder_phone:  job.builder_phone,
+              delivery_date:  job.delivery_date,
+              notes:          job.notes,
+            }}
+          />
         </div>
 
         <div className="md:col-span-2 space-y-4">

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { sql, withDbTimeout } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 
 type PunchRow = {
@@ -144,13 +144,11 @@ export default async function PunchPage({
 }: {
   searchParams: Promise<{ filter?: string }>;
 }) {
+  await requireRole(["admin", "pm", "engineer"]);
   const sp = await searchParams;
   const filter = sp.filter === "done" ? "done" : sp.filter === "all" ? "all" : "open";
 
-  const [, rows] = await withDbTimeout(() => Promise.all([
-    requireRole(["admin", "pm", "engineer"]),
-    fetchPunchItems(filter),
-  ]));
+  const rows = await fetchPunchItems(filter);
   const groups = groupByJob(rows);
   const totalOpen = rows.filter(r => r.status === "open").length;
   const totalDone = rows.filter(r => r.status === "done").length;

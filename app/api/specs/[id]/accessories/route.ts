@@ -1,130 +1,153 @@
 export const dynamic = "force-dynamic";
 
+/**
+ * Accessories API — pulls + RevAShelf/hardware accessory items.
+ *
+ *   GET  /api/specs/{specId}/accessories  → { pulls: [...], accessories: [...] }
+ *   POST /api/specs/{specId}/accessories  → wipe-and-reinsert both tables
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 
-// ── Ensure tables exist (idempotent, runs on every request) ─────────────────
-
-async function ensureTables() {
-  await sql`CREATE TABLE IF NOT EXISTS spec_pulls (
-    id          TEXT PRIMARY KEY,
-    spec_id     TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
-    make        TEXT,
-    model       TEXT,
-    size        TEXT,
-    room        TEXT,
-    notes       TEXT,
-    qty         INTEGER NOT NULL DEFAULT 1,
-    sort_order  INTEGER NOT NULL DEFAULT 0,
-    created_at  TIMESTAMPTZ DEFAULT NOW()
-  )`;
-  await sql`CREATE TABLE IF NOT EXISTS spec_accessories (
-    id          TEXT PRIMARY KEY,
-    spec_id     TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
-    part_number TEXT,
-    description TEXT,
-    qty         INTEGER NOT NULL DEFAULT 1,
-    handed      TEXT NOT NULL DEFAULT 'N/A',
-    room        TEXT,
-    notes       TEXT,
-    sort_order  INTEGER NOT NULL DEFAULT 0,
-    created_at  TIMESTAMPTZ DEFAULT NOW()
-  )`;
-}
-
-// ── Types ───────────────────────────────────────────────────────────────────
-
+// ── Payload types ──────────────────────────────────────────────────────────
 type PullPayload = {
-  id: string;
-  make: string;
-  model: string;
-  size: string;
-  room: string;
-  notes: string;
+  make: string | null;
+  model: string | null;
+  size: string | null;
+  room: string | null;
+  notes: string | null;
   qty: number;
 };
 
 type AccessoryPayload = {
-  id: string;
-  part_number: string;
-  description: string;
+  type: string | null;
+  part_number: string | null;
+  description: string | null;
   qty: number;
-  handed: "N/A" | "Left" | "Right";
-  room: string;
-  notes: string;
+  handed: string;
+  room: string | null;
+  size: string | null;
+  notes: string | null;
 };
 
-// ── GET ─────────────────────────────────────────────────────────────────────
+type PostBody = {
+  pulls: PullPayload[];
+  accessories: AccessoryPayload[];
+};
 
+// Ensure tables exist — idempotent, CREATE TABLE IF NOT EXISTS is safe on every call.
+// This approach avoids a separate migration step; tables are created on first use.
+async function ensureTables() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_pulls (
+      id TEXT PRIMARY KEY,
+      spec_id TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      make TEXT,
+      model TEXT,
+      size TEXT,
+      room TEXT,
+      notes TEXT,
+      qty INTEGER NOT NULL DEFAULT 1,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_accessories (
+      id TEXT PRIMARY KEY,
+      spec_id TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      part_number TEXT,
+      description TEXT,
+      qty INTEGER NOT NULL DEFAULT 1,
+      handed TEXT NOT NULL DEFAULT 'N/A',
+      room TEXT,
+      notes TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+}
+
+// ── GET ────────────────────────────────────────────────────────────────────
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: specId } = await params;
+  const [spec] = await sql`SELECT id FROM residential_specs WHERE id = ${specId}`;
+  if (!spec) return NextResponse.json({ error: "Spec not found" }, { status: 404 });
+
   await ensureTables();
-  const pulls = await sql`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`;
-  const accessories = await sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`;
+
+  const [pulls, accessories] = await Promise.all([
+    sql`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`,
+    sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`,
+  ]);
+
   return NextResponse.json({ pulls, accessories });
 }
 
-// ── POST ────────────────────────────────────────────────────────────────────
-
+// ── POST ───────────────────────────────────────────────────────────────────
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: specId } = await params;
+  const [spec] = await sql`
+    SELECT id, job_id FROM residential_specs WHERE id = ${specId}
+  ` as Array<{ id: string; job_id: string }>;
+  if (!spec) return NextResponse.json({ error: "Spec not found" }, { status: 404 });
+
   await ensureTables();
 
-  let body: { pulls: PullPayload[]; accessories: AccessoryPayload[] };
+  const body = await req.json() as PostBody;
+  const { pulls = [], accessories = [] } = body;
+
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    await sql.begin(async (tx) => {
+      // Wipe existing rows for this spec
+      await tx`DELETE FROM spec_pulls WHERE spec_id = ${specId}`;
+      await tx`DELETE FROM spec_accessories WHERE spec_id = ${specId}`;
+
+      // Insert pulls
+      for (let i = 0; i < pulls.length; i++) {
+        const p = pulls[i];
+        await tx`
+          INSERT INTO spec_pulls (id, spec_id, make, model, size, room, notes, qty, sort_order)
+          VALUES (
+            ${uid()}, ${specId},
+            ${p.make ?? null}, ${p.model ?? null}, ${p.size ?? null},
+            ${p.room ?? null}, ${p.notes ?? null},
+            ${p.qty ?? 1}, ${i}
+          )
+        `;
+      }
+
+      // Insert accessories
+      for (let i = 0; i < accessories.length; i++) {
+        const a = accessories[i];
+        await tx`
+          INSERT INTO spec_accessories (id, spec_id, type, part_number, description, qty, handed, room, size, notes, sort_order)
+          VALUES (
+            ${uid()}, ${specId},
+            ${a.type ?? null}, ${a.part_number ?? null}, ${a.description ?? null},
+            ${a.qty ?? 1}, ${a.handed ?? "N/A"},
+            ${a.room ?? null}, ${a.size ?? null}, ${a.notes ?? null},
+            ${i}
+          )
+        `;
+      }
+    });
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
   }
 
-  const { pulls, accessories } = body;
-
-  await sql.begin(async (tx) => {
-    await tx`DELETE FROM spec_pulls WHERE spec_id = ${specId}`;
-    await tx`DELETE FROM spec_accessories WHERE spec_id = ${specId}`;
-
-    for (let i = 0; i < pulls.length; i++) {
-      const p = pulls[i];
-      await tx`INSERT INTO spec_pulls
-        (id, spec_id, make, model, size, room, notes, qty, sort_order)
-        VALUES (
-          ${uid()}, ${specId},
-          ${p.make || null}, ${p.model || null}, ${p.size || null},
-          ${p.room || null}, ${p.notes || null},
-          ${p.qty ?? 1}, ${i}
-        )`;
-    }
-
-    for (let i = 0; i < accessories.length; i++) {
-      const a = accessories[i];
-      await tx`INSERT INTO spec_accessories
-        (id, spec_id, part_number, description, qty, handed, room, notes, sort_order)
-        VALUES (
-          ${uid()}, ${specId},
-          ${a.part_number || null}, ${a.description || null},
-          ${a.qty ?? 1}, ${a.handed ?? "N/A"},
-          ${a.room || null}, ${a.notes || null}, ${i}
-        )`;
-    }
-  });
-
-  // Log activity (best-effort — don't fail the save if this errors)
-  try {
-    const specRows = await sql`SELECT job_id FROM residential_specs WHERE id = ${specId} LIMIT 1`;
-    const jobId = specRows[0]?.job_id ?? null;
-    await logActivity({
-      entityType: "spec", entityId: specId, jobId,
-      eventType: "updated", actor: "pm", actorRole: "pm",
-      payload: { pulls: pulls.length, accessories: accessories.length },
-    });
-  } catch { /* non-fatal */ }
+  await logActivity({
+    entityType: "spec", entityId: specId, jobId: spec.job_id,
+    eventType: "updated", actor: "pm", actorRole: "pm",
+    payload: { section: "accessories", pulls: pulls.length, accessories: accessories.length },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

@@ -1,5 +1,55 @@
 [
   {
+    "id": "STN-ACC-BELLINI",
+    "brand": "ACC",
+    "code": "BELLINI",
+    "name": "Bellini",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "ACC in-house stain — warm peach/amber tone on alder and oak",
+    "placeholder": false
+  },
+  {
+    "id": "STN-ACC-GIMLET",
+    "brand": "ACC",
+    "code": "GIMLET",
+    "name": "Gimlet",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "ACC in-house stain — used on RC White Oak veneer (Bush Legacy)",
+    "placeholder": false
+  },
+  {
+    "id": "STN-ACC-AMARETTO",
+    "brand": "ACC",
+    "code": "AMARETTO",
+    "name": "Amaretto",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "ACC in-house stain — warm amber (Bissell showroom reference)",
+    "placeholder": false
+  },
+  {
+    "id": "STN-ACC-MANHATTAN",
+    "brand": "ACC",
+    "code": "MANHATTAN",
+    "name": "Manhattan",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "ACC in-house stain — dark warm brown, classic wood tone",
+    "placeholder": false
+  },
+  {
+    "id": "STN-ACC-PENDING",
+    "brand": "ACC",
+    "code": null,
+    "name": "ACC In-House (other — Karl to add)",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "Placeholder for remaining cocktail-name stains not yet listed",
+    "placeholder": true
+  },
+  {
     "id": "STN-ML-PLACEHOLDER",
     "brand": "ML",
     "code": null,
@@ -7,36 +57,6 @@
     "is_in_house_mix": false,
     "is_custom_match": false,
     "notes": "Need ML Campbell stain catalog",
-    "placeholder": true
-  },
-  {
-    "id": "STN-ACC-PLACEHOLDER-1",
-    "brand": "ACC",
-    "code": "ACC-01",
-    "name": "ACC In-House Mix #1 (Karl to fill)",
-    "is_in_house_mix": true,
-    "is_custom_match": false,
-    "notes": "One of the ~10 ACC named in-house mixes — Karl to provide list",
-    "placeholder": true
-  },
-  {
-    "id": "STN-ACC-PLACEHOLDER-2",
-    "brand": "ACC",
-    "code": "ACC-02",
-    "name": "ACC In-House Mix #2 (Karl to fill)",
-    "is_in_house_mix": true,
-    "is_custom_match": false,
-    "notes": "One of the ~10 ACC named in-house mixes — Karl to provide list",
-    "placeholder": true
-  },
-  {
-    "id": "STN-ACC-PLACEHOLDER-3",
-    "brand": "ACC",
-    "code": "ACC-03",
-    "name": "ACC In-House Mix #3 (Karl to fill)",
-    "is_in_house_mix": true,
-    "is_custom_match": false,
-    "notes": "One of the ~10 ACC named in-house mixes — Karl to provide list",
     "placeholder": true
   },
   {

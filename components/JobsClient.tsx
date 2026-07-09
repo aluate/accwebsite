@@ -140,7 +140,7 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
+          className="bg-[#1c1c1c] border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
         >
           <option value="all">All Phases</option>
           {STATUSES.map((s) => (
@@ -150,7 +150,7 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
         <select
           value={pmFilter}
           onChange={(e) => setPmFilter(e.target.value)}
-          className="bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
+          className="bg-[#1c1c1c] border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
         >
           <option value="all">All PMs</option>
           {pms.map((pm) => (
@@ -161,7 +161,7 @@ function AllJobsTab({ jobs }: { jobs: Job[] }) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortKey)}
-          className="bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
+          className="bg-[#1c1c1c] border border-white/15 rounded px-3 py-2 text-white text-sm font-condensed uppercase tracking-wide focus:outline-none focus:border-[#f08122]/60 cursor-pointer"
         >
           <option value="newest">Newest First</option>
           <option value="oldest">Oldest First</option>
@@ -447,5 +447,5 @@ export function JobsClient({
         : <PipelineTab jobs={pipelineJobs} />
       }
     </>
-  );
+   );
 }

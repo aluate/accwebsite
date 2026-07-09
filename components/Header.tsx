@@ -26,10 +26,11 @@ const PUBLIC_NAV = [
 const INTERNAL_NAV = [
   { label: "Jobs", href: "/jobs" },
   { label: "Schedule", href: "/schedule" },
+  { label: "PM Dashboard", href: "/pm-dashboard" },
   { label: "Engineering", href: "/engineer" },
 ];
 
-const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password", "/search", "/punch", "/warranty", "/dashboard"];
+const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password", "/pm-dashboard"];
 
 export function Header() {
   const pathname = usePathname();
@@ -68,7 +69,6 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  prefetch={false}
                   className={cn(
                     "px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide transition-colors",
                     pathname === item.href || pathname.startsWith(item.href + "/")
@@ -106,7 +106,6 @@ export function Header() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      prefetch={false}
                       onClick={() => setOpen(false)}
                       className={cn(
                         "px-3 py-2.5 text-sm font-condensed uppercase tracking-wide",

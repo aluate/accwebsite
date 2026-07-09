@@ -5,12 +5,10 @@
  * Connection string comes from DATABASE_URL env var.
  *
  * Exports:
- *   sql        — tagged template function for all queries
- *   uid()      — random hex ID generator
- *   nextJobId() — async, atomically increments seq table, returns ACC-YYYY-NNNN
- *   withDbTimeout() — wraps a sql factory fn with AbortSignal so the query is
- *                     actually cancelled when the deadline fires (not just raced
- *                     past), freeing the PgBouncer slot immediately.
+ *   sql            — tagged template function for all queries
+ *   uid()          — random hex ID generator
+ *   nextJobId()    — async, atomically increments seq table, returns ACC-YYYY-NNNN
+ *   withDbTimeout() — race a DB call against a timeout to avoid Lambda hangs
  */
 import postgres from "postgres";
 import { randomBytes } from "crypto";
@@ -21,23 +19,17 @@ function createSql() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
-    ssl: "require",
+    ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
     // max: 3 — Supabase Pro gives 25 dedicated pooler connections.
-    // Each Vercel Lambda is its own process. max:3 lets Promise.all run
-    // page queries in parallel instead of serializing them (schedule page
-    // runs 5 concurrent queries; serial through max:1 takes 8–12s total).
-    // 8 users × 3 max = 24 connections — just within Pro plan limits,
-    // and idle_timeout:2 keeps actual hold time short.
+    // Each Vercel Lambda is its own process with its own pool.
+    // max: 3 lets Promise.all run 3 queries in parallel (schedule page
+    // runs 5 concurrent queries; serial through max: 1 takes 8–12s total).
     max: 3,
     // idle_timeout: 2 — release connections to PgBouncer quickly after use,
-    // so other Lambda invocations can acquire them.
+    // so other Lambda invocations can acquire them. 20s idle keeps connections
+    // tied up unnecessarily across requests.
     idle_timeout: 2,
-    // connect_timeout covers only the TCP socket handshake to PgBouncer.
-    // It does NOT cover PgBouncer's internal queue wait (when all pool slots
-    // are taken, PgBouncer accepts the TCP conn but holds the query in a queue
-    // without sending any bytes back). Use withDbTimeout() for end-to-end
-    // deadline on individual page/route queries.
-    connect_timeout: 10,
+    connect_timeout: 10,  // fail fast if PgBouncer pool is exhausted
     // Required for PgBouncer transaction-mode pooling (Supabase Shared Pooler).
     // Prepared statements are stateful and incompatible with transaction poolers.
     prepare: false,
@@ -47,13 +39,24 @@ function createSql() {
   });
 }
 
-let _sql: ReturnType<typeof postgres> | null = null;
-function getSql() {
-  if (!_sql) _sql = createSql();
-  return _sql;
+// In dev, Next.js hot-reloads modules on every file save — re-running this
+// module creates a new postgres client and abandons the old one without closing
+// it. Over a testing session with many reloads the leaked connections pile up
+// until Supabase hits its limit and starts rejecting new ones.
+//
+// Fix: stash the client on `global` so it survives HMR cycles. In production
+// (Vercel Lambdas) each process is fresh anyway, so this has no effect there.
+declare global {
+  // eslint-disable-next-line no-var
+  var __pgClient: ReturnType<typeof postgres> | undefined;
 }
 
-// Proxy so existing `sql\`...\`` call sites work unchanged.
+function getSql() {
+  if (!global.__pgClient) global.__pgClient = createSql();
+  return global.__pgClient;
+}
+
+// Proxy so existing `sql` tagged-template call sites work unchanged.
 const sql = new Proxy(getSql as unknown as ReturnType<typeof postgres>, {
   get(_t, prop) {
     const s = getSql();
@@ -111,13 +114,37 @@ export function uid(): string {
   return randomBytes(8).toString("hex");
 }
 
+/**
+ * withDbTimeout — wraps a DB operation in a race against a timeout.
+ * Prevents Vercel Lambda from hanging silently until the 10s hard kill.
+ * Default: 12 seconds (leaves headroom for the Lambda to return a proper error;
+ * raised from 8s to accommodate schedule page with 5 parallel queries).
+ */
+export async function withDbTimeout<T>(
+  fn: () => Promise<T>,
+  ms = 12000
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`DB query timed out after ${ms}ms`)),
+      ms
+    );
+  });
+  try {
+    return await Promise.race([fn(), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function nextJobId(): Promise<{ id: string; seq: number }> {
   const [row] = await sql`
     UPDATE seq SET val = val + 1 WHERE id = 1 RETURNING val
   `;
   const seq = row.val as number;
   const year = new Date().getFullYear();
-  return {
+    return {
     id: `ACC-${year}-${String(seq).padStart(4, "0")}`,
     seq,
   };

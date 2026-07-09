@@ -1,38 +1,52 @@
 [
   {
     "id": "CAR-001",
-    "name": "Hardrock Maple PB",
+    "name": "Hardrock Maple Melamine",
     "material_class": "particleboard",
     "species": "maple",
     "prefinish": "prefinished",
-    "notes": "Standard ACC carcass for melamine-fronted jobs",
+    "supplier_code": "HARDROCK MAPLE MEL",
+    "notes": "Standard ACC carcass for melamine-fronted jobs. Drawing label: HARDROCK MAPLE MEL. Must be called out with supplier code — ambiguous \"Plywood Box\" language caused $70k error on Spivey job.",
     "is_other": false
   },
   {
     "id": "CAR-002",
-    "name": "Prefinished Plywood — Maple",
+    "name": "Prefinished Maple Plywood",
     "material_class": "plywood",
     "species": "maple",
     "prefinish": "prefinished",
-    "notes": "Default plywood option — specify when paint/stain doors are upgraded to ply box",
+    "supplier_code": "PF MAPLE PLY",
+    "notes": "Premium plywood box — used when paint/stain doors are upgraded. Drawing label: PF Maple Ply or PREFIN. MAPLE PLYWOOD. Must specify SKU — see CAR-001 incident note.",
     "is_other": false
   },
   {
     "id": "CAR-003",
-    "name": "Prefinished Plywood — Birch",
+    "name": "Prefinished Maple Plywood — Mel Ply Variant",
     "material_class": "plywood",
-    "species": "birch",
-    "prefinish": "prefinished",
-    "notes": "Cheaper plywood alt — preserves option when maple ply is unavailable or over budget",
+    "species": "maple",
+    "prefinish": "melamine_coated",
+    "supplier_code": "MAPLE MEL PLY",
+    "notes": "Melamine-coated plywood box. Drawing label: Maple Mel Ply (Spivey). Same substrate as CAR-002 but melamine face instead of raw prefinish. Confirm SKU with purchasing.",
     "is_other": false
   },
   {
     "id": "CAR-004",
-    "name": "White PB",
+    "name": "Prefinished Birch Plywood",
+    "material_class": "plywood",
+    "species": "birch",
+    "prefinish": "prefinished",
+    "supplier_code": "PF BIRCH PLY",
+    "notes": "Cheaper plywood alt — use when maple ply is unavailable or over budget",
+    "is_other": false
+  },
+  {
+    "id": "CAR-005",
+    "name": "White Particleboard",
     "material_class": "particleboard",
     "species": "n/a",
     "prefinish": "white_melamine",
-    "notes": "Rare — only when the customer specifically asks for it",
+    "supplier_code": "WHITE PB",
+    "notes": "Rare — only when customer specifically asks",
     "is_other": false
   },
   {
@@ -41,6 +55,7 @@
     "material_class": "other",
     "species": null,
     "prefinish": null,
+    "supplier_code": null,
     "notes": "Escape hatch — PM must enter material in the per-finish notes field",
     "is_other": true
   }

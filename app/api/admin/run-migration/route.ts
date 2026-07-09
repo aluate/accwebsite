@@ -1,5 +1,7 @@
 /**
- * ONE-TIME migration endpoint — seeds karlv test accounts and creates engineering tables.
+ * ONE-TIME migration endpoint — DELETE THIS FILE after running.
+ * - Seeds karlv test accounts (all roles, password = bcrypt("1234"))
+ * - Creates engineering_release_checklists and engineering_releases tables.
  * Admin password required in body: { secret: "..." }
  */
 import { NextRequest, NextResponse } from "next/server";
@@ -77,6 +79,16 @@ export async function POST(req: NextRequest) {
     results.push("✓ engineering_releases");
   } catch (e) {
     results.push("✗ engineering_releases: " + String(e));
+  }
+
+  try {
+    await sql`
+      CREATE INDEX IF NOT EXISTS engineering_releases_job_id_idx
+        ON engineering_releases (job_id, released_at DESC)
+    `;
+    results.push("✓ index on engineering_releases");
+  } catch (e) {
+    results.push("✗ index: " + String(e));
   }
 
   return NextResponse.json({ ok: true, results });

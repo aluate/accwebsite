@@ -29,17 +29,25 @@ function buildAccessoriesData(pullsRaw: PullDbRow[], accsRaw: AccDbRow[]): Acces
   };
 }
 type FGRow      = {
-  id: string; label: string; finish_type: "paint"|"stain"|"melamine";
+  id: string; label: string; finish_type: "paint"|"stain"|"melamine"|"plam"|"";
   color_id: string; color_name: string;
-  door_style_id: string; pull_id: string;
+  door_style_id: string; drawer_style_id: string | null; pull_id: string;
+  cabdoor_edge_id: string | null; cabdoor_profile_id: string | null; cabdoor_panel_id: string | null;
   box_material: "melamine"|"plywood";
-  carcass_id: string | null; drawer_box_id: string | null; edgeband_id: string | null;
+  carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null;
   applied_panels: "slab" | "match_door" | null;
+  species: string | null;
   notes: string; sort_order: number;
 };
+
+type FGPullRow  = { id: string; finish_group_id: string; description: string; part_no: string | null; finish_color: string | null; where_used: string | null; qty: number; sort_order: number };
+type RoomTrimRow = { id: string; room_id: string; trim_type: string; size_desc: string | null; material: string | null; qty_lf: number; notes: string | null; sort_order: number };
+type SpecApplianceRow = { id: string; spec_id: string; appliance_type: string; manufacturer: string | null; model_no: string | null; room_id: string | null; notes: string | null; cutout_w: number | null; cutout_h: number | null; cutout_d: number | null; sort_order: number };
+type SpecAccessoryRow2 = { id: string; spec_id: string; type: string | null; part_number: string | null; description: string | null; qty: number; room: string | null; size: string | null; notes: string | null; sort_order: number };
+type SpecHardwareRow = { id: string; spec_id: string; type: string; part_no: string | null; room: string | null; qty: number; notes: string | null; sort_order: number };
 type RoomRow    = { id: string; name: string; finish_group_id: string; notes: string; sort_order: number };
 type RoomFinishRow = { id: string; room_id: string; finish_group_id: string; zone: string | null; sort_order: number };
-type AccRow     = { id: string; room_id: string; acc_id: string; qty: number };
+type AccRow     = { id: string; room_id: string; acc_id: string; qty: number; notes: string | null };
 type CabinetRow = { id: string; room_id: string; family_code: string; width_in: number|null; height_in: number|null; depth_in: number|null; qty: number; hinge_side: string|null; rollout_trays_qty: number; trash_kit: string; applied_panels: boolean; special_instructions: string|null; sort_order: number };
 type MoldingRow = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; size_in: number | null; material_id: string | null; material_other: string | null; notes: string | null; sort_order: number };
 type MoldingRoomRow = { molding_id: string; room_id: string };
@@ -111,6 +119,26 @@ export default async function SpecEditorPage({
     ? await sql`SELECT * FROM finish_molding_rooms WHERE molding_id IN ${sql(moldingIds)}` as MoldingRoomRow[]
     : [];
 
+  // Phase 1 additions: pulls, trim, appliances (2026-07-02)
+  let fgPullRows: FGPullRow[] = [];
+  let roomTrimRows: RoomTrimRow[] = [];
+  let specApplianceRows: SpecApplianceRow[] = [];
+  let specAccessoryRows2: SpecAccessoryRow2[] = [];
+  let specHardwareRows: SpecHardwareRow[] = [];
+  try {
+    fgPullRows = fgIds.length
+      ? await sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FGPullRow[]
+      : [];
+    roomTrimRows = roomIds.length
+      ? await sql`SELECT * FROM room_trim WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as RoomTrimRow[]
+      : [];
+    specApplianceRows = await sql`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order` as SpecApplianceRow[];
+    specAccessoryRows2 = await sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order` as SpecAccessoryRow2[];
+    specHardwareRows = await sql`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order` as SpecHardwareRow[];
+  } catch {
+    // Tables not yet created — will be created on first db-push
+  }
+
   const moldings = moldingRows.map((m) => ({
     id: m.id,
     finish_group_id: m.finish_group_id,
@@ -140,10 +168,14 @@ export default async function SpecEditorPage({
 
     return {
       ...r,
+      flooring: (r as Record<string, unknown>).flooring as string ?? "",
+      ceiling_height: (r as Record<string, unknown>).ceiling_height as string ?? "",
+      soffit: (r as Record<string, unknown>).soffit as string ?? "",
+      backsplash: (r as Record<string, unknown>).backsplash as string ?? "",
       finishes: seededFinishes,
       accessories: accessories
         .filter((a) => a.room_id === r.id)
-        .map((a) => ({ acc_id: a.acc_id, qty: a.qty })),
+        .map((a) => ({ acc_id: a.acc_id, qty: a.qty, custom_note: a.notes ?? undefined })),
       cabinets: cabinets
         .filter((c) => c.room_id === r.id)
         .map((c) => ({
@@ -160,15 +192,67 @@ export default async function SpecEditorPage({
           special_instructions: c.special_instructions ?? "",
           sort_order: c.sort_order,
         })),
+      trim: roomTrimRows
+        .filter((t) => t.room_id === r.id)
+        .map((t) => ({
+          id: t.id,
+          trim_type: t.trim_type,
+          size_desc: t.size_desc ?? "",
+          material: t.material ?? "",
+          qty_lf: t.qty_lf,
+          notes: t.notes ?? "",
+          sort_order: t.sort_order,
+        })),
     };
   });
 
   const finishGroupsHydrated = finish_groups.map((g) => ({
     ...g,
+    finish_type:    (g.finish_type ?? "") as "paint" | "stain" | "melamine" | "plam" | "",
+    drawer_style_id: (g as Record<string, unknown>).drawer_style_id as string ?? "",
+    cabdoor_edge_id: (g as Record<string, unknown>).cabdoor_edge_id as string ?? "",
+    cabdoor_profile_id: (g as Record<string, unknown>).cabdoor_profile_id as string ?? "",
+    cabdoor_panel_id: (g as Record<string, unknown>).cabdoor_panel_id as string ?? "",
     carcass_id:    g.carcass_id    ?? "",
     drawer_box_id: g.drawer_box_id ?? "",
+    rollout_box_id: g.rollout_box_id ?? "",
     edgeband_id:   g.edgeband_id   ?? "",
     applied_panels: (g.applied_panels ?? "slab") as "slab" | "match_door",
+    species:        g.species        ?? "",
+  }));
+
+  // Build pulls keyed by finish_group_id
+  const initialPulls: Record<string, { id: string; description: string; part_no: string; finish_color: string; where_used: string; qty: number; sort_order: number }[]> = {};
+  for (const p of fgPullRows) {
+    if (!initialPulls[p.finish_group_id]) initialPulls[p.finish_group_id] = [];
+    initialPulls[p.finish_group_id].push({
+      id: p.id, description: p.description, part_no: p.part_no ?? "",
+      finish_color: p.finish_color ?? "", where_used: p.where_used ?? "",
+      qty: p.qty, sort_order: p.sort_order,
+    });
+  }
+
+  const initialAppliances = specApplianceRows.map((a) => ({
+    id: a.id, appliance_type: a.appliance_type,
+    manufacturer: a.manufacturer ?? "", model_no: a.model_no ?? "",
+    room_id: a.room_id ?? "", notes: a.notes ?? "",
+    cutout_w: a.cutout_w != null ? String(a.cutout_w) : "",
+    cutout_h: a.cutout_h != null ? String(a.cutout_h) : "",
+    cutout_d: a.cutout_d != null ? String(a.cutout_d) : "",
+    sort_order: a.sort_order,
+  }));
+
+  const initialAccessories2 = specAccessoryRows2.map((a) => ({
+    id: a.id, type: a.type ?? "", part_number: a.part_number ?? "",
+    description: a.description ?? "", qty: a.qty,
+    room: a.room ?? "", size: a.size ?? "", notes: a.notes ?? "",
+    sort_order: a.sort_order,
+  }));
+
+  const initialHardware = specHardwareRows.map((h) => ({
+    id: h.id, type: h.type, part_no: h.part_no ?? "",
+    room: h.room ?? "", qty: h.qty, notes: h.notes ?? "",
+    sort_order: h.sort_order,
   }));
 
   // Materials hydrated as {finish_group_id, role, material_id, where_used, notes}.
@@ -207,6 +291,11 @@ export default async function SpecEditorPage({
     moldingTypes:     catalogs.moldingTypes(),
     moldingProfiles:  catalogs.moldingProfiles(),
     moldingMaterials: catalogs.moldingMaterials(),
+    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 
   return (
@@ -227,9 +316,11 @@ export default async function SpecEditorPage({
         jobId={id}
         initialFinishGroups={finishGroupsHydrated}
         initialRooms={roomsWithAcc}
-        initialMoldings={moldings}
         initialMaterials={materialsHydrated}
-        initialAccessories={accessoriesData}
+        initialPulls={initialPulls}
+        initialAppliances={initialAppliances}
+        initialAccessories2={initialAccessories2}
+        initialHardware={initialHardware}
         catalogs={catalogData}
         lastSaved={spec.updated_at}
       />
