@@ -114,30 +114,6 @@ export function uid(): string {
   return randomBytes(8).toString("hex");
 }
 
-/**
- * withDbTimeout — wraps a DB operation in a race against a timeout.
- * Prevents Vercel Lambda from hanging silently until the 10s hard kill.
- * Default: 12 seconds (leaves headroom for the Lambda to return a proper error;
- * raised from 8s to accommodate schedule page with 5 parallel queries).
- */
-export async function withDbTimeout<T>(
-  fn: () => Promise<T>,
-  ms = 12000
-): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`DB query timed out after ${ms}ms`)),
-      ms
-    );
-  });
-  try {
-    return await Promise.race([fn(), timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 export async function nextJobId(): Promise<{ id: string; seq: number }> {
   const [row] = await sql`
     UPDATE seq SET val = val + 1 WHERE id = 1 RETURNING val

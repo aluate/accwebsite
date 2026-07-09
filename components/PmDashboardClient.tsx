@@ -567,7 +567,7 @@ export function PmDashboardClient({
 
                     {/* Status */}
                     <td className="py-3">
-                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
+                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
                         {statusTxt}
                       </span>
                     </td>
