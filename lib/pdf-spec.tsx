@@ -293,9 +293,9 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
       ) : (
         <View>
           <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 3 }]}>Room</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Finish Group</Text>
-            <Text style={[S.colHdrTx, { flex: 3 }]}>Zone / Notes</Text>
+            <Text style={[S.colHdrTx, { flex: 2 }]}>Room</Text>
+            <Text style={[S.colHdrTx, { flex: 0.8 }]}>FG</Text>
+            <Text style={[S.colHdrTx, { flex: 4.7 }]}>Zone / Notes</Text>
           </View>
           {data.rooms.map((room, ri) => {
             const fgText = room.finishes.length > 0
@@ -304,9 +304,9 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             const zones = room.finishes.map(f => f.zone).filter(Boolean).join("; ");
             return (
               <View key={room.id} style={ri % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-                <Text style={[S.cell, { flex: 3, fontFamily: "Helvetica-Bold" }]}>{room.name || "—"}</Text>
-                <Text style={[S.cell, { flex: 1.5, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fgText}</Text>
-                <Text style={[S.cellMu, { flex: 3 }]}>{zones || "—"}</Text>
+                <Text style={[S.cell, { flex: 2, fontFamily: "Helvetica-Bold" }]}>{room.name || "—"}</Text>
+                <Text style={[S.cell, { flex: 0.8, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fgText}</Text>
+                <Text style={[S.cellMu, { flex: 4.7 }]}>{zones || "—"}</Text>
               </View>
             );
           })}
@@ -574,3 +574,4 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
 export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
   return renderToBuffer(renderSpecPDF(data));
 }
+      
