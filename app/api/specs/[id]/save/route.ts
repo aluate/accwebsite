@@ -19,6 +19,7 @@ type FinishGroupPayload = {
   edgeband_id: string;
   applied_panels: "slab" | "match_door" | null;
   species: string | null;
+  rollout_box_id: string | null;
   notes: string;
   sort_order: number;
 };
@@ -217,24 +218,37 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       await sql`
         INSERT INTO finish_groups
           (id, spec_id, label, finish_type, color_id, color_name,
-           door_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-           applied_panels, species, notes, sort_order)
+           door_style_id, drawer_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
+           applied_panels, species, rollout_box_id,
+           cabdoor_edge_id, cabdoor_profile_id, cabdoor_panel_id,
+           notes, sort_order)
         VALUES
-          (${g.id}, ${id}, ${g.label}, ${g.finish_type},
+          (${g.id}, ${id}, ${g.label}, ${g.finish_type || "paint"},
            ${g.color_id || null}, ${g.color_name || null},
-           ${g.door_style_id || null}, ${g.pull_id || null},
+           ${g.door_style_id || null},
+           ${(g as Record<string, unknown>).drawer_style_id as string || null},
+           ${g.pull_id || null},
            ${g.box_material || "melamine"},
            ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-           ${g.applied_panels || "slab"}, ${g.species || null}, ${g.notes || null}, ${g.sort_order ?? 0})
+           ${g.applied_panels || "slab"}, ${g.species || null}, ${g.rollout_box_id || null},
+           ${(g as Record<string, unknown>).cabdoor_edge_id as string || null},
+           ${(g as Record<string, unknown>).cabdoor_profile_id as string || null},
+           ${(g as Record<string, unknown>).cabdoor_panel_id as string || null},
+           ${g.notes || null}, ${g.sort_order ?? 0})
       `;
     }
 
     // Insert rooms + accessories + cabinets
     for (const r of rooms) {
       await sql`
-        INSERT INTO rooms (id, spec_id, name, finish_group_id, notes, sort_order)
+        INSERT INTO rooms (id, spec_id, name, finish_group_id, notes, sort_order,
+                          flooring, ceiling_height, soffit, backsplash)
         VALUES (${r.id}, ${id}, ${r.name}, ${r.finish_group_id || null},
-                ${r.notes || null}, ${r.sort_order ?? 0})
+                ${r.notes || null}, ${r.sort_order ?? 0},
+                ${(r as Record<string, unknown>).flooring as string || null},
+                ${(r as Record<string, unknown>).ceiling_height as string || null},
+                ${(r as Record<string, unknown>).soffit as string || null},
+                ${(r as Record<string, unknown>).backsplash as string || null})
       `;
 
       // Multi-finish links

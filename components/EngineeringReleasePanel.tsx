@@ -49,19 +49,33 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
         fetch(`/api/jobs/${jobId}/files`),
         fetch(`/api/jobs/${jobId}/engineering-release`),
       ]);
+
+      let loadedChecklist: Record<string, boolean> = {};
       if (clRes.ok) {
         const d = await clRes.json() as { checklist: Record<string, boolean> };
-        setChecklist(d.checklist ?? {});
+        loadedChecklist = d.checklist ?? {};
       }
+
+      let loadedDrawings: DrawingFile[] = [];
       if (filesRes.ok) {
         const d = await filesRes.json() as { files: Record<string, DrawingFile[]> };
-        setDrawings(d.files?.["16_eng_drawings"] ?? []);
+        loadedDrawings = d.files?.["16_eng_drawings"] ?? [];
+        setDrawings(loadedDrawings);
       }
+
+      // Auto-check drawings_attached if drawings already exist
+      const finalChecklist = autoCheckDrawings(loadedChecklist, loadedDrawings.length);
+      setChecklist(finalChecklist);
+      if (finalChecklist !== loadedChecklist) {
+        persistChecklist(finalChecklist);
+      }
+
       if (relRes.ok) {
         const d = await relRes.json() as { release: ReleaseRecord | null };
         setLastRelease(d.release ?? null);
       }
     })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId]);
 
   // ── Auto-save checklist (debounced) ─────────────────────────────────────
@@ -78,10 +92,33 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     }, 600);
   }, [jobId]);
 
+  /** Flush any pending debounced save immediately before sending. */
+  const flushSave = useCallback(async (state: Record<string, boolean>) => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    setSaving(true);
+    await fetch(`/api/jobs/${jobId}/engineering-checklist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checklist: state }),
+    });
+    setSaving(false);
+  }, [jobId]);
+
   function toggle(key: string) {
     const next = { ...checklist, [key]: !checklist[key] };
     setChecklist(next);
     persistChecklist(next);
+  }
+
+  /** Auto-check drawings_attached when drawings are present. */
+  function autoCheckDrawings(state: Record<string, boolean>, drawingCount: number): Record<string, boolean> {
+    if (drawingCount > 0 && !state.drawings_attached) {
+      return { ...state, drawings_attached: true };
+    }
+    return state;
   }
 
   // ── File upload ─────────────────────────────────────────────────────────
@@ -98,7 +135,14 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     const res = await fetch(`/api/jobs/${jobId}/files`);
     if (res.ok) {
       const d = await res.json() as { files: Record<string, DrawingFile[]> };
-      setDrawings(d.files?.["16_eng_drawings"] ?? []);
+      const updated = d.files?.["16_eng_drawings"] ?? [];
+      setDrawings(updated);
+      // Auto-check drawings_attached now that drawings exist
+      setChecklist((prev) => {
+        const next = autoCheckDrawings(prev, updated.length);
+        if (next !== prev) persistChecklist(next);
+        return next;
+      });
     }
     setUploading(false);
   }
@@ -107,6 +151,8 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   async function sendRelease() {
     setSendError(null);
     setSending(true);
+    // Flush any pending debounced checklist save so the server sees 54/54
+    await flushSave(checklist);
     const res = await fetch(`/api/jobs/${jobId}/engineering-release`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

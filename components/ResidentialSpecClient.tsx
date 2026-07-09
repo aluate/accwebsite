@@ -4,14 +4,18 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type {
   PaintColor, StainColor, MelamineColor, DoorStyle, HardwarePull, RevaAccessory,
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
-  MoldingType, MoldingProfile, MoldingMaterial,
 } from "@/lib/catalogs";
-import { MoldingsTab, type FinishMolding } from "@/components/MoldingsTab";
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
-import { SchedulesTabLoader } from "@/components/SchedulesTabLoader";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
-import { AccessoriesTab, type AccessoriesData } from "@/components/AccessoriesTab";
+
+// Kept for backward compat with existing moldings data; tab removed from UI
+type FinishMolding = {
+  id: string; finish_group_id: string; material_id: string; custom_material?: string;
+  profile_id: string; where_used_room_ids: string[]; lf_qty?: number;
+  notes?: string; sort_order: number;
+};
+
 
 type CatalogData = {
   paintColors: PaintColor[]; stainColors: StainColor[]; melamineColors: MelamineColor[];
@@ -19,21 +23,27 @@ type CatalogData = {
   cabinetFamilies: CabinetFamily[];
   carcassMaterials: CarcassMaterial[];
   drawerBoxes: DrawerBox[];
+  applianceCatalog?: { type: string; manufacturer: string; model: string; cutout_w: number; cutout_h: number; cutout_d: number; notes: string }[];
   edgebands: Edgeband[];
   rooms: RoomCatalogEntry[];
-  moldingTypes: MoldingType[];
-  moldingProfiles: MoldingProfile[];
-  moldingMaterials: MoldingMaterial[];   // 2026-05-06 — sourced for MoldingsTab dropdown
+  cabDoorEdges?: { id: string; name: string }[];
+  cabDoorProfiles?: { id: string; name: string }[];
+  cabDoorPanels?: { id: string; name: string }[];
 };
 
-type FinishType = "paint" | "stain" | "melamine";
+type FinishType = "paint" | "stain" | "melamine" | "plam" | "";
 
 export type FinishGroup = {
   id: string; label: string; finish_type: FinishType;
   color_id: string; color_name: string; door_style_id: string;
+  drawer_style_id: string;
+  cabdoor_edge_id: string;
+  cabdoor_profile_id: string;
+  cabdoor_panel_id: string;
   pull_id: string; box_material: "melamine" | "plywood";
   carcass_id: string;
   drawer_box_id: string;
+  rollout_box_id: string;
   edgeband_id: string;
   applied_panels: "slab" | "match_door";
   species: string;
@@ -81,7 +91,20 @@ export type ApplianceRow = {
   model_no: string;
   room_id: string;
   notes: string;
+  cutout_w: string;
+  cutout_h: string;
+  cutout_d: string;
   sort_order: number;
+};
+
+export type SpecAccessoryItem = {
+  id: string; type: string; part_number: string; description: string;
+  qty: number; room: string; size: string; notes: string; sort_order: number;
+};
+
+export type SpecHardwareItem = {
+  id: string; type: string; part_no: string;
+  room: string; qty: number; notes: string; sort_order: number;
 };
 
 export type Room = {
@@ -89,6 +112,10 @@ export type Room = {
   finish_group_id: string;
   finishes: RoomFinishLink[];
   notes: string; sort_order: number;
+  flooring: string;
+  ceiling_height: string;
+  soffit: string;
+  backsplash: string;
   accessories: { acc_id: string; qty: number; custom_note?: string }[];
   cabinets: CabinetItem[];
   trim: TrimRow[];
@@ -98,11 +125,11 @@ type Props = {
   specId: string; jobId: string;
   initialFinishGroups: FinishGroup[];
   initialRooms: Room[];
-  initialMoldings: FinishMolding[];
   initialMaterials: FinishMaterial[];   // v2 spec-form expansion (2026-05-06)
-  initialAccessories: AccessoriesData;  // pulls + RevAShelf items (2026-05-28)
   initialPulls: Record<string, PullRow[]>;     // finish_group_pulls keyed by fg id
   initialAppliances: ApplianceRow[];
+  initialAccessories2?: SpecAccessoryItem[];
+  initialHardware?: SpecHardwareItem[];
   catalogs: CatalogData;
   lastSaved: string;
 };
@@ -422,14 +449,16 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMoldings, initialMaterials, initialAccessories, initialPulls, initialAppliances, catalogs, lastSaved }: Props) {
-  const [tab, setTab]       = useState<"finishes" | "rooms" | "cabinets" | "moldings" | "schedules" | "accessories" | "appliances" | "summary">("finishes");
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, lastSaved }: Props) {
+  const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
-  const [moldings, setMoldings] = useState<FinishMolding[]>(initialMoldings);
+  const [moldings, setMoldings] = useState<FinishMolding[]>([]);
   const [materials, setMaterials] = useState<FinishMaterial[]>(initialMaterials);
   const [pulls, setPulls] = useState<Record<string, PullRow[]>>(initialPulls);
   const [appliances, setAppliances] = useState<ApplianceRow[]>(initialAppliances);
+  const [specAccs, setSpecAccs] = useState<SpecAccessoryItem[]>(initialAccessories2 ?? []);
+  const [specHW, setSpecHW] = useState<SpecHardwareItem[]>(initialHardware ?? []);
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -441,20 +470,20 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // 2026-05-06 — "Save All" coordinator. The Schedules tab (SpecSchedulesPanel)
   // owns its own save state and POSTs to /api/specs/[id]/schedules. The legacy
   // save() above POSTs to /api/specs/[id]/save. Two endpoints, two state trees.
-  // SchedulesTabLoader → SpecSchedulesPanel registers its save fn into this ref
   // on mount; saveAll() then fires both with one click. Matches Karl's
   // "10-year-old can drive it" standard — one button, both writes.
-  const schedulesSaveRef = useRef<(() => Promise<void>) | null>(null);
   const [saveAllState, setSaveAllState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [bulkRoomText, setBulkRoomText] = useState("");
+  const [showBulkRoom, setShowBulkRoom] = useState(false);
 
   // violations and save must be declared BEFORE saveAll (which lists save as a dep)
   // to avoid a TDZ crash on render.
   const violations = useMemo(() => validateForSave(groups, rooms), [groups, rooms]);
 
-  const save = useCallback(async (archive?: string): Promise<boolean> => {
+  const save = useCallback(async (archive?: string, force?: boolean): Promise<boolean> => {
     if (violations.length > 0) {
       setShowViolations(true);
-      return false;
+      if (!force) return false;  // partial save: caller passes force=true
     }
     setSaveState("saving");
     try {
@@ -493,23 +522,31 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const saveAll = useCallback(async () => {
     setSaveAllState("saving");
     try {
-      const okLegacy = await save();
-      if (!okLegacy) {
+      const hasViolations = violations.length > 0;
+      const okLegacy = await save(undefined, hasViolations);
+      if (!okLegacy && !hasViolations) {
         setSaveAllState("error");
         return;
       }
-      // Schedules ref is null until the user has visited the Schedules tab at
-      // least once (lazy mount). Skipping the call when null is correct — the
-      // user can't have unsaved schedules edits if the panel never mounted.
-      if (schedulesSaveRef.current) {
-        await schedulesSaveRef.current();
-      }
+      // Also save appliances + hardware on Save All
+      await Promise.all([
+        fetch(`/api/specs/${specId}/appliances`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ appliances }),
+        }),
+        fetch(`/api/specs/${specId}/hardware`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hardware: specHW }),
+        }),
+      ]);
       setSaveAllState("saved");
       setTimeout(() => setSaveAllState("idle"), 2000);
     } catch {
       setSaveAllState("error");
     }
-  }, [save]);
+  }, [save, specId, appliances, specHW, violations.length]);
 
   // Dual-UI sync (2026-05-06): the Schedules · v2 tab and the inline Materials
   // sub-section both write to finish_group_materials via different endpoints.
@@ -519,42 +556,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // stale inline state and silently overwrite the Schedules-tab edits ($70k
   // pattern). Tracking previous tab via useRef avoids triggering on the
   // initial mount, and we only refetch when leaving 'schedules' specifically.
-  const prevTab = useRef(tab);
-  useEffect(() => {
-    const wasSchedules = prevTab.current === "schedules";
-    prevTab.current = tab;
-    if (!wasSchedules || tab === "schedules") return;
-    // Don't clobber unsaved inline edits — only sync when client is clean.
-    if (dirty) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`/api/specs/${specId}/schedules-init`, { cache: "no-store" });
-        if (!res.ok) return;
-        const body = await res.json();
-        const fresh = (body?.schedules?.materials ?? []) as Array<{
-          id: string; finish_group_id: string; role: string;
-          material_id: string | null; where_used: string | null; notes: string | null;
-        }>;
-        if (cancelled) return;
-        setMaterials(fresh.map((m) => ({
-          id: m.id,
-          finish_group_id: m.finish_group_id,
-          role: m.role as FinishMaterial["role"],
-          material_id: m.material_id ?? "",
-          where_used: m.where_used ?? "",
-          notes: m.notes ?? "",
-        })));
-      } catch {
-        // Network blip — keep stale state; next save risks overwrite, but
-        // that's no worse than before this guard.
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [tab, specId, dirty]);
 
   const generateSpec = useCallback(async () => {
-    if (violations.length > 0) { setShowViolations(true); return; }
+    if (violations.length > 0) { setShowViolations(true); }  // flag but don't block — DRAFT watermark will show
     if (dirty) {
       const ok = await save();
       if (!ok) return;
@@ -654,10 +658,12 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     const idx = groups.length + 1;
     setGroups([...groups, {
       id: uid(),
-      label: `FG-${String(idx).padStart(2, "0")}`,
-      finish_type: "paint",
+      label: "",
+      finish_type: "",
       color_id: "", color_name: "",
-      door_style_id: "", pull_id: "",
+      door_style_id: "", drawer_style_id: "",
+      cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
+      pull_id: "",
       box_material: "melamine",
       carcass_id: "", drawer_box_id: "", edgeband_id: "",
       applied_panels: "slab",
@@ -743,11 +749,40 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   }, [specId, dirty, violations.length, save]);
 
   // ── Rooms ─────────────────────────────────────────────────────────────────
+  function addBulkRooms() {
+    const names = bulkRoomText.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (names.length === 0) return;
+    const startOrder = rooms.length;
+    const newRooms: Room[] = names.map((name, i) => ({
+      id: uid(), name,
+      finish_group_id: "", finishes: [],
+      notes: "", sort_order: startOrder + i + 1,
+      flooring: "", ceiling_height: "", soffit: "", backsplash: "",
+      accessories: [], cabinets: [], trim: [],
+    }));
+    setRooms([...rooms, ...newRooms]);
+    setBulkRoomText("");
+    setShowBulkRoom(false);
+    markDirty();
+  }
+
+  function moveRoom(id: string, dir: -1 | 1) {
+    const idx = rooms.findIndex((r) => r.id === id);
+    if (idx < 0) return;
+    const next = idx + dir;
+    if (next < 0 || next >= rooms.length) return;
+    const reordered = [...rooms];
+    [reordered[idx], reordered[next]] = [reordered[next], reordered[idx]];
+    setRooms(reordered.map((r, i) => ({ ...r, sort_order: i + 1 })));
+    markDirty();
+  }
+
   function addRoom() {
     setRooms([...rooms, {
       id: uid(), name: "",
       finish_group_id: "", finishes: [],
       notes: "", sort_order: rooms.length + 1,
+      flooring: "", ceiling_height: "", soffit: "", backsplash: "",
       accessories: [], cabinets: [], trim: [],
     }]);
     markDirty();
@@ -867,8 +902,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // ── Appliances ────────────────────────────────────────────────────────────
   function addAppliance() {
     setAppliances([...appliances, {
-      id: uid(), appliance_type: "Range", manufacturer: "", model_no: "",
-      room_id: "", notes: "", sort_order: appliances.length,
+      id: uid(), appliance_type: "", manufacturer: "", model_no: "",
+      room_id: "", notes: "", cutout_w: "", cutout_h: "", cutout_d: "", sort_order: appliances.length,
     }]);
     markDirty();
   }
@@ -886,6 +921,38 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       body: JSON.stringify({ appliances }),
     });
   }
+  async function saveSpecAccs() {
+    await fetch(`/api/specs/${specId}/accessories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pulls: [], accessories: specAccs }),
+    });
+  }
+  async function saveSpecHW() {
+    await fetch(`/api/specs/${specId}/hardware`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hardware: specHW }),
+    });
+  }
+  function addSpecAcc() {
+    setSpecAccs([...specAccs, { id: uid(), type: "", part_number: "", description: "", qty: 1, room: "", size: "", notes: "", sort_order: specAccs.length }]);
+    markDirty();
+  }
+  function updateSpecAcc(idx: number, patch: Partial<SpecAccessoryItem>) {
+    const list = [...specAccs]; list[idx] = { ...list[idx], ...patch };
+    setSpecAccs(list); markDirty();
+  }
+  function removeSpecAcc(idx: number) { setSpecAccs(specAccs.filter((_, i) => i !== idx)); markDirty(); }
+  function addSpecHW() {
+    setSpecHW([...specHW, { id: uid(), type: "", part_no: "", room: "", qty: 1, notes: "", sort_order: specHW.length }]);
+    markDirty();
+  }
+  function updateSpecHW(idx: number, patch: Partial<SpecHardwareItem>) {
+    const list = [...specHW]; list[idx] = { ...list[idx], ...patch };
+    setSpecHW(list); markDirty();
+  }
+  function removeSpecHW(idx: number) { setSpecHW(specHW.filter((_, i) => i !== idx)); markDirty(); }
 
   // ── Cabinets ──────────────────────────────────────────────────────────────
   function addCabinet(roomId: string) {
@@ -912,29 +979,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     markDirty();
   }
 
-  // ── Moldings ──────────────────────────────────────────────────────────────
-  function addMolding(finish_group_id: string) {
-    setMoldings([...moldings, {
-      id: uid(), finish_group_id,
-      molding_type: "", molding_profile_id: "",
-      qty_lf: null,
-      // 2026-05-06 — size + material added; material_other is the free-entry
-      // escape (filled when material_id == "MM-099"). See MoldingsTab.tsx.
-      size_in: null, material_id: "", material_other: "",
-      notes: "",
-      where_used_room_ids: [],
-      sort_order: moldings.filter((m) => m.finish_group_id === finish_group_id).length,
-    }]);
-    markDirty();
-  }
-  function updateMolding(id: string, patch: Partial<FinishMolding>) {
-    setMoldings(moldings.map((m) => m.id === id ? { ...m, ...patch } : m));
-    markDirty();
-  }
-  function removeMolding(id: string) {
-    setMoldings(moldings.filter((m) => m.id !== id));
-    markDirty();
-  }
 
   // ── Toolbar labels ────────────────────────────────────────────────────────
   const saveLabel =
@@ -1020,18 +1064,29 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             </span>
           )}
           <button
-            onClick={saveAll}
-            disabled={saveAllState === "saving" || violations.length > 0}
-            title={blockedReason || "Save spec + schedules in one click"}
+            onClick={() => {
+              if (violations.length > 0) {
+                // Partial save — show violations banner but save anyway as DRAFT
+                setShowViolations(true);
+                save(undefined, true);
+              } else {
+                saveAll();
+              }
+            }}
+            disabled={saveAllState === "saving"}
+            title={violations.length > 0 ? "Save as DRAFT — blank required fields will be flagged" : "Save spec + schedules in one click"}
             className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
-              saveAllState === "saving" || violations.length > 0
+              saveAllState === "saving"
                 ? "bg-white/5 text-white/20 cursor-not-allowed"
+                : violations.length > 0
+                ? "bg-yellow-700/70 hover:bg-yellow-700 text-white"
                 : "bg-[#f08122] hover:bg-[#d9711e] text-white"
             }`}
           >
             {saveAllState === "saving" ? "Saving..." :
-             saveAllState === "saved"  ? "Saved" :
-             saveAllState === "error"  ? "Error - retry" :
+             saveAllState === "saved"  ? "Saved ✓" :
+             saveAllState === "error"  ? "Error — retry" :
+             violations.length > 0   ? "Save as Draft" :
              "Save All"}
           </button>
           {/* Legacy "Save" — fires only the spec form, NOT the Schedules tab.
@@ -1141,7 +1196,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
       {/* Tabs */}
       <div className="flex border-b border-white/10 mb-8 overflow-x-auto whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0 sticky top-0 z-10 bg-[#1a1a1a]/95 backdrop-blur-sm">
-        {(["finishes", "rooms", "cabinets", "moldings", "schedules", "accessories", "appliances", "summary"] as const).map((t) => (
+        {(["finishes", "rooms", "specDetails", "summary"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`font-condensed uppercase tracking-widest text-xs py-3 px-3 sm:px-5 border-b-2 transition-colors ${
               tab === t ? "border-[#f08122] text-[#f08122]" : "border-transparent text-white/30 hover:text-white/60"
@@ -1149,11 +1204,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           >
             {t === "finishes" ? `Finish Groups (${groups.length})`
               : t === "rooms" ? `Rooms (${rooms.length})`
-              : t === "cabinets" ? `Cabinet Order (${rooms.reduce((n, r) => n + r.cabinets.length, 0)})`
-              : t === "moldings" ? `Moldings (${moldings.length})`
-              : t === "schedules" ? `Schedules · v2`
-              : t === "accessories" ? "Accessories"
-              : t === "appliances" ? `Appliances (${appliances.length})`
+              : t === "specDetails" ? `Spec Details (${appliances.length})`
               : "Summary"}
           </button>
         ))}
@@ -1202,7 +1253,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       value={g.finish_type}
                       onChange={(e) => {
                         const newType = e.target.value as FinishType;
-                        const patch: Partial<FinishGroup> = { finish_type: newType, color_id: "", color_name: "", edgeband_id: "" };
+                        const typePrefix = newType === "paint" ? "PNT" : newType === "melamine" ? "MEL" : newType === "plam" ? "PLAM" : "STN";
+                        const countOfType = groups.filter((x) => x.id !== g.id && x.finish_type === newType).length;
+                        const autoLabel = newType ? `${typePrefix}-${countOfType + 1}` : "";
+                        const patch: Partial<FinishGroup> = { finish_type: newType, label: autoLabel, color_id: "", color_name: "", edgeband_id: "" };
                         // When switching to melamine, check if current door style is a slab;
                         // if not, clear it so the user must re-pick from the restricted list.
                         if (newType === "melamine" && g.door_style_id) {
@@ -1215,9 +1269,11 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       }}
                       className={SELECT}
                     >
+                      <option value="">-- Select Type --</option>
                       <option value="paint">Paint</option>
                       <option value="stain">Stain</option>
                       <option value="melamine">Melamine / TFL</option>
+                      <option value="plam">PLAM</option>
                     </select>
                   </div>
                   <div className="sm:col-span-2">
@@ -1271,6 +1327,46 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       </p>
                     )}
                   </div>
+
+                  {/* Cab Door Custom Options — shown only when DS-CD-CUSTOM is selected */}
+                  {g.door_style_id === "DS-CD-CUSTOM" && (
+                    <div className="sm:col-span-3 grid sm:grid-cols-3 gap-3 bg-[#1a1a1a] rounded p-3 border border-[#f08122]/20">
+                      <p className="sm:col-span-3 text-[#f08122]/60 text-[10px] font-condensed uppercase tracking-widest">Cab Door Custom Options</p>
+                      <div>
+                        <label className={LABEL}>Edge Detail</label>
+                        <select value={g.cabdoor_edge_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_edge_id: e.target.value })} className={SELECT}>
+                          <option value="">-- Select Edge --</option>
+                          {(catalogs.cabDoorEdges ?? []).map((e) => <option key={e.id} value={e.id}>{e.name || e.id}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>Inside Profile</label>
+                        <select value={g.cabdoor_profile_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_profile_id: e.target.value })} className={SELECT}>
+                          <option value="">-- Select Profile --</option>
+                          {(catalogs.cabDoorProfiles ?? []).map((p) => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>Panel</label>
+                        <select value={g.cabdoor_panel_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_panel_id: e.target.value })} className={SELECT}>
+                          <option value="">-- Select Panel --</option>
+                          {(catalogs.cabDoorPanels ?? []).map((p) => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className={LABEL}>Drawer Style <span className="text-white/30 normal-case font-normal">(if different from door)</span></label>
+                    <select
+                      value={g.drawer_style_id ?? ""}
+                      onChange={(e) => updateGroup(g.id, { drawer_style_id: e.target.value })}
+                      className={SELECT}
+                    >
+                      <option value="">Same as Door</option>
+                      {catalogs.doorStyles.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
                   <div>
                     <label className={LABEL}>Applied Panels</label>
                     <select
@@ -1280,13 +1376,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     >
                       <option value="slab">Slab</option>
                       <option value="match_door">Match door style</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={LABEL}>Hardware Pull <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span></label>
-                    <select value={g.pull_id} onChange={(e) => updateGroup(g.id, { pull_id: e.target.value })} className={SELECT}>
-                      <option value="">-- Select Pull --</option>
-                      {catalogs.hardwarePulls.map((p) => <option key={p.id} value={p.id}>{p.name} - {p.brand}</option>)}
                     </select>
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
@@ -1302,7 +1391,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   )}
                   <div>
                     <label className={LABEL}>Notes</label>
-                    <input value={g.notes} onChange={(e) => updateGroup(g.id, { notes: e.target.value })} placeholder="Sheen, custom mix, special instructions..." className={INPUT} />
+                    <input value={g.notes ?? ""} onChange={(e) => updateGroup(g.id, { notes: e.target.value })} placeholder="Sheen, custom mix, special instructions..." className={INPUT} />
                   </div>
                 </div>
 
@@ -1330,6 +1419,15 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     {drawerBox?.is_other && (
                       <p className="text-yellow-400/60 text-[10px] mt-1 font-condensed uppercase tracking-widest">Specify in Notes</p>
                     )}
+                  </div>
+                  <div>
+                    <label className={LABEL}>Rollout Box</label>
+                    <select value={g.rollout_box_id ?? ""} onChange={(e) => updateGroup(g.id, { rollout_box_id: e.target.value })} className={SELECT}>
+                      <option value="">-- Same as Drawer Box --</option>
+                      {catalogs.drawerBoxes.map((d) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className={LABEL}>Edgeband {requiresEdgebandPick ? "*" : ""}</label>
@@ -1405,18 +1503,96 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       {/* ROOMS */}
       {tab === "rooms" && (
         <div className="space-y-6">
-          <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
-            Define rooms. Each room can have multiple finishes - e.g. Kitchen Perimeter (MEL-1) + Kitchen Island (MEL-2). Add a zone label per finish if it&apos;s split.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
+              Define rooms. Multiple finishes per room supported — add zone labels if split.
+            </p>
+            <button
+              onClick={() => setShowBulkRoom(!showBulkRoom)}
+              className="text-white/40 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-1.5 transition-colors"
+            >
+              {showBulkRoom ? "Hide Bulk Entry" : "Bulk Add Rooms"}
+            </button>
+          </div>
+
+          {showBulkRoom && (
+            <div className="bg-[#2d2d2d] rounded p-4 space-y-3 border border-white/10">
+              <p className="text-white/50 text-xs font-condensed uppercase tracking-widest">One room name per line</p>
+              <textarea
+                value={bulkRoomText}
+                onChange={(e) => setBulkRoomText(e.target.value)}
+                placeholder={"Kitchen\nMaster Bath\nLaundry\nMud Room"}
+                rows={5}
+                className="w-full bg-[#1a1a1a] border border-white/10 rounded p-3 text-white text-sm font-mono focus:outline-none focus:border-[#f08122]/60 resize-y"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={addBulkRooms}
+                  className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+                >
+                  Add Rooms
+                </button>
+                <button
+                  onClick={() => { setBulkRoomText(""); setShowBulkRoom(false); }}
+                  className="text-white/30 hover:text-white/60 font-condensed uppercase tracking-widest text-xs px-4 py-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {groups.length === 0 && (
             <div className="bg-yellow-900/20 border border-yellow-700/30 rounded p-4 text-yellow-300/70 text-xs font-condensed uppercase tracking-widest">
               Define at least one finish group first.
             </div>
           )}
-          {rooms.map((room) => (
+
+          {groups.length > 0 && rooms.length > 1 && (
+            <div className="bg-[#2d2d2d] rounded p-3 border border-white/10 flex flex-wrap items-center gap-3">
+              <span className="text-white/40 font-condensed uppercase tracking-widest text-xs">Whole-job single finish:</span>
+              <select
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  setRooms(rooms.map((r) => ({
+                    ...r,
+                    finish_group_id: e.target.value,
+                    finishes: [{ finish_group_id: e.target.value, zone: "", sort_order: 0 }],
+                  })));
+                  markDirty();
+                  e.target.value = "";
+                }}
+                defaultValue=""
+                className="bg-[#1a1a1a] border border-white/10 rounded px-3 py-1.5 text-white text-xs font-condensed focus:outline-none focus:border-[#f08122]/60"
+              >
+                <option value="">Apply one FG to all rooms…</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.label}{g.finish_type ? ` · ${g.finish_type.toUpperCase()}` : ""}{g.species ? ` · ${g.species}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {rooms.map((room, roomIdx) => (
             <div key={room.id} className="bg-[#2d2d2d] rounded p-4 sm:p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <span className="text-white/50 font-condensed uppercase tracking-widest text-xs">Room</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/50 font-condensed uppercase tracking-widest text-xs">Room {roomIdx + 1}</span>
+                  <button
+                    onClick={() => moveRoom(room.id, -1)}
+                    disabled={roomIdx === 0}
+                    className="text-white/20 hover:text-white/60 disabled:opacity-20 text-xs px-1 transition-colors"
+                    title="Move up"
+                  >▲</button>
+                  <button
+                    onClick={() => moveRoom(room.id, 1)}
+                    disabled={roomIdx === rooms.length - 1}
+                    className="text-white/20 hover:text-white/60 disabled:opacity-20 text-xs px-1 transition-colors"
+                    title="Move down"
+                  >▼</button>
+                </div>
                 <button onClick={() => removeRoom(room.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
               </div>
               <div>
@@ -1448,7 +1624,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <option value="">-- Select Finish Group --</option>
                         {groups.map((g) => (
                           <option key={g.id} value={g.id}>
-                            {g.label} - {g.color_name?.split(" - ")[0] || g.finish_type}
+                            {g.label}{g.finish_type ? ` · ${g.finish_type.toUpperCase()}` : ""}{g.species ? ` · ${g.species}` : ""}{g.color_name ? ` · ${g.color_name.split(" - ")[0]}` : ""}
                           </option>
                         ))}
                       </select>
@@ -1544,6 +1720,24 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 </div>
               </div>
 
+              <div className="grid sm:grid-cols-4 gap-3">
+                <div>
+                  <label className={LABEL}>Flooring</label>
+                  <input value={room.flooring ?? ""} onChange={(e) => updateRoom(room.id, { flooring: e.target.value })} placeholder="Tile, Hardwood, Carpet..." className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Ceiling Height</label>
+                  <input value={room.ceiling_height ?? ""} onChange={(e) => updateRoom(room.id, { ceiling_height: e.target.value })} placeholder="9', 10', Vaulted..." className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Soffit</label>
+                  <input value={room.soffit ?? ""} onChange={(e) => updateRoom(room.id, { soffit: e.target.value })} placeholder="12&quot;, 18&quot;, None..." className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Backsplash</label>
+                  <input value={room.backsplash ?? ""} onChange={(e) => updateRoom(room.id, { backsplash: e.target.value })} placeholder="Tile, Stone, None..." className={INPUT} />
+                </div>
+              </div>
               <div>
                 <label className={LABEL}>Room Notes</label>
                 <input value={room.notes} onChange={(e) => updateRoom(room.id, { notes: e.target.value })} placeholder="Crown, light rail, special conditions..." className={INPUT} />
@@ -1556,8 +1750,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         </div>
       )}
 
-      {/* CABINETS — drawings-linked (Karl 2026-05 decision: option C) */}
-      {tab === "cabinets" && (
+      {/* CABINETS — removed from tabs (Karl 2026-07-09) */}
+      {false && tab === "cabinets" && (
         <CabinetsDrawingsView
           jobId={jobId}
           legacyManualEntry={
@@ -1616,74 +1810,99 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         />
       )}
 
-      {/* MOLDINGS (Phase 1B) */}
-      {tab === "moldings" && (
-        <MoldingsTab
-          groups={groups.map((g) => ({ id: g.id, label: g.label }))}
-          rooms={rooms.map((r) => ({ id: r.id, name: r.name }))}
-          moldings={moldings}
-          moldingTypes={catalogs.moldingTypes}
-          moldingProfiles={catalogs.moldingProfiles}
-          moldingMaterials={catalogs.moldingMaterials}
-          onAdd={addMolding}
-          onUpdate={updateMolding}
-          onRemove={removeMolding}
-        />
-      )}
-
-      {/* SCHEDULES (spec form expansion v2) — full per-finish-group schedule editors.
-          onRegisterSave wires the panel's internal save() back to ResidentialSpecClient
-          so the page-level "Save All" button can invoke both endpoints from one click. */}
-      {tab === "schedules" && (
-        <SchedulesTabLoader
-          specId={specId}
-          onRegisterSave={(fn) => { schedulesSaveRef.current = fn; }}
-        />
-      )}
-
-      {/* ACCESSORIES — pulls + RevAShelf items (2026-05-28) */}
-      {tab === "accessories" && (
-        <AccessoriesTab specId={specId} initialData={initialAccessories} />
-      )}
-
-      {/* APPLIANCES (Phase 3e) */}
-      {tab === "appliances" && (
+      {/* SPEC DETAILS — appliances, accessories, hardware */}
+      {tab === "specDetails" && (
         <div className="space-y-6">
           <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
             List all appliances and plumbing fixtures. Audience: engineer (rough-in reference) and client (change tracking).
           </p>
           <div className="space-y-2">
             {appliances.map((ap, ai) => (
-              <div key={ai} className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#2d2d2d] rounded p-3">
-                <div>
-                  <label className={LABEL}>Type</label>
-                  <select value={ap.appliance_type} onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value })} className={SELECT}>
-                    {["Range","Hood","Dishwasher","Refrigerator","Microwave","Wine Fridge","Warming Drawer","Sink","Faucet","Other"].map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={LABEL}>Manufacturer</label>
-                  <input value={ap.manufacturer} onChange={(e) => updateAppliance(ai, { manufacturer: e.target.value })} placeholder="Brand" className={INPUT} />
-                </div>
-                <div>
-                  <label className={LABEL}>Model #</label>
-                  <input value={ap.model_no} onChange={(e) => updateAppliance(ai, { model_no: e.target.value })} placeholder="Model / Part #" className={INPUT} />
-                </div>
-                <div>
-                  <label className={LABEL}>Room</label>
-                  <select value={ap.room_id} onChange={(e) => updateAppliance(ai, { room_id: e.target.value })} className={SELECT}>
-                    <option value="">-- Any Room --</option>
-                    {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={LABEL}>Notes</label>
-                  <div className="flex gap-1">
-                    <input value={ap.notes} onChange={(e) => updateAppliance(ai, { notes: e.target.value })} placeholder="Notes" className={INPUT} />
-                    <button onClick={() => removeAppliance(ai)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
+              <div key={ai} className="bg-[#2d2d2d] rounded p-3 space-y-2">
+                {/* Row 1: Type / Manufacturer / Model / Room / Notes + remove */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  <div>
+                    <label className={LABEL}>Type</label>
+                    {(() => {
+                      const KNOWN_TYPES = ["Range","Hood","Dishwasher","Refrigerator","Microwave","Wine Fridge","Warming Drawer","Washer/Dryer","Ice Maker","Under-Mount Sink","Apron Sink","Plumbing Fixture","Sink","Faucet","Other"];
+                      const selectVal = KNOWN_TYPES.includes(ap.appliance_type) ? ap.appliance_type : (ap.appliance_type ? "Other" : "");
+                      const isOther = selectVal === "Other";
+                      return (
+                        <>
+                          <select
+                            value={selectVal}
+                            onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value })}
+                            className={SELECT}
+                          >
+                            <option value="">-- Type --</option>
+                            {KNOWN_TYPES.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                          {isOther && (
+                            <input
+                              value={KNOWN_TYPES.includes(ap.appliance_type) ? "" : ap.appliance_type}
+                              onChange={(e) => updateAppliance(ai, { appliance_type: e.target.value || "Other" })}
+                              placeholder="Describe…"
+                              className={INPUT + " mt-1"}
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
+                  <div>
+                    <label className={LABEL}>Manufacturer</label>
+                    <input value={ap.manufacturer} onChange={(e) => updateAppliance(ai, { manufacturer: e.target.value })} placeholder="Brand" className={INPUT} />
+                  </div>
+                  <div>
+                    <label className={LABEL}>Model #</label>
+                    <input
+                      value={ap.model_no}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const match = catalogs.applianceCatalog?.find((r) => r.model.toLowerCase() === val.toLowerCase());
+                        updateAppliance(ai, {
+                          model_no: val,
+                          ...(match ? { cutout_w: String(match.cutout_w), cutout_h: String(match.cutout_h), cutout_d: String(match.cutout_d) } : {}),
+                        });
+                      }}
+                      placeholder="Model / Part #"
+                      className={INPUT}
+                    />
+                  </div>
+                  <div>
+                    <label className={LABEL}>Room</label>
+                    <select value={ap.room_id} onChange={(e) => updateAppliance(ai, { room_id: e.target.value })} className={SELECT}>
+                      <option value="">-- Any Room --</option>
+                      {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={LABEL}>Notes</label>
+                    <div className="flex gap-1">
+                      <input value={ap.notes} onChange={(e) => updateAppliance(ai, { notes: e.target.value })} placeholder="Panel Ready, etc." className={INPUT} />
+                      <button onClick={() => removeAppliance(ai)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
+                    </div>
+                  </div>
+                </div>
+                {/* Row 2: Cutout dims (W × H × D) */}
+                <div className="flex items-end gap-2">
+                  <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest self-center pr-1">Cutout</p>
+                  {(["cutout_w","cutout_h","cutout_d"] as const).map((dim) => (
+                    <div key={dim} className="w-20">
+                      <label className={LABEL}>{dim === "cutout_w" ? "W″" : dim === "cutout_h" ? "H″" : "D″"}</label>
+                      <input
+                        type="number"
+                        step="0.125"
+                        value={ap[dim as keyof ApplianceRow] as string ?? ""}
+                        onChange={(e) => updateAppliance(ai, { [dim]: e.target.value } as Partial<ApplianceRow>)}
+                        placeholder="—"
+                        className={INPUT}
+                      />
+                    </div>
+                  ))}
+                  <p className="text-white/20 text-[10px] self-end pb-2">inches — auto-fills if model # is in catalog</p>
                 </div>
               </div>
             ))}
@@ -1698,56 +1917,268 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               </button>
             )}
           </div>
+
+          {/* ── Accessories ──────────────────────────────────────────────── */}
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-3">Accessories</p>
+            <div className="space-y-2">
+              {specAccs.map((a, ai) => (
+                <div key={ai} className="bg-[#2d2d2d] rounded p-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <div>
+                      <label className={LABEL}>Type</label>
+                      <input value={a.type} onChange={(e) => updateSpecAcc(ai, { type: e.target.value })} placeholder="Closet Rod, Lazy Susan…" className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Part #</label>
+                      <input value={a.part_number} onChange={(e) => updateSpecAcc(ai, { part_number: e.target.value })} placeholder="Part #" className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Room</label>
+                      <input value={a.room} onChange={(e) => updateSpecAcc(ai, { room: e.target.value })} placeholder="Kitchen, Master Bath…" className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Size</label>
+                      <input value={a.size} onChange={(e) => updateSpecAcc(ai, { size: e.target.value })} placeholder='48", 15"…' className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Notes</label>
+                      <div className="flex gap-1">
+                        <input value={a.notes} onChange={(e) => updateSpecAcc(ai, { notes: e.target.value })} placeholder="Notes" className={INPUT} />
+                        <button onClick={() => removeSpecAcc(ai)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 mt-2">
+              <button onClick={addSpecAcc} className="border border-dashed border-white/20 hover:border-[#f08122] text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs rounded py-3 px-6 transition-colors">
+                + Add Accessory
+              </button>
+              {specAccs.length > 0 && (
+                <button onClick={saveSpecAccs} className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-3 px-6 rounded transition-colors">
+                  Save Accessories
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* ── Hardware ─────────────────────────────────────────────────── */}
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-3">Hardware</p>
+            <p className="text-white/20 text-[10px] font-condensed mb-3">Hinges, drawer guides, shelf clips, special callouts (heavy-duty glides, hinge restrictors, etc.)</p>
+            <div className="space-y-2">
+              {specHW.map((h, hi) => (
+                <div key={hi} className="bg-[#2d2d2d] rounded p-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <div>
+                      <label className={LABEL}>Type</label>
+                      <input value={h.type} onChange={(e) => updateSpecHW(hi, { type: e.target.value })} placeholder="Hinges, Drawer Slides…" className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Part #</label>
+                      <input value={h.part_no} onChange={(e) => updateSpecHW(hi, { part_no: e.target.value })} placeholder="Part #" className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Room</label>
+                      <input value={h.room} onChange={(e) => updateSpecHW(hi, { room: e.target.value })} placeholder="All, Kitchen…" className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Qty</label>
+                      <input type="number" min={0} value={h.qty} onChange={(e) => updateSpecHW(hi, { qty: parseInt(e.target.value) || 1 })} className={INPUT} />
+                    </div>
+                    <div>
+                      <label className={LABEL}>Notes</label>
+                      <div className="flex gap-1">
+                        <input value={h.notes} onChange={(e) => updateSpecHW(hi, { notes: e.target.value })} placeholder="Notes" className={INPUT} />
+                        <button onClick={() => removeSpecHW(hi)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 mt-2 flex-wrap">
+              {specHW.length === 0 && (
+                <button
+                  onClick={() => {
+                    const defaults: SpecHardwareItem[] = [
+                      { id: uid(), type: "Hinges", part_no: "", room: "All", qty: 1, notes: "", sort_order: 0 },
+                      { id: uid(), type: "Drawer Slides", part_no: "", room: "All", qty: 1, notes: "", sort_order: 1 },
+                      { id: uid(), type: "Shelf Clips", part_no: "", room: "All", qty: 1, notes: "", sort_order: 2 },
+                      { id: uid(), type: "Soft-Close Buffers", part_no: "", room: "All", qty: 1, notes: "", sort_order: 3 },
+                    ];
+                    setSpecHW(defaults); markDirty();
+                  }}
+                  className="bg-white/5 hover:bg-white/10 border border-white/15 text-white/50 hover:text-white font-condensed uppercase tracking-widest text-xs rounded py-3 px-5 transition-colors"
+                >
+                  Preload Standard Hardware
+                </button>
+              )}
+              <button onClick={addSpecHW} className="border border-dashed border-white/20 hover:border-[#f08122] text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs rounded py-3 px-6 transition-colors">
+                + Add Hardware Row
+              </button>
+              {specHW.length > 0 && (
+                <button onClick={saveSpecHW} className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs py-3 px-6 rounded transition-colors">
+                  Save Hardware
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
       {/* SUMMARY */}
       {tab === "summary" && (
-        <div className="space-y-4">
-          {rooms.length === 0 ? (
-            <p className="text-white/20 font-condensed uppercase tracking-widest text-xs">No rooms defined yet.</p>
-          ) : rooms.map((room) => {
-            const finishes = (room.finishes ?? []).filter((f) => f.finish_group_id);
-            const links = finishes.length > 0
-              ? finishes
-              : (room.finish_group_id ? [{ finish_group_id: room.finish_group_id, zone: "", sort_order: 0 }] : []);
+        <div className="space-y-6">
 
-            return (
-              <div key={room.id} className="bg-[#2d2d2d] rounded p-5">
-                <p className="text-white font-medium text-sm mb-3">{room.name || "Unnamed Room"}</p>
-                {links.length === 0 ? (
-                  <p className="text-yellow-400/60 text-xs italic">No finish assigned yet</p>
-                ) : (
-                  <div className="space-y-3">
-                    {links.map((link, li) => {
-                      const fg   = groups.find((g) => g.id === link.finish_group_id);
-                      const door = fg ? catalogs.doorStyles.find((d) => d.id === fg.door_style_id) : null;
-                      const pull = fg ? catalogs.hardwarePulls.find((p) => p.id === fg.pull_id) : null;
-                      const carc = fg ? catalogs.carcassMaterials.find((c) => c.id === fg.carcass_id) : null;
-                      const dbox = fg ? catalogs.drawerBoxes.find((d) => d.id === fg.drawer_box_id) : null;
-                      const eb   = fg ? catalogs.edgebands.find((e) => e.id === fg.edgeband_id) : null;
-                      return (
-                        <div key={li} className="border-l-2 border-[#f08122]/30 pl-3">
-                          <p className="text-[#f08122]/80 text-xs font-condensed uppercase tracking-widest mb-2">
-                            {link.zone ? `${link.zone} - ` : ""}{fg?.label}
-                          </p>
-                          <div className="grid sm:grid-cols-3 gap-x-6 gap-y-1 text-xs">
-                            <SumRow label="Color"        value={fg?.color_name?.split(" - ")[0]} />
-                            <SumRow label="Type"         value={fg?.finish_type} />
-                            <SumRow label="Door Style"   value={door?.name} />
-                            <SumRow label="Hardware"     value={pull?.name} />
-                            <SumRow label="Carcass"      value={carc?.name} />
-                            <SumRow label="Drawer Box"   value={dbox?.name} />
-                            <SumRow label="Edgeband"     value={eb?.product_name} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+          {/* ── Validation banner ─────────────────────────────────────── */}
+          {(() => {
+            const issues: string[] = [];
+            if (groups.length === 0) issues.push("No finish groups defined");
+            groups.forEach((g) => {
+              if (!g.door_style_id) issues.push(`${g.label}: no door style selected`);
+              if (!g.carcass_id) issues.push(`${g.label}: no carcass material selected`);
+              if (!g.drawer_box_id) issues.push(`${g.label}: no drawer box selected`);
+              if (!g.edgeband_id) issues.push(`${g.label}: no edgeband selected`);
+            });
+            rooms.forEach((r) => {
+              const hasFinish = (r.finishes ?? []).some((f) => f.finish_group_id) || r.finish_group_id;
+              if (!hasFinish) issues.push(`Room "${r.name || "Unnamed"}": no finish group assigned`);
+            });
+            if (issues.length === 0) return (
+              <div className="flex items-center gap-2 text-green-400/80 text-xs font-condensed uppercase tracking-widest">
+                <span>✓</span><span>All required fields complete — ready to generate</span>
               </div>
             );
-          })}
+            return (
+              <div className="bg-yellow-400/10 border border-yellow-400/30 rounded p-4 space-y-1">
+                <p className="text-yellow-400 text-xs font-condensed uppercase tracking-widest mb-2">⚠ {issues.length} issue{issues.length > 1 ? "s" : ""} to fix before generating</p>
+                {issues.map((iss, i) => (
+                  <p key={i} className="text-yellow-300/70 text-xs">· {iss}</p>
+                ))}
+              </div>
+            );
+          })()}
+
+          {/* ── Finish Groups ─────────────────────────────────────────── */}
+          <div>
+            <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">Finish Groups</p>
+            <div className="space-y-3">
+              {groups.map((g) => {
+                const door = catalogs.doorStyles.find((d) => d.id === g.door_style_id);
+                const carc = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
+                const dbox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
+                const eb   = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
+                const fgPulls = pulls[g.id] ?? [];
+                const doorFlag = !g.door_style_id || door?.name === "Other / Custom";
+                return (
+                  <div key={g.id} className="bg-[#2d2d2d] rounded p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-[#f08122] font-condensed uppercase tracking-widest text-xs">{g.label}</span>
+                      <span className="text-white/40 text-xs">{g.finish_type}</span>
+                      {doorFlag && <span className="text-yellow-400 text-[10px] font-condensed uppercase tracking-widest">⚠ door needs attention</span>}
+                    </div>
+                    <div className="grid sm:grid-cols-3 gap-x-6 gap-y-1 text-xs mb-3">
+                      <SumRow label="Color"         value={g.color_name?.split(" — ")?.[0] || g.color_name} />
+                      <SumRow label="Door Style"    value={door?.name} warn={doorFlag} />
+                      <SumRow label="Applied Panels" value={g.applied_panels} />
+                      <SumRow label="Species"       value={g.species} />
+                      <SumRow label="Carcass"       value={carc?.name} />
+                      <SumRow label="Drawer Box"    value={dbox?.name} />
+                      <SumRow label="Edgeband"      value={eb?.product_name} />
+                    </div>
+                    {fgPulls.length > 0 && (
+                      <div>
+                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-1">Pulls</p>
+                        <div className="space-y-0.5">
+                          {fgPulls.map((p, pi) => (
+                            <p key={pi} className="text-white/60 text-xs">
+                              {p.description}{p.finish_color ? ` · ${p.finish_color}` : ""}{p.qty ? ` · qty ${p.qty}` : ""}{p.where_used ? ` · ${p.where_used}` : ""}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Rooms ─────────────────────────────────────────────────── */}
+          <div>
+            <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">Rooms</p>
+            <div className="space-y-3">
+              {rooms.map((room) => {
+                const finishes = (room.finishes ?? []).filter((f) => f.finish_group_id);
+                const links = finishes.length > 0
+                  ? finishes
+                  : (room.finish_group_id ? [{ finish_group_id: room.finish_group_id, zone: "", sort_order: 0 }] : []);
+                const hasFinish = links.length > 0;
+                return (
+                  <div key={room.id} className={`bg-[#2d2d2d] rounded p-4 ${!hasFinish ? "border border-yellow-400/30" : ""}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <p className="text-white text-sm font-medium">{room.name || "Unnamed Room"}</p>
+                      {!hasFinish && <span className="text-yellow-400 text-[10px] font-condensed uppercase tracking-widest">⚠ no finish assigned</span>}
+                    </div>
+                    {links.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {links.map((link, li) => {
+                          const fg = groups.find((g) => g.id === link.finish_group_id);
+                          return (
+                            <span key={li} className="text-[#f08122]/80 text-xs font-condensed uppercase tracking-widest">
+                              {link.zone ? `${link.zone} · ` : ""}{fg?.label ?? "?"}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {(room.accessories ?? []).filter((a) => a.acc_id).length > 0 && (
+                      <div className="mb-1">
+                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Accessories</p>
+                        {room.accessories.filter((a) => a.acc_id).map((a, ai) => {
+                          const acc = catalogs.revaAccessories.find((x) => x.id === a.acc_id);
+                          return <p key={ai} className="text-white/60 text-xs">{acc?.name ?? a.acc_id} · qty {a.qty}</p>;
+                        })}
+                      </div>
+                    )}
+                    {(room.trim ?? []).length > 0 && (
+                      <div>
+                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Trim</p>
+                        {room.trim.map((t, ti) => (
+                          <p key={ti} className="text-white/60 text-xs">{t.trim_type}{t.size_desc ? ` · ${t.size_desc}` : ""}{t.qty_lf ? ` · ${t.qty_lf} LF` : ""}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Appliances ────────────────────────────────────────────── */}
+          {appliances.length > 0 && (
+            <div>
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-3">Appliances</p>
+              <div className="bg-[#2d2d2d] rounded p-4 space-y-1">
+                {appliances.map((ap, ai) => {
+                  const room = rooms.find((r) => r.id === ap.room_id);
+                  const dims = [ap.cutout_w, ap.cutout_h, ap.cutout_d].filter(Boolean);
+                  return (
+                    <p key={ai} className="text-white/60 text-xs">
+                      {ap.appliance_type}{ap.manufacturer ? ` · ${ap.manufacturer}` : ""}{ap.model_no ? ` · ${ap.model_no}` : ""}
+                      {room ? ` · ${room.name}` : ""}
+                      {dims.length === 3 ? ` · ${ap.cutout_w}W × ${ap.cutout_h}H × ${ap.cutout_d}D″` : ""}
+                      {ap.notes ? ` · ${ap.notes}` : ""}
+                    </p>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
         </div>
       )}
     </div>
@@ -1887,12 +2318,12 @@ function CabinetRow({
   );
 }
 
-function SumRow({ label, value }: { label: string; value?: string | null }) {
+function SumRow({ label, value, warn }: { label: string; value?: string | null; warn?: boolean }) {
   if (!value) return null;
   return (
     <div>
       <span className="text-white/30 font-condensed uppercase tracking-wider mr-2">{label}:</span>
-      <span className="text-white/70 capitalize">{value}</span>
+      <span className={`${warn ? "text-yellow-400" : "text-white/70 capitalize"}`}>{value}</span>
     </div>
   );
 }

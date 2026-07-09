@@ -123,17 +123,25 @@ export function StatusAdvanceButton({
     setSubmitting(true);
     setSubmitError("");
     try {
-      const res = await fetch(`/api/jobs/${jobId}/advance`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          toStatus: target,
-          note: note.trim() || undefined,
-          fileIds: uploadedFiles.map((f) => f.id),
-          _actor: "pm",
-          _actorRole: "pm",
-        }),
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      let res: Response;
+      try {
+        res = await fetch(`/api/jobs/${jobId}/advance`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            toStatus: target,
+            note: note.trim() || undefined,
+            fileIds: uploadedFiles.map((f) => f.id),
+            _actor: "pm",
+            _actorRole: "pm",
+          }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
       const data = await res.json();
       if (!res.ok || !data.ok) {
         setSubmitError(data.error ?? "Failed to advance status");
@@ -146,7 +154,11 @@ export function StatusAdvanceButton({
         router.refresh();
       }, 900);
     } catch (e) {
-      setSubmitError(String(e));
+      if (e instanceof Error && e.name === "AbortError") {
+        setSubmitError("Request timed out — server took too long to respond. Check status and try again.");
+      } else {
+        setSubmitError(String(e));
+      }
       setSubmitting(false);
     }
   }
