@@ -1020,12 +1020,12 @@ function SpanningCalendar({
   const maxLanes = useMemo(() => {
     let max = 0;
     for (const [, lane] of laneMap) if (lane > max) max = lane;
-    return max + 1;
+    return Math.min(max + 1, 2); // cap at 2 lanes so 5 weeks always fit
   }, [laneMap]);
 
-  const ROW_HEADER_H = 22;
-  const LANE_H       = 32;
-  const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
+  const ROW_HEADER_H = 28;
+  const LANE_H       = 26;
+  const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 8;
 
   // Compute bar segments per week row
   const segmentsByWeek = useMemo<BarSegment[][]>(() =>
@@ -1097,8 +1097,8 @@ function SpanningCalendar({
                   onDragOver={(e) => { if (draggingId) { e.preventDefault(); onDragOverCell(iso); } }}
                       onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
                 >
-                  <div className="flex items-baseline gap-1 px-1 pt-0.5" style={{ height: ROW_HEADER_H }}>
-                    <span className={`text-[10px] font-condensed ${isToday ? "text-[#f08122]" : "text-white/20"}`}>
+                  <div className="flex items-center gap-1.5 px-1.5 pt-1" style={{ height: ROW_HEADER_H }}>
+                    <span className={`text-sm font-bold px-1.5 py-0.5 rounded leading-none ${isToday ? "bg-green-500 text-white" : "bg-white/20 text-white/90"}`}>
                       {iso.slice(8)}
                     </span>
                     {holiday && (
