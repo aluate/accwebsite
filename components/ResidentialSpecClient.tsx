@@ -1433,11 +1433,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   <div>
                     <label className={LABEL}>Edgeband {requiresEdgebandPick ? "*" : ""}</label>
                     {g.finish_type === "melamine" ? (
-                      // Melamine: edgeband IS the carcass material — no separate pick needed.
-                      // Store no edgeband_id (null). Display a read-only callout.
-                      <div className={INPUT + " text-white/50 text-xs italic"}>
-                        Matches carcass material
-                      </div>
+                      // Melamine: defaults to matching carcass, but PM can override if needed.
+                      <select
+                        value={g.edgeband_id ?? ""}
+                        onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value || null })}
+                        className={SELECT}
+                      >
+                        <option value="">— Matches carcass material</option>
+                        {catalogs.edgebands.filter((e) => !e.placeholder).map((e) => (
+                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
+                        ))}
+                      </select>
                     ) : (
                       // Paint / Stain: PM must pick an edgeband from the filtered list.
                       <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
@@ -2047,7 +2053,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               if (!g.door_style_id) issues.push(`${g.label}: no door style selected`);
               if (!g.carcass_id) issues.push(`${g.label}: no carcass material selected`);
               if (!g.drawer_box_id) issues.push(`${g.label}: no drawer box selected`);
-              if (!g.edgeband_id) issues.push(`${g.label}: no edgeband selected`);
+              if (!g.edgeband_id && g.finish_type !== "melamine") issues.push(`${g.label}: no edgeband selected`);
             });
             rooms.forEach((r) => {
               const hasFinish = (r.finishes ?? []).some((f) => f.finish_group_id) || r.finish_group_id;
