@@ -65,79 +65,47 @@ export default async function SpecEditorPage({
 }) {
   const { id, specId } = await params;
 
-  const [spec] = await sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as SpecRow[];
+  // ── Batch 1: top-level spec + finish groups + rooms (all independent) ──────
+  const [[specRow], finish_groups, rooms] = await Promise.all([
+    sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as Promise<SpecRow[]>,
+    sql`SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<FGRow[]>,
+    sql`SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<RoomRow[]>,
+  ]);
+  const spec = specRow;
   if (!spec) notFound();
 
-  const finish_groups = await sql`
-    SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order
-  ` as FGRow[];
-
-  const rooms = await sql`
-    SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order
-  ` as RoomRow[];
-
   const roomIds = rooms.map((r) => r.id);
+  const fgIds   = finish_groups.map((g) => g.id);
 
-  const accessories: AccRow[] = roomIds.length
-    ? await sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as AccRow[]
-    : [];
+  // ── Batch 2: all child rows that depend on roomIds/fgIds ────────────────
+  const [
+    accessories, cabinets, roomFinishes, moldingRows, materialRows,
+    pullsRaw, accsRaw,
+    fgPullRowsRaw, roomTrimRowsRaw, specApplianceRows, specAccessoryRows2, specHardwareRows,
+  ] = await Promise.all([
+    roomIds.length ? sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as Promise<AccRow[]> : Promise.resolve([] as AccRow[]),
+    roomIds.length ? sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as Promise<CabinetRow[]> : Promise.resolve([] as CabinetRow[]),
+    roomIds.length ? sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as Promise<RoomFinishRow[]> : Promise.resolve([] as RoomFinishRow[]),
+    fgIds.length   ? sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as Promise<MoldingRow[]> : Promise.resolve([] as MoldingRow[]),
+    fgIds.length   ? sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as Promise<MaterialRow[]> : Promise.resolve([] as MaterialRow[]),
+    sql`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`.catch(() => []) as Promise<PullDbRow[]>,
+    sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`.catch(() => []) as Promise<AccDbRow[]>,
+    fgIds.length   ? sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`.catch(()=>[]) as Promise<FGPullRow[]> : Promise.resolve([] as FGPullRow[]),
+    roomIds.length ? sql`SELECT * FROM room_trim WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order`.catch(()=>[]) as Promise<RoomTrimRow[]> : Promise.resolve([] as RoomTrimRow[]),
+    sql`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order`.catch(()=>[]) as Promise<SpecApplianceRow[]>,
+    sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`.catch(()=>[]) as Promise<SpecAccessoryRow2[]>,
+    sql`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order`.catch(()=>[]) as Promise<SpecHardwareRow[]>,
+  ]);
 
-  const cabinets: CabinetRow[] = roomIds.length
-    ? await sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as CabinetRow[]
-    : [];
+  const accessoriesData: AccessoriesData = buildAccessoriesData(pullsRaw, accsRaw);
+  const fgPullRows      = fgPullRowsRaw;
+  const roomTrimRows    = roomTrimRowsRaw;
 
-  const roomFinishes: RoomFinishRow[] = roomIds.length
-    ? await sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as RoomFinishRow[]
-    : [];
-
-  // Phase 1B (2026-05): per-finish moldings with where-used rooms.
-  const fgIds = finish_groups.map((g) => g.id);
-
-  const moldingRows: MoldingRow[] = fgIds.length
-    ? await sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as MoldingRow[]
-    : [];
-
-  // Spec form v2 child tables (2026-05-06). Material first; others next.
-  const materialRows: MaterialRow[] = fgIds.length
-    ? await sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as MaterialRow[]
-    : [];
-
+  // ── Batch 3: molding rooms (depends on moldingRows from batch 2) ─────────
   const moldingIds = moldingRows.map((m) => m.id);
-
-  // Accessories (pulls + RevAShelf items) -- spec-level, not room-level.
-  // Tables are created on first API call if they don't exist yet.
-  let accessoriesData: AccessoriesData = { pulls: [], accessories: [] };
-  try {
-    const pullsRaw = await sql<PullDbRow[]>`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`;
-    const accsRaw  = await sql<AccDbRow[]>`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`;
-    accessoriesData = buildAccessoriesData(pullsRaw, accsRaw);
-  } catch (e) {
-    void e; // Tables not yet created -- return empty
-  }
-
   const moldingRoomRows: MoldingRoomRow[] = moldingIds.length
     ? await sql`SELECT * FROM finish_molding_rooms WHERE molding_id IN ${sql(moldingIds)}` as MoldingRoomRow[]
     : [];
-
-  // Phase 1 additions: pulls, trim, appliances (2026-07-02)
-  let fgPullRows: FGPullRow[] = [];
-  let roomTrimRows: RoomTrimRow[] = [];
-  let specApplianceRows: SpecApplianceRow[] = [];
-  let specAccessoryRows2: SpecAccessoryRow2[] = [];
-  let specHardwareRows: SpecHardwareRow[] = [];
-  try {
-    fgPullRows = fgIds.length
-      ? await sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FGPullRow[]
-      : [];
-    roomTrimRows = roomIds.length
-      ? await sql`SELECT * FROM room_trim WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as RoomTrimRow[]
-      : [];
-    specApplianceRows = await sql`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order` as SpecApplianceRow[];
-    specAccessoryRows2 = await sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order` as SpecAccessoryRow2[];
-    specHardwareRows = await sql`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order` as SpecHardwareRow[];
-  } catch {
-    // Tables not yet created — will be created on first db-push
-  }
 
   const moldings = moldingRows.map((m) => ({
     id: m.id,
