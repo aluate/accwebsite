@@ -12,11 +12,19 @@ import { ScheduleWallClient } from "@/components/ScheduleWallClient";
  *
  * No DB queries run here - eliminates "DATABASE BUSY" cold-start failures
  * that appeared when 5 parallel queries raced against the Vercel timeout.
+ *
+ * meta refresh every 5 min keeps the TV from triggering its sleep timer.
  */
 export default async function SchedulePage() {
   const session = await requireBuilder();
   const isAdmin = session.role === "admin";
   const today = new Date().toISOString().slice(0, 10);
 
-  return <ScheduleWallClient isAdmin={isAdmin} today={today} />;
+  return (
+    <>
+      {/* Prevent TV sleep timer — reloads every 5 min, also refreshes data */}
+      <meta httpEquiv="refresh" content="300" />
+      <ScheduleWallClient isAdmin={isAdmin} today={today} />
+    </>
+  );
 }
