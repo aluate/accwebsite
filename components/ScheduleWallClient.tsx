@@ -38,25 +38,25 @@ type ScheduleData = {
 // ── Color palette ─────────────────────────────────────────────────────────────
 
 const CREW_PALETTE = [
-  { bg: "rgba(240,129,34,0.22)",  bar: "#f08122", text: "#f08122" }, // ACC orange
-  { bg: "rgba(96,165,250,0.22)",  bar: "#60a5fa", text: "#93c5fd" }, // sky
-  { bg: "rgba(167,139,250,0.22)", bar: "#a78bfa", text: "#c4b5fd" }, // violet
-  { bg: "rgba(74,222,128,0.22)",  bar: "#4ade80", text: "#86efac" }, // green
-  { bg: "rgba(251,113,133,0.22)", bar: "#fb7185", text: "#fda4af" }, // rose
-  { bg: "rgba(250,204,21,0.22)",  bar: "#facc15", text: "#fde047" }, // amber
+  { bg: "rgba(240,129,34,0.50)",  bar: "#f08122", text: "#f08122" }, // ACC orange
+  { bg: "rgba(96,165,250,0.50)",  bar: "#60a5fa", text: "#93c5fd" }, // sky
+  { bg: "rgba(167,139,250,0.50)", bar: "#a78bfa", text: "#c4b5fd" }, // violet
+  { bg: "rgba(74,222,128,0.50)",  bar: "#4ade80", text: "#86efac" }, // green
+  { bg: "rgba(251,113,133,0.50)", bar: "#fb7185", text: "#fda4af" }, // rose
+  { bg: "rgba(250,204,21,0.50)",  bar: "#facc15", text: "#fde047" }, // amber
 ];
-const UNASSIGNED_COLOR = { bg: "rgba(220,38,38,0.22)", bar: "#dc2626", text: "#fca5a5" };
+const UNASSIGNED_COLOR = { bg: "rgba(220,38,38,0.50)", bar: "#dc2626", text: "#fca5a5" };
 const HOT_STRIPE = "#f97316"; // thick left-border stripe for service/punch
 
 // Event-type color palette (Karl to refine shades — mechanism in place)
 const EVENT_TYPE_COLOR: Record<string, { bg: string; bar: string; text: string }> = {
-  cab_delivery:      { bg: "rgba(96,165,250,0.22)",  bar: "#60a5fa", text: "#93c5fd" }, // blue — shipping
-  top_delivery:      { bg: "rgba(34,211,238,0.20)",  bar: "#22d3ee", text: "#67e8f9" }, // cyan — tops
-  install:           { bg: "rgba(249,115,22,0.22)",  bar: "#f97316", text: "#fb923c" }, // orange-red — install
-  service:           { bg: "rgba(250,204,21,0.22)",  bar: "#facc15", text: "#fde047" }, // amber — service
-  punch:             { bg: "rgba(251,113,133,0.22)", bar: "#fb7185", text: "#fda4af" }, // rose — punch
-  final_walkthrough: { bg: "rgba(74,222,128,0.22)",  bar: "#4ade80", text: "#86efac" }, // green — final
-  other:             { bg: "rgba(148,163,184,0.18)", bar: "#94a3b8", text: "#cbd5e1" }, // slate — other
+  cab_delivery:      { bg: "rgba(96,165,250,0.50)",  bar: "#60a5fa", text: "#93c5fd" }, // blue — shipping
+  top_delivery:      { bg: "rgba(34,211,238,0.50)",  bar: "#22d3ee", text: "#67e8f9" }, // cyan — tops
+  install:           { bg: "rgba(249,115,22,0.50)",  bar: "#f97316", text: "#fb923c" }, // orange-red — install
+  service:           { bg: "rgba(250,204,21,0.50)",  bar: "#facc15", text: "#fde047" }, // amber — service
+  punch:             { bg: "rgba(251,113,133,0.50)", bar: "#fb7185", text: "#fda4af" }, // rose — punch
+  final_walkthrough: { bg: "rgba(74,222,128,0.50)",  bar: "#4ade80", text: "#86efac" }, // green — final
+  other:             { bg: "rgba(148,163,184,0.50)", bar: "#94a3b8", text: "#cbd5e1" }, // slate — other
 };
 function eventTypeColor(eventType: string) {
   return EVENT_TYPE_COLOR[eventType] ?? UNASSIGNED_COLOR;
@@ -1024,7 +1024,7 @@ function SpanningCalendar({
   }, [laneMap]);
 
   const ROW_HEADER_H = 22;
-  const LANE_H       = 20;
+  const LANE_H       = 32;
   const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
 
   // Compute bar segments per week row
@@ -1163,7 +1163,7 @@ function SpanningCalendar({
                     color:       col.text,
                     paddingLeft:  5,
                     paddingRight: seg.continuesNext ? 2 : 4,
-                    fontSize:     12,
+                    fontSize:     18,
                     zIndex:       10 + lane,
                   }}
                   title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
@@ -1174,12 +1174,7 @@ function SpanningCalendar({
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
                     {!seg.isContinuation && clientLabel}
-                    {!seg.isContinuation && ev.crew_name && (
-                      <span className="opacity-60"> &middot; {ev.crew_name}</span>
-                    )}
-                    {!seg.isContinuation && ev.description && (
-                      <span className="opacity-55"> &mdash; {ev.description}</span>
-                    )}
+
                     {split && (
                       <span className="opacity-45"> [{split}]</span>
                     )}
