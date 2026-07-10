@@ -155,7 +155,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const roomViews: RoomView[] = rooms.map((r) => {
     const finishes=rfs.filter(f=>f.room_id===r.id).map(f=>({finish_group_id:f.finish_group_id,finish_label:fgLabelIdx.get(f.finish_group_id)??f.finish_group_id,zone:f.zone??""}));
     const seeded=finishes.length===0&&r.finish_group_id?[{finish_group_id:r.finish_group_id,finish_label:fgLabelIdx.get(r.finish_group_id)??r.finish_group_id,zone:""}]:finishes;
-    return{id:r.id,name:r.name,notes:r.notes??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:""}),qty:a.qty}))};
+    return{id:r.id,name:r.name,notes:r.notes??"",flooring:(r as Record<string,unknown>).flooring as string??"",ceiling_height:(r as Record<string,unknown>).ceiling_height as string??"",soffit:(r as Record<string,unknown>).soffit as string??"",backsplash:(r as Record<string,unknown>).backsplash as string??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:""}),qty:a.qty}))};
   });
 
   const accRollupMap=new Map<string,AccessoryRollupRow>();

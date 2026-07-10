@@ -2164,6 +2164,22 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         ))}
                       </div>
                     )}
+                    {(room.flooring || room.ceiling_height || room.soffit || room.backsplash) && (
+                      <div className="mt-1">
+                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Room Details</p>
+                        <p className="text-white/60 text-xs">
+                          {[
+                            room.flooring       ? `Floor: ${room.flooring}`           : "",
+                            room.ceiling_height ? `Ceiling: ${room.ceiling_height}`   : "",
+                            room.soffit         ? `Soffit: ${room.soffit}`             : "",
+                            room.backsplash     ? `Backsplash: ${room.backsplash}`     : "",
+                          ].filter(Boolean).join(" · ")}
+                        </p>
+                      </div>
+                    )}
+                    {room.notes && (
+                      <p className="text-white/50 text-xs italic mt-1">{room.notes}</p>
+                    )}
                   </div>
                 );
               })}

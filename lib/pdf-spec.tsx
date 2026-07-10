@@ -43,6 +43,7 @@ export type FinishGroupView = {
 export type RoomFinishView = { finish_group_id: string; finish_label: string; zone: string };
 export type RoomView = {
   id: string; name: string; notes: string;
+  flooring: string; ceiling_height: string; soffit: string; backsplash: string;
   finishes: RoomFinishView[];
   accessories: { name: string; brand: string; qty: number }[];
 };
@@ -327,7 +328,16 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
               <View key={room.id} style={ri % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
                 <Text style={[S.cell, { flex: 2, fontFamily: "Helvetica-Bold" }]}>{room.name || "—"}</Text>
                 <Text style={[S.cell, { flex: 0.8, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fgText}</Text>
-                <Text style={[S.cellMu, { flex: 4.7 }]}>{zones || "—"}</Text>
+                <Text style={[S.cellMu, { flex: 4.7 }]}>
+                  {[
+                    zones,
+                    room.flooring ? `Floor: ${room.flooring}` : "",
+                    room.ceiling_height ? `Ceiling: ${room.ceiling_height}` : "",
+                    room.soffit ? `Soffit: ${room.soffit}` : "",
+                    room.backsplash ? `Backsplash: ${room.backsplash}` : "",
+                    room.notes,
+                  ].filter(Boolean).join(" · ") || "—"}
+                </Text>
               </View>
             );
           })}
