@@ -1023,8 +1023,8 @@ function SpanningCalendar({
     return max + 1;
   }, [laneMap]);
 
-  const ROW_HEADER_H = 36;
-  const LANE_H       = 26;
+  const ROW_HEADER_H = 22;
+  const LANE_H       = 20;
   const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
 
   // Compute bar segments per week row
@@ -1088,7 +1088,7 @@ function SpanningCalendar({
                   key={iso}
                   className={`relative border transition-colors ${
                     isToday
-                      ? "bg-[#f08122]/10 border-[#f08122]/50 border-t-2 border-t-[#f08122]"
+                      ? "bg-green-500/10 border-2 border-green-500"
                       : isDropTarget
                       ? "bg-white/5 border-white/25"
                       : "border-white/5"
@@ -1163,6 +1163,7 @@ function SpanningCalendar({
                     color:       col.text,
                     paddingLeft:  5,
                     paddingRight: seg.continuesNext ? 2 : 4,
+                    fontSize:     12,
                     zIndex:       10 + lane,
                   }}
                   title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
@@ -1193,13 +1194,5 @@ function SpanningCalendar({
         );
       })}
     </div>
-  );
-}
-           })}
-          </div>
-        );
-      })}
-    </div>
-
   );
 }
