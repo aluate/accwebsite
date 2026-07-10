@@ -210,6 +210,15 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
   );
 
+  // View filter: "delivery" | "install" — cycles on TV every 60s
+  const DELIVERY_TYPES = new Set(["cab_delivery", "top_delivery"]);
+  const [calView, setCalView] = useState<"delivery" | "install">("delivery");
+  useEffect(() => {
+    if (!tvMode) return;
+    const id = setInterval(() => setCalView((v) => v === "delivery" ? "install" : "delivery"), 60000);
+    return () => clearInterval(id);
+  }, [tvMode]);
+
   const fetchData = useCallback(async () => {
     setFetching(true);
     setLoadError(false);
@@ -326,7 +335,14 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     [filteredForward, visibleStart, visibleEnd]
   );
 
-  const laneMap = useMemo(() => assignLanes(visibleEvents), [visibleEvents]);
+  const DELIVERY_SET = new Set(["cab_delivery", "top_delivery"]);
+  const viewEvents = useMemo(() =>
+    visibleEvents.filter((e) =>
+      calView === "delivery" ? DELIVERY_SET.has(e.event_type) : !DELIVERY_SET.has(e.event_type)
+    ),
+    [visibleEvents, calView]
+  );
+  const laneMap = useMemo(() => assignLanes(viewEvents), [viewEvents]);
 
   // Mobile agenda: week days Mon-Fri for the selected week
   const mobileWeekDays = useMemo(() => {
@@ -489,6 +505,21 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
                 Today
               </button>
             </div>
+
+            {/* View filter tabs */}
+            <div className="flex gap-1">
+              {(["delivery", "install"] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setCalView(v)}
+                  className={`px-3 py-1 rounded text-[10px] font-condensed uppercase tracking-widest transition-colors ${
+                    calView === v ? "bg-[#f08122] text-white" : "bg-white/5 text-white/40 hover:text-white/70"
+                  }`}
+                >
+                  {v === "delivery" ? "📦 Deliveries" : "🔨 Installs"}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -534,6 +565,29 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         </header>
       )}
 
+      {/* TV view label — cycles every 60s */}
+      {tvMode && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCalView("delivery")}
+              className={`px-4 py-1.5 rounded font-condensed uppercase tracking-widest text-sm transition-colors ${calView === "delivery" ? "bg-blue-500/80 text-white" : "bg-white/10 text-white/50"}`}
+            >
+              📦 Deliveries
+            </button>
+            <button
+              onClick={() => setCalView("install")}
+              className={`px-4 py-1.5 rounded font-condensed uppercase tracking-widest text-sm transition-colors ${calView === "install" ? "bg-orange-500/80 text-white" : "bg-white/10 text-white/50"}`}
+            >
+              🔨 Installs &amp; Service
+            </button>
+          </div>
+          <span className="text-white/30 text-[10px] font-condensed uppercase tracking-widest">
+            auto-cycles every 60s
+          </span>
+        </div>
+      )}
+
       {/* Body */}
       <div className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
 
@@ -544,7 +598,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             today={today}
             visibleStart={visibleStart}
             visibleEnd={visibleEnd}
-            events={visibleEvents}
+            events={viewEvents}
             laneMap={laneMap}
             tvMode={tvMode}
             crews={crews}
