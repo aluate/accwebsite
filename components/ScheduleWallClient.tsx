@@ -1177,8 +1177,12 @@ function SpanningCalendar({
                   )}
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
-                    {!seg.isContinuation && clientLabel}
-
+                    {/* Always show name — on continuations too so you can read it at the week boundary */}
+                    {clientLabel}
+                    {/* Crew only on install-type events (not delivery) */}
+                    {ev.crew_name && ev.event_type !== "cab_delivery" && ev.event_type !== "top_delivery" && (
+                      <span className="opacity-70"> · {ev.crew_name}</span>
+                    )}
                     {split && (
                       <span className="opacity-45"> [{split}]</span>
                     )}
