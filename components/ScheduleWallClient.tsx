@@ -16,16 +16,23 @@ type JobMini = {
   client_email: string | null;
 };
 
+// ── Props — only auth/date context; data fetched client-side ─────────────────
+
 export type ScheduleWallProps = {
+  today: string;
+  isAdmin?: boolean;
+};
+
+// Shape returned by GET /api/schedule/data
+type ScheduleData = {
   today: string;
   crews: Crew[];
   forwardEvents: JobEventWithJoins[];
   onDeckEvents: JobEventWithJoins[];
   jobs: JobMini[];
-  ptoRows?: (CrewPto & { crew_name: string })[];
+  ptoRows: (CrewPto & { crew_name: string })[];
   windowStartIso: string;
   windowEndIso: string;
-  isAdmin?: boolean;
 };
 
 // ── Color palette ─────────────────────────────────────────────────────────────
@@ -127,23 +134,129 @@ function assignLanes(events: JobEventWithJoins[]): Map<string, number> {
   return laneMap;
 }
 
+// ── Loading skeleton ──────────────────────────────────────────────────────────
+
+function ScheduleSkeleton() {
+  return (
+    <section className="min-h-screen bg-[#0a0a0a] text-white">
+      <header className="px-6 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
+        <div className="h-6 w-24 bg-white/10 rounded animate-pulse" />
+      </header>
+      <div className="hidden md:flex" style={{ minHeight: "calc(100vh - 64px)" }}>
+        <div className="flex-1 p-3 space-y-2">
+          {/* Day-of-week header */}
+          <div className="grid grid-cols-5 gap-px mb-1">
+            {["Mon","Tue","Wed","Thu","Fri"].map((d) => (
+              <div key={d} className="h-5 bg-white/5 rounded animate-pulse" />
+            ))}
+          </div>
+          {/* Week rows */}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-5 gap-px">
+              {Array.from({ length: 5 }).map((_, j) => (
+                <div key={j} className="h-20 bg-white/5 rounded animate-pulse" />
+              ))}
+            </div>
+          ))}
+        </div>
+        <aside className="w-48 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
+          <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-12 bg-white/5 rounded animate-pulse" />
+          ))}
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+// ── Error banner ──────────────────────────────────────────────────────────────
+
+function ScheduleErrorBanner({ onRetry, loading }: { onRetry: () => void; loading: boolean }) {
+  return (
+    <section className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center gap-4">
+      <p className="text-white/50 text-sm font-condensed">
+        Couldn&apos;t load schedule data.
+      </p>
+      <button
+        onClick={onRetry}
+        disabled={loading}
+        className="flex items-center gap-2 bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+      >
+        {loading ? (
+          <>
+            <span className="inline-block w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            Retrying…
+          </>
+        ) : (
+          "Try Again"
+        )}
+      </button>
+    </section>
+  );
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 
-export function ScheduleWallClient(props: ScheduleWallProps) {
-  const { today, crews, jobs, ptoRows = [], isAdmin = false } = props;
+export function ScheduleWallClient({ today: initialToday, isAdmin = false }: ScheduleWallProps) {
+  // ── Data-fetch state ──────────────────────────────────────────────────────
+  const [data, setData] = useState<ScheduleData | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [fetching, setFetching]   = useState(false);
 
-  const [forwardEvents, setForwardEvents] = useState<JobEventWithJoins[]>(props.forwardEvents);
-  const [onDeckEvents,  setOnDeckEvents]  = useState<JobEventWithJoins[]>(props.onDeckEvents);
+  // TV mode: /schedule?tv=1 — read once on mount
+  const [tvMode] = useState(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
+  );
 
-  // Month navigation: default to the month containing today
-  const [viewMonth, setViewMonth] = useState(() => monthKey(today));
+  const fetchData = useCallback(async () => {
+    setFetching(true);
+    setLoadError(false);
+    try {
+      const res = await fetch("/api/schedule/data");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json() as ScheduleData;
+      setData(json);
+      setForwardEvents(json.forwardEvents);
+      setOnDeckEvents(json.onDeckEvents);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+
+  // Initial fetch + 60-second poll for TV mode
+  useEffect(() => {
+    fetchData();
+    if (tvMode) {
+      const id = setInterval(fetchData, 60_000);
+      return () => clearInterval(id);
+    }
+  }, [fetchData, tvMode]);
+
+  // ── Local mutable event state (optimistic updates for drag/drop) ──────────
+  const [forwardEvents, setForwardEvents] = useState<JobEventWithJoins[]>([]);
+  const [onDeckEvents,  setOnDeckEvents]  = useState<JobEventWithJoins[]>([]);
+
+  // Keep local state in sync whenever a fresh fetch lands
+  // (handled inside fetchData above)
+
+  const today   = data?.today ?? initialToday;
+  const crews   = data?.crews ?? [];
+  const jobs    = data?.jobs  ?? [];
+  const ptoRows = data?.ptoRows ?? [];
+
+  // ── Week-anchor navigation: always show 5 weeks starting from anchor Monday ─
+  const [viewWeekStart, setViewWeekStart] = useState(() => isoWeekStart(initialToday));
   const [jumpValue, setJumpValue] = useState("");
 
   const [showAddForm, setShowAddForm]   = useState(false);
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
   const [selectedEvent,  setSelectedEvent]  = useState<JobEventWithJoins | null>(null);
   const [editingEvent,   setEditingEvent]   = useState<JobEventWithJoins | null>(null);
-  const [mobileWeekStart, setMobileWeekStart] = useState<string>(() => isoWeekStart(today));
+  const [mobileWeekStart, setMobileWeekStart] = useState<string>(() => isoWeekStart(initialToday));
 
   const [draggingId,    setDraggingId]    = useState<string | null>(null);
   const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
@@ -153,31 +266,19 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
 
-  // TV mode: /schedule?tv=1 — read once on mount
-  const [tvMode] = useState(() =>
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
-  );
-
-  // ── Weeks visible for the current view month ──────────────────────────────
+  // ── 5-week rolling window starting from viewWeekStart ────────────────────
   const weeks: string[][] = useMemo(() => {
-    const firstDay  = isoFirstOfMonth(viewMonth);
-    const lastDay   = isoLastOfMonth(viewMonth);
-    const startMon  = isoWeekStart(firstDay);
-    const endMon    = isoWeekStart(lastDay);
     const out: string[][] = [];
-    let cur = startMon;
-    let safety = 8;
-    while (cur <= endMon && safety-- > 0) {
+    for (let w = 0; w < 5; w++) {
       const week: string[] = [];
-      for (let i = 0; i < 5; i++) week.push(isoDateOffset(cur, i));
+      for (let d = 0; d < 5; d++) week.push(isoDateOffset(viewWeekStart, w * 7 + d));
       out.push(week);
-      cur = isoDateOffset(cur, 7);
     }
     return out;
-  }, [viewMonth]);
+  }, [viewWeekStart]);
 
-  const visibleStart = weeks[0]?.[0] ?? isoFirstOfMonth(viewMonth);
-  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? isoLastOfMonth(viewMonth);
+  const visibleStart = weeks[0][0];
+  const visibleEnd   = weeks[4][4];
 
   // ── Holiday map for visible range ─────────────────────────────────────────
   const holidayMap = useMemo<Map<string, string>>(() => {
@@ -339,6 +440,13 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
     }
   }
 
+  // ── Render guards ─────────────────────────────────────────────────────────
+
+  if (!data && fetching) return <ScheduleSkeleton />;
+  if (!data && loadError) return <ScheduleErrorBanner onRetry={fetchData} loading={fetching} />;
+  // Still loading on first mount and not yet errored — show skeleton
+  if (!data) return <ScheduleSkeleton />;
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <section className="min-h-screen bg-[#0a0a0a] text-white">
@@ -354,39 +462,31 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
               </p>
             </div>
 
-            {/* Month navigation */}
+            {/* Week navigation */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setViewMonth((m) => advanceMonth(m, -1))}
+                onClick={() => setViewWeekStart((w) => isoDateOffset(w, -7))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Previous month"
+                title="Previous week"
               >
                 ‹
               </button>
-              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[7rem] text-center">
-                {MONTH_NAMES[parseInt(viewMonth.slice(5)) - 1]} {viewMonth.slice(0, 4)}
+              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[11rem] text-center">
+                {visibleStart.slice(5).replace("-", "/")} – {visibleEnd.slice(5).replace("-", "/")} {visibleEnd.slice(0, 4)}
               </span>
               <button
-                onClick={() => setViewMonth((m) => advanceMonth(m, 1))}
+                onClick={() => setViewWeekStart((w) => isoDateOffset(w, 7))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Next month"
+                title="Next week"
               >
                 ›
               </button>
               <button
-                onClick={() => setViewMonth(monthKey(today))}
+                onClick={() => setViewWeekStart(isoWeekStart(today))}
                 className="px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-white/70 transition-colors"
               >
                 Today
               </button>
-              {/* Jump to date */}
-              <input
-                type="month"
-                value={viewMonth}
-                onChange={(e) => { if (e.target.value) setViewMonth(e.target.value); }}
-                className="bg-transparent border border-white/10 rounded px-2 py-0.5 text-[10px] text-white/50 focus:outline-none focus:border-[#f08122]/50 w-28"
-                title="Jump to month"
-              />
             </div>
           </div>
 
@@ -463,7 +563,7 @@ export function ScheduleWallClient(props: ScheduleWallProps) {
         {/* On Deck */}
         {!tvMode && (
           <aside
-            className={`w-72 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
+            className={`w-48 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
               dropTargetKey === "ondeck"
                 ? "border-[#f08122]/60 bg-[#1a1410]"
                 : "border-white/5"
@@ -988,14 +1088,14 @@ function SpanningCalendar({
                   key={iso}
                   className={`relative border transition-colors ${
                     isToday
-                      ? "bg-[#f08122]/5 border-[#f08122]/25"
+                      ? "bg-[#f08122]/10 border-[#f08122]/50 border-t-2 border-t-[#f08122]"
                       : isDropTarget
                       ? "bg-white/5 border-white/25"
                       : "border-white/5"
                   }`}
                   style={{ minHeight: CELL_MIN_H }}
                   onDragOver={(e) => { if (draggingId) { e.preventDefault(); onDragOverCell(iso); } }}
-                  onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
+                      onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
                 >
                   <div className="flex items-baseline gap-1 px-1 pt-0.5" style={{ height: ROW_HEADER_H }}>
                     <span className={`text-[10px] font-condensed ${isToday ? "text-[#f08122]" : "text-white/20"}`}>
@@ -1006,10 +1106,9 @@ function SpanningCalendar({
                         className="text-[9px] font-condensed bg-yellow-400/15 text-yellow-300/80 rounded px-1 truncate max-w-[90px]"
                         title={holiday}
                       >
-                        🎉 {holiday}
+                        {holiday}
                       </span>
                     )}
-                  {/* PTO chips — inline in cell, below date header */}
                   {ptoDayList.map((p) => {
                     const crewIdx = crews.findIndex((c) => c.id === p.crew_id);
                     const crewCol = crewIdx === -1 ? UNASSIGNED_COLOR : CREW_PALETTE[crewIdx % CREW_PALETTE.length];
@@ -1018,9 +1117,9 @@ function SpanningCalendar({
                         key={p.id}
                         className="mx-1 mb-0.5 rounded px-1.5 py-0.5 text-[8px] font-condensed uppercase tracking-widest truncate"
                         style={{ background: crewCol.bg, color: crewCol.text, borderLeft: `2px solid ${crewCol.bar}` }}
-                        title={`PTO: ${p.crew_name}${p.note ? ` — ${p.note}` : ""}`}
+                        title={`PTO: ${p.crew_name}${p.note ? ` - ${p.note}` : ""}`}
                       >
-                        ✈ {p.crew_name}
+                        {p.crew_name}
                       </div>
                     );
                   })}
@@ -1029,15 +1128,15 @@ function SpanningCalendar({
               );
             })}
 
-            {/* ── Event bars (absolute positioned over the grid cells) ── */}
+            {/* Event bars (absolute positioned over the grid cells) */}
             {segments.map((seg) => {
               const ev = events.find((e) => e.id === seg.eventId);
               if (!ev) return null;
-              const lane   = laneMap.get(ev.id) ?? 0;
-              const col    = eventTypeColor(ev.event_type);
+              const lane        = laneMap.get(ev.id) ?? 0;
+              const col         = eventTypeColor(ev.event_type);
               const colSpan     = seg.colEnd - seg.colStart + 1;
-              const split        = splitLabels.get(ev.id);
-              const clientLabel  = ev.job_client_name ?? ev.job_id;
+              const split       = splitLabels.get(ev.id);
+              const clientLabel = ev.job_client_name ?? ev.job_id;
 
               return (
                 <div
@@ -1066,26 +1165,26 @@ function SpanningCalendar({
                     paddingRight: seg.continuesNext ? 2 : 4,
                     zIndex:       10 + lane,
                   }}
-                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` — ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
+                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
                 >
                   {seg.isContinuation && (
-                    <span className="mr-0.5 opacity-40 text-[8px]">‹</span>
+                    <span className="mr-0.5 opacity-40 text-[8px]">&#8249;</span>
                   )}
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
                     {!seg.isContinuation && clientLabel}
                     {!seg.isContinuation && ev.crew_name && (
-                      <span className="opacity-60"> · {ev.crew_name}</span>
+                      <span className="opacity-60"> &middot; {ev.crew_name}</span>
                     )}
                     {!seg.isContinuation && ev.description && (
-                      <span className="opacity-55"> — {ev.description}</span>
+                      <span className="opacity-55"> &mdash; {ev.description}</span>
                     )}
                     {split && (
                       <span className="opacity-45"> [{split}]</span>
                     )}
                   </span>
                   {seg.continuesNext && (
-                    <span className="ml-auto shrink-0 opacity-40 text-[8px] pl-0.5">›</span>
+                    <span className="ml-auto shrink-0 opacity-40 text-[8px] pl-0.5">&#8250;</span>
                   )}
                 </div>
               );
@@ -1094,6 +1193,5 @@ function SpanningCalendar({
         );
       })}
     </div>
-
   );
 }
