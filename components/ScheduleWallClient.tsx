@@ -46,6 +46,7 @@ const CREW_PALETTE = [
   { bg: "rgba(250,204,21,0.50)",  bar: "#facc15", text: "#fde047" }, // amber
 ];
 const UNASSIGNED_COLOR = { bg: "rgba(220,38,38,0.50)", bar: "#dc2626", text: "#fca5a5" };
+const SUB_CREW_COLOR   = { bg: "rgba(192,132,252,0.50)", bar: "#c084fc", text: "#d8b4fe" }; // purple — sub installers
 const HOT_STRIPE = "#f97316"; // thick left-border stripe for service/punch
 
 // Event-type color palette (Karl to refine shades — mechanism in place)
@@ -1191,10 +1192,19 @@ function SpanningCalendar({
               const ev = events.find((e) => e.id === seg.eventId);
               if (!ev) return null;
               const lane        = laneMap.get(ev.id) ?? 0;
-              const col         = eventTypeColor(ev.event_type);
+              // Sub-contractor installs get purple; everything else uses event-type color
+              const isDelivery  = ev.event_type === "cab_delivery" || ev.event_type === "top_delivery";
+              const col         = (!isDelivery && ev.crew_kind === "sub")
+                ? SUB_CREW_COLOR
+                : eventTypeColor(ev.event_type);
               const colSpan     = seg.colEnd - seg.colStart + 1;
               const split       = splitLabels.get(ev.id);
+              const jobNum     = ev.job_job_number ? `#${ev.job_job_number}` : null;
               const clientLabel = ev.job_client_name ?? ev.job_id;
+              // For delivery bars: prepend job number; for install bars: name only
+              const barLabel    = (isDelivery && jobNum)
+                ? `${jobNum} · ${clientLabel}`
+                : clientLabel;
 
               return (
                 <div
@@ -1224,7 +1234,7 @@ function SpanningCalendar({
                     fontSize:     tvMode ? 18 : 13,
                     zIndex:       10 + lane,
                   }}
-                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
+                  title={`${barLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
                 >
                   {seg.isContinuation && (
                     <span className="mr-0.5 opacity-40 text-[8px]">&#8249;</span>
@@ -1232,7 +1242,7 @@ function SpanningCalendar({
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
                     {/* Always show name — on continuations too so you can read it at the week boundary */}
-                    {clientLabel}
+                    {barLabel}
                     {/* Crew only on install-type events (not delivery) */}
                     {ev.crew_name && ev.event_type !== "cab_delivery" && ev.event_type !== "top_delivery" && (
                       <span className="opacity-70"> · {ev.crew_name}</span>
