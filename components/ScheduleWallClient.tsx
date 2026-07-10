@@ -160,7 +160,7 @@ function ScheduleSkeleton() {
             </div>
           ))}
         </div>
-        <aside className="w-48 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
+        <aside className="w-72 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
           <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-12 bg-white/5 rounded animate-pulse" />
@@ -248,8 +248,8 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const jobs    = data?.jobs  ?? [];
   const ptoRows = data?.ptoRows ?? [];
 
-  // ── Week-anchor navigation: always show 5 weeks starting from anchor Monday ─
-  const [viewWeekStart, setViewWeekStart] = useState(() => isoWeekStart(initialToday));
+  // ── Month navigation: default to the month containing today ───────────────
+  const [viewMonth, setViewMonth] = useState(() => monthKey(initialToday));
   const [jumpValue, setJumpValue] = useState("");
 
   const [showAddForm, setShowAddForm]   = useState(false);
@@ -266,19 +266,26 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
 
-  // ── 5-week rolling window starting from viewWeekStart ────────────────────
+  // ── Weeks visible for the current view month ──────────────────────────────
   const weeks: string[][] = useMemo(() => {
+    const firstDay  = isoFirstOfMonth(viewMonth);
+    const lastDay   = isoLastOfMonth(viewMonth);
+    const startMon  = isoWeekStart(firstDay);
+    const endMon    = isoWeekStart(lastDay);
     const out: string[][] = [];
-    for (let w = 0; w < 5; w++) {
+    let cur = startMon;
+    let safety = 8;
+    while (cur <= endMon && safety-- > 0) {
       const week: string[] = [];
-      for (let d = 0; d < 5; d++) week.push(isoDateOffset(viewWeekStart, w * 7 + d));
+      for (let i = 0; i < 5; i++) week.push(isoDateOffset(cur, i));
       out.push(week);
+      cur = isoDateOffset(cur, 7);
     }
     return out;
-  }, [viewWeekStart]);
+  }, [viewMonth]);
 
-  const visibleStart = weeks[0][0];
-  const visibleEnd   = weeks[4][4];
+  const visibleStart = weeks[0]?.[0] ?? isoFirstOfMonth(viewMonth);
+  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? isoLastOfMonth(viewMonth);
 
   // ── Holiday map for visible range ─────────────────────────────────────────
   const holidayMap = useMemo<Map<string, string>>(() => {
@@ -462,31 +469,39 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
               </p>
             </div>
 
-            {/* Week navigation */}
+            {/* Month navigation */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setViewWeekStart((w) => isoDateOffset(w, -7))}
+                onClick={() => setViewMonth((m) => advanceMonth(m, -1))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Previous week"
+                title="Previous month"
               >
                 ‹
               </button>
-              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[11rem] text-center">
-                {visibleStart.slice(5).replace("-", "/")} – {visibleEnd.slice(5).replace("-", "/")} {visibleEnd.slice(0, 4)}
+              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[7rem] text-center">
+                {MONTH_NAMES[parseInt(viewMonth.slice(5)) - 1]} {viewMonth.slice(0, 4)}
               </span>
               <button
-                onClick={() => setViewWeekStart((w) => isoDateOffset(w, 7))}
+                onClick={() => setViewMonth((m) => advanceMonth(m, 1))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Next week"
+                title="Next month"
               >
                 ›
               </button>
               <button
-                onClick={() => setViewWeekStart(isoWeekStart(today))}
+                onClick={() => setViewMonth(monthKey(today))}
                 className="px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-white/70 transition-colors"
               >
                 Today
               </button>
+              {/* Jump to date */}
+              <input
+                type="month"
+                value={viewMonth}
+                onChange={(e) => { if (e.target.value) setViewMonth(e.target.value); }}
+                className="bg-transparent border border-white/10 rounded px-2 py-0.5 text-[10px] text-white/50 focus:outline-none focus:border-[#f08122]/50 w-28"
+                title="Jump to month"
+              />
             </div>
           </div>
 
@@ -563,7 +578,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         {/* On Deck */}
         {!tvMode && (
           <aside
-            className={`w-48 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
+            className={`w-72 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
               dropTargetKey === "ondeck"
                 ? "border-[#f08122]/60 bg-[#1a1410]"
                 : "border-white/5"
@@ -1023,8 +1038,8 @@ function SpanningCalendar({
     return max + 1;
   }, [laneMap]);
 
-  const ROW_HEADER_H = 36;
-  const LANE_H       = 26;
+  const ROW_HEADER_H = 22;
+  const LANE_H       = 20;
   const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
 
   // Compute bar segments per week row
@@ -1088,7 +1103,7 @@ function SpanningCalendar({
                   key={iso}
                   className={`relative border transition-colors ${
                     isToday
-                      ? "bg-[#f08122]/10 border-[#f08122]/50 border-t-2 border-t-[#f08122]"
+                      ? "bg-green-500/10 border-2 border-green-500"
                       : isDropTarget
                       ? "bg-white/5 border-white/25"
                       : "border-white/5"
@@ -1163,6 +1178,7 @@ function SpanningCalendar({
                     color:       col.text,
                     paddingLeft:  5,
                     paddingRight: seg.continuesNext ? 2 : 4,
+                    fontSize:     12,
                     zIndex:       10 + lane,
                   }}
                   title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
@@ -1189,9 +1205,4 @@ function SpanningCalendar({
                 </div>
               );
             })}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+          <
