@@ -160,7 +160,7 @@ function ScheduleSkeleton() {
             </div>
           ))}
         </div>
-        <aside className="w-72 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
+        <aside className="w-48 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
           <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-12 bg-white/5 rounded animate-pulse" />
@@ -248,8 +248,8 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const jobs    = data?.jobs  ?? [];
   const ptoRows = data?.ptoRows ?? [];
 
-  // ── Month navigation: default to the month containing today ───────────────
-  const [viewMonth, setViewMonth] = useState(() => monthKey(initialToday));
+  // ── Week-anchor navigation: always show 5 weeks starting from anchor Monday ─
+  const [viewWeekStart, setViewWeekStart] = useState(() => isoWeekStart(initialToday));
   const [jumpValue, setJumpValue] = useState("");
 
   const [showAddForm, setShowAddForm]   = useState(false);
@@ -266,26 +266,19 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
 
-  // ── Weeks visible for the current view month ──────────────────────────────
+  // ── 5-week rolling window starting from viewWeekStart ────────────────────
   const weeks: string[][] = useMemo(() => {
-    const firstDay  = isoFirstOfMonth(viewMonth);
-    const lastDay   = isoLastOfMonth(viewMonth);
-    const startMon  = isoWeekStart(firstDay);
-    const endMon    = isoWeekStart(lastDay);
     const out: string[][] = [];
-    let cur = startMon;
-    let safety = 8;
-    while (cur <= endMon && safety-- > 0) {
+    for (let w = 0; w < 5; w++) {
       const week: string[] = [];
-      for (let i = 0; i < 5; i++) week.push(isoDateOffset(cur, i));
+      for (let d = 0; d < 5; d++) week.push(isoDateOffset(viewWeekStart, w * 7 + d));
       out.push(week);
-      cur = isoDateOffset(cur, 7);
     }
     return out;
-  }, [viewMonth]);
+  }, [viewWeekStart]);
 
-  const visibleStart = weeks[0]?.[0] ?? isoFirstOfMonth(viewMonth);
-  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? isoLastOfMonth(viewMonth);
+  const visibleStart = weeks[0][0];
+  const visibleEnd   = weeks[4][4];
 
   // ── Holiday map for visible range ─────────────────────────────────────────
   const holidayMap = useMemo<Map<string, string>>(() => {
@@ -469,39 +462,31 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
               </p>
             </div>
 
-            {/* Month navigation */}
+            {/* Week navigation */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setViewMonth((m) => advanceMonth(m, -1))}
+                onClick={() => setViewWeekStart((w) => isoDateOffset(w, -7))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Previous month"
+                title="Previous week"
               >
                 ‹
               </button>
-              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[7rem] text-center">
-                {MONTH_NAMES[parseInt(viewMonth.slice(5)) - 1]} {viewMonth.slice(0, 4)}
+              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[11rem] text-center">
+                {visibleStart.slice(5).replace("-", "/")} – {visibleEnd.slice(5).replace("-", "/")} {visibleEnd.slice(0, 4)}
               </span>
               <button
-                onClick={() => setViewMonth((m) => advanceMonth(m, 1))}
+                onClick={() => setViewWeekStart((w) => isoDateOffset(w, 7))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Next month"
+                title="Next week"
               >
                 ›
               </button>
               <button
-                onClick={() => setViewMonth(monthKey(today))}
+                onClick={() => setViewWeekStart(isoWeekStart(today))}
                 className="px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-white/70 transition-colors"
               >
                 Today
               </button>
-              {/* Jump to date */}
-              <input
-                type="month"
-                value={viewMonth}
-                onChange={(e) => { if (e.target.value) setViewMonth(e.target.value); }}
-                className="bg-transparent border border-white/10 rounded px-2 py-0.5 text-[10px] text-white/50 focus:outline-none focus:border-[#f08122]/50 w-28"
-                title="Jump to month"
-              />
             </div>
           </div>
 
@@ -578,7 +563,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         {/* On Deck */}
         {!tvMode && (
           <aside
-            className={`w-72 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
+            className={`w-48 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
               dropTargetKey === "ondeck"
                 ? "border-[#f08122]/60 bg-[#1a1410]"
                 : "border-white/5"
@@ -1103,7 +1088,7 @@ function SpanningCalendar({
                   key={iso}
                   className={`relative border transition-colors ${
                     isToday
-                      ? "bg-[#f08122]/5 border-[#f08122]/25"
+                      ? "bg-[#f08122]/10 border-[#f08122]/50 border-t-2 border-t-[#f08122]"
                       : isDropTarget
                       ? "bg-white/5 border-white/25"
                       : "border-white/5"
@@ -1204,6 +1189,13 @@ function SpanningCalendar({
                 </div>
               );
             })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+           })}
           </div>
         );
       })}
