@@ -30,9 +30,20 @@ const INTERNAL_NAV = [
   { label: "Engineering", href: "/engineer" },
 ];
 
+const ADMIN_NAV = [
+  { label: "Users",            href: "/admin/builders" },
+  { label: "Builder Co's",     href: "/admin/builder-companies" },
+  { label: "Libraries",        href: "/admin/libraries" },
+  { label: "Portal Accounts",  href: "/admin/portal-accounts" },
+  { label: "Schedule Admin",   href: "/admin/schedule" },
+  { label: "Search",           href: "/search" },
+  { label: "Punch",            href: "/punch" },
+  { label: "Warranty",         href: "/warranty" },
+];
+
 const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password", "/pm-dashboard"];
 
-export function Header() {
+export function Header({ userRole }: { userRole?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -43,6 +54,7 @@ export function Header() {
     router.refresh();
   }
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   const isInternal = INTERNAL_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
   const isCompanyActive = ["/about", "/tour", "/team"].includes(pathname);
@@ -79,6 +91,38 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
+              {userRole === "admin" && (
+                <div
+                  className="relative"
+                  onMouseEnter={() => setAdminOpen(true)}
+                  onMouseLeave={() => setAdminOpen(false)}
+                >
+                  <button className="px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide text-white/50 hover:text-[#f08122] transition-colors flex items-center gap-1">
+                    Admin ▾
+                  </button>
+                  {adminOpen && (
+                    <div className="absolute top-full right-0 bg-[#2d2d2d] border border-white/10 rounded shadow-lg min-w-[180px] py-1 z-50">
+                      {ADMIN_NAV.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={cn(
+                            "block px-4 py-2 text-sm font-condensed uppercase tracking-wide transition-colors",
+                            pathname.startsWith(item.href)
+                              ? "text-[#f08122]"
+                              : "text-white hover:text-[#f08122]"
+                          )}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                      <div className="border-t border-white/10 mt-1 pt-1">
+                        <span className="block px-4 py-1 text-[10px] font-condensed uppercase tracking-widest text-white/25">Head Admin</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               <button
                 onClick={signOut}
                 className="px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide text-white/30 hover:text-white/70 transition-colors"
@@ -117,6 +161,24 @@ export function Header() {
                       {item.label}
                     </Link>
                   ))}
+                  {userRole === "admin" && (
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <div className="px-3 py-1 text-[10px] text-[#f08122]/60 uppercase tracking-widest mb-1">Admin</div>
+                      {ADMIN_NAV.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setOpen(false)}
+                          className={cn(
+                            "block px-5 py-2 text-sm font-condensed uppercase tracking-wide",
+                            pathname.startsWith(item.href) ? "text-[#f08122]" : "text-white/80"
+                          )}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                   <div className="mt-4 pt-4 border-t border-white/10">
                     <button
                       onClick={signOut}
