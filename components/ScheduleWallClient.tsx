@@ -266,19 +266,20 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
 
-  // ── 5-week rolling window starting from viewWeekStart ────────────────────
+  // ── Week count: 3 on TV (no scroll), 8 on desktop (scrollable) ──────────
+  const weekCount = tvMode ? 3 : 8;
   const weeks: string[][] = useMemo(() => {
     const out: string[][] = [];
-    for (let w = 0; w < 5; w++) {
+    for (let w = 0; w < weekCount; w++) {
       const week: string[] = [];
       for (let d = 0; d < 5; d++) week.push(isoDateOffset(viewWeekStart, w * 7 + d));
       out.push(week);
     }
     return out;
-  }, [viewWeekStart]);
+  }, [viewWeekStart, weekCount]);
 
   const visibleStart = weeks[0][0];
-  const visibleEnd   = weeks[4][4];
+  const visibleEnd   = weeks[weekCount - 1][4];
 
   // ── Holiday map for visible range ─────────────────────────────────────────
   const holidayMap = useMemo<Map<string, string>>(() => {
@@ -545,6 +546,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             visibleEnd={visibleEnd}
             events={visibleEvents}
             laneMap={laneMap}
+            tvMode={tvMode}
             crews={crews}
             splitLabels={splitLabels}
             holidayMap={holidayMap}
@@ -997,6 +999,7 @@ type SpanningCalendarProps = {
   visibleEnd: string;
   events: JobEventWithJoins[];
   laneMap: Map<string, number>;
+  tvMode: boolean;
   crews: Crew[];
   splitLabels: Map<string, string>;
   holidayMap: Map<string, string>;
@@ -1013,18 +1016,19 @@ type SpanningCalendarProps = {
 
 function SpanningCalendar({
   weeks, today, events, laneMap, crews, splitLabels, holidayMap, ptoMap,
-  draggingId, dropTargetKey, isAdmin,
+  draggingId, dropTargetKey, isAdmin, tvMode,
   onDragStart, onDragEnd, onDragOverCell, onDrop, onEventClick,
 }: SpanningCalendarProps) {
 
   const maxLanes = useMemo(() => {
     let max = 0;
     for (const [, lane] of laneMap) if (lane > max) max = lane;
-    return Math.min(max + 1, 2); // cap at 2 lanes so 5 weeks always fit
-  }, [laneMap]);
+    // TV: cap at 2 so 3 big weeks fit; desktop: cap at 4 with scroll
+    return tvMode ? Math.min(max + 1, 2) : Math.min(max + 1, 4);
+  }, [laneMap, tvMode]);
 
-  const ROW_HEADER_H = 28;
-  const LANE_H       = 26;
+  const ROW_HEADER_H = tvMode ? 28 : 22;
+  const LANE_H       = tvMode ? 32 : 22;
   const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 8;
 
   // Compute bar segments per week row
@@ -1163,7 +1167,7 @@ function SpanningCalendar({
                     color:       col.text,
                     paddingLeft:  5,
                     paddingRight: seg.continuesNext ? 2 : 4,
-                    fontSize:     18,
+                    fontSize:     tvMode ? 18 : 13,
                     zIndex:       10 + lane,
                   }}
                   title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
