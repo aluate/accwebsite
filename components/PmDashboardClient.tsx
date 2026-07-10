@@ -34,8 +34,8 @@ const ALL_STATUSES = [
 ];
 
 const ACTIVE_STATUSES = [
-  "production", "delivery", "install", "punch", "field_dims",
-  "engineering", "procurement", "design", "bid",
+  "intake", "bid", "design", "field_dims", "engineering", "procurement",
+  "production", "delivery", "install", "punch",
 ];
 
 type SortKey = "delivery_asc" | "delivery_desc" | "install_asc" | "install_desc" | "client_az" | "client_za";
