@@ -710,3 +710,140 @@ export function calcEstimateCost(params: {
     has_very_high_complexity: hasVeryHigh,
   };
 }
+
+// =============================================================================
+// BOM REPORT — sheet counts, hardware hard counts, door cut list
+// =============================================================================
+
+/** A single door or drawer-front cut for a CabDoor order */
+export type DoorCut = {
+  label: string;       // e.g. "Kitchen - Base 2-Door 36W"
+  door_count: number;  // number of doors in this cut (1 or 2)
+  w_in: number;        // door width (each door)
+  h_in: number;        // door height
+};
+
+/** Full BOM ready for purchasing — sheet counts, hardware, edgebanding, doors */
+export type BOMReport = {
+  // ── Sheet goods ──────────────────────────────────────────────────────────
+  carcass_sf: number;
+  carcass_sheets: number;      // ceil with waste
+  back_sf: number;
+  back_sheets: number;         // ceil with waste
+  // ── Edgebanding ──────────────────────────────────────────────────────────
+  edgeband_lf: number;
+  // ── Hardware counts ───────────────────────────────────────────────────────
+  hinges: number;
+  slides_15in: number;         // drawer slides per depth tier
+  slides_18in: number;
+  slides_21in: number;
+  pulls: number;
+  shelf_pins: number;
+  // ── Doors for CabDoor ────────────────────────────────────────────────────
+  door_cuts: DoorCut[];        // one entry per unique line item
+  door_sf_total: number;
+  drawer_front_sf: number;
+};
+
+// Sheet goods constants — update via construction_profiles.csv in future
+const SHEET_SF       = 32;    // 4x8 sheet nominal SF
+const CARCASS_WASTE  = 0.12;  // 12% waste factor for carcass (mel or ply)
+const BACK_WASTE     = 0.10;  // 10% waste for back panel
+
+/**
+ * Build a full purchasing BOM from a completed CostSummary + the original
+ * line items (needed to recover per-item depth and door dimensions).
+ *
+ * Call AFTER calcEstimateCost() — pass cost.rooms and the raw item list.
+ */
+export function calcBOMReport(
+  cost: CostSummary,
+  allItems: EstimateLineItem[],
+  profile?: ConstructionProfile
+): BOMReport {
+  const prof = profile ?? DEFAULT_PROFILE;
+
+  // Build a map from item id -> LineItemCost for quick lookup
+  const lcMap = new Map<string, LineItemCost>();
+  for (const rc of cost.rooms) {
+    for (const lc of rc.line_items) lcMap.set(lc.item_id, lc);
+  }
+
+  let hinges = 0, pulls = 0, shelfPins = 0;
+  let slides15 = 0, slides18 = 0, slides21 = 0;
+  const doorCuts: DoorCut[] = [];
+
+  for (const rc of cost.rooms) {
+    for (const lc of rc.line_items) {
+      if (lc.is_manual) continue;
+
+      // Hardware
+      hinges    += lc.hardware.hinges;
+      pulls     += lc.hardware.pulls;
+      shelfPins += lc.hardware.shelf_pins;
+
+      // Slides split by depth
+      const depth = lc.depth_in;
+      const slides = lc.hardware.drawer_slides;
+      if (depth <= 12)      slides15 += slides;
+      else if (depth <= 18) slides18 += slides;
+      else                  slides21 += slides;
+
+      // Door cuts — recover per-door dims
+      const item = allItems.find((i) => i.id === lc.item_id);
+      const type = item?.cabinet_type_code ? TYPE_MAP.get(item.cabinet_type_code) : null;
+      if (item && type && type.door_count > 0) {
+        const w_in  = item.width_in  ?? 24;
+        const h_in  = item.height_in ?? (type.category === "UPPER" ? 36 : 34.5);
+        const qty   = item.qty ?? 1;
+
+        const is_upper = type.category === "UPPER" || type.category === "CORNER_UPPER";
+        const mat = prof.mat_thickness_in;
+        const case_opening_h = is_upper
+          ? h_in - 2 * mat
+          : h_in - prof.toekick_height_in;
+        const door_h = Math.max(0,
+          case_opening_h - prof.door_reveal_top_in - prof.door_reveal_bottom_in
+        );
+        const side_rev    = 2 * prof.door_reveal_side_in;
+        const between_rev = type.door_count >= 2
+          ? (type.door_count - 1) * prof.door_reveal_between_in : 0;
+        const door_w = Math.max(0,
+          (w_in - side_rev - between_rev) / type.door_count
+        );
+
+        const roomName = cost.rooms.find((r) =>
+          r.line_items.includes(lc)
+        )?.room_name ?? "";
+        const label = `${roomName} — ${type.display_name} ${w_in}"W`;
+
+        // Each qty is a separate cut entry (same dims, easier for CabDoor list)
+        for (let q = 0; q < qty; q++) {
+          doorCuts.push({
+            label,
+            door_count: type.door_count,
+            w_in: Math.round(door_w * 100) / 100,
+            h_in: Math.round(door_h * 100) / 100,
+          });
+        }
+      }
+    }
+  }
+
+  // Sheet counts — ceiling after waste
+  const carcass_sf = cost.bom_carcass_sf;
+  const back_sf    = cost.bom_back_sf;
+  const carcass_sheets = Math.ceil(carcass_sf * (1 + CARCASS_WASTE) / SHEET_SF);
+  const back_sheets    = Math.ceil(back_sf    * (1 + BACK_WASTE)    / SHEET_SF);
+
+  return {
+    carcass_sf, carcass_sheets,
+    back_sf, back_sheets,
+    edgeband_lf:  cost.bom_edgeband_lf,
+    hinges, pulls, shelf_pins: shelfPins,
+    slides_15in: slides15, slides_18in: slides18, slides_21in: slides21,
+    door_cuts: doorCuts,
+    door_sf_total: cost.bom_door_sf,
+    drawer_front_sf: cost.bom_drawer_front_sf,
+  };
+}

@@ -1,0 +1,3 @@
+catalog_id,display_name,door_type,cabdoor_preset_id,species,description,active
+ACC-DOOR-SLAB,Slab,SLAB,,TBD,Clean flat slab door. Species TBD.,true
+ACC-DOOR-116,CabDoor 116,CABDOOR,PRESET-116,TBD,ACC standard profile. Fill in CabDoor preset ID.,true
