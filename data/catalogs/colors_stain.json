@@ -40,6 +40,16 @@
     "placeholder": false
   },
   {
+    "id": "STN-ACC-NATURAL",
+    "brand": "ACC",
+    "code": "NATURAL",
+    "name": "Natural",
+    "is_in_house_mix": true,
+    "is_custom_match": false,
+    "notes": "ACC in-house — clear/natural finish on RC White Oak and other species; no pigment",
+    "placeholder": false
+  },
+  {
     "id": "STN-ACC-PENDING",
     "brand": "ACC",
     "code": null,

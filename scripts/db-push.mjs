@@ -781,6 +781,77 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
+
+  // ── Phase 1: Catalog tables (2026-07-12) ─────────────────────────────────────
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS catalog_paint_colors (
+      id TEXT PRIMARY KEY, brand TEXT, collection TEXT, code TEXT,
+      name TEXT NOT NULL, hex_approx TEXT,
+      is_custom_match INTEGER NOT NULL DEFAULT 0,
+      placeholder INTEGER NOT NULL DEFAULT 0, notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS catalog_stain_colors (
+      id TEXT PRIMARY KEY, brand TEXT, code TEXT, name TEXT NOT NULL,
+      is_in_house_mix INTEGER NOT NULL DEFAULT 0,
+      is_custom_match INTEGER NOT NULL DEFAULT 0,
+      notes TEXT, placeholder INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS catalog_melamine_colors (
+      id TEXT PRIMARY KEY, supplier TEXT, collection TEXT, line TEXT,
+      code TEXT, name TEXT NOT NULL, texture TEXT,
+      woodgrain INTEGER NOT NULL DEFAULT 0,
+      price_tier TEXT, hex_approx TEXT, notes TEXT,
+      placeholder INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS catalog_carcass_materials (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, material_class TEXT,
+      species TEXT, prefinish TEXT, supplier_code TEXT, notes TEXT,
+      is_other INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS catalog_drawer_boxes (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, construction TEXT,
+      species TEXT, prefinish TEXT, notes TEXT,
+      is_other INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS catalog_edgebands (
+      id TEXT PRIMARY KEY, product_name TEXT NOT NULL, supplier TEXT,
+      type TEXT, color_match TEXT, compatible_finish_type TEXT,
+      thickness_mm TEXT, width_in TEXT, notes TEXT,
+      placeholder INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS catalog_species (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, grades TEXT,
+      hardness_janka TEXT, typical_use TEXT, notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS catalog_accessories (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, brand TEXT, series TEXT,
+      category TEXT, width_options_in TEXT, finish_options TEXT, notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS catalog_builder_profiles (
+      id TEXT PRIMARY KEY, builder_name TEXT NOT NULL, builder_company TEXT,
+      default_finish_type TEXT, default_carcass_id TEXT,
+      default_drawer_box_id TEXT, default_pull_id TEXT,
+      default_paint_brand TEXT, default_accessories TEXT,
+      preferred_cabdoor_usage_groups TEXT, notes TEXT,
+      is_residential_default INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS catalog_door_styles (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, vendor TEXT,
+      cabdoor_preset_id TEXT, construction TEXT,
+      compatible_finish TEXT, placeholder INTEGER NOT NULL DEFAULT 0, notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS catalog_pulls (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, brand TEXT, model TEXT,
+      type TEXT, hole_spacing_in TEXT, length_in TEXT,
+      finish_options TEXT, notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS catalog_appliances (
+      id TEXT PRIMARY KEY, appliance_type TEXT NOT NULL,
+      manufacturer TEXT, model_no TEXT,
+      cutout_w TEXT, cutout_h TEXT, cutout_d TEXT, notes TEXT
+    );
+  `);
+
   console.log("Schema push complete.");
   await sql.end();
 }

@@ -16,7 +16,8 @@
       "White",
       "Natural"
     ],
-    "notes": "Full extension; for base cabinets; standard depth"
+    "hand": null,
+    "notes": "Full extension; for base cabinets; standard depth. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-002",
@@ -35,7 +36,8 @@
       "White",
       "Natural"
     ],
-    "notes": "Two-tier stacked; fits standard 30+ base"
+    "hand": null,
+    "notes": "Two-tier stacked; fits standard 30+ base. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-003",
@@ -54,11 +56,12 @@
       "White",
       "Chrome"
     ],
-    "notes": "Heavy duty; 100lb rating; full extension"
+    "hand": null,
+    "notes": "Heavy duty; 100lb rating; full extension. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-004",
-    "name": "Pull-Out Trash (Single 35qt)",
+    "name": "[RETIRED] Pull-Out Trash (Single 35qt)",
     "brand": "Rev-A-Shelf",
     "series": "4WCSC-1",
     "category": "trash",
@@ -67,11 +70,12 @@
       14
     ],
     "finish_options": "White",
-    "notes": "Single bin; fits 12 or 15 base"
+    "hand": null,
+    "notes": "RETIRED 2026-05-21 — placeholder series code; never matched a real SKU. Superseded by ACC-022/023/024/025."
   },
   {
     "id": "ACC-005",
-    "name": "Pull-Out Trash (Double 35qt + 8qt)",
+    "name": "[RETIRED] Pull-Out Trash (Double 35qt + 8qt)",
     "brand": "Rev-A-Shelf",
     "series": "4WCSC-2",
     "category": "trash",
@@ -80,11 +84,12 @@
       17
     ],
     "finish_options": "White",
-    "notes": "Large bin + recycle bin combo"
+    "hand": null,
+    "notes": "RETIRED 2026-05-21 — placeholder series code; never matched a real SKU. Superseded by ACC-022/023/024/025."
   },
   {
     "id": "ACC-006",
-    "name": "Pull-Out Trash (Double 50qt)",
+    "name": "[RETIRED] Pull-Out Trash (Double 50qt)",
     "brand": "Rev-A-Shelf",
     "series": "4WCBLS-2",
     "category": "trash",
@@ -93,7 +98,8 @@
       20
     ],
     "finish_options": "White",
-    "notes": "Two large bins; 18+ base"
+    "hand": null,
+    "notes": "RETIRED 2026-05-21 — placeholder series code; never matched a real SKU. Superseded by ACC-022/023/024/025."
   },
   {
     "id": "ACC-007",
@@ -110,7 +116,8 @@
       "White",
       "Chrome"
     ],
-    "notes": "Corner base; full round; polymer or wire"
+    "hand": null,
+    "notes": "Corner base; full round; polymer or wire. Not handed — spins in place. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-008",
@@ -123,7 +130,11 @@
       36
     ],
     "finish_options": "White",
-    "notes": "Blind corner; kidney shape; 2-shelf"
+    "hand": [
+      "L",
+      "R"
+    ],
+    "notes": "Blind corner; kidney shape; 2-shelf. HANDED — must specify L or R at time of spec. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-009",
@@ -137,7 +148,11 @@
       36
     ],
     "finish_options": "White",
-    "notes": "Corner cabinet; pie-cut shelves"
+    "hand": [
+      "L",
+      "R"
+    ],
+    "notes": "Corner cabinet; pie-cut shelves. HANDED — must specify L or R at time of spec. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-010",
@@ -151,7 +166,8 @@
       17
     ],
     "finish_options": "Chrome",
-    "notes": "Mounts inside door; upper or base"
+    "hand": null,
+    "notes": "Mounts inside door; upper or base. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-011",
@@ -164,7 +180,8 @@
       14
     ],
     "finish_options": "Chrome",
-    "notes": "Cutting board & tray storage; base"
+    "hand": null,
+    "notes": "Cutting board & tray storage; base. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-012",
@@ -178,7 +195,8 @@
       14
     ],
     "finish_options": "Chrome",
-    "notes": "Vertical dividers for pots/pans; deep base"
+    "hand": null,
+    "notes": "Vertical dividers for pots/pans; deep base. WARNING — series code unverified; may not be a real RAS SKU pattern. Needs catalog check."
   },
   {
     "id": "ACC-013",
@@ -196,7 +214,8 @@
       "Walnut",
       "Gray"
     ],
-    "notes": "Peg system; deep drawer organization"
+    "hand": null,
+    "notes": "Peg system; deep drawer organization. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-014",
@@ -209,7 +228,8 @@
       14
     ],
     "finish_options": "Walnut",
-    "notes": "In-drawer knife storage; horizontal"
+    "hand": null,
+    "notes": "In-drawer knife storage; horizontal. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-015",
@@ -225,7 +245,8 @@
       "Birch",
       "Gray"
     ],
-    "notes": "Expandable drawer dividers; multi-section"
+    "hand": null,
+    "notes": "Expandable drawer dividers; multi-section. WARNING — series code unverified; needs catalog check."
   },
   {
     "id": "ACC-016",
@@ -241,7 +262,8 @@
       24
     ],
     "finish_options": "Chrome",
-    "notes": "Single shelf; base or upper; full extension"
+    "hand": null,
+    "notes": "Single shelf; base or upper; full extension. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-017",
@@ -255,7 +277,8 @@
       14
     ],
     "finish_options": "Chrome",
-    "notes": "For pantry/tall cabinets; multiple shelves"
+    "hand": null,
+    "notes": "For pantry/tall cabinets; multiple shelves. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-018",
@@ -268,7 +291,8 @@
       6
     ],
     "finish_options": "Chrome",
-    "notes": "Narrow filler pull-out; spice/flat storage"
+    "hand": null,
+    "notes": "Narrow filler pull-out; spice/flat storage. WARNING — series code unverified; may not be a real RAS SKU pattern. Needs catalog check."
   },
   {
     "id": "ACC-019",
@@ -284,7 +308,8 @@
       "Chrome",
       "White"
     ],
-    "notes": "Laundry hamper insert; bathroom/mudroom"
+    "hand": null,
+    "notes": "Laundry hamper insert; bathroom/mudroom. SERIES ONLY — no specific SKU confirmed yet."
   },
   {
     "id": "ACC-020",
@@ -294,6 +319,99 @@
     "category": "other",
     "width_options_in": null,
     "finish_options": null,
+    "hand": null,
     "notes": "Specify brand + item in notes"
+  },
+  {
+    "id": "ACC-021",
+    "name": "[RETIRED STD] Pull-Out Trash Top Mount (Double)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WCTM",
+    "category": "trash",
+    "width_options_in": [
+      15,
+      18,
+      21,
+      24
+    ],
+    "finish_options": "Silver/Maple",
+    "hand": null,
+    "notes": "RETIRED as standard 2026-05-21 — top mount hardware binds on euro/frameless boxes; no face frame to anchor to. Was the previous default. Do not spec on frameless builds."
+  },
+  {
+    "id": "ACC-022",
+    "name": [
+      "Pull-Out Trash Double 27qt (15 base),Rev-A-Shelf,4WCSC/D,trash,15,Silver/Maple,,SKU: 4WCSC-1527DM-2",
+      "Double 27qt",
+      "12W x 22-1/8D x 19-11/32H",
+      "CAB B15",
+      "Blum Movento soft-close",
+      "bottom mount",
+      "SLP $553.99. NOTE: 27qt is the largest double in a 15 base — single 35qt available as ACC-025."
+    ],
+    "brand": null,
+    "series": null,
+    "category": null,
+    "width_options_in": null,
+    "finish_options": null,
+    "hand": null,
+    "notes": null
+  },
+  {
+    "id": "ACC-023",
+    "name": [
+      "Pull-Out Trash Double 35qt (18 base),Rev-A-Shelf,4WCSC/D,trash,18,Silver/Maple,,SKU: 4WCSC-1835DM-2",
+      "Double 35qt",
+      "15W x 22-1/32D x 20-3/8H",
+      "CAB B18",
+      "Blum Movento soft-close",
+      "bottom mount",
+      "SLP $575.99."
+    ],
+    "brand": null,
+    "series": null,
+    "category": null,
+    "width_options_in": null,
+    "finish_options": null,
+    "hand": null,
+    "notes": null
+  },
+  {
+    "id": "ACC-024",
+    "name": [
+      "Pull-Out Trash Double 35qt (21 base),Rev-A-Shelf,4WCSC/D,trash,21,Silver/Maple,,SKU: 4WCSC-2135DM-2",
+      "Double 35qt",
+      "18W x 22-1/32D x 20-5/16H",
+      "CAB B21",
+      "Blum Movento soft-close",
+      "bottom mount",
+      "SLP $604.99."
+    ],
+    "brand": null,
+    "series": null,
+    "category": null,
+    "width_options_in": null,
+    "finish_options": null,
+    "hand": null,
+    "notes": null
+  },
+  {
+    "id": "ACC-025",
+    "name": [
+      "Pull-Out Trash Single 35qt (15 base),Rev-A-Shelf,4WCSC/D,trash,15,Silver/Maple,,SKU: 4WCSC-1535DM-1",
+      "Single 35qt",
+      "12W x 21-21/32D x 19-1/2H",
+      "CAB B15",
+      "Blum Movento soft-close",
+      "bottom mount",
+      "SLP $528.99. Use when client wants a larger bin in a 15 base instead of double 27qt (ACC-022)."
+    ],
+    "brand": null,
+    "series": null,
+    "category": null,
+    "width_options_in": null,
+    "finish_options": null,
+    "hand": null,
+    "notes": null
   }
 ]

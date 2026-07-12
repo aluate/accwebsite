@@ -1,0 +1,9158 @@
+[
+  {
+    "brand": "SW",
+    "name": "Mulberry Silk",
+    "code": "SW0001",
+    "hex": "#94766c"
+  },
+  {
+    "brand": "SW",
+    "name": "Chelsea Mauve",
+    "code": "SW0002",
+    "hex": "#beac9f"
+  },
+  {
+    "brand": "SW",
+    "name": "Cabbage Rose",
+    "code": "SW0003",
+    "hex": "#c59f91"
+  },
+  {
+    "brand": "SW",
+    "name": "Rose Brocade",
+    "code": "SW0004",
+    "hex": "#996c6e"
+  },
+  {
+    "brand": "SW",
+    "name": "Deepest Mauve",
+    "code": "SW0005",
+    "hex": "#6d595a"
+  },
+  {
+    "brand": "SW",
+    "name": "Toile Red",
+    "code": "SW0006",
+    "hex": "#8b534e"
+  },
+  {
+    "brand": "SW",
+    "name": "Decorous Amber",
+    "code": "SW0007",
+    "hex": "#ac7559"
+  },
+  {
+    "brand": "SW",
+    "name": "Cajun Red",
+    "code": "SW0008",
+    "hex": "#8d422f"
+  },
+  {
+    "brand": "SW",
+    "name": "Eastlake Gold",
+    "code": "SW0009",
+    "hex": "#c28e61"
+  },
+  {
+    "brand": "SW",
+    "name": "Wickerwork",
+    "code": "SW0010",
+    "hex": "#c19e80"
+  },
+  {
+    "brand": "SW",
+    "name": "Crewel Tan",
+    "code": "SW0011",
+    "hex": "#cbb99b"
+  },
+  {
+    "brand": "SW",
+    "name": "Empire Gold",
+    "code": "SW0012",
+    "hex": "#c19f6e"
+  },
+  {
+    "brand": "SW",
+    "name": "Majolica Green",
+    "code": "SW0013",
+    "hex": "#aeb08f"
+  },
+  {
+    "brand": "SW",
+    "name": "Sheraton Sage",
+    "code": "SW0014",
+    "hex": "#8f8666"
+  },
+  {
+    "brand": "SW",
+    "name": "Gallery Green",
+    "code": "SW0015",
+    "hex": "#708672"
+  },
+  {
+    "brand": "SW",
+    "name": "Billiard Green",
+    "code": "SW0016",
+    "hex": "#45584d"
+  },
+  {
+    "brand": "SW",
+    "name": "Calico",
+    "code": "SW0017",
+    "hex": "#8ca49c"
+  },
+  {
+    "brand": "SW",
+    "name": "Teal Stencil",
+    "code": "SW0018",
+    "hex": "#627f7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Festoon Aqua",
+    "code": "SW0019",
+    "hex": "#a0bbb8"
+  },
+  {
+    "brand": "SW",
+    "name": "Peacock Plume",
+    "code": "SW0020",
+    "hex": "#739694"
+  },
+  {
+    "brand": "SW",
+    "name": "Queen Anne Lilac",
+    "code": "SW0021",
+    "hex": "#c0b6b4"
+  },
+  {
+    "brand": "SW",
+    "name": "Patchwork Plum",
+    "code": "SW0022",
+    "hex": "#7e696a"
+  },
+  {
+    "brand": "SW",
+    "name": "Pewter Tankard",
+    "code": "SW0023",
+    "hex": "#a39b90"
+  },
+  {
+    "brand": "SW",
+    "name": "Curio Gray",
+    "code": "SW0024",
+    "hex": "#988977"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosedust",
+    "code": "SW0025",
+    "hex": "#cc8d84"
+  },
+  {
+    "brand": "SW",
+    "name": "Rachel Pink",
+    "code": "SW0026",
+    "hex": "#e8b9ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Aristocrat Peach",
+    "code": "SW0027",
+    "hex": "#ecceb9"
+  },
+  {
+    "brand": "SW",
+    "name": "Caen Stone",
+    "code": "SW0028",
+    "hex": "#ecd0b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Acanthus",
+    "code": "SW0029",
+    "hex": "#cdcdb4"
+  },
+  {
+    "brand": "SW",
+    "name": "Colonial Yellow",
+    "code": "SW0030",
+    "hex": "#efc488"
+  },
+  {
+    "brand": "SW",
+    "name": "Dutch Tile Blue",
+    "code": "SW0031",
+    "hex": "#9aabab"
+  },
+  {
+    "brand": "SW",
+    "name": "Needlepoint Navy",
+    "code": "SW0032",
+    "hex": "#546670"
+  },
+  {
+    "brand": "SW",
+    "name": "Rembrandt Ruby",
+    "code": "SW0033",
+    "hex": "#974f49"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Rose",
+    "code": "SW0034",
+    "hex": "#c08f80"
+  },
+  {
+    "brand": "SW",
+    "name": "Warm Beige",
+    "code": "SW0035",
+    "hex": "#eedac3"
+  },
+  {
+    "brand": "SW",
+    "name": "Buckram Binding",
+    "code": "SW0036",
+    "hex": "#d9c3a6"
+  },
+  {
+    "brand": "SW",
+    "name": "Morris Room Grey",
+    "code": "SW0037",
+    "hex": "#ada193"
+  },
+  {
+    "brand": "SW",
+    "name": "Library Pewter",
+    "code": "SW0038",
+    "hex": "#7f7263"
+  },
+  {
+    "brand": "SW",
+    "name": "Mellow Mauve",
+    "code": "SW0039",
+    "hex": "#c4957a"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Adobe",
+    "code": "SW0040",
+    "hex": "#a76251"
+  },
+  {
+    "brand": "SW",
+    "name": "Dard Hunter Green",
+    "code": "SW0041",
+    "hex": "#3a4a3f"
+  },
+  {
+    "brand": "SW",
+    "name": "Ruskin Room Green",
+    "code": "SW0042",
+    "hex": "#aca17d"
+  },
+  {
+    "brand": "SW",
+    "name": "Peristyle Brass",
+    "code": "SW0043",
+    "hex": "#ae905e"
+  },
+  {
+    "brand": "SW",
+    "name": "Hubbard Squash",
+    "code": "SW0044",
+    "hex": "#e9bf8c"
+  },
+  {
+    "brand": "SW",
+    "name": "Antiquarian Brown",
+    "code": "SW0045",
+    "hex": "#946644"
+  },
+  {
+    "brand": "SW",
+    "name": "White Hyacinth",
+    "code": "SW0046",
+    "hex": "#f3e5d1"
+  },
+  {
+    "brand": "SW",
+    "name": "Studio Blue Green",
+    "code": "SW0047",
+    "hex": "#6d817b"
+  },
+  {
+    "brand": "SW",
+    "name": "Bunglehouse Blue",
+    "code": "SW0048",
+    "hex": "#47626f"
+  },
+  {
+    "brand": "SW",
+    "name": "Silver Gray",
+    "code": "SW0049",
+    "hex": "#b8b2a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Classic Light Buff",
+    "code": "SW0050",
+    "hex": "#f0eadc"
+  },
+  {
+    "brand": "SW",
+    "name": "Classic Ivory",
+    "code": "SW0051",
+    "hex": "#f2e0c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Pearl Gray",
+    "code": "SW0052",
+    "hex": "#cbcec5"
+  },
+  {
+    "brand": "SW",
+    "name": "Porcelain",
+    "code": "SW0053",
+    "hex": "#e9e0d5"
+  },
+  {
+    "brand": "SW",
+    "name": "Twilight Gray",
+    "code": "SW0054",
+    "hex": "#c8bfb5"
+  },
+  {
+    "brand": "SW",
+    "name": "Light French Gray",
+    "code": "SW0055",
+    "hex": "#c2c0bb"
+  },
+  {
+    "brand": "SW",
+    "name": "Classic Sand",
+    "code": "SW0056",
+    "hex": "#d6bcaa"
+  },
+  {
+    "brand": "SW",
+    "name": "Chinese Red",
+    "code": "SW0057",
+    "hex": "#9e3e33"
+  },
+  {
+    "brand": "SW",
+    "name": "Jazz Age Coral",
+    "code": "SW0058",
+    "hex": "#f1bfb1"
+  },
+  {
+    "brand": "SW",
+    "name": "Frostwork",
+    "code": "SW0059",
+    "hex": "#cbd0c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Alexandrite",
+    "code": "SW0060",
+    "hex": "#598c74"
+  },
+  {
+    "brand": "SW",
+    "name": "Salon Rose",
+    "code": "SW0061",
+    "hex": "#ab7878"
+  },
+  {
+    "brand": "SW",
+    "name": "Studio Mauve",
+    "code": "SW0062",
+    "hex": "#c6b9b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Sky",
+    "code": "SW0063",
+    "hex": "#abd1c9"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Peacock",
+    "code": "SW0064",
+    "hex": "#014e4c"
+  },
+  {
+    "brand": "SW",
+    "name": "Vogue Green",
+    "code": "SW0065",
+    "hex": "#4b5645"
+  },
+  {
+    "brand": "SW",
+    "name": "Cascade Green",
+    "code": "SW0066",
+    "hex": "#acb19f"
+  },
+  {
+    "brand": "SW",
+    "name": "Belvedere Cream",
+    "code": "SW0067",
+    "hex": "#f0cda0"
+  },
+  {
+    "brand": "SW",
+    "name": "Copen Blue",
+    "code": "SW0068",
+    "hex": "#c2ccc4"
+  },
+  {
+    "brand": "SW",
+    "name": "Rose Tan",
+    "code": "SW0069",
+    "hex": "#cd9c85"
+  },
+  {
+    "brand": "SW",
+    "name": "Pink Shadow",
+    "code": "SW0070",
+    "hex": "#dec3b9"
+  },
+  {
+    "brand": "SW",
+    "name": "Orchid",
+    "code": "SW0071",
+    "hex": "#bc9c9e"
+  },
+  {
+    "brand": "SW",
+    "name": "Deep Maroon",
+    "code": "SW0072",
+    "hex": "#623f45"
+  },
+  {
+    "brand": "SW",
+    "name": "Chartreuse",
+    "code": "SW0073",
+    "hex": "#e1d286"
+  },
+  {
+    "brand": "SW",
+    "name": "Radiant Lilac",
+    "code": "SW0074",
+    "hex": "#a489a0"
+  },
+  {
+    "brand": "SW",
+    "name": "Holiday Turquoise",
+    "code": "SW0075",
+    "hex": "#8ac6bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Appleblossom",
+    "code": "SW0076",
+    "hex": "#dab5b4"
+  },
+  {
+    "brand": "SW",
+    "name": "Classic French Gray",
+    "code": "SW0077",
+    "hex": "#888782"
+  },
+  {
+    "brand": "SW",
+    "name": "Sunbeam Yellow",
+    "code": "SW0078",
+    "hex": "#f0d39d"
+  },
+  {
+    "brand": "SW",
+    "name": "Pinky Beige",
+    "code": "SW0079",
+    "hex": "#c9aa98"
+  },
+  {
+    "brand": "SW",
+    "name": "Pink Flamingo",
+    "code": "SW0080",
+    "hex": "#cd717b"
+  },
+  {
+    "brand": "SW",
+    "name": "Skyline Steel",
+    "code": "SW1015",
+    "hex": "#c6bfb3"
+  },
+  {
+    "brand": "SW",
+    "name": "Venetian Yellow",
+    "code": "SW1666",
+    "hex": "#f6e3a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Icy Lemonade",
+    "code": "SW1667",
+    "hex": "#f4e8b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Pineapple Cream",
+    "code": "SW1668",
+    "hex": "#f2eac3"
+  },
+  {
+    "brand": "SW",
+    "name": "Merlot",
+    "code": "SW2704",
+    "hex": "#51323b"
+  },
+  {
+    "brand": "SW",
+    "name": "Rockweed",
+    "code": "SW2735",
+    "hex": "#443735"
+  },
+  {
+    "brand": "SW",
+    "name": "Charcoal Blue",
+    "code": "SW2739",
+    "hex": "#3d4450"
+  },
+  {
+    "brand": "SW",
+    "name": "Mineral Gray",
+    "code": "SW2740",
+    "hex": "#515763"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Dark Red",
+    "code": "SW2801",
+    "hex": "#4b2929"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Red",
+    "code": "SW2802",
+    "hex": "#622f2d"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Terra Cotta",
+    "code": "SW2803",
+    "hex": "#975840"
+  },
+  {
+    "brand": "SW",
+    "name": "Renwick Rose Beige",
+    "code": "SW2804",
+    "hex": "#af8871"
+  },
+  {
+    "brand": "SW",
+    "name": "Renwick Beige",
+    "code": "SW2805",
+    "hex": "#c3b09d"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Brown",
+    "code": "SW2806",
+    "hex": "#7f614a"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Medium Brown",
+    "code": "SW2807",
+    "hex": "#6e5241"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Dark Brown",
+    "code": "SW2808",
+    "hex": "#5f4d43"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Shutter Green",
+    "code": "SW2809",
+    "hex": "#303b39"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Sash Green",
+    "code": "SW2810",
+    "hex": "#506a67"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Blue Green",
+    "code": "SW2811",
+    "hex": "#738478"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Jade",
+    "code": "SW2812",
+    "hex": "#979f7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Downing Straw",
+    "code": "SW2813",
+    "hex": "#caab7d"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Antique Gold",
+    "code": "SW2814",
+    "hex": "#a58258"
+  },
+  {
+    "brand": "SW",
+    "name": "Renwick Olive",
+    "code": "SW2815",
+    "hex": "#97896a"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Dark Green",
+    "code": "SW2816",
+    "hex": "#565c4a"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Amber",
+    "code": "SW2817",
+    "hex": "#c08650"
+  },
+  {
+    "brand": "SW",
+    "name": "Renwick Heather",
+    "code": "SW2818",
+    "hex": "#8b7d7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Downing Slate",
+    "code": "SW2819",
+    "hex": "#777f86"
+  },
+  {
+    "brand": "SW",
+    "name": "Downing Earth",
+    "code": "SW2820",
+    "hex": "#887b67"
+  },
+  {
+    "brand": "SW",
+    "name": "Downing Stone",
+    "code": "SW2821",
+    "hex": "#a6a397"
+  },
+  {
+    "brand": "SW",
+    "name": "Downing Sand",
+    "code": "SW2822",
+    "hex": "#cbbca5"
+  },
+  {
+    "brand": "SW",
+    "name": "Rookwood Clay",
+    "code": "SW2823",
+    "hex": "#9a7e64"
+  },
+  {
+    "brand": "SW",
+    "name": "Renwick Golden Oak",
+    "code": "SW2824",
+    "hex": "#96724c"
+  },
+  {
+    "brand": "SW",
+    "name": "Colonial Revival Green Stone",
+    "code": "SW2826",
+    "hex": "#a39b7e"
+  },
+  {
+    "brand": "SW",
+    "name": "Colonial Revival Stone",
+    "code": "SW2827",
+    "hex": "#a7947c"
+  },
+  {
+    "brand": "SW",
+    "name": "Colonial Revival Tan",
+    "code": "SW2828",
+    "hex": "#d3b699"
+  },
+  {
+    "brand": "SW",
+    "name": "Classical White",
+    "code": "SW2829",
+    "hex": "#ece1cb"
+  },
+  {
+    "brand": "SW",
+    "name": "Classical Gold",
+    "code": "SW2831",
+    "hex": "#ebb875"
+  },
+  {
+    "brand": "SW",
+    "name": "Colonial Revival Gray",
+    "code": "SW2832",
+    "hex": "#b4b9b9"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Vellum",
+    "code": "SW2833",
+    "hex": "#e8d9bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Birdseye Maple",
+    "code": "SW2834",
+    "hex": "#e4c495"
+  },
+  {
+    "brand": "SW",
+    "name": "Craftsman Brown",
+    "code": "SW2835",
+    "hex": "#ae9278"
+  },
+  {
+    "brand": "SW",
+    "name": "Quartersawn Oak",
+    "code": "SW2836",
+    "hex": "#85695b"
+  },
+  {
+    "brand": "SW",
+    "name": "Aurora Brown",
+    "code": "SW2837",
+    "hex": "#6a4238"
+  },
+  {
+    "brand": "SW",
+    "name": "Polished Mahogany",
+    "code": "SW2838",
+    "hex": "#432722"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Copper Red",
+    "code": "SW2839",
+    "hex": "#7b3728"
+  },
+  {
+    "brand": "SW",
+    "name": "Hammered Silver",
+    "code": "SW2840",
+    "hex": "#978a7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Weathered Shingle",
+    "code": "SW2841",
+    "hex": "#937f68"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Suede",
+    "code": "SW2842",
+    "hex": "#a79473"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Brass",
+    "code": "SW2843",
+    "hex": "#7a6a51"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Mist Gray",
+    "code": "SW2844",
+    "hex": "#c2bdb1"
+  },
+  {
+    "brand": "SW",
+    "name": "Bunglehouse Gray",
+    "code": "SW2845",
+    "hex": "#988f7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Bronze Green",
+    "code": "SW2846",
+    "hex": "#575449"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Bottle Green",
+    "code": "SW2847",
+    "hex": "#324038"
+  },
+  {
+    "brand": "SW",
+    "name": "Roycroft Pewter",
+    "code": "SW2848",
+    "hex": "#616564"
+  },
+  {
+    "brand": "SW",
+    "name": "Westchester Gray",
+    "code": "SW2849",
+    "hex": "#797978"
+  },
+  {
+    "brand": "SW",
+    "name": "Chelsea Gray",
+    "code": "SW2850",
+    "hex": "#b6b7b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sage Green Light",
+    "code": "SW2851",
+    "hex": "#73705e"
+  },
+  {
+    "brand": "SW",
+    "name": "New Colonial Yellow",
+    "code": "SW2853",
+    "hex": "#d9ad7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Caribbean Coral",
+    "code": "SW2854",
+    "hex": "#be795e"
+  },
+  {
+    "brand": "SW",
+    "name": "Sycamore Tan",
+    "code": "SW2855",
+    "hex": "#9c8a79"
+  },
+  {
+    "brand": "SW",
+    "name": "Fairfax Brown",
+    "code": "SW2856",
+    "hex": "#61463a"
+  },
+  {
+    "brand": "SW",
+    "name": "Peace Yellow",
+    "code": "SW2857",
+    "hex": "#eecf9e"
+  },
+  {
+    "brand": "SW",
+    "name": "Harvest Gold",
+    "code": "SW2858",
+    "hex": "#d9a06a"
+  },
+  {
+    "brand": "SW",
+    "name": "Beige",
+    "code": "SW2859",
+    "hex": "#dfc8b5"
+  },
+  {
+    "brand": "SW",
+    "name": "Sage",
+    "code": "SW2860",
+    "hex": "#b3ae95"
+  },
+  {
+    "brand": "SW",
+    "name": "Avocado",
+    "code": "SW2861",
+    "hex": "#857c5d"
+  },
+  {
+    "brand": "SW",
+    "name": "Powder Blue",
+    "code": "SW2863",
+    "hex": "#89a4ad"
+  },
+  {
+    "brand": "SW",
+    "name": "Classical Yellow",
+    "code": "SW2865",
+    "hex": "#f8d492"
+  },
+  {
+    "brand": "SW",
+    "name": "Snowfall",
+    "code": "SW6000",
+    "hex": "#e0deda"
+  },
+  {
+    "brand": "SW",
+    "name": "Grayish",
+    "code": "SW6001",
+    "hex": "#cfcac7"
+  },
+  {
+    "brand": "SW",
+    "name": "Essential Gray",
+    "code": "SW6002",
+    "hex": "#bcb8b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Proper Gray",
+    "code": "SW6003",
+    "hex": "#ada8a5"
+  },
+  {
+    "brand": "SW",
+    "name": "Mink",
+    "code": "SW6004",
+    "hex": "#847b77"
+  },
+  {
+    "brand": "SW",
+    "name": "Folkstone",
+    "code": "SW6005",
+    "hex": "#6d6562"
+  },
+  {
+    "brand": "SW",
+    "name": "Black Bean",
+    "code": "SW6006",
+    "hex": "#403330"
+  },
+  {
+    "brand": "SW",
+    "name": "Smart White",
+    "code": "SW6007",
+    "hex": "#e4dbd8"
+  },
+  {
+    "brand": "SW",
+    "name": "Individual White",
+    "code": "SW6008",
+    "hex": "#d4cdca"
+  },
+  {
+    "brand": "SW",
+    "name": "Imagine",
+    "code": "SW6009",
+    "hex": "#c2b6b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Flexible Gray",
+    "code": "SW6010",
+    "hex": "#b1a3a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Chinchilla",
+    "code": "SW6011",
+    "hex": "#867875"
+  },
+  {
+    "brand": "SW",
+    "name": "Browse Brown",
+    "code": "SW6012",
+    "hex": "#6e615f"
+  },
+  {
+    "brand": "SW",
+    "name": "Bitter Chocolate",
+    "code": "SW6013",
+    "hex": "#4d3c3c"
+  },
+  {
+    "brand": "SW",
+    "name": "Vaguely Mauve",
+    "code": "SW6015",
+    "hex": "#d1c5c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Chaise Mauve",
+    "code": "SW6016",
+    "hex": "#c1b2b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Intuitive",
+    "code": "SW6017",
+    "hex": "#b3a3a5"
+  },
+  {
+    "brand": "SW",
+    "name": "Enigma",
+    "code": "SW6018",
+    "hex": "#8b7c7e"
+  },
+  {
+    "brand": "SW",
+    "name": "Poetry Plum",
+    "code": "SW6019",
+    "hex": "#6f5c5f"
+  },
+  {
+    "brand": "SW",
+    "name": "Marooned",
+    "code": "SW6020",
+    "hex": "#4e3132"
+  },
+  {
+    "brand": "SW",
+    "name": "Dreamy White",
+    "code": "SW6021",
+    "hex": "#e3d9d5"
+  },
+  {
+    "brand": "SW",
+    "name": "Breathless",
+    "code": "SW6022",
+    "hex": "#d6c2be"
+  },
+  {
+    "brand": "SW",
+    "name": "Insightful Rose",
+    "code": "SW6023",
+    "hex": "#c9b0ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Dressy Rose",
+    "code": "SW6024",
+    "hex": "#b89d9a"
+  },
+  {
+    "brand": "SW",
+    "name": "Socialite",
+    "code": "SW6025",
+    "hex": "#907676"
+  },
+  {
+    "brand": "SW",
+    "name": "River Rouge",
+    "code": "SW6026",
+    "hex": "#76595d"
+  },
+  {
+    "brand": "SW",
+    "name": "Cordovan",
+    "code": "SW6027",
+    "hex": "#5f3d3f"
+  },
+  {
+    "brand": "SW",
+    "name": "Cultured Pearl",
+    "code": "SW6028",
+    "hex": "#e5dcd6"
+  },
+  {
+    "brand": "SW",
+    "name": "White Truffle",
+    "code": "SW6029",
+    "hex": "#d7c8c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Artistic Taupe",
+    "code": "SW6030",
+    "hex": "#c3b1ac"
+  },
+  {
+    "brand": "SW",
+    "name": "Glamour",
+    "code": "SW6031",
+    "hex": "#b6a09a"
+  },
+  {
+    "brand": "SW",
+    "name": "Dutch Cocoa",
+    "code": "SW6032",
+    "hex": "#8c706a"
+  },
+  {
+    "brand": "SW",
+    "name": "Bateau Brown",
+    "code": "SW6033",
+    "hex": "#7a5f5a"
+  },
+  {
+    "brand": "SW",
+    "name": "Dark Auburn",
+    "code": "SW6034",
+    "hex": "#5a3532"
+  },
+  {
+    "brand": "SW",
+    "name": "Gauzy White",
+    "code": "SW6035",
+    "hex": "#e3dbd4"
+  },
+  {
+    "brand": "SW",
+    "name": "Angora",
+    "code": "SW6036",
+    "hex": "#d1c5be"
+  },
+  {
+    "brand": "SW",
+    "name": "Temperate Taupe",
+    "code": "SW6037",
+    "hex": "#bfb1aa"
+  },
+  {
+    "brand": "SW",
+    "name": "Truly Taupe",
+    "code": "SW6038",
+    "hex": "#ac9e97"
+  },
+  {
+    "brand": "SW",
+    "name": "Poised Taupe",
+    "code": "SW6039",
+    "hex": "#8c7e78"
+  },
+  {
+    "brand": "SW",
+    "name": "Nutshell",
+    "code": "SW6040",
+    "hex": "#756761"
+  },
+  {
+    "brand": "SW",
+    "name": "Otter",
+    "code": "SW6041",
+    "hex": "#56433b"
+  },
+  {
+    "brand": "SW",
+    "name": "Hush White",
+    "code": "SW6042",
+    "hex": "#e5dad4"
+  },
+  {
+    "brand": "SW",
+    "name": "Unfussy Beige",
+    "code": "SW6043",
+    "hex": "#d6c8c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Doeskin",
+    "code": "SW6044",
+    "hex": "#c6b3a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Emerging Taupe",
+    "code": "SW6045",
+    "hex": "#b8a196"
+  },
+  {
+    "brand": "SW",
+    "name": "Swing Brown",
+    "code": "SW6046",
+    "hex": "#947569"
+  },
+  {
+    "brand": "SW",
+    "name": "Hot Cocoa",
+    "code": "SW6047",
+    "hex": "#806257"
+  },
+  {
+    "brand": "SW",
+    "name": "Terra Brun",
+    "code": "SW6048",
+    "hex": "#5a382d"
+  },
+  {
+    "brand": "SW",
+    "name": "Gorgeous White",
+    "code": "SW6049",
+    "hex": "#e7dbd3"
+  },
+  {
+    "brand": "SW",
+    "name": "Abalone Shell",
+    "code": "SW6050",
+    "hex": "#dbc7bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Sashay Sand",
+    "code": "SW6051",
+    "hex": "#cfb4a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Sandbank",
+    "code": "SW6052",
+    "hex": "#c3a497"
+  },
+  {
+    "brand": "SW",
+    "name": "Reddened Earth",
+    "code": "SW6053",
+    "hex": "#9c6e63"
+  },
+  {
+    "brand": "SW",
+    "name": "Canyon Clay",
+    "code": "SW6054",
+    "hex": "#85594f"
+  },
+  {
+    "brand": "SW",
+    "name": "Fiery Brown",
+    "code": "SW6055",
+    "hex": "#5d3831"
+  },
+  {
+    "brand": "SW",
+    "name": "Polite White",
+    "code": "SW6056",
+    "hex": "#e9ddd4"
+  },
+  {
+    "brand": "SW",
+    "name": "Malted Milk",
+    "code": "SW6057",
+    "hex": "#decabd"
+  },
+  {
+    "brand": "SW",
+    "name": "Likeable Sand",
+    "code": "SW6058",
+    "hex": "#d1b7a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Interface Tan",
+    "code": "SW6059",
+    "hex": "#c1a392"
+  },
+  {
+    "brand": "SW",
+    "name": "Moroccan Spice",
+    "code": "SW6060",
+    "hex": "#9d7868"
+  },
+  {
+    "brand": "SW",
+    "name": "Tanbark",
+    "code": "SW6061",
+    "hex": "#896656"
+  },
+  {
+    "brand": "SW",
+    "name": "Vintage Leather",
+    "code": "SW6062",
+    "hex": "#694336"
+  },
+  {
+    "brand": "SW",
+    "name": "Nice White",
+    "code": "SW6063",
+    "hex": "#e6ddd5"
+  },
+  {
+    "brand": "SW",
+    "name": "Reticence",
+    "code": "SW6064",
+    "hex": "#d9cdc3"
+  },
+  {
+    "brand": "SW",
+    "name": "Bona Fide Beige",
+    "code": "SW6065",
+    "hex": "#cbb9ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Sand Trap",
+    "code": "SW6066",
+    "hex": "#bba595"
+  },
+  {
+    "brand": "SW",
+    "name": "Mocha",
+    "code": "SW6067",
+    "hex": "#967a6a"
+  },
+  {
+    "brand": "SW",
+    "name": "Brevity Brown",
+    "code": "SW6068",
+    "hex": "#715243"
+  },
+  {
+    "brand": "SW",
+    "name": "French Roast",
+    "code": "SW6069",
+    "hex": "#4f3426"
+  },
+  {
+    "brand": "SW",
+    "name": "Heron Plume",
+    "code": "SW6070",
+    "hex": "#e5e1d8"
+  },
+  {
+    "brand": "SW",
+    "name": "Popular Gray",
+    "code": "SW6071",
+    "hex": "#d4ccc3"
+  },
+  {
+    "brand": "SW",
+    "name": "Versatile Gray",
+    "code": "SW6072",
+    "hex": "#c1b6ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Perfect Greige",
+    "code": "SW6073",
+    "hex": "#b7ab9f"
+  },
+  {
+    "brand": "SW",
+    "name": "Spalding Gray",
+    "code": "SW6074",
+    "hex": "#8d7f75"
+  },
+  {
+    "brand": "SW",
+    "name": "Garret Gray",
+    "code": "SW6075",
+    "hex": "#756861"
+  },
+  {
+    "brand": "SW",
+    "name": "Turkish Coffee",
+    "code": "SW6076",
+    "hex": "#4d3930"
+  },
+  {
+    "brand": "SW",
+    "name": "Everyday White",
+    "code": "SW6077",
+    "hex": "#e4dcd4"
+  },
+  {
+    "brand": "SW",
+    "name": "Realist Beige",
+    "code": "SW6078",
+    "hex": "#d3c8bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Diverse Beige",
+    "code": "SW6079",
+    "hex": "#c2b4a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Utterly Beige",
+    "code": "SW6080",
+    "hex": "#b5a597"
+  },
+  {
+    "brand": "SW",
+    "name": "Down Home",
+    "code": "SW6081",
+    "hex": "#907865"
+  },
+  {
+    "brand": "SW",
+    "name": "Cobble Brown",
+    "code": "SW6082",
+    "hex": "#7a6455"
+  },
+  {
+    "brand": "SW",
+    "name": "Sable",
+    "code": "SW6083",
+    "hex": "#5f4b3f"
+  },
+  {
+    "brand": "SW",
+    "name": "Modest White",
+    "code": "SW6084",
+    "hex": "#e6ddd4"
+  },
+  {
+    "brand": "SW",
+    "name": "Simplify Beige",
+    "code": "SW6085",
+    "hex": "#d6c7b9"
+  },
+  {
+    "brand": "SW",
+    "name": "Sand Dune",
+    "code": "SW6086",
+    "hex": "#c5b1a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Trusty Tan",
+    "code": "SW6087",
+    "hex": "#b59f8f"
+  },
+  {
+    "brand": "SW",
+    "name": "Nuthatch",
+    "code": "SW6088",
+    "hex": "#8e725f"
+  },
+  {
+    "brand": "SW",
+    "name": "Grounded",
+    "code": "SW6089",
+    "hex": "#785b47"
+  },
+  {
+    "brand": "SW",
+    "name": "Java",
+    "code": "SW6090",
+    "hex": "#634533"
+  },
+  {
+    "brand": "SW",
+    "name": "Reliable White",
+    "code": "SW6091",
+    "hex": "#e8ded3"
+  },
+  {
+    "brand": "SW",
+    "name": "Lightweight Beige",
+    "code": "SW6092",
+    "hex": "#dac8b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Familiar Beige",
+    "code": "SW6093",
+    "hex": "#cab3a0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sensational Sand",
+    "code": "SW6094",
+    "hex": "#bfa38d"
+  },
+  {
+    "brand": "SW",
+    "name": "Toasty",
+    "code": "SW6095",
+    "hex": "#957258"
+  },
+  {
+    "brand": "SW",
+    "name": "Jute Brown",
+    "code": "SW6096",
+    "hex": "#815d40"
+  },
+  {
+    "brand": "SW",
+    "name": "Sturdy Brown",
+    "code": "SW6097",
+    "hex": "#69482c"
+  },
+  {
+    "brand": "SW",
+    "name": "Pacer White",
+    "code": "SW6098",
+    "hex": "#e5ddd0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sand Dollar",
+    "code": "SW6099",
+    "hex": "#d7c5b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Practical Beige",
+    "code": "SW6100",
+    "hex": "#c9b29c"
+  },
+  {
+    "brand": "SW",
+    "name": "Sands of Time",
+    "code": "SW6101",
+    "hex": "#bca38b"
+  },
+  {
+    "brand": "SW",
+    "name": "Portabello",
+    "code": "SW6102",
+    "hex": "#947a62"
+  },
+  {
+    "brand": "SW",
+    "name": "Tea Chest",
+    "code": "SW6103",
+    "hex": "#7d644d"
+  },
+  {
+    "brand": "SW",
+    "name": "Kaffee",
+    "code": "SW6104",
+    "hex": "#65503d"
+  },
+  {
+    "brand": "SW",
+    "name": "Divine White",
+    "code": "SW6105",
+    "hex": "#e6dccd"
+  },
+  {
+    "brand": "SW",
+    "name": "Kilim Beige",
+    "code": "SW6106",
+    "hex": "#d7c5ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Nomadic Desert",
+    "code": "SW6107",
+    "hex": "#c7b198"
+  },
+  {
+    "brand": "SW",
+    "name": "Latte",
+    "code": "SW6108",
+    "hex": "#baa185"
+  },
+  {
+    "brand": "SW",
+    "name": "Hopsack",
+    "code": "SW6109",
+    "hex": "#9e8163"
+  },
+  {
+    "brand": "SW",
+    "name": "Steady Brown",
+    "code": "SW6110",
+    "hex": "#8a6b4d"
+  },
+  {
+    "brand": "SW",
+    "name": "Coconut Husk",
+    "code": "SW6111",
+    "hex": "#70573f"
+  },
+  {
+    "brand": "SW",
+    "name": "Biscuit",
+    "code": "SW6112",
+    "hex": "#ebddcb"
+  },
+  {
+    "brand": "SW",
+    "name": "Interactive Cream",
+    "code": "SW6113",
+    "hex": "#e4caad"
+  },
+  {
+    "brand": "SW",
+    "name": "Bagel",
+    "code": "SW6114",
+    "hex": "#d7b593"
+  },
+  {
+    "brand": "SW",
+    "name": "Totally Tan",
+    "code": "SW6115",
+    "hex": "#cca683"
+  },
+  {
+    "brand": "SW",
+    "name": "Tatami Tan",
+    "code": "SW6116",
+    "hex": "#ba8c64"
+  },
+  {
+    "brand": "SW",
+    "name": "Smokey Topaz",
+    "code": "SW6117",
+    "hex": "#a57955"
+  },
+  {
+    "brand": "SW",
+    "name": "Leather Bound",
+    "code": "SW6118",
+    "hex": "#8d623d"
+  },
+  {
+    "brand": "SW",
+    "name": "Antique White",
+    "code": "SW6119",
+    "hex": "#e8dcc6"
+  },
+  {
+    "brand": "SW",
+    "name": "Believable Buff",
+    "code": "SW6120",
+    "hex": "#dbc7a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Whole Wheat",
+    "code": "SW6121",
+    "hex": "#cdb592"
+  },
+  {
+    "brand": "SW",
+    "name": "Camelback",
+    "code": "SW6122",
+    "hex": "#c5aa85"
+  },
+  {
+    "brand": "SW",
+    "name": "Baguette",
+    "code": "SW6123",
+    "hex": "#b39167"
+  },
+  {
+    "brand": "SW",
+    "name": "Cardboard",
+    "code": "SW6124",
+    "hex": "#9c7a56"
+  },
+  {
+    "brand": "SW",
+    "name": "Craft Paper",
+    "code": "SW6125",
+    "hex": "#8a6645"
+  },
+  {
+    "brand": "SW",
+    "name": "Navajo White",
+    "code": "SW6126",
+    "hex": "#e9dcc6"
+  },
+  {
+    "brand": "SW",
+    "name": "Ivoire",
+    "code": "SW6127",
+    "hex": "#e4ceac"
+  },
+  {
+    "brand": "SW",
+    "name": "Blonde",
+    "code": "SW6128",
+    "hex": "#dcbd92"
+  },
+  {
+    "brand": "SW",
+    "name": "Restrained Gold",
+    "code": "SW6129",
+    "hex": "#d2b084"
+  },
+  {
+    "brand": "SW",
+    "name": "Mannered Gold",
+    "code": "SW6130",
+    "hex": "#c19763"
+  },
+  {
+    "brand": "SW",
+    "name": "Chamois",
+    "code": "SW6131",
+    "hex": "#ad8451"
+  },
+  {
+    "brand": "SW",
+    "name": "Relic Bronze",
+    "code": "SW6132",
+    "hex": "#906a3a"
+  },
+  {
+    "brand": "SW",
+    "name": "Muslin",
+    "code": "SW6133",
+    "hex": "#eadfc9"
+  },
+  {
+    "brand": "SW",
+    "name": "Netsuke",
+    "code": "SW6134",
+    "hex": "#e0cfb0"
+  },
+  {
+    "brand": "SW",
+    "name": "Ecru",
+    "code": "SW6135",
+    "hex": "#d0ba94"
+  },
+  {
+    "brand": "SW",
+    "name": "Harmonic Tan",
+    "code": "SW6136",
+    "hex": "#c6b08a"
+  },
+  {
+    "brand": "SW",
+    "name": "Burlap",
+    "code": "SW6137",
+    "hex": "#ac9571"
+  },
+  {
+    "brand": "SW",
+    "name": "Artifact",
+    "code": "SW6138",
+    "hex": "#9a815e"
+  },
+  {
+    "brand": "SW",
+    "name": "Mossy Gold",
+    "code": "SW6139",
+    "hex": "#7f6743"
+  },
+  {
+    "brand": "SW",
+    "name": "Moderate White",
+    "code": "SW6140",
+    "hex": "#e9decf"
+  },
+  {
+    "brand": "SW",
+    "name": "Softer Tan",
+    "code": "SW6141",
+    "hex": "#dacab2"
+  },
+  {
+    "brand": "SW",
+    "name": "Macadamia",
+    "code": "SW6142",
+    "hex": "#ccb79b"
+  },
+  {
+    "brand": "SW",
+    "name": "Basket Beige",
+    "code": "SW6143",
+    "hex": "#c0a98b"
+  },
+  {
+    "brand": "SW",
+    "name": "Dapper Tan",
+    "code": "SW6144",
+    "hex": "#947f65"
+  },
+  {
+    "brand": "SW",
+    "name": "Thatch Brown",
+    "code": "SW6145",
+    "hex": "#867057"
+  },
+  {
+    "brand": "SW",
+    "name": "Umber",
+    "code": "SW6146",
+    "hex": "#6e543c"
+  },
+  {
+    "brand": "SW",
+    "name": "Panda White",
+    "code": "SW6147",
+    "hex": "#eae2d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Wool Skein",
+    "code": "SW6148",
+    "hex": "#d9cfba"
+  },
+  {
+    "brand": "SW",
+    "name": "Relaxed Khaki",
+    "code": "SW6149",
+    "hex": "#c8bba3"
+  },
+  {
+    "brand": "SW",
+    "name": "Universal Khaki",
+    "code": "SW6150",
+    "hex": "#b8a992"
+  },
+  {
+    "brand": "SW",
+    "name": "Quiver Tan",
+    "code": "SW6151",
+    "hex": "#8e7f6a"
+  },
+  {
+    "brand": "SW",
+    "name": "Superior Bronze",
+    "code": "SW6152",
+    "hex": "#786957"
+  },
+  {
+    "brand": "SW",
+    "name": "Protégé Bronze",
+    "code": "SW6153",
+    "hex": "#66543e"
+  },
+  {
+    "brand": "SW",
+    "name": "Nacre",
+    "code": "SW6154",
+    "hex": "#e8e2d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Rice Grain",
+    "code": "SW6155",
+    "hex": "#dbd0b9"
+  },
+  {
+    "brand": "SW",
+    "name": "Ramie",
+    "code": "SW6156",
+    "hex": "#cdbda2"
+  },
+  {
+    "brand": "SW",
+    "name": "Favorite Tan",
+    "code": "SW6157",
+    "hex": "#c1ae91"
+  },
+  {
+    "brand": "SW",
+    "name": "Sawdust",
+    "code": "SW6158",
+    "hex": "#998970"
+  },
+  {
+    "brand": "SW",
+    "name": "High Tea",
+    "code": "SW6159",
+    "hex": "#7e6f59"
+  },
+  {
+    "brand": "SW",
+    "name": "Best Bronze",
+    "code": "SW6160",
+    "hex": "#5d513e"
+  },
+  {
+    "brand": "SW",
+    "name": "Nonchalant White",
+    "code": "SW6161",
+    "hex": "#deddd1"
+  },
+  {
+    "brand": "SW",
+    "name": "Ancient Marble",
+    "code": "SW6162",
+    "hex": "#d1ccb9"
+  },
+  {
+    "brand": "SW",
+    "name": "Grassland",
+    "code": "SW6163",
+    "hex": "#c1bca7"
+  },
+  {
+    "brand": "SW",
+    "name": "Svelte Sage",
+    "code": "SW6164",
+    "hex": "#b2ac96"
+  },
+  {
+    "brand": "SW",
+    "name": "Connected Gray",
+    "code": "SW6165",
+    "hex": "#898473"
+  },
+  {
+    "brand": "SW",
+    "name": "Eclipse",
+    "code": "SW6166",
+    "hex": "#6b6757"
+  },
+  {
+    "brand": "SW",
+    "name": "Garden Gate",
+    "code": "SW6167",
+    "hex": "#5e5949"
+  },
+  {
+    "brand": "SW",
+    "name": "Moderne White",
+    "code": "SW6168",
+    "hex": "#e2e0d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Sedate Gray",
+    "code": "SW6169",
+    "hex": "#d1cdbf"
+  },
+  {
+    "brand": "SW",
+    "name": "Techno Gray",
+    "code": "SW6170",
+    "hex": "#bfb9aa"
+  },
+  {
+    "brand": "SW",
+    "name": "Chatroom",
+    "code": "SW6171",
+    "hex": "#b0ab9c"
+  },
+  {
+    "brand": "SW",
+    "name": "Hardware",
+    "code": "SW6172",
+    "hex": "#8b8372"
+  },
+  {
+    "brand": "SW",
+    "name": "Cocoon",
+    "code": "SW6173",
+    "hex": "#726b5b"
+  },
+  {
+    "brand": "SW",
+    "name": "Andiron",
+    "code": "SW6174",
+    "hex": "#424036"
+  },
+  {
+    "brand": "SW",
+    "name": "Sagey",
+    "code": "SW6175",
+    "hex": "#e2e2d1"
+  },
+  {
+    "brand": "SW",
+    "name": "Liveable Green",
+    "code": "SW6176",
+    "hex": "#cecebd"
+  },
+  {
+    "brand": "SW",
+    "name": "Softened Green",
+    "code": "SW6177",
+    "hex": "#bbbca7"
+  },
+  {
+    "brand": "SW",
+    "name": "Clary Sage",
+    "code": "SW6178",
+    "hex": "#acad97"
+  },
+  {
+    "brand": "SW",
+    "name": "Artichoke",
+    "code": "SW6179",
+    "hex": "#7f8266"
+  },
+  {
+    "brand": "SW",
+    "name": "Oakmoss",
+    "code": "SW6180",
+    "hex": "#65684c"
+  },
+  {
+    "brand": "SW",
+    "name": "Secret Garden",
+    "code": "SW6181",
+    "hex": "#4f523a"
+  },
+  {
+    "brand": "SW",
+    "name": "Ethereal White",
+    "code": "SW6182",
+    "hex": "#e3e2d9"
+  },
+  {
+    "brand": "SW",
+    "name": "Conservative Gray",
+    "code": "SW6183",
+    "hex": "#d1d0c6"
+  },
+  {
+    "brand": "SW",
+    "name": "Austere Gray",
+    "code": "SW6184",
+    "hex": "#bebfb2"
+  },
+  {
+    "brand": "SW",
+    "name": "Escape Gray",
+    "code": "SW6185",
+    "hex": "#abac9f"
+  },
+  {
+    "brand": "SW",
+    "name": "Dried Thyme",
+    "code": "SW6186",
+    "hex": "#7b8070"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosemary",
+    "code": "SW6187",
+    "hex": "#64695c"
+  },
+  {
+    "brand": "SW",
+    "name": "Shade‐Grown",
+    "code": "SW6188",
+    "hex": "#4e5147"
+  },
+  {
+    "brand": "SW",
+    "name": "Opaline",
+    "code": "SW6189",
+    "hex": "#dcdfd7"
+  },
+  {
+    "brand": "SW",
+    "name": "Filmy Green",
+    "code": "SW6190",
+    "hex": "#d1d3c7"
+  },
+  {
+    "brand": "SW",
+    "name": "Contented",
+    "code": "SW6191",
+    "hex": "#bdc0b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Coastal Plain",
+    "code": "SW6192",
+    "hex": "#9fa694"
+  },
+  {
+    "brand": "SW",
+    "name": "Privilege Green",
+    "code": "SW6193",
+    "hex": "#7a8775"
+  },
+  {
+    "brand": "SW",
+    "name": "Basil",
+    "code": "SW6194",
+    "hex": "#626e60"
+  },
+  {
+    "brand": "SW",
+    "name": "Rock Garden",
+    "code": "SW6195",
+    "hex": "#465448"
+  },
+  {
+    "brand": "SW",
+    "name": "Frosty White",
+    "code": "SW6196",
+    "hex": "#ddddd6"
+  },
+  {
+    "brand": "SW",
+    "name": "Aloof Gray",
+    "code": "SW6197",
+    "hex": "#c9c9c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sensible Hue",
+    "code": "SW6198",
+    "hex": "#b6b5ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Rare Gray",
+    "code": "SW6199",
+    "hex": "#a6a69b"
+  },
+  {
+    "brand": "SW",
+    "name": "Link Gray",
+    "code": "SW6200",
+    "hex": "#7f7e72"
+  },
+  {
+    "brand": "SW",
+    "name": "Thunderous",
+    "code": "SW6201",
+    "hex": "#6d6c62"
+  },
+  {
+    "brand": "SW",
+    "name": "Cast Iron",
+    "code": "SW6202",
+    "hex": "#64645a"
+  },
+  {
+    "brand": "SW",
+    "name": "Spare White",
+    "code": "SW6203",
+    "hex": "#e4e4dd"
+  },
+  {
+    "brand": "SW",
+    "name": "Sea Salt",
+    "code": "SW6204",
+    "hex": "#cdd2ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Comfort Gray",
+    "code": "SW6205",
+    "hex": "#bec3bb"
+  },
+  {
+    "brand": "SW",
+    "name": "Oyster Bay",
+    "code": "SW6206",
+    "hex": "#aeb3a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Retreat",
+    "code": "SW6207",
+    "hex": "#7a8076"
+  },
+  {
+    "brand": "SW",
+    "name": "Pewter Green",
+    "code": "SW6208",
+    "hex": "#5e6259"
+  },
+  {
+    "brand": "SW",
+    "name": "Ripe Olive",
+    "code": "SW6209",
+    "hex": "#44483d"
+  },
+  {
+    "brand": "SW",
+    "name": "Window Pane",
+    "code": "SW6210",
+    "hex": "#d7dfd8"
+  },
+  {
+    "brand": "SW",
+    "name": "Rainwashed",
+    "code": "SW6211",
+    "hex": "#c2cdc5"
+  },
+  {
+    "brand": "SW",
+    "name": "Quietude",
+    "code": "SW6212",
+    "hex": "#adbbb2"
+  },
+  {
+    "brand": "SW",
+    "name": "Halcyon Green",
+    "code": "SW6213",
+    "hex": "#9baaa2"
+  },
+  {
+    "brand": "SW",
+    "name": "Underseas",
+    "code": "SW6214",
+    "hex": "#7c8e87"
+  },
+  {
+    "brand": "SW",
+    "name": "Rocky River",
+    "code": "SW6215",
+    "hex": "#5e706a"
+  },
+  {
+    "brand": "SW",
+    "name": "Jasper",
+    "code": "SW6216",
+    "hex": "#343b36"
+  },
+  {
+    "brand": "SW",
+    "name": "Topsail",
+    "code": "SW6217",
+    "hex": "#dae2e0"
+  },
+  {
+    "brand": "SW",
+    "name": "Tradewind",
+    "code": "SW6218",
+    "hex": "#c2cfcf"
+  },
+  {
+    "brand": "SW",
+    "name": "Rain",
+    "code": "SW6219",
+    "hex": "#abbebf"
+  },
+  {
+    "brand": "SW",
+    "name": "Interesting Aqua",
+    "code": "SW6220",
+    "hex": "#9bafb2"
+  },
+  {
+    "brand": "SW",
+    "name": "Moody Blue",
+    "code": "SW6221",
+    "hex": "#7a9192"
+  },
+  {
+    "brand": "SW",
+    "name": "Riverway",
+    "code": "SW6222",
+    "hex": "#5d7274"
+  },
+  {
+    "brand": "SW",
+    "name": "Still Water",
+    "code": "SW6223",
+    "hex": "#4a5d5f"
+  },
+  {
+    "brand": "SW",
+    "name": "Mountain Air",
+    "code": "SW6224",
+    "hex": "#d8e0df"
+  },
+  {
+    "brand": "SW",
+    "name": "Sleepy Blue",
+    "code": "SW6225",
+    "hex": "#bccbce"
+  },
+  {
+    "brand": "SW",
+    "name": "Languid Blue",
+    "code": "SW6226",
+    "hex": "#a4b7bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Meditative",
+    "code": "SW6227",
+    "hex": "#96aab0"
+  },
+  {
+    "brand": "SW",
+    "name": "Refuge",
+    "code": "SW6228",
+    "hex": "#607d84"
+  },
+  {
+    "brand": "SW",
+    "name": "Tempe Star",
+    "code": "SW6229",
+    "hex": "#47626a"
+  },
+  {
+    "brand": "SW",
+    "name": "Rainstorm",
+    "code": "SW6230",
+    "hex": "#244653"
+  },
+  {
+    "brand": "SW",
+    "name": "Rock Candy",
+    "code": "SW6231",
+    "hex": "#dee1df"
+  },
+  {
+    "brand": "SW",
+    "name": "Misty",
+    "code": "SW6232",
+    "hex": "#cdd2d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Samovar Silver",
+    "code": "SW6233",
+    "hex": "#b8bebe"
+  },
+  {
+    "brand": "SW",
+    "name": "Uncertain Gray",
+    "code": "SW6234",
+    "hex": "#a9b0b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Foggy Day",
+    "code": "SW6235",
+    "hex": "#727c7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Grays Harbor",
+    "code": "SW6236",
+    "hex": "#596368"
+  },
+  {
+    "brand": "SW",
+    "name": "Dark Night",
+    "code": "SW6237",
+    "hex": "#23383f"
+  },
+  {
+    "brand": "SW",
+    "name": "Icicle",
+    "code": "SW6238",
+    "hex": "#dbdfe0"
+  },
+  {
+    "brand": "SW",
+    "name": "Upward",
+    "code": "SW6239",
+    "hex": "#bfc9d0"
+  },
+  {
+    "brand": "SW",
+    "name": "Windy Blue",
+    "code": "SW6240",
+    "hex": "#aabac6"
+  },
+  {
+    "brand": "SW",
+    "name": "Aleutian",
+    "code": "SW6241",
+    "hex": "#98a9b7"
+  },
+  {
+    "brand": "SW",
+    "name": "Bracing Blue",
+    "code": "SW6242",
+    "hex": "#768b9a"
+  },
+  {
+    "brand": "SW",
+    "name": "Distance",
+    "code": "SW6243",
+    "hex": "#5d6f7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Naval",
+    "code": "SW6244",
+    "hex": "#2f3d4c"
+  },
+  {
+    "brand": "SW",
+    "name": "Quicksilver",
+    "code": "SW6245",
+    "hex": "#dde2e0"
+  },
+  {
+    "brand": "SW",
+    "name": "North Star",
+    "code": "SW6246",
+    "hex": "#cad0d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Krypton",
+    "code": "SW6247",
+    "hex": "#b8c0c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Jubilee",
+    "code": "SW6248",
+    "hex": "#adb5b9"
+  },
+  {
+    "brand": "SW",
+    "name": "Storm Cloud",
+    "code": "SW6249",
+    "hex": "#7a848d"
+  },
+  {
+    "brand": "SW",
+    "name": "Granite Peak",
+    "code": "SW6250",
+    "hex": "#606b75"
+  },
+  {
+    "brand": "SW",
+    "name": "Outerspace",
+    "code": "SW6251",
+    "hex": "#586168"
+  },
+  {
+    "brand": "SW",
+    "name": "Ice Cube",
+    "code": "SW6252",
+    "hex": "#e3e4e1"
+  },
+  {
+    "brand": "SW",
+    "name": "Olympus White",
+    "code": "SW6253",
+    "hex": "#d4d8d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Lazy Gray",
+    "code": "SW6254",
+    "hex": "#bec1c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Morning Fog",
+    "code": "SW6255",
+    "hex": "#a8aeb1"
+  },
+  {
+    "brand": "SW",
+    "name": "Serious Gray",
+    "code": "SW6256",
+    "hex": "#7d848b"
+  },
+  {
+    "brand": "SW",
+    "name": "Gibraltar",
+    "code": "SW6257",
+    "hex": "#626970"
+  },
+  {
+    "brand": "SW",
+    "name": "Tricorn Black",
+    "code": "SW6258",
+    "hex": "#2f2f30"
+  },
+  {
+    "brand": "SW",
+    "name": "Spatial White",
+    "code": "SW6259",
+    "hex": "#dddcdb"
+  },
+  {
+    "brand": "SW",
+    "name": "Unique Gray",
+    "code": "SW6260",
+    "hex": "#cbc9c9"
+  },
+  {
+    "brand": "SW",
+    "name": "Swanky Gray",
+    "code": "SW6261",
+    "hex": "#b5b1b5"
+  },
+  {
+    "brand": "SW",
+    "name": "Mysterious Mauve",
+    "code": "SW6262",
+    "hex": "#a6a3a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Exclusive Plum",
+    "code": "SW6263",
+    "hex": "#736f78"
+  },
+  {
+    "brand": "SW",
+    "name": "Midnight",
+    "code": "SW6264",
+    "hex": "#5d5962"
+  },
+  {
+    "brand": "SW",
+    "name": "Quixotic Plum",
+    "code": "SW6265",
+    "hex": "#4a4653"
+  },
+  {
+    "brand": "SW",
+    "name": "Sensitive Tint",
+    "code": "SW6267",
+    "hex": "#cec9cc"
+  },
+  {
+    "brand": "SW",
+    "name": "Veiled Violet",
+    "code": "SW6268",
+    "hex": "#bdb5b9"
+  },
+  {
+    "brand": "SW",
+    "name": "Beguiling Mauve",
+    "code": "SW6269",
+    "hex": "#afa7ac"
+  },
+  {
+    "brand": "SW",
+    "name": "Soulmate",
+    "code": "SW6270",
+    "hex": "#85777b"
+  },
+  {
+    "brand": "SW",
+    "name": "Expressive Plum",
+    "code": "SW6271",
+    "hex": "#695c62"
+  },
+  {
+    "brand": "SW",
+    "name": "Plum Brown",
+    "code": "SW6272",
+    "hex": "#4e4247"
+  },
+  {
+    "brand": "SW",
+    "name": "Destiny",
+    "code": "SW6274",
+    "hex": "#cfc9c8"
+  },
+  {
+    "brand": "SW",
+    "name": "Fashionable Gray",
+    "code": "SW6275",
+    "hex": "#bdb8b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Mystical Shade",
+    "code": "SW6276",
+    "hex": "#aea9aa"
+  },
+  {
+    "brand": "SW",
+    "name": "Special Gray",
+    "code": "SW6277",
+    "hex": "#7b787d"
+  },
+  {
+    "brand": "SW",
+    "name": "Cloak Gray",
+    "code": "SW6278",
+    "hex": "#605e63"
+  },
+  {
+    "brand": "SW",
+    "name": "Black Swan",
+    "code": "SW6279",
+    "hex": "#3a373e"
+  },
+  {
+    "brand": "SW",
+    "name": "Wallflower",
+    "code": "SW6281",
+    "hex": "#dbcfd4"
+  },
+  {
+    "brand": "SW",
+    "name": "Mauve Finery",
+    "code": "SW6282",
+    "hex": "#cbb8c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Thistle",
+    "code": "SW6283",
+    "hex": "#aa8e9a"
+  },
+  {
+    "brand": "SW",
+    "name": "Plum Dandy",
+    "code": "SW6284",
+    "hex": "#8b6878"
+  },
+  {
+    "brand": "SW",
+    "name": "Grape Harvest",
+    "code": "SW6285",
+    "hex": "#7e5a6d"
+  },
+  {
+    "brand": "SW",
+    "name": "Mature Grape",
+    "code": "SW6286",
+    "hex": "#5f3f54"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosebud",
+    "code": "SW6288",
+    "hex": "#e0cdd1"
+  },
+  {
+    "brand": "SW",
+    "name": "Delightful",
+    "code": "SW6289",
+    "hex": "#d2b6be"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosé",
+    "code": "SW6290",
+    "hex": "#b995a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Moss Rose",
+    "code": "SW6291",
+    "hex": "#9e6d79"
+  },
+  {
+    "brand": "SW",
+    "name": "Berry Bush",
+    "code": "SW6292",
+    "hex": "#8d5869"
+  },
+  {
+    "brand": "SW",
+    "name": "Fabulous Grape",
+    "code": "SW6293",
+    "hex": "#6d344f"
+  },
+  {
+    "brand": "SW",
+    "name": "Demure",
+    "code": "SW6295",
+    "hex": "#e8d4d5"
+  },
+  {
+    "brand": "SW",
+    "name": "Fading Rose",
+    "code": "SW6296",
+    "hex": "#dabdc1"
+  },
+  {
+    "brand": "SW",
+    "name": "Rose Embroidery",
+    "code": "SW6297",
+    "hex": "#c79ea2"
+  },
+  {
+    "brand": "SW",
+    "name": "Concerto",
+    "code": "SW6298",
+    "hex": "#9e6b75"
+  },
+  {
+    "brand": "SW",
+    "name": "Aged Wine",
+    "code": "SW6299",
+    "hex": "#895460"
+  },
+  {
+    "brand": "SW",
+    "name": "Burgundy",
+    "code": "SW6300",
+    "hex": "#63333e"
+  },
+  {
+    "brand": "SW",
+    "name": "Innocence",
+    "code": "SW6302",
+    "hex": "#ebd1cf"
+  },
+  {
+    "brand": "SW",
+    "name": "Rose Colored",
+    "code": "SW6303",
+    "hex": "#dcb6b5"
+  },
+  {
+    "brand": "SW",
+    "name": "Pressed Flower",
+    "code": "SW6304",
+    "hex": "#c39393"
+  },
+  {
+    "brand": "SW",
+    "name": "Rambling Rose",
+    "code": "SW6305",
+    "hex": "#995d62"
+  },
+  {
+    "brand": "SW",
+    "name": "Cordial",
+    "code": "SW6306",
+    "hex": "#864c52"
+  },
+  {
+    "brand": "SW",
+    "name": "Fine Wine",
+    "code": "SW6307",
+    "hex": "#723941"
+  },
+  {
+    "brand": "SW",
+    "name": "Charming Pink",
+    "code": "SW6309",
+    "hex": "#edd3d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Lotus Flower",
+    "code": "SW6310",
+    "hex": "#e6bdbd"
+  },
+  {
+    "brand": "SW",
+    "name": "Memorable Rose",
+    "code": "SW6311",
+    "hex": "#cf8a8d"
+  },
+  {
+    "brand": "SW",
+    "name": "Redbud",
+    "code": "SW6312",
+    "hex": "#ad5e65"
+  },
+  {
+    "brand": "SW",
+    "name": "Kirsch Red",
+    "code": "SW6313",
+    "hex": "#974953"
+  },
+  {
+    "brand": "SW",
+    "name": "Luxurious Red",
+    "code": "SW6314",
+    "hex": "#863a42"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosy Outlook",
+    "code": "SW6316",
+    "hex": "#ebcecb"
+  },
+  {
+    "brand": "SW",
+    "name": "Gracious Rose",
+    "code": "SW6317",
+    "hex": "#e3b7b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Resounding Rose",
+    "code": "SW6318",
+    "hex": "#cd8e89"
+  },
+  {
+    "brand": "SW",
+    "name": "Reddish",
+    "code": "SW6319",
+    "hex": "#b56966"
+  },
+  {
+    "brand": "SW",
+    "name": "Bravado Red",
+    "code": "SW6320",
+    "hex": "#a0524e"
+  },
+  {
+    "brand": "SW",
+    "name": "Red Bay",
+    "code": "SW6321",
+    "hex": "#8e3738"
+  },
+  {
+    "brand": "SW",
+    "name": "Intimate White",
+    "code": "SW6322",
+    "hex": "#f0e1d8"
+  },
+  {
+    "brand": "SW",
+    "name": "Romance",
+    "code": "SW6323",
+    "hex": "#ebcfc3"
+  },
+  {
+    "brand": "SW",
+    "name": "Mellow Coral",
+    "code": "SW6324",
+    "hex": "#e3b5a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Constant Coral",
+    "code": "SW6325",
+    "hex": "#cd8e7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Henna Shade",
+    "code": "SW6326",
+    "hex": "#b3675d"
+  },
+  {
+    "brand": "SW",
+    "name": "Bold Brick",
+    "code": "SW6327",
+    "hex": "#a0584f"
+  },
+  {
+    "brand": "SW",
+    "name": "Fireweed",
+    "code": "SW6328",
+    "hex": "#7b3730"
+  },
+  {
+    "brand": "SW",
+    "name": "Faint Coral",
+    "code": "SW6329",
+    "hex": "#eeded5"
+  },
+  {
+    "brand": "SW",
+    "name": "Quaint Peche",
+    "code": "SW6330",
+    "hex": "#eacdc1"
+  },
+  {
+    "brand": "SW",
+    "name": "Smoky Salmon",
+    "code": "SW6331",
+    "hex": "#e2b6a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Coral Island",
+    "code": "SW6332",
+    "hex": "#ce9382"
+  },
+  {
+    "brand": "SW",
+    "name": "Foxy",
+    "code": "SW6333",
+    "hex": "#a85e53"
+  },
+  {
+    "brand": "SW",
+    "name": "Flower Pot",
+    "code": "SW6334",
+    "hex": "#8f4438"
+  },
+  {
+    "brand": "SW",
+    "name": "Fired Brick",
+    "code": "SW6335",
+    "hex": "#83382a"
+  },
+  {
+    "brand": "SW",
+    "name": "Nearly Peach",
+    "code": "SW6336",
+    "hex": "#efded1"
+  },
+  {
+    "brand": "SW",
+    "name": "Spun Sugar",
+    "code": "SW6337",
+    "hex": "#edd2c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Warming Peach",
+    "code": "SW6338",
+    "hex": "#e4b9a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Persimmon",
+    "code": "SW6339",
+    "hex": "#d9987c"
+  },
+  {
+    "brand": "SW",
+    "name": "Baked Clay",
+    "code": "SW6340",
+    "hex": "#c1785c"
+  },
+  {
+    "brand": "SW",
+    "name": "Red Cent",
+    "code": "SW6341",
+    "hex": "#ad654c"
+  },
+  {
+    "brand": "SW",
+    "name": "Spicy Hue",
+    "code": "SW6342",
+    "hex": "#994b35"
+  },
+  {
+    "brand": "SW",
+    "name": "Alluring White",
+    "code": "SW6343",
+    "hex": "#efe1d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Peach Fuzz",
+    "code": "SW6344",
+    "hex": "#eccfbb"
+  },
+  {
+    "brand": "SW",
+    "name": "Sumptuous Peach",
+    "code": "SW6345",
+    "hex": "#e5b99b"
+  },
+  {
+    "brand": "SW",
+    "name": "Fame Orange",
+    "code": "SW6346",
+    "hex": "#db9c7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Chrysanthemum",
+    "code": "SW6347",
+    "hex": "#c47b5b"
+  },
+  {
+    "brand": "SW",
+    "name": "Reynard",
+    "code": "SW6348",
+    "hex": "#b46848"
+  },
+  {
+    "brand": "SW",
+    "name": "Pennywise",
+    "code": "SW6349",
+    "hex": "#a2583a"
+  },
+  {
+    "brand": "SW",
+    "name": "Intricate Ivory",
+    "code": "SW6350",
+    "hex": "#edddca"
+  },
+  {
+    "brand": "SW",
+    "name": "Sweet Orange",
+    "code": "SW6351",
+    "hex": "#ebccb3"
+  },
+  {
+    "brand": "SW",
+    "name": "Soft Apricot",
+    "code": "SW6352",
+    "hex": "#e0b392"
+  },
+  {
+    "brand": "SW",
+    "name": "Chivalry Copper",
+    "code": "SW6353",
+    "hex": "#d4966e"
+  },
+  {
+    "brand": "SW",
+    "name": "Armagnac",
+    "code": "SW6354",
+    "hex": "#c38058"
+  },
+  {
+    "brand": "SW",
+    "name": "Truepenny",
+    "code": "SW6355",
+    "hex": "#b46c42"
+  },
+  {
+    "brand": "SW",
+    "name": "Copper Mountain",
+    "code": "SW6356",
+    "hex": "#a6613c"
+  },
+  {
+    "brand": "SW",
+    "name": "Choice Cream",
+    "code": "SW6357",
+    "hex": "#f0e1d0"
+  },
+  {
+    "brand": "SW",
+    "name": "Creamery",
+    "code": "SW6358",
+    "hex": "#edd0b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Sociable",
+    "code": "SW6359",
+    "hex": "#e8be9b"
+  },
+  {
+    "brand": "SW",
+    "name": "Folksy Gold",
+    "code": "SW6360",
+    "hex": "#d69969"
+  },
+  {
+    "brand": "SW",
+    "name": "Autumnal",
+    "code": "SW6361",
+    "hex": "#cd8c5d"
+  },
+  {
+    "brand": "SW",
+    "name": "Tigereye",
+    "code": "SW6362",
+    "hex": "#bb7748"
+  },
+  {
+    "brand": "SW",
+    "name": "Gingery",
+    "code": "SW6363",
+    "hex": "#b06c3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Eggwhite",
+    "code": "SW6364",
+    "hex": "#f3e5d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Cachet Cream",
+    "code": "SW6365",
+    "hex": "#f3d9ba"
+  },
+  {
+    "brand": "SW",
+    "name": "Ambitious Amber",
+    "code": "SW6366",
+    "hex": "#f0cb97"
+  },
+  {
+    "brand": "SW",
+    "name": "Viva Gold",
+    "code": "SW6367",
+    "hex": "#e3ac72"
+  },
+  {
+    "brand": "SW",
+    "name": "Bakelite Gold",
+    "code": "SW6368",
+    "hex": "#d7995d"
+  },
+  {
+    "brand": "SW",
+    "name": "Tassel",
+    "code": "SW6369",
+    "hex": "#c6884a"
+  },
+  {
+    "brand": "SW",
+    "name": "Saucy Gold",
+    "code": "SW6370",
+    "hex": "#b6743b"
+  },
+  {
+    "brand": "SW",
+    "name": "Vanillin",
+    "code": "SW6371",
+    "hex": "#f2e3ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Inviting Ivory",
+    "code": "SW6372",
+    "hex": "#f2d5b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Harvester",
+    "code": "SW6373",
+    "hex": "#edc38e"
+  },
+  {
+    "brand": "SW",
+    "name": "Torchlight",
+    "code": "SW6374",
+    "hex": "#e5ae6b"
+  },
+  {
+    "brand": "SW",
+    "name": "Honeycomb",
+    "code": "SW6375",
+    "hex": "#d59858"
+  },
+  {
+    "brand": "SW",
+    "name": "Gold Coast",
+    "code": "SW6376",
+    "hex": "#c78538"
+  },
+  {
+    "brand": "SW",
+    "name": "Butterscotch",
+    "code": "SW6377",
+    "hex": "#b67d3c"
+  },
+  {
+    "brand": "SW",
+    "name": "Crisp Linen",
+    "code": "SW6378",
+    "hex": "#f3e6d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Jersey Cream",
+    "code": "SW6379",
+    "hex": "#f5debb"
+  },
+  {
+    "brand": "SW",
+    "name": "Humble Gold",
+    "code": "SW6380",
+    "hex": "#edc796"
+  },
+  {
+    "brand": "SW",
+    "name": "Anjou Pear",
+    "code": "SW6381",
+    "hex": "#ddac6d"
+  },
+  {
+    "brand": "SW",
+    "name": "Ceremonial Gold",
+    "code": "SW6382",
+    "hex": "#d69e59"
+  },
+  {
+    "brand": "SW",
+    "name": "Golden Rule",
+    "code": "SW6383",
+    "hex": "#cc9249"
+  },
+  {
+    "brand": "SW",
+    "name": "Cut the Mustard",
+    "code": "SW6384",
+    "hex": "#ba7f38"
+  },
+  {
+    "brand": "SW",
+    "name": "Dover White",
+    "code": "SW6385",
+    "hex": "#f0eadc"
+  },
+  {
+    "brand": "SW",
+    "name": "Napery",
+    "code": "SW6386",
+    "hex": "#efddc1"
+  },
+  {
+    "brand": "SW",
+    "name": "Compatible Cream",
+    "code": "SW6387",
+    "hex": "#e8c89e"
+  },
+  {
+    "brand": "SW",
+    "name": "Golden Fleece",
+    "code": "SW6388",
+    "hex": "#d6ad78"
+  },
+  {
+    "brand": "SW",
+    "name": "Butternut",
+    "code": "SW6389",
+    "hex": "#cc9b5c"
+  },
+  {
+    "brand": "SW",
+    "name": "Bosc Pear",
+    "code": "SW6390",
+    "hex": "#c09056"
+  },
+  {
+    "brand": "SW",
+    "name": "Gallant Gold",
+    "code": "SW6391",
+    "hex": "#a4763c"
+  },
+  {
+    "brand": "SW",
+    "name": "Vital Yellow",
+    "code": "SW6392",
+    "hex": "#ede0c5"
+  },
+  {
+    "brand": "SW",
+    "name": "Convivial Yellow",
+    "code": "SW6393",
+    "hex": "#e9d6b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sequin",
+    "code": "SW6394",
+    "hex": "#e1c28d"
+  },
+  {
+    "brand": "SW",
+    "name": "Alchemy",
+    "code": "SW6395",
+    "hex": "#c99e53"
+  },
+  {
+    "brand": "SW",
+    "name": "Different Gold",
+    "code": "SW6396",
+    "hex": "#bc934d"
+  },
+  {
+    "brand": "SW",
+    "name": "Nankeen",
+    "code": "SW6397",
+    "hex": "#aa803a"
+  },
+  {
+    "brand": "SW",
+    "name": "Sconce Gold",
+    "code": "SW6398",
+    "hex": "#996f32"
+  },
+  {
+    "brand": "SW",
+    "name": "Chamomile",
+    "code": "SW6399",
+    "hex": "#e9e0c5"
+  },
+  {
+    "brand": "SW",
+    "name": "Lucent Yellow",
+    "code": "SW6400",
+    "hex": "#e4d0a5"
+  },
+  {
+    "brand": "SW",
+    "name": "Independent Gold",
+    "code": "SW6401",
+    "hex": "#d2ba83"
+  },
+  {
+    "brand": "SW",
+    "name": "Antiquity",
+    "code": "SW6402",
+    "hex": "#c2a462"
+  },
+  {
+    "brand": "SW",
+    "name": "Escapade Gold",
+    "code": "SW6403",
+    "hex": "#b89b59"
+  },
+  {
+    "brand": "SW",
+    "name": "Grandiose",
+    "code": "SW6404",
+    "hex": "#9c7f41"
+  },
+  {
+    "brand": "SW",
+    "name": "Fervent Brass",
+    "code": "SW6405",
+    "hex": "#95793d"
+  },
+  {
+    "brand": "SW",
+    "name": "Ionic Ivory",
+    "code": "SW6406",
+    "hex": "#e7dfc5"
+  },
+  {
+    "brand": "SW",
+    "name": "Ancestral Gold",
+    "code": "SW6407",
+    "hex": "#ddcda6"
+  },
+  {
+    "brand": "SW",
+    "name": "Wheat Grass",
+    "code": "SW6408",
+    "hex": "#cbb584"
+  },
+  {
+    "brand": "SW",
+    "name": "Edgy Gold",
+    "code": "SW6409",
+    "hex": "#b1975f"
+  },
+  {
+    "brand": "SW",
+    "name": "Brassy",
+    "code": "SW6410",
+    "hex": "#9d8344"
+  },
+  {
+    "brand": "SW",
+    "name": "Bengal Grass",
+    "code": "SW6411",
+    "hex": "#8e773f"
+  },
+  {
+    "brand": "SW",
+    "name": "Eminent Bronze",
+    "code": "SW6412",
+    "hex": "#7a6841"
+  },
+  {
+    "brand": "SW",
+    "name": "Restoration Ivory",
+    "code": "SW6413",
+    "hex": "#e9e1ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Rice Paddy",
+    "code": "SW6414",
+    "hex": "#dfd4b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Hearts of Palm",
+    "code": "SW6415",
+    "hex": "#cfc291"
+  },
+  {
+    "brand": "SW",
+    "name": "Sassy Green",
+    "code": "SW6416",
+    "hex": "#bba86a"
+  },
+  {
+    "brand": "SW",
+    "name": "Tupelo Tree",
+    "code": "SW6417",
+    "hex": "#9c9152"
+  },
+  {
+    "brand": "SW",
+    "name": "Rural Green",
+    "code": "SW6418",
+    "hex": "#8d844d"
+  },
+  {
+    "brand": "SW",
+    "name": "Saguaro",
+    "code": "SW6419",
+    "hex": "#655f2d"
+  },
+  {
+    "brand": "SW",
+    "name": "Queen Anne's Lace",
+    "code": "SW6420",
+    "hex": "#ecead5"
+  },
+  {
+    "brand": "SW",
+    "name": "Celery",
+    "code": "SW6421",
+    "hex": "#e0ddbd"
+  },
+  {
+    "brand": "SW",
+    "name": "Shagreen",
+    "code": "SW6422",
+    "hex": "#cbc99d"
+  },
+  {
+    "brand": "SW",
+    "name": "Ryegrass",
+    "code": "SW6423",
+    "hex": "#aeac7a"
+  },
+  {
+    "brand": "SW",
+    "name": "Tansy Green",
+    "code": "SW6424",
+    "hex": "#95945c"
+  },
+  {
+    "brand": "SW",
+    "name": "Relentless Olive",
+    "code": "SW6425",
+    "hex": "#71713e"
+  },
+  {
+    "brand": "SW",
+    "name": "Basque Green",
+    "code": "SW6426",
+    "hex": "#5f6033"
+  },
+  {
+    "brand": "SW",
+    "name": "Sprout",
+    "code": "SW6427",
+    "hex": "#e4e4ce"
+  },
+  {
+    "brand": "SW",
+    "name": "Honeydew",
+    "code": "SW6428",
+    "hex": "#dbddbd"
+  },
+  {
+    "brand": "SW",
+    "name": "Baize Green",
+    "code": "SW6429",
+    "hex": "#c7cda8"
+  },
+  {
+    "brand": "SW",
+    "name": "Great Green",
+    "code": "SW6430",
+    "hex": "#abb486"
+  },
+  {
+    "brand": "SW",
+    "name": "Leapfrog",
+    "code": "SW6431",
+    "hex": "#88915d"
+  },
+  {
+    "brand": "SW",
+    "name": "Garden Spot",
+    "code": "SW6432",
+    "hex": "#6d7645"
+  },
+  {
+    "brand": "SW",
+    "name": "Inverness",
+    "code": "SW6433",
+    "hex": "#576238"
+  },
+  {
+    "brand": "SW",
+    "name": "Spinach White",
+    "code": "SW6434",
+    "hex": "#e4e8da"
+  },
+  {
+    "brand": "SW",
+    "name": "Gratifying Green",
+    "code": "SW6435",
+    "hex": "#dae2cd"
+  },
+  {
+    "brand": "SW",
+    "name": "Bonsai Tint",
+    "code": "SW6436",
+    "hex": "#c5d1b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Haven",
+    "code": "SW6437",
+    "hex": "#a3b48c"
+  },
+  {
+    "brand": "SW",
+    "name": "Dill",
+    "code": "SW6438",
+    "hex": "#788d60"
+  },
+  {
+    "brand": "SW",
+    "name": "Greenfield",
+    "code": "SW6439",
+    "hex": "#60724f"
+  },
+  {
+    "brand": "SW",
+    "name": "Courtyard",
+    "code": "SW6440",
+    "hex": "#475842"
+  },
+  {
+    "brand": "SW",
+    "name": "White Mint",
+    "code": "SW6441",
+    "hex": "#e0e7da"
+  },
+  {
+    "brand": "SW",
+    "name": "Supreme Green",
+    "code": "SW6442",
+    "hex": "#cfddc7"
+  },
+  {
+    "brand": "SW",
+    "name": "Relish",
+    "code": "SW6443",
+    "hex": "#b3cbaa"
+  },
+  {
+    "brand": "SW",
+    "name": "Lounge Green",
+    "code": "SW6444",
+    "hex": "#8ba97f"
+  },
+  {
+    "brand": "SW",
+    "name": "Garden Grove",
+    "code": "SW6445",
+    "hex": "#5e7f57"
+  },
+  {
+    "brand": "SW",
+    "name": "Arugula",
+    "code": "SW6446",
+    "hex": "#42603c"
+  },
+  {
+    "brand": "SW",
+    "name": "Evergreens",
+    "code": "SW6447",
+    "hex": "#405840"
+  },
+  {
+    "brand": "SW",
+    "name": "Topiary Tint",
+    "code": "SW6449",
+    "hex": "#c8d8c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Easy Green",
+    "code": "SW6450",
+    "hex": "#acc2a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Nurture Green",
+    "code": "SW6451",
+    "hex": "#98b092"
+  },
+  {
+    "brand": "SW",
+    "name": "Inland",
+    "code": "SW6452",
+    "hex": "#6c8867"
+  },
+  {
+    "brand": "SW",
+    "name": "Cilantro",
+    "code": "SW6453",
+    "hex": "#537150"
+  },
+  {
+    "brand": "SW",
+    "name": "Shamrock",
+    "code": "SW6454",
+    "hex": "#205134"
+  },
+  {
+    "brand": "SW",
+    "name": "Fleeting Green",
+    "code": "SW6455",
+    "hex": "#d8e2d8"
+  },
+  {
+    "brand": "SW",
+    "name": "Slow Green",
+    "code": "SW6456",
+    "hex": "#c6d5c9"
+  },
+  {
+    "brand": "SW",
+    "name": "Kind Green",
+    "code": "SW6457",
+    "hex": "#aac2b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Restful",
+    "code": "SW6458",
+    "hex": "#91af9d"
+  },
+  {
+    "brand": "SW",
+    "name": "Jadite",
+    "code": "SW6459",
+    "hex": "#61826c"
+  },
+  {
+    "brand": "SW",
+    "name": "Kale Green",
+    "code": "SW6460",
+    "hex": "#4f6a56"
+  },
+  {
+    "brand": "SW",
+    "name": "Isle of Pines",
+    "code": "SW6461",
+    "hex": "#3d5541"
+  },
+  {
+    "brand": "SW",
+    "name": "Green Trance",
+    "code": "SW6462",
+    "hex": "#d7e4db"
+  },
+  {
+    "brand": "SW",
+    "name": "Breaktime",
+    "code": "SW6463",
+    "hex": "#c4d9ce"
+  },
+  {
+    "brand": "SW",
+    "name": "Aloe",
+    "code": "SW6464",
+    "hex": "#accabc"
+  },
+  {
+    "brand": "SW",
+    "name": "Spearmint",
+    "code": "SW6465",
+    "hex": "#94b5a6"
+  },
+  {
+    "brand": "SW",
+    "name": "Grandview",
+    "code": "SW6466",
+    "hex": "#6b927f"
+  },
+  {
+    "brand": "SW",
+    "name": "Kendal Green",
+    "code": "SW6467",
+    "hex": "#547867"
+  },
+  {
+    "brand": "SW",
+    "name": "Hunt Club",
+    "code": "SW6468",
+    "hex": "#2a4f43"
+  },
+  {
+    "brand": "SW",
+    "name": "Waterscape",
+    "code": "SW6470",
+    "hex": "#bfd2c9"
+  },
+  {
+    "brand": "SW",
+    "name": "Hazel",
+    "code": "SW6471",
+    "hex": "#a8c1b7"
+  },
+  {
+    "brand": "SW",
+    "name": "Composed",
+    "code": "SW6472",
+    "hex": "#7ea298"
+  },
+  {
+    "brand": "SW",
+    "name": "Surf Green",
+    "code": "SW6473",
+    "hex": "#5f887d"
+  },
+  {
+    "brand": "SW",
+    "name": "Raging Sea",
+    "code": "SW6474",
+    "hex": "#476f65"
+  },
+  {
+    "brand": "SW",
+    "name": "Country Squire",
+    "code": "SW6475",
+    "hex": "#124a42"
+  },
+  {
+    "brand": "SW",
+    "name": "Glimmer",
+    "code": "SW6476",
+    "hex": "#e0e7e2"
+  },
+  {
+    "brand": "SW",
+    "name": "Tidewater",
+    "code": "SW6477",
+    "hex": "#c3d7d3"
+  },
+  {
+    "brand": "SW",
+    "name": "Watery",
+    "code": "SW6478",
+    "hex": "#b4ccc9"
+  },
+  {
+    "brand": "SW",
+    "name": "Drizzle",
+    "code": "SW6479",
+    "hex": "#8caeab"
+  },
+  {
+    "brand": "SW",
+    "name": "Lagoon",
+    "code": "SW6480",
+    "hex": "#518682"
+  },
+  {
+    "brand": "SW",
+    "name": "Green Bay",
+    "code": "SW6481",
+    "hex": "#2e6864"
+  },
+  {
+    "brand": "SW",
+    "name": "Cape Verde",
+    "code": "SW6482",
+    "hex": "#01554f"
+  },
+  {
+    "brand": "SW",
+    "name": "Meander Blue",
+    "code": "SW6484",
+    "hex": "#bedbd8"
+  },
+  {
+    "brand": "SW",
+    "name": "Raindrop",
+    "code": "SW6485",
+    "hex": "#9ec6c6"
+  },
+  {
+    "brand": "SW",
+    "name": "Reflecting Pool",
+    "code": "SW6486",
+    "hex": "#7bb1b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Cloudburst",
+    "code": "SW6487",
+    "hex": "#5c9598"
+  },
+  {
+    "brand": "SW",
+    "name": "Grand Canal",
+    "code": "SW6488",
+    "hex": "#3c797d"
+  },
+  {
+    "brand": "SW",
+    "name": "Really Teal",
+    "code": "SW6489",
+    "hex": "#016367"
+  },
+  {
+    "brand": "SW",
+    "name": "Open Air",
+    "code": "SW6491",
+    "hex": "#c7dfe0"
+  },
+  {
+    "brand": "SW",
+    "name": "Jetstream",
+    "code": "SW6492",
+    "hex": "#b0d2d6"
+  },
+  {
+    "brand": "SW",
+    "name": "Ebbtide",
+    "code": "SW6493",
+    "hex": "#84b4be"
+  },
+  {
+    "brand": "SW",
+    "name": "Lakeshore",
+    "code": "SW6494",
+    "hex": "#5b96a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Great Falls",
+    "code": "SW6495",
+    "hex": "#217786"
+  },
+  {
+    "brand": "SW",
+    "name": "Oceanside",
+    "code": "SW6496",
+    "hex": "#015a6b"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Horizon",
+    "code": "SW6497",
+    "hex": "#d8e7e6"
+  },
+  {
+    "brand": "SW",
+    "name": "Byte Blue",
+    "code": "SW6498",
+    "hex": "#c5dce0"
+  },
+  {
+    "brand": "SW",
+    "name": "Stream",
+    "code": "SW6499",
+    "hex": "#adccd3"
+  },
+  {
+    "brand": "SW",
+    "name": "Open Seas",
+    "code": "SW6500",
+    "hex": "#83afbc"
+  },
+  {
+    "brand": "SW",
+    "name": "Manitou Blue",
+    "code": "SW6501",
+    "hex": "#5b92a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Loch Blue",
+    "code": "SW6502",
+    "hex": "#2f778b"
+  },
+  {
+    "brand": "SW",
+    "name": "Bosporus",
+    "code": "SW6503",
+    "hex": "#015d75"
+  },
+  {
+    "brand": "SW",
+    "name": "Sky High",
+    "code": "SW6504",
+    "hex": "#dce7e8"
+  },
+  {
+    "brand": "SW",
+    "name": "Atmospheric",
+    "code": "SW6505",
+    "hex": "#c2dae0"
+  },
+  {
+    "brand": "SW",
+    "name": "Vast Sky",
+    "code": "SW6506",
+    "hex": "#a9c9d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Resolute Blue",
+    "code": "SW6507",
+    "hex": "#85b0c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Secure Blue",
+    "code": "SW6508",
+    "hex": "#5389a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Georgian Bay",
+    "code": "SW6509",
+    "hex": "#22657f"
+  },
+  {
+    "brand": "SW",
+    "name": "Loyal Blue",
+    "code": "SW6510",
+    "hex": "#01455e"
+  },
+  {
+    "brand": "SW",
+    "name": "Snowdrop",
+    "code": "SW6511",
+    "hex": "#e0e8e7"
+  },
+  {
+    "brand": "SW",
+    "name": "Balmy",
+    "code": "SW6512",
+    "hex": "#c5d8de"
+  },
+  {
+    "brand": "SW",
+    "name": "Take Five",
+    "code": "SW6513",
+    "hex": "#b3c9d3"
+  },
+  {
+    "brand": "SW",
+    "name": "Respite",
+    "code": "SW6514",
+    "hex": "#97b4c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Leisure Blue",
+    "code": "SW6515",
+    "hex": "#6a8ea1"
+  },
+  {
+    "brand": "SW",
+    "name": "Down Pour",
+    "code": "SW6516",
+    "hex": "#43718b"
+  },
+  {
+    "brand": "SW",
+    "name": "Regatta",
+    "code": "SW6517",
+    "hex": "#215772"
+  },
+  {
+    "brand": "SW",
+    "name": "Hinting Blue",
+    "code": "SW6519",
+    "hex": "#ced9dd"
+  },
+  {
+    "brand": "SW",
+    "name": "Honest Blue",
+    "code": "SW6520",
+    "hex": "#b2c7d3"
+  },
+  {
+    "brand": "SW",
+    "name": "Notable Hue",
+    "code": "SW6521",
+    "hex": "#8ba7bb"
+  },
+  {
+    "brand": "SW",
+    "name": "Sporty Blue",
+    "code": "SW6522",
+    "hex": "#6a8aa4"
+  },
+  {
+    "brand": "SW",
+    "name": "Denim",
+    "code": "SW6523",
+    "hex": "#506b84"
+  },
+  {
+    "brand": "SW",
+    "name": "Commodore",
+    "code": "SW6524",
+    "hex": "#25476a"
+  },
+  {
+    "brand": "SW",
+    "name": "Rarified Air",
+    "code": "SW6525",
+    "hex": "#e1e6e6"
+  },
+  {
+    "brand": "SW",
+    "name": "Icelandic",
+    "code": "SW6526",
+    "hex": "#cbd8e1"
+  },
+  {
+    "brand": "SW",
+    "name": "Blissful Blue",
+    "code": "SW6527",
+    "hex": "#b2c8d8"
+  },
+  {
+    "brand": "SW",
+    "name": "Cosmos",
+    "code": "SW6528",
+    "hex": "#8ea9c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Scanda",
+    "code": "SW6529",
+    "hex": "#6b8ca9"
+  },
+  {
+    "brand": "SW",
+    "name": "Revel Blue",
+    "code": "SW6530",
+    "hex": "#4c6b8a"
+  },
+  {
+    "brand": "SW",
+    "name": "Indigo",
+    "code": "SW6531",
+    "hex": "#284a70"
+  },
+  {
+    "brand": "SW",
+    "name": "Mild Blue",
+    "code": "SW6533",
+    "hex": "#cbd5db"
+  },
+  {
+    "brand": "SW",
+    "name": "Icy",
+    "code": "SW6534",
+    "hex": "#bbc7d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Solitude",
+    "code": "SW6535",
+    "hex": "#99a7b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Searching Blue",
+    "code": "SW6536",
+    "hex": "#6c7f9a"
+  },
+  {
+    "brand": "SW",
+    "name": "Luxe Blue",
+    "code": "SW6537",
+    "hex": "#516582"
+  },
+  {
+    "brand": "SW",
+    "name": "Dignified",
+    "code": "SW6538",
+    "hex": "#3b496d"
+  },
+  {
+    "brand": "SW",
+    "name": "Starry Night",
+    "code": "SW6540",
+    "hex": "#d6d9de"
+  },
+  {
+    "brand": "SW",
+    "name": "Daydream",
+    "code": "SW6541",
+    "hex": "#bdc3cd"
+  },
+  {
+    "brand": "SW",
+    "name": "Vesper Violet",
+    "code": "SW6542",
+    "hex": "#99a0b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Soulful Blue",
+    "code": "SW6543",
+    "hex": "#757c91"
+  },
+  {
+    "brand": "SW",
+    "name": "Mesmerize",
+    "code": "SW6544",
+    "hex": "#5d657b"
+  },
+  {
+    "brand": "SW",
+    "name": "Majestic Purple",
+    "code": "SW6545",
+    "hex": "#3b3c5a"
+  },
+  {
+    "brand": "SW",
+    "name": "Silver Peony",
+    "code": "SW6547",
+    "hex": "#dad6db"
+  },
+  {
+    "brand": "SW",
+    "name": "Grape Mist",
+    "code": "SW6548",
+    "hex": "#c5c0c9"
+  },
+  {
+    "brand": "SW",
+    "name": "Ash Violet",
+    "code": "SW6549",
+    "hex": "#a29baa"
+  },
+  {
+    "brand": "SW",
+    "name": "Mythical",
+    "code": "SW6550",
+    "hex": "#7e778e"
+  },
+  {
+    "brand": "SW",
+    "name": "Purple Passage",
+    "code": "SW6551",
+    "hex": "#645e77"
+  },
+  {
+    "brand": "SW",
+    "name": "Dewberry",
+    "code": "SW6552",
+    "hex": "#3e385a"
+  },
+  {
+    "brand": "SW",
+    "name": "Lite Lavender",
+    "code": "SW6554",
+    "hex": "#e0dadf"
+  },
+  {
+    "brand": "SW",
+    "name": "Enchant",
+    "code": "SW6555",
+    "hex": "#d1c6d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Obi Lilac",
+    "code": "SW6556",
+    "hex": "#b0a3b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Wood Violet",
+    "code": "SW6557",
+    "hex": "#7a6b85"
+  },
+  {
+    "brand": "SW",
+    "name": "Plummy",
+    "code": "SW6558",
+    "hex": "#675a75"
+  },
+  {
+    "brand": "SW",
+    "name": "Concord Grape",
+    "code": "SW6559",
+    "hex": "#443757"
+  },
+  {
+    "brand": "SW",
+    "name": "Teaberry",
+    "code": "SW6561",
+    "hex": "#ebd1db"
+  },
+  {
+    "brand": "SW",
+    "name": "Irresistible",
+    "code": "SW6562",
+    "hex": "#e3c0cf"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosebay",
+    "code": "SW6563",
+    "hex": "#cb9aad"
+  },
+  {
+    "brand": "SW",
+    "name": "Red Clover",
+    "code": "SW6564",
+    "hex": "#b87e93"
+  },
+  {
+    "brand": "SW",
+    "name": "Grandeur Plum",
+    "code": "SW6565",
+    "hex": "#92576f"
+  },
+  {
+    "brand": "SW",
+    "name": "Framboise",
+    "code": "SW6566",
+    "hex": "#7c3655"
+  },
+  {
+    "brand": "SW",
+    "name": "Lighthearted Pink",
+    "code": "SW6568",
+    "hex": "#edd5dd"
+  },
+  {
+    "brand": "SW",
+    "name": "Childlike",
+    "code": "SW6569",
+    "hex": "#e8c0cf"
+  },
+  {
+    "brand": "SW",
+    "name": "Haute Pink",
+    "code": "SW6570",
+    "hex": "#d899b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Cyclamen",
+    "code": "SW6571",
+    "hex": "#c47b95"
+  },
+  {
+    "brand": "SW",
+    "name": "Ruby Shade",
+    "code": "SW6572",
+    "hex": "#a2566f"
+  },
+  {
+    "brand": "SW",
+    "name": "Juneberry",
+    "code": "SW6573",
+    "hex": "#854158"
+  },
+  {
+    "brand": "SW",
+    "name": "Priscilla",
+    "code": "SW6575",
+    "hex": "#f1d3da"
+  },
+  {
+    "brand": "SW",
+    "name": "Azalea Flower",
+    "code": "SW6576",
+    "hex": "#efc0cb"
+  },
+  {
+    "brand": "SW",
+    "name": "Jaipur Pink",
+    "code": "SW6577",
+    "hex": "#e392a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Tuberose",
+    "code": "SW6578",
+    "hex": "#d47c8c"
+  },
+  {
+    "brand": "SW",
+    "name": "Gala Pink",
+    "code": "SW6579",
+    "hex": "#b04b63"
+  },
+  {
+    "brand": "SW",
+    "name": "Cerise",
+    "code": "SW6580",
+    "hex": "#99324e"
+  },
+  {
+    "brand": "SW",
+    "name": "Impatiens Petal",
+    "code": "SW6582",
+    "hex": "#f1d2d7"
+  },
+  {
+    "brand": "SW",
+    "name": "In the Pink",
+    "code": "SW6583",
+    "hex": "#f0bcc9"
+  },
+  {
+    "brand": "SW",
+    "name": "Cheery",
+    "code": "SW6584",
+    "hex": "#eb92a3"
+  },
+  {
+    "brand": "SW",
+    "name": "Coming up Roses",
+    "code": "SW6585",
+    "hex": "#dd7788"
+  },
+  {
+    "brand": "SW",
+    "name": "Heartfelt",
+    "code": "SW6586",
+    "hex": "#bd4c5f"
+  },
+  {
+    "brand": "SW",
+    "name": "Valentine",
+    "code": "SW6587",
+    "hex": "#a53a4e"
+  },
+  {
+    "brand": "SW",
+    "name": "Alyssum",
+    "code": "SW6589",
+    "hex": "#f2d5d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Loveable",
+    "code": "SW6590",
+    "hex": "#f0c1c6"
+  },
+  {
+    "brand": "SW",
+    "name": "Amaryllis",
+    "code": "SW6591",
+    "hex": "#ed939d"
+  },
+  {
+    "brand": "SW",
+    "name": "Grenadine",
+    "code": "SW6592",
+    "hex": "#d66972"
+  },
+  {
+    "brand": "SW",
+    "name": "Coral Bells",
+    "code": "SW6593",
+    "hex": "#bb4b51"
+  },
+  {
+    "brand": "SW",
+    "name": "Poinsettia",
+    "code": "SW6594",
+    "hex": "#9d373c"
+  },
+  {
+    "brand": "SW",
+    "name": "Bella Pink",
+    "code": "SW6596",
+    "hex": "#f1c6c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Hopeful",
+    "code": "SW6597",
+    "hex": "#f0b3b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Dishy Coral",
+    "code": "SW6598",
+    "hex": "#ed9190"
+  },
+  {
+    "brand": "SW",
+    "name": "Begonia",
+    "code": "SW6599",
+    "hex": "#d76c6e"
+  },
+  {
+    "brand": "SW",
+    "name": "Enticing Red",
+    "code": "SW6600",
+    "hex": "#b74e4f"
+  },
+  {
+    "brand": "SW",
+    "name": "Tanager",
+    "code": "SW6601",
+    "hex": "#a43834"
+  },
+  {
+    "brand": "SW",
+    "name": "Oleander",
+    "code": "SW6603",
+    "hex": "#f2ccc5"
+  },
+  {
+    "brand": "SW",
+    "name": "Youthful Coral",
+    "code": "SW6604",
+    "hex": "#f0afa8"
+  },
+  {
+    "brand": "SW",
+    "name": "Charisma",
+    "code": "SW6605",
+    "hex": "#ee9489"
+  },
+  {
+    "brand": "SW",
+    "name": "Coral Reef",
+    "code": "SW6606",
+    "hex": "#d9766c"
+  },
+  {
+    "brand": "SW",
+    "name": "Red Tomato",
+    "code": "SW6607",
+    "hex": "#b24743"
+  },
+  {
+    "brand": "SW",
+    "name": "Rave Red",
+    "code": "SW6608",
+    "hex": "#a13b34"
+  },
+  {
+    "brand": "SW",
+    "name": "Koral Kicks",
+    "code": "SW6610",
+    "hex": "#f2d1c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Jovial",
+    "code": "SW6611",
+    "hex": "#f2b8a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Ravishing Coral",
+    "code": "SW6612",
+    "hex": "#e79580"
+  },
+  {
+    "brand": "SW",
+    "name": "Lei Flower",
+    "code": "SW6613",
+    "hex": "#d87b6a"
+  },
+  {
+    "brand": "SW",
+    "name": "Quite Coral",
+    "code": "SW6614",
+    "hex": "#c76356"
+  },
+  {
+    "brand": "SW",
+    "name": "Peppery",
+    "code": "SW6615",
+    "hex": "#b85444"
+  },
+  {
+    "brand": "SW",
+    "name": "Blushing",
+    "code": "SW6617",
+    "hex": "#f0d1c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Cosmetic Peach",
+    "code": "SW6618",
+    "hex": "#f3c1ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Sockeye",
+    "code": "SW6619",
+    "hex": "#e49780"
+  },
+  {
+    "brand": "SW",
+    "name": "Rejuvenate",
+    "code": "SW6620",
+    "hex": "#dd7861"
+  },
+  {
+    "brand": "SW",
+    "name": "Emotional",
+    "code": "SW6621",
+    "hex": "#c65f47"
+  },
+  {
+    "brand": "SW",
+    "name": "Hearty Orange",
+    "code": "SW6622",
+    "hex": "#b44b34"
+  },
+  {
+    "brand": "SW",
+    "name": "Peach Blossom",
+    "code": "SW6624",
+    "hex": "#f3d0bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Certain Peach",
+    "code": "SW6625",
+    "hex": "#f2bda2"
+  },
+  {
+    "brand": "SW",
+    "name": "Sunset",
+    "code": "SW6626",
+    "hex": "#e2946f"
+  },
+  {
+    "brand": "SW",
+    "name": "Emberglow",
+    "code": "SW6627",
+    "hex": "#d67c56"
+  },
+  {
+    "brand": "SW",
+    "name": "Robust Orange",
+    "code": "SW6628",
+    "hex": "#c4633e"
+  },
+  {
+    "brand": "SW",
+    "name": "Jalapeño",
+    "code": "SW6629",
+    "hex": "#b1533c"
+  },
+  {
+    "brand": "SW",
+    "name": "Naive Peach",
+    "code": "SW6631",
+    "hex": "#f3d3bf"
+  },
+  {
+    "brand": "SW",
+    "name": "Neighborly Peach",
+    "code": "SW6632",
+    "hex": "#f3c1a3"
+  },
+  {
+    "brand": "SW",
+    "name": "Inventive Orange",
+    "code": "SW6633",
+    "hex": "#e89d6f"
+  },
+  {
+    "brand": "SW",
+    "name": "Copper Harbor",
+    "code": "SW6634",
+    "hex": "#d57e52"
+  },
+  {
+    "brand": "SW",
+    "name": "Determined Orange",
+    "code": "SW6635",
+    "hex": "#c56639"
+  },
+  {
+    "brand": "SW",
+    "name": "Husky Orange",
+    "code": "SW6636",
+    "hex": "#bb613e"
+  },
+  {
+    "brand": "SW",
+    "name": "Flattering Peach",
+    "code": "SW6638",
+    "hex": "#f4d3b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Avid Apricot",
+    "code": "SW6639",
+    "hex": "#f4c69f"
+  },
+  {
+    "brand": "SW",
+    "name": "Tangerine",
+    "code": "SW6640",
+    "hex": "#f2ac78"
+  },
+  {
+    "brand": "SW",
+    "name": "Outgoing Orange",
+    "code": "SW6641",
+    "hex": "#e6955f"
+  },
+  {
+    "brand": "SW",
+    "name": "Rhumba Orange",
+    "code": "SW6642",
+    "hex": "#cb7841"
+  },
+  {
+    "brand": "SW",
+    "name": "Yam",
+    "code": "SW6643",
+    "hex": "#c36f3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Champagne",
+    "code": "SW6644",
+    "hex": "#f2e3ce"
+  },
+  {
+    "brand": "SW",
+    "name": "Flan",
+    "code": "SW6652",
+    "hex": "#f4d4af"
+  },
+  {
+    "brand": "SW",
+    "name": "Delicious Melon",
+    "code": "SW6653",
+    "hex": "#f5c894"
+  },
+  {
+    "brand": "SW",
+    "name": "Surprise Amber",
+    "code": "SW6654",
+    "hex": "#efb57a"
+  },
+  {
+    "brand": "SW",
+    "name": "Adventure Orange",
+    "code": "SW6655",
+    "hex": "#e69f5f"
+  },
+  {
+    "brand": "SW",
+    "name": "Serape",
+    "code": "SW6656",
+    "hex": "#d88b4d"
+  },
+  {
+    "brand": "SW",
+    "name": "Amber Wave",
+    "code": "SW6657",
+    "hex": "#d28240"
+  },
+  {
+    "brand": "SW",
+    "name": "Welcome White",
+    "code": "SW6658",
+    "hex": "#f3e3ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Captivating Cream",
+    "code": "SW6659",
+    "hex": "#f4d9b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Honey Blush",
+    "code": "SW6660",
+    "hex": "#f5cf9b"
+  },
+  {
+    "brand": "SW",
+    "name": "Papaya",
+    "code": "SW6661",
+    "hex": "#efb97b"
+  },
+  {
+    "brand": "SW",
+    "name": "Summer Day",
+    "code": "SW6662",
+    "hex": "#eaaa62"
+  },
+  {
+    "brand": "SW",
+    "name": "Saffron Thread",
+    "code": "SW6663",
+    "hex": "#df984e"
+  },
+  {
+    "brand": "SW",
+    "name": "Marigold",
+    "code": "SW6664",
+    "hex": "#d28233"
+  },
+  {
+    "brand": "SW",
+    "name": "Gardenia",
+    "code": "SW6665",
+    "hex": "#f3e2c9"
+  },
+  {
+    "brand": "SW",
+    "name": "Enjoyable Yellow",
+    "code": "SW6666",
+    "hex": "#f5d6a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Afterglow",
+    "code": "SW6667",
+    "hex": "#f6cd8e"
+  },
+  {
+    "brand": "SW",
+    "name": "Sunrise",
+    "code": "SW6668",
+    "hex": "#f4bf77"
+  },
+  {
+    "brand": "SW",
+    "name": "Yarrow",
+    "code": "SW6669",
+    "hex": "#ebad5e"
+  },
+  {
+    "brand": "SW",
+    "name": "Gold Crest",
+    "code": "SW6670",
+    "hex": "#df9938"
+  },
+  {
+    "brand": "SW",
+    "name": "Curry",
+    "code": "SW6671",
+    "hex": "#d88f32"
+  },
+  {
+    "brand": "SW",
+    "name": "Morning Sun",
+    "code": "SW6672",
+    "hex": "#f3e6ce"
+  },
+  {
+    "brand": "SW",
+    "name": "Banana Cream",
+    "code": "SW6673",
+    "hex": "#f5deaf"
+  },
+  {
+    "brand": "SW",
+    "name": "Jonquil",
+    "code": "SW6674",
+    "hex": "#f7d391"
+  },
+  {
+    "brand": "SW",
+    "name": "Afternoon",
+    "code": "SW6675",
+    "hex": "#fbcb78"
+  },
+  {
+    "brand": "SW",
+    "name": "Butterfield",
+    "code": "SW6676",
+    "hex": "#f7be5b"
+  },
+  {
+    "brand": "SW",
+    "name": "Goldenrod",
+    "code": "SW6677",
+    "hex": "#f2af46"
+  },
+  {
+    "brand": "SW",
+    "name": "Sunflower",
+    "code": "SW6678",
+    "hex": "#e39a33"
+  },
+  {
+    "brand": "SW",
+    "name": "Full Moon",
+    "code": "SW6679",
+    "hex": "#f4e3bc"
+  },
+  {
+    "brand": "SW",
+    "name": "Friendly Yellow",
+    "code": "SW6680",
+    "hex": "#f5e0b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Butter Up",
+    "code": "SW6681",
+    "hex": "#f6dda3"
+  },
+  {
+    "brand": "SW",
+    "name": "June Day",
+    "code": "SW6682",
+    "hex": "#f6c973"
+  },
+  {
+    "brand": "SW",
+    "name": "Bee",
+    "code": "SW6683",
+    "hex": "#f1ba55"
+  },
+  {
+    "brand": "SW",
+    "name": "Brittlebush",
+    "code": "SW6684",
+    "hex": "#eaae47"
+  },
+  {
+    "brand": "SW",
+    "name": "Trinket",
+    "code": "SW6685",
+    "hex": "#d69835"
+  },
+  {
+    "brand": "SW",
+    "name": "Lemon Chiffon",
+    "code": "SW6686",
+    "hex": "#f5e5bc"
+  },
+  {
+    "brand": "SW",
+    "name": "Lantern Light",
+    "code": "SW6687",
+    "hex": "#f4e1ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Solaria",
+    "code": "SW6688",
+    "hex": "#f5d68f"
+  },
+  {
+    "brand": "SW",
+    "name": "Overjoy",
+    "code": "SW6689",
+    "hex": "#eec25f"
+  },
+  {
+    "brand": "SW",
+    "name": "Gambol Gold",
+    "code": "SW6690",
+    "hex": "#e1b047"
+  },
+  {
+    "brand": "SW",
+    "name": "Glitzy Gold",
+    "code": "SW6691",
+    "hex": "#d6a02b"
+  },
+  {
+    "brand": "SW",
+    "name": "Auric",
+    "code": "SW6692",
+    "hex": "#c48919"
+  },
+  {
+    "brand": "SW",
+    "name": "Lily",
+    "code": "SW6693",
+    "hex": "#f3e8c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Glad Yellow",
+    "code": "SW6694",
+    "hex": "#f5e1ac"
+  },
+  {
+    "brand": "SW",
+    "name": "Midday",
+    "code": "SW6695",
+    "hex": "#f7d78a"
+  },
+  {
+    "brand": "SW",
+    "name": "Quilt Gold",
+    "code": "SW6696",
+    "hex": "#eac365"
+  },
+  {
+    "brand": "SW",
+    "name": "Nugget",
+    "code": "SW6697",
+    "hex": "#dbb04a"
+  },
+  {
+    "brand": "SW",
+    "name": "Kingdom Gold",
+    "code": "SW6698",
+    "hex": "#d1a436"
+  },
+  {
+    "brand": "SW",
+    "name": "Crispy Gold",
+    "code": "SW6699",
+    "hex": "#c49832"
+  },
+  {
+    "brand": "SW",
+    "name": "Daybreak",
+    "code": "SW6700",
+    "hex": "#f3eac6"
+  },
+  {
+    "brand": "SW",
+    "name": "Moonraker",
+    "code": "SW6701",
+    "hex": "#eee3b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Lively Yellow",
+    "code": "SW6702",
+    "hex": "#e6d88e"
+  },
+  {
+    "brand": "SW",
+    "name": "Frolic",
+    "code": "SW6703",
+    "hex": "#d9c661"
+  },
+  {
+    "brand": "SW",
+    "name": "Hep Green",
+    "code": "SW6704",
+    "hex": "#c4b146"
+  },
+  {
+    "brand": "SW",
+    "name": "High Strung",
+    "code": "SW6705",
+    "hex": "#ac9825"
+  },
+  {
+    "brand": "SW",
+    "name": "Offbeat Green",
+    "code": "SW6706",
+    "hex": "#9c8b1f"
+  },
+  {
+    "brand": "SW",
+    "name": "Springtime",
+    "code": "SW6708",
+    "hex": "#e9e5b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Gleeful",
+    "code": "SW6709",
+    "hex": "#dad790"
+  },
+  {
+    "brand": "SW",
+    "name": "Mélange Green",
+    "code": "SW6710",
+    "hex": "#c4c476"
+  },
+  {
+    "brand": "SW",
+    "name": "Parakeet",
+    "code": "SW6711",
+    "hex": "#b4b05a"
+  },
+  {
+    "brand": "SW",
+    "name": "Luau Green",
+    "code": "SW6712",
+    "hex": "#989746"
+  },
+  {
+    "brand": "SW",
+    "name": "Verdant",
+    "code": "SW6713",
+    "hex": "#847e35"
+  },
+  {
+    "brand": "SW",
+    "name": "Lime Granita",
+    "code": "SW6715",
+    "hex": "#dce1b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Dancing Green",
+    "code": "SW6716",
+    "hex": "#c5cd8f"
+  },
+  {
+    "brand": "SW",
+    "name": "Lime Rickey",
+    "code": "SW6717",
+    "hex": "#afb96a"
+  },
+  {
+    "brand": "SW",
+    "name": "Overt Green",
+    "code": "SW6718",
+    "hex": "#97a554"
+  },
+  {
+    "brand": "SW",
+    "name": "Gecko",
+    "code": "SW6719",
+    "hex": "#7a8833"
+  },
+  {
+    "brand": "SW",
+    "name": "Paradise",
+    "code": "SW6720",
+    "hex": "#6c7b30"
+  },
+  {
+    "brand": "SW",
+    "name": "Cucumber",
+    "code": "SW6722",
+    "hex": "#d3dfc3"
+  },
+  {
+    "brand": "SW",
+    "name": "Jardin",
+    "code": "SW6723",
+    "hex": "#bdd0ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Mesclun Green",
+    "code": "SW6724",
+    "hex": "#9db682"
+  },
+  {
+    "brand": "SW",
+    "name": "Pickle",
+    "code": "SW6725",
+    "hex": "#85a16a"
+  },
+  {
+    "brand": "SW",
+    "name": "Talipot Palm",
+    "code": "SW6726",
+    "hex": "#648149"
+  },
+  {
+    "brand": "SW",
+    "name": "Houseplant",
+    "code": "SW6727",
+    "hex": "#58713f"
+  },
+  {
+    "brand": "SW",
+    "name": "Lacewing",
+    "code": "SW6729",
+    "hex": "#d7e3ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Romaine",
+    "code": "SW6730",
+    "hex": "#c0d2ad"
+  },
+  {
+    "brand": "SW",
+    "name": "Picnic",
+    "code": "SW6731",
+    "hex": "#99c285"
+  },
+  {
+    "brand": "SW",
+    "name": "Organic Green",
+    "code": "SW6732",
+    "hex": "#7fac6e"
+  },
+  {
+    "brand": "SW",
+    "name": "Grasshopper",
+    "code": "SW6733",
+    "hex": "#4f854a"
+  },
+  {
+    "brand": "SW",
+    "name": "Espalier",
+    "code": "SW6734",
+    "hex": "#2f5f3a"
+  },
+  {
+    "brand": "SW",
+    "name": "Jocular Green",
+    "code": "SW6736",
+    "hex": "#cce2ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Kiwi",
+    "code": "SW6737",
+    "hex": "#aed2b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Vegan",
+    "code": "SW6738",
+    "hex": "#8ec298"
+  },
+  {
+    "brand": "SW",
+    "name": "Eco Green",
+    "code": "SW6739",
+    "hex": "#68a678"
+  },
+  {
+    "brand": "SW",
+    "name": "Kilkenny",
+    "code": "SW6740",
+    "hex": "#498555"
+  },
+  {
+    "brand": "SW",
+    "name": "Derbyshire",
+    "code": "SW6741",
+    "hex": "#245e36"
+  },
+  {
+    "brand": "SW",
+    "name": "Mint Condition",
+    "code": "SW6743",
+    "hex": "#d1e3d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Reclining Green",
+    "code": "SW6744",
+    "hex": "#b7d7bf"
+  },
+  {
+    "brand": "SW",
+    "name": "Lark Green",
+    "code": "SW6745",
+    "hex": "#8ac1a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Julep",
+    "code": "SW6746",
+    "hex": "#57aa80"
+  },
+  {
+    "brand": "SW",
+    "name": "Argyle",
+    "code": "SW6747",
+    "hex": "#348a5d"
+  },
+  {
+    "brand": "SW",
+    "name": "Greens",
+    "code": "SW6748",
+    "hex": "#016844"
+  },
+  {
+    "brand": "SW",
+    "name": "Embellished Blue",
+    "code": "SW6749",
+    "hex": "#d7ebe2"
+  },
+  {
+    "brand": "SW",
+    "name": "Waterfall",
+    "code": "SW6750",
+    "hex": "#c0e3da"
+  },
+  {
+    "brand": "SW",
+    "name": "Refresh",
+    "code": "SW6751",
+    "hex": "#a1d4c8"
+  },
+  {
+    "brand": "SW",
+    "name": "Larchmere",
+    "code": "SW6752",
+    "hex": "#70baa7"
+  },
+  {
+    "brand": "SW",
+    "name": "Jargon Jade",
+    "code": "SW6753",
+    "hex": "#53a38f"
+  },
+  {
+    "brand": "SW",
+    "name": "Ionian",
+    "code": "SW6754",
+    "hex": "#368976"
+  },
+  {
+    "brand": "SW",
+    "name": "Starboard",
+    "code": "SW6755",
+    "hex": "#016c4f"
+  },
+  {
+    "brand": "SW",
+    "name": "Tame Teal",
+    "code": "SW6757",
+    "hex": "#c1e6df"
+  },
+  {
+    "brand": "SW",
+    "name": "Aqueduct",
+    "code": "SW6758",
+    "hex": "#a1d5cb"
+  },
+  {
+    "brand": "SW",
+    "name": "Cooled Blue",
+    "code": "SW6759",
+    "hex": "#75b9ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Rivulet",
+    "code": "SW6760",
+    "hex": "#61a89d"
+  },
+  {
+    "brand": "SW",
+    "name": "Thermal Spring",
+    "code": "SW6761",
+    "hex": "#3b8c80"
+  },
+  {
+    "brand": "SW",
+    "name": "Poseidon",
+    "code": "SW6762",
+    "hex": "#016d60"
+  },
+  {
+    "brand": "SW",
+    "name": "Swimming",
+    "code": "SW6764",
+    "hex": "#c2e5e5"
+  },
+  {
+    "brand": "SW",
+    "name": "Spa",
+    "code": "SW6765",
+    "hex": "#a7dcdc"
+  },
+  {
+    "brand": "SW",
+    "name": "Mariner",
+    "code": "SW6766",
+    "hex": "#6ec2c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Aquarium",
+    "code": "SW6767",
+    "hex": "#3aa9ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Gulfstream",
+    "code": "SW6768",
+    "hex": "#01858b"
+  },
+  {
+    "brand": "SW",
+    "name": "Maxi Teal",
+    "code": "SW6769",
+    "hex": "#017478"
+  },
+  {
+    "brand": "SW",
+    "name": "Bathe Blue",
+    "code": "SW6771",
+    "hex": "#c2e0e3"
+  },
+  {
+    "brand": "SW",
+    "name": "Cay",
+    "code": "SW6772",
+    "hex": "#a6d0d6"
+  },
+  {
+    "brand": "SW",
+    "name": "Rapture Blue",
+    "code": "SW6773",
+    "hex": "#7dc1cb"
+  },
+  {
+    "brand": "SW",
+    "name": "Freshwater",
+    "code": "SW6774",
+    "hex": "#4da6b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Briny",
+    "code": "SW6775",
+    "hex": "#08808e"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Nile",
+    "code": "SW6776",
+    "hex": "#01717e"
+  },
+  {
+    "brand": "SW",
+    "name": "Aviary Blue",
+    "code": "SW6778",
+    "hex": "#c6e3e8"
+  },
+  {
+    "brand": "SW",
+    "name": "Liquid Blue",
+    "code": "SW6779",
+    "hex": "#a6d4de"
+  },
+  {
+    "brand": "SW",
+    "name": "Nautilus",
+    "code": "SW6780",
+    "hex": "#71b8c7"
+  },
+  {
+    "brand": "SW",
+    "name": "Jamaica Bay",
+    "code": "SW6781",
+    "hex": "#34a3b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Cruising",
+    "code": "SW6782",
+    "hex": "#018498"
+  },
+  {
+    "brand": "SW",
+    "name": "Amalfi",
+    "code": "SW6783",
+    "hex": "#016e85"
+  },
+  {
+    "brand": "SW",
+    "name": "Bravo Blue",
+    "code": "SW6784",
+    "hex": "#d3e7e9"
+  },
+  {
+    "brand": "SW",
+    "name": "Quench Blue",
+    "code": "SW6785",
+    "hex": "#b4e0e7"
+  },
+  {
+    "brand": "SW",
+    "name": "Cloudless",
+    "code": "SW6786",
+    "hex": "#8fd0dd"
+  },
+  {
+    "brand": "SW",
+    "name": "Fountain",
+    "code": "SW6787",
+    "hex": "#56b5ca"
+  },
+  {
+    "brand": "SW",
+    "name": "Capri",
+    "code": "SW6788",
+    "hex": "#01a0b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Mosque",
+    "code": "SW6789",
+    "hex": "#01819e"
+  },
+  {
+    "brand": "SW",
+    "name": "Adriatic Sea",
+    "code": "SW6790",
+    "hex": "#016081"
+  },
+  {
+    "brand": "SW",
+    "name": "Minor Blue",
+    "code": "SW6792",
+    "hex": "#b7dfe8"
+  },
+  {
+    "brand": "SW",
+    "name": "Bluebell",
+    "code": "SW6793",
+    "hex": "#a2d5e7"
+  },
+  {
+    "brand": "SW",
+    "name": "Flyway",
+    "code": "SW6794",
+    "hex": "#5db3d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Major Blue",
+    "code": "SW6795",
+    "hex": "#289ec4"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Plate",
+    "code": "SW6796",
+    "hex": "#017ca7"
+  },
+  {
+    "brand": "SW",
+    "name": "Jay Blue",
+    "code": "SW6797",
+    "hex": "#015d87"
+  },
+  {
+    "brand": "SW",
+    "name": "Iceberg",
+    "code": "SW6798",
+    "hex": "#d6e4e7"
+  },
+  {
+    "brand": "SW",
+    "name": "Soar",
+    "code": "SW6799",
+    "hex": "#c3dfe8"
+  },
+  {
+    "brand": "SW",
+    "name": "Something Blue",
+    "code": "SW6800",
+    "hex": "#b0d6e6"
+  },
+  {
+    "brand": "SW",
+    "name": "Regale Blue",
+    "code": "SW6801",
+    "hex": "#7db5d3"
+  },
+  {
+    "brand": "SW",
+    "name": "Jacaranda",
+    "code": "SW6802",
+    "hex": "#5a9ec0"
+  },
+  {
+    "brand": "SW",
+    "name": "Danube",
+    "code": "SW6803",
+    "hex": "#2377a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Dignity Blue",
+    "code": "SW6804",
+    "hex": "#094c73"
+  },
+  {
+    "brand": "SW",
+    "name": "Rhythmic Blue",
+    "code": "SW6806",
+    "hex": "#ccdbe5"
+  },
+  {
+    "brand": "SW",
+    "name": "Wondrous Blue",
+    "code": "SW6807",
+    "hex": "#b8cddd"
+  },
+  {
+    "brand": "SW",
+    "name": "Celestial",
+    "code": "SW6808",
+    "hex": "#97b3d0"
+  },
+  {
+    "brand": "SW",
+    "name": "Lobelia",
+    "code": "SW6809",
+    "hex": "#7498be"
+  },
+  {
+    "brand": "SW",
+    "name": "Lupine",
+    "code": "SW6810",
+    "hex": "#4e739f"
+  },
+  {
+    "brand": "SW",
+    "name": "Honorable Blue",
+    "code": "SW6811",
+    "hex": "#164576"
+  },
+  {
+    "brand": "SW",
+    "name": "Wishful Blue",
+    "code": "SW6813",
+    "hex": "#d8dde6"
+  },
+  {
+    "brand": "SW",
+    "name": "Breathtaking",
+    "code": "SW6814",
+    "hex": "#c7d1e2"
+  },
+  {
+    "brand": "SW",
+    "name": "Awesome Violet",
+    "code": "SW6815",
+    "hex": "#a7b2d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Dahlia",
+    "code": "SW6816",
+    "hex": "#8b98c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Gentian",
+    "code": "SW6817",
+    "hex": "#6572a5"
+  },
+  {
+    "brand": "SW",
+    "name": "Valiant Violet",
+    "code": "SW6818",
+    "hex": "#3e4371"
+  },
+  {
+    "brand": "SW",
+    "name": "Inspired Lilac",
+    "code": "SW6820",
+    "hex": "#dfd9e4"
+  },
+  {
+    "brand": "SW",
+    "name": "Potentially Purple",
+    "code": "SW6821",
+    "hex": "#d1cbdf"
+  },
+  {
+    "brand": "SW",
+    "name": "Wisteria",
+    "code": "SW6822",
+    "hex": "#bdb4d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Brave Purple",
+    "code": "SW6823",
+    "hex": "#968db8"
+  },
+  {
+    "brand": "SW",
+    "name": "Forget‐Me‐Not",
+    "code": "SW6824",
+    "hex": "#716998"
+  },
+  {
+    "brand": "SW",
+    "name": "Izmir Purple",
+    "code": "SW6825",
+    "hex": "#4d426e"
+  },
+  {
+    "brand": "SW",
+    "name": "Elation",
+    "code": "SW6827",
+    "hex": "#dfdce5"
+  },
+  {
+    "brand": "SW",
+    "name": "Rhapsody Lilac",
+    "code": "SW6828",
+    "hex": "#d2c8dd"
+  },
+  {
+    "brand": "SW",
+    "name": "Magical",
+    "code": "SW6829",
+    "hex": "#c0afd0"
+  },
+  {
+    "brand": "SW",
+    "name": "Kismet",
+    "code": "SW6830",
+    "hex": "#a18ab7"
+  },
+  {
+    "brand": "SW",
+    "name": "Clematis",
+    "code": "SW6831",
+    "hex": "#7e6596"
+  },
+  {
+    "brand": "SW",
+    "name": "Impulsive Purple",
+    "code": "SW6832",
+    "hex": "#624977"
+  },
+  {
+    "brand": "SW",
+    "name": "Spangle",
+    "code": "SW6834",
+    "hex": "#e5dbe5"
+  },
+  {
+    "brand": "SW",
+    "name": "Euphoric Lilac",
+    "code": "SW6835",
+    "hex": "#dac7da"
+  },
+  {
+    "brand": "SW",
+    "name": "Novel Lilac",
+    "code": "SW6836",
+    "hex": "#c2a4c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Baroness",
+    "code": "SW6837",
+    "hex": "#a785a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Vigorous Violet",
+    "code": "SW6838",
+    "hex": "#7c5a7e"
+  },
+  {
+    "brand": "SW",
+    "name": "Kimono Violet",
+    "code": "SW6839",
+    "hex": "#5d395f"
+  },
+  {
+    "brand": "SW",
+    "name": "Exuberant Pink",
+    "code": "SW6840",
+    "hex": "#b54d7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Dynamo",
+    "code": "SW6841",
+    "hex": "#953d68"
+  },
+  {
+    "brand": "SW",
+    "name": "Forward Fuchsia",
+    "code": "SW6842",
+    "hex": "#92345b"
+  },
+  {
+    "brand": "SW",
+    "name": "Hot",
+    "code": "SW6843",
+    "hex": "#ac4362"
+  },
+  {
+    "brand": "SW",
+    "name": "Dragon Fruit",
+    "code": "SW6855",
+    "hex": "#cc617f"
+  },
+  {
+    "brand": "SW",
+    "name": "Eros Pink",
+    "code": "SW6860",
+    "hex": "#c84f68"
+  },
+  {
+    "brand": "SW",
+    "name": "Radish",
+    "code": "SW6861",
+    "hex": "#a42e41"
+  },
+  {
+    "brand": "SW",
+    "name": "Cherries Jubilee",
+    "code": "SW6862",
+    "hex": "#ab3c51"
+  },
+  {
+    "brand": "SW",
+    "name": "Heartthrob",
+    "code": "SW6866",
+    "hex": "#a82e33"
+  },
+  {
+    "brand": "SW",
+    "name": "Real Red",
+    "code": "SW6868",
+    "hex": "#bf2d32"
+  },
+  {
+    "brand": "SW",
+    "name": "Stop",
+    "code": "SW6869",
+    "hex": "#c33a36"
+  },
+  {
+    "brand": "SW",
+    "name": "Positive Red",
+    "code": "SW6871",
+    "hex": "#ad2c34"
+  },
+  {
+    "brand": "SW",
+    "name": "Comical Coral",
+    "code": "SW6876",
+    "hex": "#f3d1c8"
+  },
+  {
+    "brand": "SW",
+    "name": "Cayenne",
+    "code": "SW6881",
+    "hex": "#c04d35"
+  },
+  {
+    "brand": "SW",
+    "name": "Raucous Orange",
+    "code": "SW6883",
+    "hex": "#c35530"
+  },
+  {
+    "brand": "SW",
+    "name": "Obstinate Orange",
+    "code": "SW6884",
+    "hex": "#d7552a"
+  },
+  {
+    "brand": "SW",
+    "name": "Knockout Orange",
+    "code": "SW6885",
+    "hex": "#e16f3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Invigorate",
+    "code": "SW6886",
+    "hex": "#e47237"
+  },
+  {
+    "brand": "SW",
+    "name": "Navel",
+    "code": "SW6887",
+    "hex": "#ec8430"
+  },
+  {
+    "brand": "SW",
+    "name": "Osage Orange",
+    "code": "SW6890",
+    "hex": "#f4a045"
+  },
+  {
+    "brand": "SW",
+    "name": "Carnival",
+    "code": "SW6892",
+    "hex": "#eb882c"
+  },
+  {
+    "brand": "SW",
+    "name": "Solé",
+    "code": "SW6896",
+    "hex": "#f7dda1"
+  },
+  {
+    "brand": "SW",
+    "name": "Optimistic Yellow",
+    "code": "SW6900",
+    "hex": "#f5e1a6"
+  },
+  {
+    "brand": "SW",
+    "name": "Daffodil",
+    "code": "SW6901",
+    "hex": "#fad97a"
+  },
+  {
+    "brand": "SW",
+    "name": "Decisive Yellow",
+    "code": "SW6902",
+    "hex": "#fdcc4e"
+  },
+  {
+    "brand": "SW",
+    "name": "Cheerful",
+    "code": "SW6903",
+    "hex": "#ffc723"
+  },
+  {
+    "brand": "SW",
+    "name": "Gusto Gold",
+    "code": "SW6904",
+    "hex": "#f8ac1d"
+  },
+  {
+    "brand": "SW",
+    "name": "Goldfinch",
+    "code": "SW6905",
+    "hex": "#fdb702"
+  },
+  {
+    "brand": "SW",
+    "name": "Forsythia",
+    "code": "SW6907",
+    "hex": "#ffc801"
+  },
+  {
+    "brand": "SW",
+    "name": "Fun Yellow",
+    "code": "SW6908",
+    "hex": "#f7e594"
+  },
+  {
+    "brand": "SW",
+    "name": "Lemon Twist",
+    "code": "SW6909",
+    "hex": "#fed95d"
+  },
+  {
+    "brand": "SW",
+    "name": "Daisy",
+    "code": "SW6910",
+    "hex": "#fed340"
+  },
+  {
+    "brand": "SW",
+    "name": "Confident Yellow",
+    "code": "SW6911",
+    "hex": "#fecb01"
+  },
+  {
+    "brand": "SW",
+    "name": "Funky Yellow",
+    "code": "SW6913",
+    "hex": "#edd26f"
+  },
+  {
+    "brand": "SW",
+    "name": "Eye Catching",
+    "code": "SW6914",
+    "hex": "#ddb835"
+  },
+  {
+    "brand": "SW",
+    "name": "Citronella",
+    "code": "SW6915",
+    "hex": "#cba901"
+  },
+  {
+    "brand": "SW",
+    "name": "Humorous Green",
+    "code": "SW6918",
+    "hex": "#c6b836"
+  },
+  {
+    "brand": "SW",
+    "name": "Center Stage",
+    "code": "SW6920",
+    "hex": "#b2c216"
+  },
+  {
+    "brand": "SW",
+    "name": "Electric Lime",
+    "code": "SW6921",
+    "hex": "#9aba25"
+  },
+  {
+    "brand": "SW",
+    "name": "Direct Green",
+    "code": "SW6924",
+    "hex": "#3f8a24"
+  },
+  {
+    "brand": "SW",
+    "name": "Envy",
+    "code": "SW6925",
+    "hex": "#358c3f"
+  },
+  {
+    "brand": "SW",
+    "name": "Lucky Green",
+    "code": "SW6926",
+    "hex": "#238652"
+  },
+  {
+    "brand": "SW",
+    "name": "Greenbelt",
+    "code": "SW6927",
+    "hex": "#017244"
+  },
+  {
+    "brand": "SW",
+    "name": "Green Vibes",
+    "code": "SW6928",
+    "hex": "#d4e7c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Tantalizing Teal",
+    "code": "SW6937",
+    "hex": "#87dcce"
+  },
+  {
+    "brand": "SW",
+    "name": "Nifty Turquoise",
+    "code": "SW6941",
+    "hex": "#019187"
+  },
+  {
+    "brand": "SW",
+    "name": "Splashy",
+    "code": "SW6942",
+    "hex": "#019196"
+  },
+  {
+    "brand": "SW",
+    "name": "Intense Teal",
+    "code": "SW6943",
+    "hex": "#017680"
+  },
+  {
+    "brand": "SW",
+    "name": "Calypso",
+    "code": "SW6950",
+    "hex": "#01b0bb"
+  },
+  {
+    "brand": "SW",
+    "name": "Undercool",
+    "code": "SW6957",
+    "hex": "#7fc3e1"
+  },
+  {
+    "brand": "SW",
+    "name": "Dynamic Blue",
+    "code": "SW6958",
+    "hex": "#0192c6"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Chip",
+    "code": "SW6959",
+    "hex": "#016ea7"
+  },
+  {
+    "brand": "SW",
+    "name": "Hyper Blue",
+    "code": "SW6965",
+    "hex": "#015f97"
+  },
+  {
+    "brand": "SW",
+    "name": "Blueblood",
+    "code": "SW6966",
+    "hex": "#015086"
+  },
+  {
+    "brand": "SW",
+    "name": "Frank Blue",
+    "code": "SW6967",
+    "hex": "#225288"
+  },
+  {
+    "brand": "SW",
+    "name": "Hyacinth Tint",
+    "code": "SW6968",
+    "hex": "#c2cbe0"
+  },
+  {
+    "brand": "SW",
+    "name": "Morning Glory",
+    "code": "SW6971",
+    "hex": "#3c4c80"
+  },
+  {
+    "brand": "SW",
+    "name": "Free Spirit",
+    "code": "SW6973",
+    "hex": "#cab2d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Passionate Purple",
+    "code": "SW6981",
+    "hex": "#795484"
+  },
+  {
+    "brand": "SW",
+    "name": "African Violet",
+    "code": "SW6982",
+    "hex": "#665385"
+  },
+  {
+    "brand": "SW",
+    "name": "Fully Purple",
+    "code": "SW6983",
+    "hex": "#514c7e"
+  },
+  {
+    "brand": "SW",
+    "name": "Jitterbug Jade",
+    "code": "SW6987",
+    "hex": "#019d6e"
+  },
+  {
+    "brand": "SW",
+    "name": "Bohemian Black",
+    "code": "SW6988",
+    "hex": "#3b373c"
+  },
+  {
+    "brand": "SW",
+    "name": "Domino",
+    "code": "SW6989",
+    "hex": "#353337"
+  },
+  {
+    "brand": "SW",
+    "name": "Caviar",
+    "code": "SW6990",
+    "hex": "#313031"
+  },
+  {
+    "brand": "SW",
+    "name": "Black Magic",
+    "code": "SW6991",
+    "hex": "#323132"
+  },
+  {
+    "brand": "SW",
+    "name": "Inkwell",
+    "code": "SW6992",
+    "hex": "#31363a"
+  },
+  {
+    "brand": "SW",
+    "name": "Black of Night",
+    "code": "SW6993",
+    "hex": "#323639"
+  },
+  {
+    "brand": "SW",
+    "name": "Greenblack",
+    "code": "SW6994",
+    "hex": "#373a3a"
+  },
+  {
+    "brand": "SW",
+    "name": "Ibis White",
+    "code": "SW7000",
+    "hex": "#f2ece6"
+  },
+  {
+    "brand": "SW",
+    "name": "Marshmallow",
+    "code": "SW7001",
+    "hex": "#eee9e0"
+  },
+  {
+    "brand": "SW",
+    "name": "Downy",
+    "code": "SW7002",
+    "hex": "#efe8dd"
+  },
+  {
+    "brand": "SW",
+    "name": "Toque White",
+    "code": "SW7003",
+    "hex": "#e7e2da"
+  },
+  {
+    "brand": "SW",
+    "name": "Snowbound",
+    "code": "SW7004",
+    "hex": "#edeae5"
+  },
+  {
+    "brand": "SW",
+    "name": "Pure White",
+    "code": "SW7005",
+    "hex": "#edece6"
+  },
+  {
+    "brand": "SW",
+    "name": "Extra White",
+    "code": "SW7006",
+    "hex": "#eeefea"
+  },
+  {
+    "brand": "SW",
+    "name": "Ceiling Bright White",
+    "code": "SW7007",
+    "hex": "#e9ebe7"
+  },
+  {
+    "brand": "SW",
+    "name": "Alabaster",
+    "code": "SW7008",
+    "hex": "#edeae0"
+  },
+  {
+    "brand": "SW",
+    "name": "Pearly White",
+    "code": "SW7009",
+    "hex": "#e8e3d9"
+  },
+  {
+    "brand": "SW",
+    "name": "White Duck",
+    "code": "SW7010",
+    "hex": "#e5dfd2"
+  },
+  {
+    "brand": "SW",
+    "name": "Natural Choice",
+    "code": "SW7011",
+    "hex": "#e3ded0"
+  },
+  {
+    "brand": "SW",
+    "name": "Creamy",
+    "code": "SW7012",
+    "hex": "#efe8db"
+  },
+  {
+    "brand": "SW",
+    "name": "Ivory Lace",
+    "code": "SW7013",
+    "hex": "#ece5d8"
+  },
+  {
+    "brand": "SW",
+    "name": "Eider White",
+    "code": "SW7014",
+    "hex": "#e2ded8"
+  },
+  {
+    "brand": "SW",
+    "name": "Repose Gray",
+    "code": "SW7015",
+    "hex": "#ccc9c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Mindful Gray",
+    "code": "SW7016",
+    "hex": "#bcb7ad"
+  },
+  {
+    "brand": "SW",
+    "name": "Dorian Gray",
+    "code": "SW7017",
+    "hex": "#aca79e"
+  },
+  {
+    "brand": "SW",
+    "name": "Dovetail",
+    "code": "SW7018",
+    "hex": "#908a83"
+  },
+  {
+    "brand": "SW",
+    "name": "Gauntlet Gray",
+    "code": "SW7019",
+    "hex": "#78736e"
+  },
+  {
+    "brand": "SW",
+    "name": "Black Fox",
+    "code": "SW7020",
+    "hex": "#4f4842"
+  },
+  {
+    "brand": "SW",
+    "name": "Simple White",
+    "code": "SW7021",
+    "hex": "#dfd9d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Alpaca",
+    "code": "SW7022",
+    "hex": "#ccc5bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Requisite Gray",
+    "code": "SW7023",
+    "hex": "#b9b2a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Functional Gray",
+    "code": "SW7024",
+    "hex": "#aba39a"
+  },
+  {
+    "brand": "SW",
+    "name": "Backdrop",
+    "code": "SW7025",
+    "hex": "#867a6f"
+  },
+  {
+    "brand": "SW",
+    "name": "Griffin",
+    "code": "SW7026",
+    "hex": "#6f6459"
+  },
+  {
+    "brand": "SW",
+    "name": "Hickory Smoke",
+    "code": "SW7027",
+    "hex": "#564537"
+  },
+  {
+    "brand": "SW",
+    "name": "Incredible White",
+    "code": "SW7028",
+    "hex": "#e3ded7"
+  },
+  {
+    "brand": "SW",
+    "name": "Agreeable Gray",
+    "code": "SW7029",
+    "hex": "#d1cbc1"
+  },
+  {
+    "brand": "SW",
+    "name": "Anew Gray",
+    "code": "SW7030",
+    "hex": "#bfb6aa"
+  },
+  {
+    "brand": "SW",
+    "name": "Mega Greige",
+    "code": "SW7031",
+    "hex": "#ada295"
+  },
+  {
+    "brand": "SW",
+    "name": "Warm Stone",
+    "code": "SW7032",
+    "hex": "#887b6c"
+  },
+  {
+    "brand": "SW",
+    "name": "Brainstorm Bronze",
+    "code": "SW7033",
+    "hex": "#74685a"
+  },
+  {
+    "brand": "SW",
+    "name": "Status Bronze",
+    "code": "SW7034",
+    "hex": "#5c4d3c"
+  },
+  {
+    "brand": "SW",
+    "name": "Aesthetic White",
+    "code": "SW7035",
+    "hex": "#e3ddd3"
+  },
+  {
+    "brand": "SW",
+    "name": "Accessible Beige",
+    "code": "SW7036",
+    "hex": "#d1c7b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Balanced Beige",
+    "code": "SW7037",
+    "hex": "#c0b2a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Tony Taupe",
+    "code": "SW7038",
+    "hex": "#b1a290"
+  },
+  {
+    "brand": "SW",
+    "name": "Virtual Taupe",
+    "code": "SW7039",
+    "hex": "#8a7a6a"
+  },
+  {
+    "brand": "SW",
+    "name": "Smokehouse",
+    "code": "SW7040",
+    "hex": "#716354"
+  },
+  {
+    "brand": "SW",
+    "name": "Van Dyke Brown",
+    "code": "SW7041",
+    "hex": "#564536"
+  },
+  {
+    "brand": "SW",
+    "name": "Shoji White",
+    "code": "SW7042",
+    "hex": "#e6dfd3"
+  },
+  {
+    "brand": "SW",
+    "name": "Worldly Gray",
+    "code": "SW7043",
+    "hex": "#cec6bb"
+  },
+  {
+    "brand": "SW",
+    "name": "Amazing Gray",
+    "code": "SW7044",
+    "hex": "#beb5a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Intellectual Gray",
+    "code": "SW7045",
+    "hex": "#a8a093"
+  },
+  {
+    "brand": "SW",
+    "name": "Anonymous",
+    "code": "SW7046",
+    "hex": "#817a6e"
+  },
+  {
+    "brand": "SW",
+    "name": "Porpoise",
+    "code": "SW7047",
+    "hex": "#6b645b"
+  },
+  {
+    "brand": "SW",
+    "name": "Urbane Bronze",
+    "code": "SW7048",
+    "hex": "#54504a"
+  },
+  {
+    "brand": "SW",
+    "name": "Nuance",
+    "code": "SW7049",
+    "hex": "#e2e0d6"
+  },
+  {
+    "brand": "SW",
+    "name": "Useful Gray",
+    "code": "SW7050",
+    "hex": "#cfcabd"
+  },
+  {
+    "brand": "SW",
+    "name": "Analytical Gray",
+    "code": "SW7051",
+    "hex": "#bfb6a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Gray Area",
+    "code": "SW7052",
+    "hex": "#afa696"
+  },
+  {
+    "brand": "SW",
+    "name": "Adaptive Shade",
+    "code": "SW7053",
+    "hex": "#867e70"
+  },
+  {
+    "brand": "SW",
+    "name": "Oak Leaf Brown",
+    "code": "SW7054",
+    "hex": "#645a4b"
+  },
+  {
+    "brand": "SW",
+    "name": "Enduring Bronze",
+    "code": "SW7055",
+    "hex": "#554c3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Reserved White",
+    "code": "SW7056",
+    "hex": "#e0e0d9"
+  },
+  {
+    "brand": "SW",
+    "name": "Silver Strand",
+    "code": "SW7057",
+    "hex": "#c8cbc4"
+  },
+  {
+    "brand": "SW",
+    "name": "Magnetic Gray",
+    "code": "SW7058",
+    "hex": "#b2b5af"
+  },
+  {
+    "brand": "SW",
+    "name": "Unusual Gray",
+    "code": "SW7059",
+    "hex": "#a3a7a0"
+  },
+  {
+    "brand": "SW",
+    "name": "Attitude Gray",
+    "code": "SW7060",
+    "hex": "#7c7d75"
+  },
+  {
+    "brand": "SW",
+    "name": "Night Owl",
+    "code": "SW7061",
+    "hex": "#63655f"
+  },
+  {
+    "brand": "SW",
+    "name": "Rock Bottom",
+    "code": "SW7062",
+    "hex": "#484c49"
+  },
+  {
+    "brand": "SW",
+    "name": "Nebulous White",
+    "code": "SW7063",
+    "hex": "#dedfdc"
+  },
+  {
+    "brand": "SW",
+    "name": "Passive",
+    "code": "SW7064",
+    "hex": "#cbccc9"
+  },
+  {
+    "brand": "SW",
+    "name": "Argos",
+    "code": "SW7065",
+    "hex": "#bdbdb7"
+  },
+  {
+    "brand": "SW",
+    "name": "Gray Matters",
+    "code": "SW7066",
+    "hex": "#a7a8a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Cityscape",
+    "code": "SW7067",
+    "hex": "#7f817e"
+  },
+  {
+    "brand": "SW",
+    "name": "Grizzle Gray",
+    "code": "SW7068",
+    "hex": "#636562"
+  },
+  {
+    "brand": "SW",
+    "name": "Iron Ore",
+    "code": "SW7069",
+    "hex": "#434341"
+  },
+  {
+    "brand": "SW",
+    "name": "Site White",
+    "code": "SW7070",
+    "hex": "#dcdedc"
+  },
+  {
+    "brand": "SW",
+    "name": "Gray Screen",
+    "code": "SW7071",
+    "hex": "#c6caca"
+  },
+  {
+    "brand": "SW",
+    "name": "Online",
+    "code": "SW7072",
+    "hex": "#b0b5b5"
+  },
+  {
+    "brand": "SW",
+    "name": "Network Gray",
+    "code": "SW7073",
+    "hex": "#a0a5a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Software",
+    "code": "SW7074",
+    "hex": "#7f8486"
+  },
+  {
+    "brand": "SW",
+    "name": "Web Gray",
+    "code": "SW7075",
+    "hex": "#616669"
+  },
+  {
+    "brand": "SW",
+    "name": "Cyberspace",
+    "code": "SW7076",
+    "hex": "#44484d"
+  },
+  {
+    "brand": "SW",
+    "name": "Original White",
+    "code": "SW7077",
+    "hex": "#e2dedb"
+  },
+  {
+    "brand": "SW",
+    "name": "Minute Mauve",
+    "code": "SW7078",
+    "hex": "#cfc9c8"
+  },
+  {
+    "brand": "SW",
+    "name": "Ponder",
+    "code": "SW7079",
+    "hex": "#bcb6b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Quest Gray",
+    "code": "SW7080",
+    "hex": "#ada5a5"
+  },
+  {
+    "brand": "SW",
+    "name": "Sensuous Gray",
+    "code": "SW7081",
+    "hex": "#837d7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Stunning Shade",
+    "code": "SW7082",
+    "hex": "#676064"
+  },
+  {
+    "brand": "SW",
+    "name": "Darkroom",
+    "code": "SW7083",
+    "hex": "#443e40"
+  },
+  {
+    "brand": "SW",
+    "name": "Arcade White",
+    "code": "SW7100",
+    "hex": "#f3eee7"
+  },
+  {
+    "brand": "SW",
+    "name": "Futon",
+    "code": "SW7101",
+    "hex": "#ede6db"
+  },
+  {
+    "brand": "SW",
+    "name": "White Flour",
+    "code": "SW7102",
+    "hex": "#f4efe5"
+  },
+  {
+    "brand": "SW",
+    "name": "Whitetail",
+    "code": "SW7103",
+    "hex": "#f4efe4"
+  },
+  {
+    "brand": "SW",
+    "name": "Cotton White",
+    "code": "SW7104",
+    "hex": "#f7efe3"
+  },
+  {
+    "brand": "SW",
+    "name": "Paperwhite",
+    "code": "SW7105",
+    "hex": "#f7efde"
+  },
+  {
+    "brand": "SW",
+    "name": "Honied White",
+    "code": "SW7106",
+    "hex": "#f8eedb"
+  },
+  {
+    "brand": "SW",
+    "name": "Threshold Taupe",
+    "code": "SW7501",
+    "hex": "#ac9a8a"
+  },
+  {
+    "brand": "SW",
+    "name": "Dry Dock",
+    "code": "SW7502",
+    "hex": "#a18d7d"
+  },
+  {
+    "brand": "SW",
+    "name": "Sticks & Stones",
+    "code": "SW7503",
+    "hex": "#a49689"
+  },
+  {
+    "brand": "SW",
+    "name": "Keystone Gray",
+    "code": "SW7504",
+    "hex": "#9e9284"
+  },
+  {
+    "brand": "SW",
+    "name": "Manor House",
+    "code": "SW7505",
+    "hex": "#665d57"
+  },
+  {
+    "brand": "SW",
+    "name": "Loggia",
+    "code": "SW7506",
+    "hex": "#c4b7a5"
+  },
+  {
+    "brand": "SW",
+    "name": "Stone Lion",
+    "code": "SW7507",
+    "hex": "#b3a491"
+  },
+  {
+    "brand": "SW",
+    "name": "Tavern Taupe",
+    "code": "SW7508",
+    "hex": "#9c8a79"
+  },
+  {
+    "brand": "SW",
+    "name": "Tiki Hut",
+    "code": "SW7509",
+    "hex": "#826f5e"
+  },
+  {
+    "brand": "SW",
+    "name": "Chateau Brown",
+    "code": "SW7510",
+    "hex": "#5b4b44"
+  },
+  {
+    "brand": "SW",
+    "name": "Bungalow Beige",
+    "code": "SW7511",
+    "hex": "#cdbfb0"
+  },
+  {
+    "brand": "SW",
+    "name": "Pavilion Beige",
+    "code": "SW7512",
+    "hex": "#c5b6a4"
+  },
+  {
+    "brand": "SW",
+    "name": "Sanderling",
+    "code": "SW7513",
+    "hex": "#a79582"
+  },
+  {
+    "brand": "SW",
+    "name": "Foothills",
+    "code": "SW7514",
+    "hex": "#827466"
+  },
+  {
+    "brand": "SW",
+    "name": "Homestead Brown",
+    "code": "SW7515",
+    "hex": "#6e5f53"
+  },
+  {
+    "brand": "SW",
+    "name": "Kestrel White",
+    "code": "SW7516",
+    "hex": "#e0d6c8"
+  },
+  {
+    "brand": "SW",
+    "name": "Rivers Edge",
+    "code": "SW7517",
+    "hex": "#dbcebd"
+  },
+  {
+    "brand": "SW",
+    "name": "Beach House",
+    "code": "SW7518",
+    "hex": "#c9b29c"
+  },
+  {
+    "brand": "SW",
+    "name": "Mexican Sand",
+    "code": "SW7519",
+    "hex": "#af9781"
+  },
+  {
+    "brand": "SW",
+    "name": "Plantation Shutters",
+    "code": "SW7520",
+    "hex": "#6a5143"
+  },
+  {
+    "brand": "SW",
+    "name": "Dormer Brown",
+    "code": "SW7521",
+    "hex": "#ad947c"
+  },
+  {
+    "brand": "SW",
+    "name": "Meadowlark",
+    "code": "SW7522",
+    "hex": "#9f8267"
+  },
+  {
+    "brand": "SW",
+    "name": "Burnished Brandy",
+    "code": "SW7523",
+    "hex": "#7c5c43"
+  },
+  {
+    "brand": "SW",
+    "name": "Dhurrie Beige",
+    "code": "SW7524",
+    "hex": "#cabaa8"
+  },
+  {
+    "brand": "SW",
+    "name": "Tree Branch",
+    "code": "SW7525",
+    "hex": "#8a7362"
+  },
+  {
+    "brand": "SW",
+    "name": "Maison Blanche",
+    "code": "SW7526",
+    "hex": "#dfd2bf"
+  },
+  {
+    "brand": "SW",
+    "name": "Nantucket Dune",
+    "code": "SW7527",
+    "hex": "#d0bfaa"
+  },
+  {
+    "brand": "SW",
+    "name": "Windsor Greige",
+    "code": "SW7528",
+    "hex": "#c4b49c"
+  },
+  {
+    "brand": "SW",
+    "name": "Sand Beach",
+    "code": "SW7529",
+    "hex": "#d4c5ad"
+  },
+  {
+    "brand": "SW",
+    "name": "Barcelona Beige",
+    "code": "SW7530",
+    "hex": "#c4b39c"
+  },
+  {
+    "brand": "SW",
+    "name": "Canvas Tan",
+    "code": "SW7531",
+    "hex": "#dcd1bf"
+  },
+  {
+    "brand": "SW",
+    "name": "Urban Putty",
+    "code": "SW7532",
+    "hex": "#cfc0ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Khaki Shade",
+    "code": "SW7533",
+    "hex": "#c0af97"
+  },
+  {
+    "brand": "SW",
+    "name": "Outerbanks",
+    "code": "SW7534",
+    "hex": "#b7a48b"
+  },
+  {
+    "brand": "SW",
+    "name": "Sandy Ridge",
+    "code": "SW7535",
+    "hex": "#a18e77"
+  },
+  {
+    "brand": "SW",
+    "name": "Bittersweet Stem",
+    "code": "SW7536",
+    "hex": "#cbb49a"
+  },
+  {
+    "brand": "SW",
+    "name": "Irish Cream",
+    "code": "SW7537",
+    "hex": "#e3d2b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Tamarind",
+    "code": "SW7538",
+    "hex": "#c0a588"
+  },
+  {
+    "brand": "SW",
+    "name": "Cork Wedge",
+    "code": "SW7539",
+    "hex": "#c1a98a"
+  },
+  {
+    "brand": "SW",
+    "name": "Artisan Tan",
+    "code": "SW7540",
+    "hex": "#b09879"
+  },
+  {
+    "brand": "SW",
+    "name": "Grecian Ivory",
+    "code": "SW7541",
+    "hex": "#d8cfbe"
+  },
+  {
+    "brand": "SW",
+    "name": "Naturel",
+    "code": "SW7542",
+    "hex": "#cbc0ad"
+  },
+  {
+    "brand": "SW",
+    "name": "Avenue Tan",
+    "code": "SW7543",
+    "hex": "#bcb099"
+  },
+  {
+    "brand": "SW",
+    "name": "Fenland",
+    "code": "SW7544",
+    "hex": "#ac9d83"
+  },
+  {
+    "brand": "SW",
+    "name": "Pier",
+    "code": "SW7545",
+    "hex": "#63523d"
+  },
+  {
+    "brand": "SW",
+    "name": "Prairie Grass",
+    "code": "SW7546",
+    "hex": "#b1a38e"
+  },
+  {
+    "brand": "SW",
+    "name": "Sandbar",
+    "code": "SW7547",
+    "hex": "#cbbfad"
+  },
+  {
+    "brand": "SW",
+    "name": "Portico",
+    "code": "SW7548",
+    "hex": "#bbab95"
+  },
+  {
+    "brand": "SW",
+    "name": "Studio Taupe",
+    "code": "SW7549",
+    "hex": "#ad9c85"
+  },
+  {
+    "brand": "SW",
+    "name": "Resort Tan",
+    "code": "SW7550",
+    "hex": "#907d66"
+  },
+  {
+    "brand": "SW",
+    "name": "Greek Villa",
+    "code": "SW7551",
+    "hex": "#f0ece2"
+  },
+  {
+    "brand": "SW",
+    "name": "Bauhaus Buff",
+    "code": "SW7552",
+    "hex": "#e7dbcc"
+  },
+  {
+    "brand": "SW",
+    "name": "Fragile Beauty",
+    "code": "SW7553",
+    "hex": "#e7d7c6"
+  },
+  {
+    "brand": "SW",
+    "name": "Steamed Milk",
+    "code": "SW7554",
+    "hex": "#ece1d1"
+  },
+  {
+    "brand": "SW",
+    "name": "Patience",
+    "code": "SW7555",
+    "hex": "#e2d3bf"
+  },
+  {
+    "brand": "SW",
+    "name": "Crème",
+    "code": "SW7556",
+    "hex": "#f4e8d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Summer White",
+    "code": "SW7557",
+    "hex": "#f4e9d6"
+  },
+  {
+    "brand": "SW",
+    "name": "Medici Ivory",
+    "code": "SW7558",
+    "hex": "#f3e9d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Décor White",
+    "code": "SW7559",
+    "hex": "#f2e5cf"
+  },
+  {
+    "brand": "SW",
+    "name": "Impressive Ivory",
+    "code": "SW7560",
+    "hex": "#f4dec3"
+  },
+  {
+    "brand": "SW",
+    "name": "Lemon Meringue",
+    "code": "SW7561",
+    "hex": "#f5eacc"
+  },
+  {
+    "brand": "SW",
+    "name": "Roman Column",
+    "code": "SW7562",
+    "hex": "#f6f0e2"
+  },
+  {
+    "brand": "SW",
+    "name": "Restful White",
+    "code": "SW7563",
+    "hex": "#eee8d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Polar Bear",
+    "code": "SW7564",
+    "hex": "#e8dfca"
+  },
+  {
+    "brand": "SW",
+    "name": "Oyster Bar",
+    "code": "SW7565",
+    "hex": "#dbd0bb"
+  },
+  {
+    "brand": "SW",
+    "name": "Westhighland White",
+    "code": "SW7566",
+    "hex": "#f3eee3"
+  },
+  {
+    "brand": "SW",
+    "name": "Natural Tan",
+    "code": "SW7567",
+    "hex": "#dcd2c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Neutral Ground",
+    "code": "SW7568",
+    "hex": "#e2daca"
+  },
+  {
+    "brand": "SW",
+    "name": "Stucco",
+    "code": "SW7569",
+    "hex": "#dccfba"
+  },
+  {
+    "brand": "SW",
+    "name": "Egret White",
+    "code": "SW7570",
+    "hex": "#dfd9cf"
+  },
+  {
+    "brand": "SW",
+    "name": "Casa Blanca",
+    "code": "SW7571",
+    "hex": "#ede1ce"
+  },
+  {
+    "brand": "SW",
+    "name": "Lotus Pod",
+    "code": "SW7572",
+    "hex": "#e7d7c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Eaglet Beige",
+    "code": "SW7573",
+    "hex": "#e9d9c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Echelon Ecru",
+    "code": "SW7574",
+    "hex": "#e7d8be"
+  },
+  {
+    "brand": "SW",
+    "name": "Chopsticks",
+    "code": "SW7575",
+    "hex": "#e0d1b8"
+  },
+  {
+    "brand": "SW",
+    "name": "Blackberry",
+    "code": "SW7577",
+    "hex": "#533640"
+  },
+  {
+    "brand": "SW",
+    "name": "Borscht",
+    "code": "SW7578",
+    "hex": "#72353d"
+  },
+  {
+    "brand": "SW",
+    "name": "Alaea",
+    "code": "SW7579",
+    "hex": "#81585b"
+  },
+  {
+    "brand": "SW",
+    "name": "Carnelian",
+    "code": "SW7580",
+    "hex": "#573e3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Salute",
+    "code": "SW7582",
+    "hex": "#803532"
+  },
+  {
+    "brand": "SW",
+    "name": "Wild Currant",
+    "code": "SW7583",
+    "hex": "#7c3239"
+  },
+  {
+    "brand": "SW",
+    "name": "Red Theatre",
+    "code": "SW7584",
+    "hex": "#6e3637"
+  },
+  {
+    "brand": "SW",
+    "name": "Sun Dried Tomato",
+    "code": "SW7585",
+    "hex": "#692b2b"
+  },
+  {
+    "brand": "SW",
+    "name": "Stolen Kiss",
+    "code": "SW7586",
+    "hex": "#813235"
+  },
+  {
+    "brand": "SW",
+    "name": "Antique Red",
+    "code": "SW7587",
+    "hex": "#9f4442"
+  },
+  {
+    "brand": "SW",
+    "name": "Show Stopper",
+    "code": "SW7588",
+    "hex": "#a42e37"
+  },
+  {
+    "brand": "SW",
+    "name": "Habanero Chile",
+    "code": "SW7589",
+    "hex": "#b8473d"
+  },
+  {
+    "brand": "SW",
+    "name": "Red Barn",
+    "code": "SW7591",
+    "hex": "#7c453d"
+  },
+  {
+    "brand": "SW",
+    "name": "Crabby Apple",
+    "code": "SW7592",
+    "hex": "#753531"
+  },
+  {
+    "brand": "SW",
+    "name": "Rustic Red",
+    "code": "SW7593",
+    "hex": "#703229"
+  },
+  {
+    "brand": "SW",
+    "name": "Carriage Door",
+    "code": "SW7594",
+    "hex": "#6e423e"
+  },
+  {
+    "brand": "SW",
+    "name": "Sommelier",
+    "code": "SW7595",
+    "hex": "#5d3736"
+  },
+  {
+    "brand": "SW",
+    "name": "Only Natural",
+    "code": "SW7596",
+    "hex": "#e2d3c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Sierra Redwood",
+    "code": "SW7598",
+    "hex": "#924e3c"
+  },
+  {
+    "brand": "SW",
+    "name": "Brick Paver",
+    "code": "SW7599",
+    "hex": "#93402f"
+  },
+  {
+    "brand": "SW",
+    "name": "Bolero",
+    "code": "SW7600",
+    "hex": "#903934"
+  },
+  {
+    "brand": "SW",
+    "name": "Dockside Blue",
+    "code": "SW7601",
+    "hex": "#a0b3bc"
+  },
+  {
+    "brand": "SW",
+    "name": "Indigo Batik",
+    "code": "SW7602",
+    "hex": "#3e5063"
+  },
+  {
+    "brand": "SW",
+    "name": "Poolhouse",
+    "code": "SW7603",
+    "hex": "#8095a0"
+  },
+  {
+    "brand": "SW",
+    "name": "Smoky Blue",
+    "code": "SW7604",
+    "hex": "#596e79"
+  },
+  {
+    "brand": "SW",
+    "name": "Gale Force",
+    "code": "SW7605",
+    "hex": "#35454e"
+  },
+  {
+    "brand": "SW",
+    "name": "Blue Cruise",
+    "code": "SW7606",
+    "hex": "#6591a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Santorini Blue",
+    "code": "SW7607",
+    "hex": "#416d83"
+  },
+  {
+    "brand": "SW",
+    "name": "Adrift",
+    "code": "SW7608",
+    "hex": "#87aab9"
+  },
+  {
+    "brand": "SW",
+    "name": "Georgian Revival Blue",
+    "code": "SW7609",
+    "hex": "#5b8d9f"
+  },
+  {
+    "brand": "SW",
+    "name": "Turkish Tile",
+    "code": "SW7610",
+    "hex": "#3e758a"
+  },
+  {
+    "brand": "SW",
+    "name": "Tranquil Aqua",
+    "code": "SW7611",
+    "hex": "#7c9aa0"
+  },
+  {
+    "brand": "SW",
+    "name": "Mountain Stream",
+    "code": "SW7612",
+    "hex": "#679199"
+  },
+  {
+    "brand": "SW",
+    "name": "Aqua‐Sphere",
+    "code": "SW7613",
+    "hex": "#9cb0b3"
+  },
+  {
+    "brand": "SW",
+    "name": "St. Bart's",
+    "code": "SW7614",
+    "hex": "#577c88"
+  },
+  {
+    "brand": "SW",
+    "name": "Sea Serpent",
+    "code": "SW7615",
+    "hex": "#3e4b54"
+  },
+  {
+    "brand": "SW",
+    "name": "Breezy",
+    "code": "SW7616",
+    "hex": "#a0aeaf"
+  },
+  {
+    "brand": "SW",
+    "name": "Mediterranean",
+    "code": "SW7617",
+    "hex": "#60797d"
+  },
+  {
+    "brand": "SW",
+    "name": "Deep Sea Dive",
+    "code": "SW7618",
+    "hex": "#376167"
+  },
+  {
+    "brand": "SW",
+    "name": "Labradorite",
+    "code": "SW7619",
+    "hex": "#657b83"
+  },
+  {
+    "brand": "SW",
+    "name": "Seaworthy",
+    "code": "SW7620",
+    "hex": "#314d58"
+  },
+  {
+    "brand": "SW",
+    "name": "Silvermist",
+    "code": "SW7621",
+    "hex": "#b0b8b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Homburg Gray",
+    "code": "SW7622",
+    "hex": "#666d69"
+  },
+  {
+    "brand": "SW",
+    "name": "Cascades",
+    "code": "SW7623",
+    "hex": "#273e3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Slate Tile",
+    "code": "SW7624",
+    "hex": "#606e74"
+  },
+  {
+    "brand": "SW",
+    "name": "Mount Etna",
+    "code": "SW7625",
+    "hex": "#3d484c"
+  },
+  {
+    "brand": "SW",
+    "name": "Zurich White",
+    "code": "SW7626",
+    "hex": "#e6e1d9"
+  },
+  {
+    "brand": "SW",
+    "name": "White Heron",
+    "code": "SW7627",
+    "hex": "#e7e1d7"
+  },
+  {
+    "brand": "SW",
+    "name": "Windfresh White",
+    "code": "SW7628",
+    "hex": "#ded8cf"
+  },
+  {
+    "brand": "SW",
+    "name": "Grapy",
+    "code": "SW7629",
+    "hex": "#786e70"
+  },
+  {
+    "brand": "SW",
+    "name": "Raisin",
+    "code": "SW7630",
+    "hex": "#392b2d"
+  },
+  {
+    "brand": "SW",
+    "name": "City Loft",
+    "code": "SW7631",
+    "hex": "#dfdad1"
+  },
+  {
+    "brand": "SW",
+    "name": "Modern Gray",
+    "code": "SW7632",
+    "hex": "#d6cec3"
+  },
+  {
+    "brand": "SW",
+    "name": "Taupe Tone",
+    "code": "SW7633",
+    "hex": "#ada090"
+  },
+  {
+    "brand": "SW",
+    "name": "Pediment",
+    "code": "SW7634",
+    "hex": "#d3ccc4"
+  },
+  {
+    "brand": "SW",
+    "name": "Palisade",
+    "code": "SW7635",
+    "hex": "#aa9e95"
+  },
+  {
+    "brand": "SW",
+    "name": "Origami White",
+    "code": "SW7636",
+    "hex": "#e5e2da"
+  },
+  {
+    "brand": "SW",
+    "name": "Oyster White",
+    "code": "SW7637",
+    "hex": "#e2ddd0"
+  },
+  {
+    "brand": "SW",
+    "name": "Jogging Path",
+    "code": "SW7638",
+    "hex": "#c0b9a9"
+  },
+  {
+    "brand": "SW",
+    "name": "Ethereal Mood",
+    "code": "SW7639",
+    "hex": "#aea594"
+  },
+  {
+    "brand": "SW",
+    "name": "Fawn Brindle",
+    "code": "SW7640",
+    "hex": "#a7a094"
+  },
+  {
+    "brand": "SW",
+    "name": "Colonnade Gray",
+    "code": "SW7641",
+    "hex": "#c6c0b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Pavestone",
+    "code": "SW7642",
+    "hex": "#a0998f"
+  },
+  {
+    "brand": "SW",
+    "name": "Pussywillow",
+    "code": "SW7643",
+    "hex": "#b2ada4"
+  },
+  {
+    "brand": "SW",
+    "name": "Gateway Gray",
+    "code": "SW7644",
+    "hex": "#b2ac9c"
+  },
+  {
+    "brand": "SW",
+    "name": "Thunder Gray",
+    "code": "SW7645",
+    "hex": "#57534c"
+  },
+  {
+    "brand": "SW",
+    "name": "First Star",
+    "code": "SW7646",
+    "hex": "#dad9d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Crushed Ice",
+    "code": "SW7647",
+    "hex": "#d6d3cc"
+  },
+  {
+    "brand": "SW",
+    "name": "Big Chill",
+    "code": "SW7648",
+    "hex": "#d0cec9"
+  },
+  {
+    "brand": "SW",
+    "name": "Silverplate",
+    "code": "SW7649",
+    "hex": "#c2c0ba"
+  },
+  {
+    "brand": "SW",
+    "name": "Ellie Gray",
+    "code": "SW7650",
+    "hex": "#aaa9a4"
+  },
+  {
+    "brand": "SW",
+    "name": "Front Porch",
+    "code": "SW7651",
+    "hex": "#ccccc5"
+  },
+  {
+    "brand": "SW",
+    "name": "Mineral Deposit",
+    "code": "SW7652",
+    "hex": "#abb0ac"
+  },
+  {
+    "brand": "SW",
+    "name": "Silverpointe",
+    "code": "SW7653",
+    "hex": "#d1d2cb"
+  },
+  {
+    "brand": "SW",
+    "name": "Lattice",
+    "code": "SW7654",
+    "hex": "#cecec6"
+  },
+  {
+    "brand": "SW",
+    "name": "Stamped Concrete",
+    "code": "SW7655",
+    "hex": "#a0a09a"
+  },
+  {
+    "brand": "SW",
+    "name": "Rhinestone",
+    "code": "SW7656",
+    "hex": "#dee0de"
+  },
+  {
+    "brand": "SW",
+    "name": "Tinsmith",
+    "code": "SW7657",
+    "hex": "#c5c8c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Gray Clouds",
+    "code": "SW7658",
+    "hex": "#b7b7b2"
+  },
+  {
+    "brand": "SW",
+    "name": "Gris",
+    "code": "SW7659",
+    "hex": "#a5a9a8"
+  },
+  {
+    "brand": "SW",
+    "name": "Earl Grey",
+    "code": "SW7660",
+    "hex": "#969a96"
+  },
+  {
+    "brand": "SW",
+    "name": "Reflection",
+    "code": "SW7661",
+    "hex": "#d3d5d3"
+  },
+  {
+    "brand": "SW",
+    "name": "Evening Shadow",
+    "code": "SW7662",
+    "hex": "#c9cccd"
+  },
+  {
+    "brand": "SW",
+    "name": "Monorail Silver",
+    "code": "SW7663",
+    "hex": "#b8bcbb"
+  },
+  {
+    "brand": "SW",
+    "name": "Steely Gray",
+    "code": "SW7664",
+    "hex": "#90979b"
+  },
+  {
+    "brand": "SW",
+    "name": "Wall Street",
+    "code": "SW7665",
+    "hex": "#656d73"
+  },
+  {
+    "brand": "SW",
+    "name": "Fleur de Sel",
+    "code": "SW7666",
+    "hex": "#dcddd8"
+  },
+  {
+    "brand": "SW",
+    "name": "Zircon",
+    "code": "SW7667",
+    "hex": "#cac9c6"
+  },
+  {
+    "brand": "SW",
+    "name": "March Wind",
+    "code": "SW7668",
+    "hex": "#bab9b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Summit Gray",
+    "code": "SW7669",
+    "hex": "#959491"
+  },
+  {
+    "brand": "SW",
+    "name": "Gray Shingle",
+    "code": "SW7670",
+    "hex": "#949392"
+  },
+  {
+    "brand": "SW",
+    "name": "On the Rocks",
+    "code": "SW7671",
+    "hex": "#d0cec8"
+  },
+  {
+    "brand": "SW",
+    "name": "Knitting Needles",
+    "code": "SW7672",
+    "hex": "#c3c1bc"
+  },
+  {
+    "brand": "SW",
+    "name": "Pewter Cast",
+    "code": "SW7673",
+    "hex": "#9b9893"
+  },
+  {
+    "brand": "SW",
+    "name": "Peppercorn",
+    "code": "SW7674",
+    "hex": "#585858"
+  },
+  {
+    "brand": "SW",
+    "name": "Sealskin",
+    "code": "SW7675",
+    "hex": "#48423c"
+  },
+  {
+    "brand": "SW",
+    "name": "Paper Lantern",
+    "code": "SW7676",
+    "hex": "#f2e0c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Gold Vessel",
+    "code": "SW7677",
+    "hex": "#eaba8a"
+  },
+  {
+    "brand": "SW",
+    "name": "Cottage Cream",
+    "code": "SW7678",
+    "hex": "#eddbbd"
+  },
+  {
+    "brand": "SW",
+    "name": "Golden Gate",
+    "code": "SW7679",
+    "hex": "#d9ad7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Lanyard",
+    "code": "SW7680",
+    "hex": "#c09972"
+  },
+  {
+    "brand": "SW",
+    "name": "Tea Light",
+    "code": "SW7681",
+    "hex": "#f8e4c2"
+  },
+  {
+    "brand": "SW",
+    "name": "Bee's Wax",
+    "code": "SW7682",
+    "hex": "#eabf86"
+  },
+  {
+    "brand": "SW",
+    "name": "Buff",
+    "code": "SW7683",
+    "hex": "#f1dfc1"
+  },
+  {
+    "brand": "SW",
+    "name": "Concord Buff",
+    "code": "SW7684",
+    "hex": "#edd6b1"
+  },
+  {
+    "brand": "SW",
+    "name": "White Raisin",
+    "code": "SW7685",
+    "hex": "#e5c28b"
+  },
+  {
+    "brand": "SW",
+    "name": "Hinoki",
+    "code": "SW7686",
+    "hex": "#f8ddb7"
+  },
+  {
+    "brand": "SW",
+    "name": "August Moon",
+    "code": "SW7687",
+    "hex": "#e7c7a0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sundew",
+    "code": "SW7688",
+    "hex": "#e1cdae"
+  },
+  {
+    "brand": "SW",
+    "name": "Row House Tan",
+    "code": "SW7689",
+    "hex": "#d2bb9d"
+  },
+  {
+    "brand": "SW",
+    "name": "Townhall Tan",
+    "code": "SW7690",
+    "hex": "#c3aa8c"
+  },
+  {
+    "brand": "SW",
+    "name": "Pale Yellow",
+    "code": "SW7691",
+    "hex": "#e3c9a1"
+  },
+  {
+    "brand": "SW",
+    "name": "Cupola Yellow",
+    "code": "SW7692",
+    "hex": "#dcbc8e"
+  },
+  {
+    "brand": "SW",
+    "name": "Stonebriar",
+    "code": "SW7693",
+    "hex": "#cba97e"
+  },
+  {
+    "brand": "SW",
+    "name": "Dromedary Camel",
+    "code": "SW7694",
+    "hex": "#caad87"
+  },
+  {
+    "brand": "SW",
+    "name": "Mesa Tan",
+    "code": "SW7695",
+    "hex": "#bd9c77"
+  },
+  {
+    "brand": "SW",
+    "name": "Toasted Pine Nut",
+    "code": "SW7696",
+    "hex": "#dcc6a6"
+  },
+  {
+    "brand": "SW",
+    "name": "Safari",
+    "code": "SW7697",
+    "hex": "#ccb18b"
+  },
+  {
+    "brand": "SW",
+    "name": "Straw Harvest",
+    "code": "SW7698",
+    "hex": "#dbc8a2"
+  },
+  {
+    "brand": "SW",
+    "name": "Rustic City",
+    "code": "SW7699",
+    "hex": "#ba9a67"
+  },
+  {
+    "brand": "SW",
+    "name": "Olde World Gold",
+    "code": "SW7700",
+    "hex": "#8f6c3e"
+  },
+  {
+    "brand": "SW",
+    "name": "Cavern Clay",
+    "code": "SW7701",
+    "hex": "#ac6b53"
+  },
+  {
+    "brand": "SW",
+    "name": "Spiced Cider",
+    "code": "SW7702",
+    "hex": "#b0785c"
+  },
+  {
+    "brand": "SW",
+    "name": "Earthen Jug",
+    "code": "SW7703",
+    "hex": "#a85e39"
+  },
+  {
+    "brand": "SW",
+    "name": "Tower Tan",
+    "code": "SW7704",
+    "hex": "#d5b59b"
+  },
+  {
+    "brand": "SW",
+    "name": "Wheat Penny",
+    "code": "SW7705",
+    "hex": "#976b53"
+  },
+  {
+    "brand": "SW",
+    "name": "Copper Wire",
+    "code": "SW7707",
+    "hex": "#c67b57"
+  },
+  {
+    "brand": "SW",
+    "name": "Copper Pot",
+    "code": "SW7709",
+    "hex": "#b16a37"
+  },
+  {
+    "brand": "SW",
+    "name": "Brandywine",
+    "code": "SW7710",
+    "hex": "#a56c4a"
+  },
+  {
+    "brand": "SW",
+    "name": "Pueblo",
+    "code": "SW7711",
+    "hex": "#e6d0bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Townhouse Tan",
+    "code": "SW7712",
+    "hex": "#dfc8b5"
+  },
+  {
+    "brand": "SW",
+    "name": "Tawny Tan",
+    "code": "SW7713",
+    "hex": "#ccb299"
+  },
+  {
+    "brand": "SW",
+    "name": "Oak Barrel",
+    "code": "SW7714",
+    "hex": "#bfa287"
+  },
+  {
+    "brand": "SW",
+    "name": "Pottery Urn",
+    "code": "SW7715",
+    "hex": "#aa866e"
+  },
+  {
+    "brand": "SW",
+    "name": "Croissant",
+    "code": "SW7716",
+    "hex": "#dbc5a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Ligonier Tan",
+    "code": "SW7717",
+    "hex": "#d2b18f"
+  },
+  {
+    "brand": "SW",
+    "name": "Oak Creek",
+    "code": "SW7718",
+    "hex": "#bb8d6b"
+  },
+  {
+    "brand": "SW",
+    "name": "Fresco Cream",
+    "code": "SW7719",
+    "hex": "#d8c4ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Deer Valley",
+    "code": "SW7720",
+    "hex": "#c7a485"
+  },
+  {
+    "brand": "SW",
+    "name": "Crescent Cream",
+    "code": "SW7721",
+    "hex": "#edd1b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Travertine",
+    "code": "SW7722",
+    "hex": "#ecd3b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Colony Buff",
+    "code": "SW7723",
+    "hex": "#ddc6ab"
+  },
+  {
+    "brand": "SW",
+    "name": "Canoe",
+    "code": "SW7724",
+    "hex": "#b7987b"
+  },
+  {
+    "brand": "SW",
+    "name": "Yearling",
+    "code": "SW7725",
+    "hex": "#ad896a"
+  },
+  {
+    "brand": "SW",
+    "name": "Lemon Verbena",
+    "code": "SW7726",
+    "hex": "#9d986f"
+  },
+  {
+    "brand": "SW",
+    "name": "Koi Pond",
+    "code": "SW7727",
+    "hex": "#b9b292"
+  },
+  {
+    "brand": "SW",
+    "name": "Green Sprout",
+    "code": "SW7728",
+    "hex": "#a29f80"
+  },
+  {
+    "brand": "SW",
+    "name": "Edamame",
+    "code": "SW7729",
+    "hex": "#827c5a"
+  },
+  {
+    "brand": "SW",
+    "name": "Forestwood",
+    "code": "SW7730",
+    "hex": "#4d5346"
+  },
+  {
+    "brand": "SW",
+    "name": "San Antonio Sage",
+    "code": "SW7731",
+    "hex": "#a69474"
+  },
+  {
+    "brand": "SW",
+    "name": "Lemongrass",
+    "code": "SW7732",
+    "hex": "#c8bd98"
+  },
+  {
+    "brand": "SW",
+    "name": "Bamboo Shoot",
+    "code": "SW7733",
+    "hex": "#b3a479"
+  },
+  {
+    "brand": "SW",
+    "name": "Olive Grove",
+    "code": "SW7734",
+    "hex": "#857c5d"
+  },
+  {
+    "brand": "SW",
+    "name": "Palm Leaf",
+    "code": "SW7735",
+    "hex": "#635936"
+  },
+  {
+    "brand": "SW",
+    "name": "Garden Sage",
+    "code": "SW7736",
+    "hex": "#b1a584"
+  },
+  {
+    "brand": "SW",
+    "name": "Meadow Trail",
+    "code": "SW7737",
+    "hex": "#8d8168"
+  },
+  {
+    "brand": "SW",
+    "name": "Cargo Pants",
+    "code": "SW7738",
+    "hex": "#cdc4ae"
+  },
+  {
+    "brand": "SW",
+    "name": "Herbal Wash",
+    "code": "SW7739",
+    "hex": "#a49b82"
+  },
+  {
+    "brand": "SW",
+    "name": "Messenger Bag",
+    "code": "SW7740",
+    "hex": "#7d745e"
+  },
+  {
+    "brand": "SW",
+    "name": "Willow Tree",
+    "code": "SW7741",
+    "hex": "#aaad9c"
+  },
+  {
+    "brand": "SW",
+    "name": "Agate Green",
+    "code": "SW7742",
+    "hex": "#8ea486"
+  },
+  {
+    "brand": "SW",
+    "name": "Mountain Road",
+    "code": "SW7743",
+    "hex": "#868578"
+  },
+  {
+    "brand": "SW",
+    "name": "Zeus",
+    "code": "SW7744",
+    "hex": "#99907e"
+  },
+  {
+    "brand": "SW",
+    "name": "Muddled Basil",
+    "code": "SW7745",
+    "hex": "#5a5243"
+  },
+  {
+    "brand": "SW",
+    "name": "Rushing River",
+    "code": "SW7746",
+    "hex": "#a19c8f"
+  },
+  {
+    "brand": "SW",
+    "name": "Recycled Glass",
+    "code": "SW7747",
+    "hex": "#bdc0a0"
+  },
+  {
+    "brand": "SW",
+    "name": "Green Earth",
+    "code": "SW7748",
+    "hex": "#9a9883"
+  },
+  {
+    "brand": "SW",
+    "name": "Laurel Woods",
+    "code": "SW7749",
+    "hex": "#44493d"
+  },
+  {
+    "brand": "SW",
+    "name": "Olympic Range",
+    "code": "SW7750",
+    "hex": "#424c44"
+  },
+  {
+    "brand": "SW",
+    "name": "High Reflective White",
+    "code": "SW7757",
+    "hex": "#f7f7f1"
+  },
+  {
+    "brand": "SW",
+    "name": "Shell White",
+    "code": "SW8917",
+    "hex": "#f0ebe0"
+  },
+  {
+    "brand": "SW",
+    "name": "Audrey's Blush",
+    "code": "SW9001",
+    "hex": "#ae8087"
+  },
+  {
+    "brand": "SW",
+    "name": "Carley's Rose",
+    "code": "SW9002",
+    "hex": "#a87376"
+  },
+  {
+    "brand": "SW",
+    "name": "Rita's Rouge",
+    "code": "SW9003",
+    "hex": "#ba7176"
+  },
+  {
+    "brand": "SW",
+    "name": "Coral Rose",
+    "code": "SW9004",
+    "hex": "#c37f7a"
+  },
+  {
+    "brand": "SW",
+    "name": "Coral Clay",
+    "code": "SW9005",
+    "hex": "#bf796e"
+  },
+  {
+    "brand": "SW",
+    "name": "Rojo Dust",
+    "code": "SW9006",
+    "hex": "#b57466"
+  },
+  {
+    "brand": "SW",
+    "name": "Melón Meloso",
+    "code": "SW9007",
+    "hex": "#f2b88c"
+  },
+  {
+    "brand": "SW",
+    "name": "Bellini Fizz",
+    "code": "SW9008",
+    "hex": "#f5c78e"
+  },
+  {
+    "brand": "SW",
+    "name": "Subdued Sienna",
+    "code": "SW9009",
+    "hex": "#cc896c"
+  },
+  {
+    "brand": "SW",
+    "name": "Windswept Canyon",
+    "code": "SW9010",
+    "hex": "#dba480"
+  },
+  {
+    "brand": "SW",
+    "name": "Sun Bleached Ochre",
+    "code": "SW9011",
+    "hex": "#e3ab7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Polvo de Oro",
+    "code": "SW9012",
+    "hex": "#e8b87f"
+  },
+  {
+    "brand": "SW",
+    "name": "Olden Amber",
+    "code": "SW9013",
+    "hex": "#eeb76b"
+  },
+  {
+    "brand": "SW",
+    "name": "Pollen Powder",
+    "code": "SW9014",
+    "hex": "#fbd187"
+  },
+  {
+    "brand": "SW",
+    "name": "They call it Mellow",
+    "code": "SW9015",
+    "hex": "#fbe4b3"
+  },
+  {
+    "brand": "SW",
+    "name": "La Luna Amarilla",
+    "code": "SW9016",
+    "hex": "#fddfa0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sunny Veranda",
+    "code": "SW9017",
+    "hex": "#fedf94"
+  },
+  {
+    "brand": "SW",
+    "name": "Honey Bees",
+    "code": "SW9018",
+    "hex": "#fbd682"
+  },
+  {
+    "brand": "SW",
+    "name": "Golden Plumeria",
+    "code": "SW9019",
+    "hex": "#fbd073"
+  },
+  {
+    "brand": "SW",
+    "name": "Rayo de Sol",
+    "code": "SW9020",
+    "hex": "#f4c454"
+  },
+  {
+    "brand": "SW",
+    "name": "Naples Yellow",
+    "code": "SW9021",
+    "hex": "#f6d58f"
+  },
+  {
+    "brand": "SW",
+    "name": "Yellow Bird",
+    "code": "SW9022",
+    "hex": "#f1cd7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Dakota Wheat",
+    "code": "SW9023",
+    "hex": "#e1bd8e"
+  },
+  {
+    "brand": "SW",
+    "name": "Vintage Gold",
+    "code": "SW9024",
+    "hex": "#cba576"
+  },
+  {
+    "brand": "SW",
+    "name": "Coriander Powder",
+    "code": "SW9025",
+    "hex": "#ba9c75"
+  },
+  {
+    "brand": "SW",
+    "name": "Tarnished Trumpet",
+    "code": "SW9026",
+    "hex": "#d5b176"
+  },
+  {
+    "brand": "SW",
+    "name": "Pale Moss",
+    "code": "SW9027",
+    "hex": "#dcc797"
+  },
+  {
+    "brand": "SW",
+    "name": "Dusted Olive",
+    "code": "SW9028",
+    "hex": "#bea775"
+  },
+  {
+    "brand": "SW",
+    "name": "Cool Avocado",
+    "code": "SW9029",
+    "hex": "#c4b47d"
+  },
+  {
+    "brand": "SW",
+    "name": "Limón Fresco",
+    "code": "SW9030",
+    "hex": "#cebc55"
+  },
+  {
+    "brand": "SW",
+    "name": "Primavera",
+    "code": "SW9031",
+    "hex": "#d2d083"
+  },
+  {
+    "brand": "SW",
+    "name": "Stay in Lime",
+    "code": "SW9032",
+    "hex": "#9fac5c"
+  },
+  {
+    "brand": "SW",
+    "name": "Oh Pistachio",
+    "code": "SW9033",
+    "hex": "#abca99"
+  },
+  {
+    "brand": "SW",
+    "name": "Seawashed Glass",
+    "code": "SW9034",
+    "hex": "#a9c095"
+  },
+  {
+    "brand": "SW",
+    "name": "Frosted Emerald",
+    "code": "SW9035",
+    "hex": "#78b185"
+  },
+  {
+    "brand": "SW",
+    "name": "Retro Mint",
+    "code": "SW9036",
+    "hex": "#9fcdb1"
+  },
+  {
+    "brand": "SW",
+    "name": "Baby Bok Choy",
+    "code": "SW9037",
+    "hex": "#bbb98a"
+  },
+  {
+    "brand": "SW",
+    "name": "Cucuzza Verde",
+    "code": "SW9038",
+    "hex": "#9ba373"
+  },
+  {
+    "brand": "SW",
+    "name": "Broccoflower",
+    "code": "SW9039",
+    "hex": "#8fa277"
+  },
+  {
+    "brand": "SW",
+    "name": "Reseda Green",
+    "code": "SW9040",
+    "hex": "#75946b"
+  },
+  {
+    "brand": "SW",
+    "name": "Parisian Patina",
+    "code": "SW9041",
+    "hex": "#7d9b89"
+  },
+  {
+    "brand": "SW",
+    "name": "Verdigreen",
+    "code": "SW9042",
+    "hex": "#81a595"
+  },
+  {
+    "brand": "SW",
+    "name": "Aquastone",
+    "code": "SW9043",
+    "hex": "#89c6b7"
+  },
+  {
+    "brand": "SW",
+    "name": "Little Blue Box",
+    "code": "SW9044",
+    "hex": "#8ac5ba"
+  },
+  {
+    "brand": "SW",
+    "name": "Bora Bora Shore",
+    "code": "SW9045",
+    "hex": "#92d0d0"
+  },
+  {
+    "brand": "SW",
+    "name": "Gentle Aquamarine",
+    "code": "SW9046",
+    "hex": "#97cbd2"
+  },
+  {
+    "brand": "SW",
+    "name": "After the Rain",
+    "code": "SW9047",
+    "hex": "#8bc4d1"
+  },
+  {
+    "brand": "SW",
+    "name": "Surfin'",
+    "code": "SW9048",
+    "hex": "#73c0d2"
+  },
+  {
+    "brand": "SW",
+    "name": "Sky Fall",
+    "code": "SW9049",
+    "hex": "#89c6df"
+  },
+  {
+    "brand": "SW",
+    "name": "Vintage Vessel",
+    "code": "SW9050",
+    "hex": "#94b2a6"
+  },
+  {
+    "brand": "SW",
+    "name": "Aquaverde",
+    "code": "SW9051",
+    "hex": "#a3c0bd"
+  },
+  {
+    "brand": "SW",
+    "name": "Blithe Blue",
+    "code": "SW9052",
+    "hex": "#90bdbd"
+  },
+  {
+    "brand": "SW",
+    "name": "Agua Fría",
+    "code": "SW9053",
+    "hex": "#9fc5cc"
+  },
+  {
+    "brand": "SW",
+    "name": "Little Boy Blu",
+    "code": "SW9054",
+    "hex": "#c7d8db"
+  },
+  {
+    "brand": "SW",
+    "name": "Billowy Breeze",
+    "code": "SW9055",
+    "hex": "#afc7cd"
+  },
+  {
+    "brand": "SW",
+    "name": "French Moire",
+    "code": "SW9056",
+    "hex": "#9fbbc3"
+  },
+  {
+    "brand": "SW",
+    "name": "Aquitaine",
+    "code": "SW9057",
+    "hex": "#88abb4"
+  },
+  {
+    "brand": "SW",
+    "name": "Secret Cove",
+    "code": "SW9058",
+    "hex": "#68909d"
+  },
+  {
+    "brand": "SW",
+    "name": "Silken Peacock",
+    "code": "SW9059",
+    "hex": "#427584"
+  },
+  {
+    "brand": "SW",
+    "name": "Connor's Lakefront",
+    "code": "SW9060",
+    "hex": "#175a6c"
+  },
+  {
+    "brand": "SW",
+    "name": "Rest Assured",
+    "code": "SW9061",
+    "hex": "#9bbfc9"
+  },
+  {
+    "brand": "SW",
+    "name": "Bluebird Feather",
+    "code": "SW9062",
+    "hex": "#6f9db3"
+  },
+  {
+    "brand": "SW",
+    "name": "Porch Ceiling",
+    "code": "SW9063",
+    "hex": "#9bc8de"
+  },
+  {
+    "brand": "SW",
+    "name": "Bluesy Note",
+    "code": "SW9064",
+    "hex": "#7c9ab5"
+  },
+  {
+    "brand": "SW",
+    "name": "Perfect Periwinkle",
+    "code": "SW9065",
+    "hex": "#6487b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Agapanthus",
+    "code": "SW9066",
+    "hex": "#bbc5de"
+  },
+  {
+    "brand": "SW",
+    "name": "Forever Lilac",
+    "code": "SW9067",
+    "hex": "#afa5c7"
+  },
+  {
+    "brand": "SW",
+    "name": "Berry Frappé",
+    "code": "SW9068",
+    "hex": "#b3a1c6"
+  },
+  {
+    "brand": "SW",
+    "name": "Veri Berri",
+    "code": "SW9069",
+    "hex": "#937496"
+  },
+  {
+    "brand": "SW",
+    "name": "Baby Blue Eyes",
+    "code": "SW9070",
+    "hex": "#83a2b4"
+  },
+  {
+    "brand": "SW",
+    "name": "Dyer's Woad",
+    "code": "SW9071",
+    "hex": "#7b99b0"
+  },
+  {
+    "brand": "SW",
+    "name": "Dried Lavender",
+    "code": "SW9072",
+    "hex": "#8595aa"
+  },
+  {
+    "brand": "SW",
+    "name": "Dusty Heather",
+    "code": "SW9073",
+    "hex": "#8990a3"
+  },
+  {
+    "brand": "SW",
+    "name": "Gentle Grape",
+    "code": "SW9074",
+    "hex": "#908a9b"
+  },
+  {
+    "brand": "SW",
+    "name": "Berry Cream",
+    "code": "SW9075",
+    "hex": "#9a8ca2"
+  },
+  {
+    "brand": "SW",
+    "name": "Ruby Violet",
+    "code": "SW9076",
+    "hex": "#9b7e8b"
+  },
+  {
+    "brand": "SW",
+    "name": "Rosaline Pearl",
+    "code": "SW9077",
+    "hex": "#a38887"
+  },
+  {
+    "brand": "SW",
+    "name": "Cocoa Berry",
+    "code": "SW9078",
+    "hex": "#a08882"
+  },
+  {
+    "brand": "SW",
+    "name": "Velvety Chestnut",
+    "code": "SW9079",
+    "hex": "#a2877d"
+  },
+  {
+    "brand": "SW",
+    "name": "Hushed Auburn",
+    "code": "SW9080",
+    "hex": "#a8857a"
+  },
+  {
+    "brand": "SW",
+    "name": "Redend Point",
+    "code": "SW9081",
+    "hex": "#ae8e7e"
+  },
+  {
+    "brand": "SW",
+    "name": "Chocolate Powder",
+    "code": "SW9082",
+    "hex": "#a58c7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Dusted Truffle",
+    "code": "SW9083",
+    "hex": "#9c8373"
+  },
+  {
+    "brand": "SW",
+    "name": "Cocoa Whip",
+    "code": "SW9084",
+    "hex": "#a08e7e"
+  },
+  {
+    "brand": "SW",
+    "name": "Touch of Sand",
+    "code": "SW9085",
+    "hex": "#d5c7ba"
+  },
+  {
+    "brand": "SW",
+    "name": "Cool Beige",
+    "code": "SW9086",
+    "hex": "#c6b5a7"
+  },
+  {
+    "brand": "SW",
+    "name": "Smoky Beige",
+    "code": "SW9087",
+    "hex": "#b9a796"
+  },
+  {
+    "brand": "SW",
+    "name": "Utaupeia",
+    "code": "SW9088",
+    "hex": "#a58f7b"
+  },
+  {
+    "brand": "SW",
+    "name": "Llama Wool",
+    "code": "SW9089",
+    "hex": "#917864"
+  },
+  {
+    "brand": "SW",
+    "name": "Caraïbe",
+    "code": "SW9090",
+    "hex": "#785f4c"
+  },
+  {
+    "brand": "SW",
+    "name": "Half‐Caff",
+    "code": "SW9091",
+    "hex": "#604c3d"
+  },
+  {
+    "brand": "SW",
+    "name": "Iced Mocha",
+    "code": "SW9092",
+    "hex": "#a3846c"
+  },
+  {
+    "brand": "SW",
+    "name": "Nearly Brown",
+    "code": "SW9093",
+    "hex": "#a88e76"
+  },
+  {
+    "brand": "SW",
+    "name": "Playa Arenosa",
+    "code": "SW9094",
+    "hex": "#dcc7b3"
+  },
+  {
+    "brand": "SW",
+    "name": "Ginger Root",
+    "code": "SW9095",
+    "hex": "#d2b79e"
+  },
+  {
+    "brand": "SW",
+    "name": "Beige Intenso",
+    "code": "SW9096",
+    "hex": "#c5a88d"
+  },
+  {
+    "brand": "SW",
+    "name": "Soft Fawn",
+    "code": "SW9097",
+    "hex": "#b59778"
+  },
+  {
+    "brand": "SW",
+    "name": "Baked Cookie",
+    "code": "SW9098",
+    "hex": "#89674a"
+  },
+  {
+    "brand": "SW",
+    "name": "Saddle Up",
+    "code": "SW9099",
+    "hex": "#725237"
+  },
+  {
+    "brand": "SW",
+    "name": "Umber Rust",
+    "code": "SW9100",
+    "hex": "#765138"
+  },
+  {
+    "brand": "SW",
+    "name": "Tres Naturale",
+    "code": "SW9101",
+    "hex": "#dcc7ad"
+  },
+  {
+    "brand": "SW",
+    "name": "Quinoa",
+    "code": "SW9102",
+    "hex": "#cfb597"
+  },
+  {
+    "brand": "SW",
+    "name": "Farro",
+    "code": "SW9103",
+    "hex": "#c1a485"
+  },
+  {
+    "brand": "SW",
+    "name": "Woven Wicker",
+    "code": "SW9104",
+    "hex": "#b99974"
+  },
+  {
+    "brand": "SW",
+    "name": "Almond Roca",
+    "code": "SW9105",
+    "hex": "#a78361"
+  },
+  {
+    "brand": "SW",
+    "name": "El Caramelo",
+    "code": "SW9106",
+    "hex": "#946e48"
+  },
+  {
+    "brand": "SW",
+    "name": "Über Umber",
+    "code": "SW9107",
+    "hex": "#7b5838"
+  },
+  {
+    "brand": "SW",
+    "name": "Double Latte",
+    "code": "SW9108",
+    "hex": "#a78c71"
+  },
+  {
+    "brand": "SW",
+    "name": "Natural Linen",
+    "code": "SW9109",
+    "hex": "#dfd3c3"
+  },
+  {
+    "brand": "SW",
+    "name": "Malabar",
+    "code": "SW9110",
+    "hex": "#cfbea9"
+  },
+  {
+    "brand": "SW",
+    "name": "Antler Velvet",
+    "code": "SW9111",
+    "hex": "#c0ad96"
+  },
+  {
+    "brand": "SW",
+    "name": "Song Thrush",
+    "code": "SW9112",
+    "hex": "#af987f"
+  },
+  {
+    "brand": "SW",
+    "name": "Mudslide",
+    "code": "SW9113",
+    "hex": "#a08568"
+  },
+  {
+    "brand": "SW",
+    "name": "Fallen Leaves",
+    "code": "SW9114",
+    "hex": "#8f7659"
+  },
+  {
+    "brand": "SW",
+    "name": "Cowboy Boots",
+    "code": "SW9115",
+    "hex": "#695239"
+  },
+  {
+    "brand": "SW",
+    "name": "Serengeti Grass",
+    "code": "SW9116",
+    "hex": "#ab9579"
+  },
+  {
+    "brand": "SW",
+    "name": "Urban Jungle",
+    "code": "SW9117",
+    "hex": "#a4947e"
+  },
+  {
+    "brand": "SW",
+    "name": "Tarnished Treasure",
+    "code": "SW9118",
+    "hex": "#b9a47e"
+  },
+  {
+    "brand": "SW",
+    "name": "Dirty Martini",
+    "code": "SW9119",
+    "hex": "#ddd0b6"
+  },
+  {
+    "brand": "SW",
+    "name": "Tumblin' Tumbleweed",
+    "code": "SW9120",
+    "hex": "#cdbb9c"
+  },
+  {
+    "brand": "SW",
+    "name": "Sawgrass Basket",
+    "code": "SW9121",
+    "hex": "#c3b090"
+  },
+  {
+    "brand": "SW",
+    "name": "Dried Edamame",
+    "code": "SW9122",
+    "hex": "#b19f80"
+  },
+  {
+    "brand": "SW",
+    "name": "Barro Verde",
+    "code": "SW9123",
+    "hex": "#9f8e71"
+  },
+  {
+    "brand": "SW",
+    "name": "Verde Marrón",
+    "code": "SW9124",
+    "hex": "#877459"
+  },
+  {
+    "brand": "SW",
+    "name": "Oliva Oscuro",
+    "code": "SW9125",
+    "hex": "#665439"
+  },
+  {
+    "brand": "SW",
+    "name": "Honed Soapstone",
+    "code": "SW9126",
+    "hex": "#9d9887"
+  },
+  {
+    "brand": "SW",
+    "name": "At Ease Soldier",
+    "code": "SW9127",
+    "hex": "#9e9985"
+  },
+  {
+    "brand": "SW",
+    "name": "Green Onyx",
+    "code": "SW9128",
+    "hex": "#989a82"
+  },
+  {
+    "brand": "SW",
+    "name": "Jade Dragon",
+    "code": "SW9129",
+    "hex": "#909886"
+  },
+  {
+    "brand": "SW",
+    "name": "Evergreen Fog",
+    "code": "SW9130",
+    "hex": "#95978a"
+  },
+  {
+    "brand": "SW",
+    "name": "Cornwall Slate",
+    "code": "SW9131",
+    "hex": "#949488"
+  },
+  {
+    "brand": "SW",
+    "name": "Acacia Haze",
+    "code": "SW9132",
+    "hex": "#969c92"
+  },
+  {
+    "brand": "SW",
+    "name": "Jasper Stone",
+    "code": "SW9133",
+    "hex": "#8d9e97"
+  },
+  {
+    "brand": "SW",
+    "name": "Delft",
+    "code": "SW9134",
+    "hex": "#8b9fa0"
+  },
+  {
+    "brand": "SW",
+    "name": "Whirlpool",
+    "code": "SW9135",
+    "hex": "#80969d"
+  },
+  {
+    "brand": "SW",
+    "name": "Lullaby",
+    "code": "SW9136",
+    "hex": "#cbd4d4"
+  },
+  {
+    "brand": "SW",
+    "name": "Niebla Azul",
+    "code": "SW9137",
+    "hex": "#b6c3c4"
+  },
+  {
+    "brand": "SW",
+    "name": "Stardew",
+    "code": "SW9138",
+    "hex": "#a6b2b5"
+  },
+  {
+    "brand": "SW",
+    "name": "Debonair",
+    "code": "SW9139",
+    "hex": "#90a0a6"
+  },
+  {
+    "brand": "SW",
+    "name": "Blustery Sky",
+    "code": "SW9140",
+    "hex": "#6f848c"
+  },
+  {
+    "brand": "SW",
+    "name": "Waterloo",
+    "code": "SW9141",
+    "hex": "#536872"
+  },
+  {
+    "brand": "SW",
+    "name": "Moscow Midnight",
+    "code": "SW9142",
+    "hex": "#204652"
+  },
+  {
+    "brand": "SW",
+    "name": "Cadet",
+    "code": "SW9143",
+    "hex": "#91999c"
+  },
+  {
+    "brand": "SW",
+    "name": "Moonmist",
+    "code": "SW9144",
+    "hex": "#c9d9e0"
+  },
+  {
+    "brand": "SW",
+    "name": "Sleepy Hollow",
+    "code": "SW9145",
+    "hex": "#b7c9d1"
+  },
+  {
+    "brand": "SW",
+    "name": "Faded Flaxflower",
+    "code": "SW9146",
+    "hex": "#9eb4c0"
+  },
+  {
+    "brand": "SW",
+    "name": "Favorite Jeans",
+    "code": "SW9147",
+    "hex": "#8aa3b1"
+  },
+  {
+    "brand": "SW",
+    "name": "Smoky Azurite",
+    "code": "SW9148",
+    "hex": "#708d9e"
+  },
+  {
+    "brand": "SW",
+    "name": "Inky Blue",
+    "code": "SW9149",
+    "hex": "#4e7287"
+  },
+  {
+    "brand": "SW",
+    "name": "Endless Sea",
+    "code": "SW9150",
+    "hex": "#32586e"
+  },
+  {
+    "brand": "SW",
+    "name": "Daphne",
+    "code": "SW9151",
+    "hex": "#899caa"
+  },
+  {
+    "brand": "SW",
+    "name": "Let it Rain",
+    "code": "SW9152",
+    "hex": "#979fa5"
+  },
+  {
+    "brand": "SW",
+    "name": "Moonlit Orchid",
+    "code": "SW9153",
+    "hex": "#949194"
+  },
+  {
+    "brand": "SW",
+    "name": "Perle Noir",
+    "code": "SW9154",
+    "hex": "#4f4d51"
+  },
+  {
+    "brand": "SW",
+    "name": "Slate Violet",
+    "code": "SW9155",
+    "hex": "#989192"
+  },
+  {
+    "brand": "SW",
+    "name": "Gris Morado",
+    "code": "SW9156",
+    "hex": "#8f8a91"
+  },
+  {
+    "brand": "SW",
+    "name": "Autumn Orchid",
+    "code": "SW9157",
+    "hex": "#9d9093"
+  },
+  {
+    "brand": "SW",
+    "name": "Coquina",
+    "code": "SW9158",
+    "hex": "#9d8d8e"
+  },
+  {
+    "brand": "SW",
+    "name": "Auger Shell",
+    "code": "SW9159",
+    "hex": "#9f9291"
+  },
+  {
+    "brand": "SW",
+    "name": "Armadillo",
+    "code": "SW9160",
+    "hex": "#9e9089"
+  },
+  {
+    "brand": "SW",
+    "name": "Dustblu",
+    "code": "SW9161",
+    "hex": "#959ba0"
+  },
+  {
+    "brand": "SW",
+    "name": "African Gray",
+    "code": "SW9162",
+    "hex": "#939899"
+  },
+  {
+    "brand": "SW",
+    "name": "Tin Lizzie",
+    "code": "SW9163",
+    "hex": "#939591"
+  },
+  {
+    "brand": "SW",
+    "name": "Illusive Green",
+    "code": "SW9164",
+    "hex": "#92948d"
+  },
+  {
+    "brand": "SW",
+    "name": "Gossamer Veil",
+    "code": "SW9165",
+    "hex": "#d3cec4"
+  },
+  {
+    "brand": "SW",
+    "name": "Drift of Mist",
+    "code": "SW9166",
+    "hex": "#dcd8d0"
+  },
+  {
+    "brand": "SW",
+    "name": "Polished Concrete",
+    "code": "SW9167",
+    "hex": "#9e9793"
+  },
+  {
+    "brand": "SW",
+    "name": "Elephant Ear",
+    "code": "SW9168",
+    "hex": "#988f85"
+  },
+  {
+    "brand": "SW",
+    "name": "Chatura Gray",
+    "code": "SW9169",
+    "hex": "#a09287"
+  },
+  {
+    "brand": "SW",
+    "name": "Acier",
+    "code": "SW9170",
+    "hex": "#9e9991"
+  },
+  {
+    "brand": "SW",
+    "name": "Felted Wool",
+    "code": "SW9171",
+    "hex": "#979083"
+  },
+  {
+    "brand": "SW",
+    "name": "Studio Clay",
+    "code": "SW9172",
+    "hex": "#958d7f"
+  },
+  {
+    "brand": "SW",
+    "name": "Shiitake",
+    "code": "SW9173",
+    "hex": "#c8bcab"
+  },
+  {
+    "brand": "SW",
+    "name": "Moth Wing",
+    "code": "SW9174",
+    "hex": "#a0907f"
+  },
+  {
+    "brand": "SW",
+    "name": "Deep Forest Brown",
+    "code": "SW9175",
+    "hex": "#393437"
+  },
+  {
+    "brand": "SW",
+    "name": "Dress Blues",
+    "code": "SW9176",
+    "hex": "#2b4360"
+  },
+  {
+    "brand": "SW",
+    "name": "Salty Dog",
+    "code": "SW9177",
+    "hex": "#234058"
+  },
+  {
+    "brand": "SW",
+    "name": "In the Navy",
+    "code": "SW9178",
+    "hex": "#283849"
+  },
+  {
+    "brand": "SW",
+    "name": "Anchors Aweigh",
+    "code": "SW9179",
+    "hex": "#2b3441"
+  },
+  {
+    "brand": "SW",
+    "name": "Aged White",
+    "code": "SW9180",
+    "hex": "#e8decd"
+  },
+  {
+    "brand": "SW",
+    "name": "Rojo Marrón",
+    "code": "SW9182",
+    "hex": "#4b3029"
+  },
+  {
+    "brand": "SW",
+    "name": "Dark Clove",
+    "code": "SW9183",
+    "hex": "#4c3d31"
+  },
+  {
+    "brand": "SW",
+    "name": "Foxhall Green",
+    "code": "SW9184",
+    "hex": "#454b40"
+  },
+  {
+    "brand": "SW",
+    "name": "Marea Baja",
+    "code": "SW9185",
+    "hex": "#2e5464"
+  },
+  {
+    "brand": "SW",
+    "name": "Caramelized",
+    "code": "SW9186",
+    "hex": "#c29871"
+  }
+]

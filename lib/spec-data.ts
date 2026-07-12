@@ -58,11 +58,25 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const rfs  = roomIds.length ? await sql<RoomFinishRow[]>`SELECT * FROM room_finishes    WHERE room_id IN ${sql(roomIds)}` : [] as RoomFinishRow[];
   const accs = roomIds.length ? await sql<AccRow[]>        `SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` : [] as AccRow[];
 
-  const carcassIdx=new Map(catalogs.carcassMaterials().map(c=>[c.id,c.name]));
-  const drawerBoxIdx=new Map(catalogs.drawerBoxes().map(d=>[d.id,d.name]));
-  const edgebandIdx=new Map(catalogs.edgebands().map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));
-  const doorStyleIdx=new Map(catalogs.doorStyles().map(d=>[d.id,d.name]));
-  const accIdx=new Map(catalogs.revaAccessories().map(a=>[a.id,{name:a.name,brand:a.brand}]));
+  // Fetch DB-backed catalogs concurrently; file-based ones read synchronously below.
+  const [
+    carcassMaterialsArr, drawerBoxesArr, edgebandsArr, doorStylesArr,
+    accArr, paintColorsArr, stainColorsArr,
+  ] = await Promise.all([
+    catalogs.carcassMaterials(),
+    catalogs.drawerBoxes(),
+    catalogs.edgebands(),
+    catalogs.doorStyles(),
+    catalogs.revaAccessories(),
+    catalogs.paintColors(),
+    catalogs.stainColors(),
+  ]);
+
+  const carcassIdx=new Map(carcassMaterialsArr.map(c=>[c.id,c.name]));
+  const drawerBoxIdx=new Map(drawerBoxesArr.map(d=>[d.id,d.name]));
+  const edgebandIdx=new Map(edgebandsArr.map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));
+  const doorStyleIdx=new Map(doorStylesArr.map(d=>[d.id,d.name]));
+  const accIdx=new Map(accArr.map(a=>[a.id,{name:a.name,brand:a.brand}]));
   const moldingProfIdx=new Map(catalogs.moldingProfiles().map(p=>[p.id,p.name]));
   const moldingMatIdx=new Map(catalogs.moldingMaterials().map(m=>[m.id,m.name]));
   const sheenIdx=new Map(catalogs.sheens().map(s=>[s.id,s.name]));
@@ -73,8 +87,8 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const cabdoorEdgeIdx=new Map(catalogs.cabDoorEdgeDetails().map(e=>[e.id,e.name]));
   const cabdoorInsideIdx=new Map(catalogs.cabDoorInsideProfiles().map(i=>[i.id,i.id]));
   const cabdoorPanelIdx=new Map(catalogs.cabDoorPanels().map(p=>[p.id,p.id]));
-  const paintIdx=new Map(catalogs.paintColors().map(p=>[p.id,p.name]));
-  const stainIdx=new Map(catalogs.stainColors().map(s=>[s.id,s.name]));
+  const paintIdx=new Map(paintColorsArr.map(p=>[p.id,p.name]));
+  const stainIdx=new Map(stainColorsArr.map(s=>[s.id,s.name]));
   const ctopStyleIdx=new Map(catalogs.countertopStyles().map(s=>[s.id,s.name]));
   const ctopEdgeIdx=new Map(catalogs.countertopEdges().map(e=>[e.id,e.name]));
   const ctopMatIdx=new Map(catalogs.countertopMaterials().map(m=>[m.id,m.name]));

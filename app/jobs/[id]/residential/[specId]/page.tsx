@@ -244,27 +244,43 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
+  // ── Batch 0: catalog data (DB-backed catalogs run concurrently) ──────────────
+  const [
+    paintColors, stainColors, melamineColors, doorStyles, hardwarePulls,
+    revaAccessories, carcassMaterials, drawerBoxes, edgebands, builderProfilesCat,
+  ] = await Promise.all([
+    catalogs.paintColors(),
+    catalogs.stainColors(),
+    catalogs.melamineColors(),
+    catalogs.doorStyles(),
+    catalogs.hardwarePulls(),
+    catalogs.revaAccessories(),
+    catalogs.carcassMaterials(),
+    catalogs.drawerBoxes(),
+    catalogs.edgebands(),
+    catalogs.builderProfiles(),
+  ]);
+
   const catalogData = {
-    paintColors:      catalogs.paintColors(),
-    stainColors:      catalogs.stainColors(),
-    melamineColors:   catalogs.melamineColors(),
-    doorStyles:       catalogs.doorStyles(),
-    hardwarePulls:    catalogs.hardwarePulls(),
-    revaAccessories:  catalogs.revaAccessories(),
+    paintColors,
+    stainColors,
+    melamineColors,
+    doorStyles,
+    hardwarePulls,
+    revaAccessories,
     cabinetFamilies:  catalogs.cabinetFamilies(),
-    carcassMaterials: catalogs.carcassMaterials(),
-    drawerBoxes:      catalogs.drawerBoxes(),
-    edgebands:        catalogs.edgebands(),
+    carcassMaterials,
+    drawerBoxes,
+    edgebands,
     rooms:            catalogs.rooms(),
     moldingTypes:     catalogs.moldingTypes(),
     moldingProfiles:  catalogs.moldingProfiles(),
     moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
-    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
-    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
-    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
-    cabDoorPanels:    catalogs.cabDoorPanels(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles() as unknown as { id: string; name: string }[],
+    cabDoorPanels:    catalogs.cabDoorPanels() as unknown as { id: string; name: string }[],
   };
+  void builderProfilesCat; // available but not forwarded to client
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">

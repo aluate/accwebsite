@@ -21,8 +21,7 @@ type Spec = { id: string; name: string; status: string; created_at: string; upda
 //
 // Otherwise we match on builder_company exactly. If the company doesn't match
 // any known profile, no auto-populate happens (safer than guessing wrong).
-function resolveBuilderProfileId(job: Job): string | null {
-  const profiles = catalogs.builderProfiles();
+function resolveBuilderProfileId(job: Job, profiles: import("@/lib/catalogs").BuilderProfile[]): string | null {
   if (!job.builder_company || job.builder_company.trim() === "") {
     return profiles.find((p) => p.is_residential_default)?.id ?? null;
   }
@@ -35,18 +34,21 @@ function resolveBuilderProfileId(job: Job): string | null {
 
 export default async function ResidentialIndexPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [job] = await sql`
-    SELECT id, client_name, mod_residential, builder_name, builder_company
-    FROM jobs WHERE id = ${id} OR job_number = ${id}
-  ` as Job[];
+  const [[job], profiles] = await Promise.all([
+    sql`
+      SELECT id, client_name, mod_residential, builder_name, builder_company
+      FROM jobs WHERE id = ${id} OR job_number = ${id}
+    ` as Promise<Job[]>,
+    catalogs.builderProfiles(),
+  ]);
   if (!job || !job.mod_residential) notFound();
 
   // Always use the canonical internal id for subsequent queries
   const jobId = job.id;
 
-  const builderProfileId = resolveBuilderProfileId(job);
+  const builderProfileId = resolveBuilderProfileId(job, profiles);
   const builderProfile = builderProfileId
-    ? catalogs.builderProfiles().find((p) => p.id === builderProfileId)
+    ? profiles.find((p) => p.id === builderProfileId)
     : null;
 
   const specs = await sql`

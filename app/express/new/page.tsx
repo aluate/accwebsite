@@ -19,9 +19,13 @@ function loadExpressColors(): ExpressColorBook {
 export default async function ExpressNewPage() {
   const builder = await requireBuilder();
 
+  const [doorStyles] = await Promise.all([
+    catalogs.doorStyles(),
+  ]);
+
   const catalogData = {
     expressColors:   loadExpressColors(),
-    doorStyles:      catalogs.doorStyles(),
+    doorStyles,
     cabinetFamilies: catalogs.cabinetFamilies(),
     doorCatalog:     catalogs.doorCatalog(),
   };

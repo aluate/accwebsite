@@ -38,16 +38,28 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return { materials, door_fronts, drawers, edgebands, hardware, countertops };
   })();
 
+  // DB-backed catalogs fetched concurrently
+  const [
+    carcassMaterials, drawerBoxes, edgebands, doorStyles, paintColors, stainColors,
+  ] = await Promise.all([
+    catalogs.carcassMaterials(),
+    catalogs.drawerBoxes(),
+    catalogs.edgebands(),
+    catalogs.doorStyles(),
+    catalogs.paintColors(),
+    catalogs.stainColors(),
+  ]);
+
   const cats = {
-    carcassMaterials:      catalogs.carcassMaterials(),
-    drawerBoxes:           catalogs.drawerBoxes(),
-    edgebands:             catalogs.edgebands(),
-    doorStyles:            catalogs.doorStyles(),
+    carcassMaterials,
+    drawerBoxes,
+    edgebands,
+    doorStyles,
     cabDoorEdgeDetails:    catalogs.cabDoorEdgeDetails(),
     cabDoorInsideProfiles: catalogs.cabDoorInsideProfiles(),
     cabDoorPanels:         catalogs.cabDoorPanels(),
-    paintColors:           catalogs.paintColors(),
-    stainColors:           catalogs.stainColors(),
+    paintColors,
+    stainColors,
     sheens:                catalogs.sheens(),
     drawerSlides:          catalogs.drawerSlides(),
     glazes:                catalogs.glazes(),

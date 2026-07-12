@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const dir = path.join(process.cwd(), "data/catalogs");
     s.cwd = process.cwd();
     s.catalogDirExists = fs.existsSync(dir);
-    s.paintColorsCount = s.catalogDirExists ? catalogs.paintColors().length : 0;
+    s.paintColorsCount = s.catalogDirExists ? (await catalogs.paintColors()).length : 0;
 
     // q1: residential_specs
     const t0 = Date.now();
@@ -92,17 +92,28 @@ export async function GET(req: NextRequest) {
 
     // Catalog loading (all 14 the page uses)
     const tc = Date.now();
+    const [_pc,_sc,_mc,_ds,_hp,_ra,_cm,_db,_eb] = await Promise.all([
+      catalogs.paintColors(),
+      catalogs.stainColors(),
+      catalogs.melamineColors(),
+      catalogs.doorStyles(),
+      catalogs.hardwarePulls(),
+      catalogs.revaAccessories(),
+      catalogs.carcassMaterials(),
+      catalogs.drawerBoxes(),
+      catalogs.edgebands(),
+    ]);
     const _ = {
-      paintColors:      catalogs.paintColors().length,
-      stainColors:      catalogs.stainColors().length,
-      melamineColors:   catalogs.melamineColors().length,
-      doorStyles:       catalogs.doorStyles().length,
-      hardwarePulls:    catalogs.hardwarePulls().length,
-      revaAccessories:  catalogs.revaAccessories().length,
+      paintColors:      _pc.length,
+      stainColors:      _sc.length,
+      melamineColors:   _mc.length,
+      doorStyles:       _ds.length,
+      hardwarePulls:    _hp.length,
+      revaAccessories:  _ra.length,
       cabinetFamilies:  catalogs.cabinetFamilies().length,
-      carcassMaterials: catalogs.carcassMaterials().length,
-      drawerBoxes:      catalogs.drawerBoxes().length,
-      edgebands:        catalogs.edgebands().length,
+      carcassMaterials: _cm.length,
+      drawerBoxes:      _db.length,
+      edgebands:        _eb.length,
       rooms:            catalogs.rooms().length,
       moldingTypes:     catalogs.moldingTypes().length,
       moldingProfiles:  catalogs.moldingProfiles().length,

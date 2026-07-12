@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   const profileId: string | undefined = body.builder_profile_id;
   if (profileId) {
-    const profiles = catalogs.builderProfiles();
+    const profiles = await catalogs.builderProfiles();
     const profile = profiles.find((p) => p.id === profileId);
     if (profile) {
       const fgId = uid();
