@@ -2,6 +2,5 @@ id,name,brand,model,mount,close,length_options_in,unit_cost_15in,unit_cost_18in,
 HDS-000,None,—,—,—,—,—,0,0,0,No slides — push-fit or alternate mechanism
 HDS-BLU-001,Blum Tandem Plus Blumotion,Blum,563H,undermount,soft-close,15;18;21,9.10,12.50,18.00,Standard ACC base drawer — costs from PPAK 2026 per pair. Verify current price.
 HDS-BLU-002,Blum Movento Tip-On Blumotion,Blum,766H,undermount,soft-close+touch,15;18;21,11.00,14.50,20.00,Push-to-open + soft-close — estimate. Verify.
-HDS-SAL-001,Salice Futura,Salice,A8B,undermount,soft-close,15;18;21,9.00,12.00,17.00,Salice equivalent — estimate. Verify.
-HDS-HET-001,Hettich Quadro V6 Silent System,Hettich,9080,undermount,soft-close,15;18;21,9.00,12.00,17.00,Hettich equivalent — estimate. Verify.
-HDS-099,Other,—,—,—,—,—,0,0,0,Specify in notes
+HDS-SAL-001,Salice Futura,Salice,A8B,undermount,soft-close,15;18;21,9.00,12.00,,
+HDS-BLU-TANDEM,Blum Tandem Wide Drawer,Blum,560H,undermount,soft-close,21;24;30,45.00,45.00,45.00,"Wide drawer (>=25"") Blum Tandem. ~$45/pair per Karl 2026-07. Update from PPAK when available."

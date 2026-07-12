@@ -13,7 +13,7 @@ export default async function EstimateEditorPage({
   await requireRole("admin");
   const { id } = await params;
 
-  const [estimateRows, roomRows, itemRows, settingsRows, jobsRows] = await Promise.all([
+  const [estimateRows, roomRows, itemRows, settingsRows, jobsRows, fgRows] = await Promise.all([
     sql`
       SELECT e.*, j.client_name, j.site_address
       FROM estimates e
@@ -30,6 +30,7 @@ export default async function EstimateEditorPage({
     `,
     sql`SELECT * FROM estimate_settings WHERE id = 'singleton'`,
     sql`SELECT id, client_name, site_address, job_number FROM jobs ORDER BY seq DESC LIMIT 200`,
+    sql`SELECT * FROM estimate_finish_groups WHERE estimate_id = ${id} ORDER BY sort_order`,
   ]);
 
   if (!estimateRows[0]) notFound();
@@ -43,6 +44,7 @@ export default async function EstimateEditorPage({
       jobs={jobsRows as Parameters<typeof EstimateEditorClient>[0]["jobs"]}
       cabinetTypes={cabinetTypes as Parameters<typeof EstimateEditorClient>[0]["cabinetTypes"]}
       cabinetFeatures={cabinetFeatures as Parameters<typeof EstimateEditorClient>[0]["cabinetFeatures"]}
+      initialFinishGroups={fgRows as Parameters<typeof EstimateEditorClient>[0]["initialFinishGroups"]}
     />
   );
 }

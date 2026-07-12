@@ -3,5 +3,4 @@ CAR-001,Hardrock Maple Melamine,particleboard,maple,prefinished,HARDROCK MAPLE M
 CAR-002,Prefinished Maple Plywood,plywood,maple,prefinished,PF MAPLE PLY,103.00,32,"Premium plywood box for paint/stain jobs. $3.22/SF from PPAK 2026. Drawing label: PF Maple Ply or PREFIN. MAPLE PLYWOOD. Must specify SKU — see CAR-001 incident note. Verify current price.",false
 CAR-003,Prefinished Maple Plywood — Mel Ply Variant,plywood,maple,melamine_coated,MAPLE MEL PLY,103.00,32,Melamine-coated plywood box. Drawing label: Maple Mel Ply (Spivey). Same substrate as CAR-002 but melamine face. Confirm SKU with purchasing. Verify price.,false
 CAR-004,Prefinished Birch Plywood,plywood,birch,prefinished,PF BIRCH PLY,90.00,32,Cheaper plywood alt — use when maple ply unavailable or over budget. Estimate. Verify.,false
-CAR-005,White Particleboard,particleboard,n/a,white_melamine,WHITE PB,48.00,32,Rare — only when customer specifically asks. Estimate. Verify.,false
-CAR-099,Other (specify in notes),other,,,,0,32,Escape hatch — PM must enter material in the per-finish notes field,true
+CAR-005,White Particleboard,particleboard,n/a,white_melamine,WHITE PB,48.00,32,Rare — only when customer specifical

@@ -19,6 +19,7 @@ import laborCatalog       from "@/data/catalogs/cabinet_labor.json";
 import carcassCatalog     from "@/data/catalogs/colors_carcass.json";
 import profilesCatalog    from "@/data/catalogs/construction_profiles.json";
 import cabdoorPresets     from "@/data/catalogs/cabdoor_presets.json";
+import cabdoorPrices     from "@/data/cabdoor_prices.json";
 
 // --- Catalog row shapes -------------------------------------------------------
 
@@ -246,6 +247,16 @@ export function getCabdoorPricePerSqft(presetId?: string | null): number {
   return CABDOOR_PRICE_MAP.get(presetId) ?? 0;
 }
 
+// Catalog door pricing: style 116/Alder for catalog track (Alder = Paint Grade = $12.93)
+const _prices = cabdoorPrices as Record<string, Record<string, number>>;
+export const CATALOG_DOOR_PRICE_PER_SF: number =
+  _prices["116"]?.["Alder"] ?? _prices["113"]?.["Alder"] ?? 12.93;
+
+/** Returns $/SF for a given CabDoor style + species, falling back to catalog default. */
+export function getCabdoorPriceForSpecies(style: number | string, species: string): number {
+  return (_prices[String(style)]?.[species]) ?? CATALOG_DOOR_PRICE_PER_SF;
+}
+
 // --- Catalog-driven hardware unit costs -------------------------------------
 
 const DEFAULT_HINGE_COST: number = (() => {
@@ -262,10 +273,21 @@ const DEFAULT_SLIDE_COST_15 = SLIDE_ROW?.unit_cost_15in ?? 9.10;
 const DEFAULT_SLIDE_COST_18 = SLIDE_ROW?.unit_cost_18in ?? 12.50;
 const DEFAULT_SLIDE_COST_21 = SLIDE_ROW?.unit_cost_21in ?? 18.00;
 
+const TANDEM_SLIDE_COST: number = (() => {
+  const row = (slidesCatalog as unknown as SlideRow[]).find((r) => r.id === "HDS-BLU-TANDEM");
+  return row?.unit_cost_21in ?? 45.00;
+})();
+
 function slideCostForDepth(depth_in: number): number {
   if (depth_in <= 12) return DEFAULT_SLIDE_COST_15;
   if (depth_in <= 18) return DEFAULT_SLIDE_COST_18;
   return DEFAULT_SLIDE_COST_21;
+}
+
+/** Use Tandem slides for wide drawers (>= 25" wide), standard slides for narrower. */
+function slideCostForDims(width_in: number, depth_in: number): number {
+  if (width_in >= 25) return TANDEM_SLIDE_COST;
+  return slideCostForDepth(depth_in);
 }
 
 const DEFAULT_SHELF_PIN_COST: number = (() => {
@@ -359,14 +381,14 @@ export function calcHardwareCounts(
   return h;
 }
 
-export function calcHardwareCost(hw: HardwareCounts, feature_codes: string[], depth_in: number): number {
+export function calcHardwareCost(hw: HardwareCounts, feature_codes: string[], depth_in: number, width_in = 24): number {
   const pullAllowance = feature_codes.find((c) => c.startsWith("PULL_ALLOWANCE_"));
   const pullUnitCost  = pullAllowance
     ? parseNum(pullAllowance.replace("PULL_ALLOWANCE_", ""), DEFAULT_PULL_COST)
     : DEFAULT_PULL_COST;
   return (
     hw.hinges        * DEFAULT_HINGE_COST +
-    hw.drawer_slides * slideCostForDepth(depth_in) +
+    hw.drawer_slides * slideCostForDims(width_in, depth_in) +
     hw.pulls         * pullUnitCost +
     hw.shelf_pins    * DEFAULT_SHELF_PIN_COST
   );
@@ -584,7 +606,7 @@ export function calcRoomCost(
     if (li.is_manual) {
       totalManual += li.manual_cost;
     } else {
-      totalHardware    += calcHardwareCost(li.hardware, fc, li.depth_in);
+      totalHardware    += calcHardwareCost(li.hardware, fc, li.depth_in, item.width_in ?? 24);
       totalMaterial    += li.estimated_material;
       totalShopLabor   += li.estimated_shop_labor_hrs   * settings.shop_rate;
       totalFinishLabor += li.estimated_finish_labor_hrs * settings.finish_rate;
@@ -633,7 +655,7 @@ export function calcEstimateCost(params: {
           tax_amount, target_margin_pct, profile_id, door_preset_id } = params;
 
   const profile        = getConstructionProfile(profile_id);
-  const door_price_sf  = getCabdoorPricePerSqft(door_preset_id);
+  const door_price_sf  = door_preset_id ? getCabdoorPricePerSqft(door_preset_id) : CATALOG_DOOR_PRICE_PER_SF;
   const includeInstall = scope === "supply_install";
 
   const roomCosts = rooms.map((r) =>

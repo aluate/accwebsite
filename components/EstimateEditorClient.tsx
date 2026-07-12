@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { EstimateFinishGroupEditor } from "@/components/EstimateFinishGroupEditor";
+import { EstimateFinishGroupEditor, type EstimateFG } from "@/components/EstimateFinishGroupEditor";
 import { CatalogPickerModal, type CatalogSelection } from "@/components/CatalogPickerModal";
 import {
   calcEstimateCost,
@@ -29,7 +29,7 @@ type Estimate = {
   client_name: string | null;
 };
 
-type DbRoom = { id: string; estimate_id: string; name: string; sort_order: number };
+type DbRoom = { id: string; estimate_id: string; name: string; sort_order: number; crown: number; toekick: number; light_valance: number; fg_id: string | null };
 type DbItem = EstimateLineItem & { room_id: string };
 
 type Job = { id: string; client_name: string; site_address: string | null; job_number: string | null };
@@ -311,6 +311,8 @@ function RoomCard({
   onRenameRoom,
   onDeleteRoom,
   onOpenCatalog,
+  onUpdateRoom,
+  finishGroups,
 }: {
   room: DbRoom;
   items: DbItem[];
@@ -322,6 +324,8 @@ function RoomCard({
   onRenameRoom: (id: string, name: string) => void;
   onDeleteRoom: (id: string) => void;
   onOpenCatalog: () => void;
+  onUpdateRoom: (id: string, patch: Partial<DbRoom>) => void;
+  finishGroups: EstimateFG[];
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -357,12 +361,26 @@ function RoomCard({
           )}
           <span className="text-xs text-white/30">{items.length} item{items.length !== 1 ? "s" : ""}</span>
         </div>
-        <button
+        <div className="flex items-center gap-2">
+          {finishGroups.length > 0 && (
+            <select
+              value={room.fg_id ?? ""}
+              onChange={(e) => onUpdateRoom(room.id, { fg_id: e.target.value || null })}
+              className="bg-[#0d0e0f] border border-white/10 rounded px-2 py-0.5 text-xs text-white/50 focus:outline-none focus:border-[#f08122]/50"
+            >
+              <option value="">No FG</option>
+              {finishGroups.map((fg) => (
+                <option key={fg.id} value={fg.id}>{fg.name}</option>
+              ))}
+            </select>
+          )}
+          <button
           onClick={() => onDeleteRoom(room.id)}
           className="text-white/20 hover:text-red-400 text-xs transition-colors"
         >
           Remove room
         </button>
+        </div>
       </div>
 
       {!collapsed && (
@@ -418,6 +436,38 @@ function RoomCard({
               + Custom line
             </button>
           </div>
+
+          {/* Accessories row */}
+          {(() => {
+            const roomLf = items.reduce((acc, it) => acc + (it.width_in ?? 0), 0) / 12;
+            const sticks = (lf: number) => Math.ceil(lf / 8);
+            const acc_items: { key: "crown" | "toekick" | "light_valance"; label: string }[] = [
+              { key: "crown", label: "Crown" },
+              { key: "toekick", label: "Toekick" },
+              { key: "light_valance", label: "Valance" },
+            ];
+            return (
+              <div className="flex items-center gap-4 px-4 py-2 border-t border-white/5 text-xs text-white/40">
+                <span className="text-white/25 uppercase tracking-wide text-[10px]">Accessories:</span>
+                {acc_items.map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-1.5 cursor-pointer hover:text-white/60 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={!!(room[key] as number)}
+                      onChange={(e) => onUpdateRoom(room.id, { [key]: e.target.checked ? 1 : 0 })}
+                      className="accent-[#f08122]"
+                    />
+                    <span>{label}</span>
+                    {!!(room[key] as number) && (
+                      <span className="text-[#f08122]/70 font-mono">
+                        {roomLf.toFixed(1)} LF &rarr; {sticks(roomLf)} sticks
+                      </span>
+                    )}
+                  </label>
+                ))}
+              </div>
+            );
+          })()}
         </>
       )}
     </div>
@@ -557,6 +607,7 @@ export function EstimateEditorClient({
   jobs,
   cabinetTypes,
   cabinetFeatures,
+  initialFinishGroups = [],
 }: {
   estimate: Estimate;
   rooms: DbRoom[];
@@ -565,6 +616,7 @@ export function EstimateEditorClient({
   jobs: Job[];
   cabinetTypes: CabinetType[];
   cabinetFeatures: CabinetFeature[];
+  initialFinishGroups?: EstimateFG[];
 }) {
   const router = useRouter();
 
@@ -572,6 +624,7 @@ export function EstimateEditorClient({
   const [estimate, setEstimate] = useState(initialEstimate);
   const [rooms, setRooms] = useState(initialRooms);
   const [items, setItems] = useState(initialItems);
+  const [finishGroups, setFinishGroups] = useState<EstimateFG[]>(initialFinishGroups);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [bulkRoomInput, setBulkRoomInput] = useState("");
@@ -641,7 +694,7 @@ export function EstimateEditorClient({
       body: JSON.stringify({ name: name.trim() }),
     });
     const { id } = await res.json();
-    setRooms((prev) => [...prev, { id, estimate_id: estimate.id, name: name.trim(), sort_order: prev.length }]);
+    setRooms((prev) => [...prev, { id, estimate_id: estimate.id, name: name.trim(), sort_order: prev.length, crown: 0, toekick: 0, light_valance: 0, fg_id: null }]);
   }
 
   async function bulkAddRooms() {
@@ -654,7 +707,7 @@ export function EstimateEditorClient({
         body: JSON.stringify({ name }),
       });
       const { id } = await res.json();
-      setRooms((prev) => [...prev, { id, estimate_id: estimate.id, name, sort_order: prev.length }]);
+      setRooms((prev) => [...prev, { id, estimate_id: estimate.id, name, sort_order: prev.length, crown: 0, toekick: 0, light_valance: 0, fg_id: null }]);
     }
     setBulkRoomInput("");
     setShowBulkAdd(false);
@@ -692,6 +745,15 @@ export function EstimateEditorClient({
     setItems((prev) => [...prev, newItem]);
     setDirty(true);
     setCatalogRoomId(null);
+  }
+
+  async function updateRoom(id: string, patch: Partial<DbRoom>) {
+    setRooms((prev) => prev.map((r) => r.id === id ? { ...r, ...patch } : r));
+    await fetch(`/api/estimates/${estimate.id}/rooms/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    });
   }
 
   async function renameRoom(id: string, name: string) {
@@ -772,6 +834,12 @@ export function EstimateEditorClient({
             className="border border-white/15 hover:border-white/30 text-white/50 hover:text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
           >
             View Quote
+          </a>
+          <a
+            href={`/admin/estimating/${estimate.id}/bom`}
+            className="border border-white/15 hover:border-white/30 text-white/50 hover:text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
+          >
+            BOM
           </a>
           <button
             onClick={save}
@@ -855,7 +923,7 @@ export function EstimateEditorClient({
 
         {/* Finish Groups */}
         <div className="mb-5">
-          <EstimateFinishGroupEditor estimateId={estimate.id} />
+          <EstimateFinishGroupEditor estimateId={estimate.id} groups={finishGroups} onChange={setFinishGroups} />
         </div>
 
         <div className="grid grid-cols-[1fr_280px] gap-5">
@@ -874,6 +942,8 @@ export function EstimateEditorClient({
                 onRenameRoom={renameRoom}
                 onDeleteRoom={deleteRoom}
                 onOpenCatalog={() => setCatalogRoomId(room.id)}
+                onUpdateRoom={updateRoom}
+                finishGroups={finishGroups}
               />
             ))}
 

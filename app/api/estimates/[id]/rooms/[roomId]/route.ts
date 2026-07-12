@@ -14,10 +14,18 @@ export async function PUT(
 
   await sql`
     UPDATE estimate_rooms SET
-      name = COALESCE(${body.name ?? null}, name),
-      sort_order = COALESCE(${body.sort_order ?? null}, sort_order)
+      name          = COALESCE(${body.name          ?? null}, name),
+      sort_order    = COALESCE(${body.sort_order    ?? null}, sort_order),
+      crown         = COALESCE(${body.crown         ?? null}::integer, crown),
+      toekick       = COALESCE(${body.toekick       ?? null}::integer, toekick),
+      light_valance = COALESCE(${body.light_valance ?? null}::integer, light_valance)
     WHERE id = ${roomId}
   `;
+
+  // fg_id handled separately so an explicit null clears rather than being swallowed by COALESCE
+  if ('fg_id' in body) {
+    await sql`UPDATE estimate_rooms SET fg_id = ${body.fg_id ?? null} WHERE id = ${roomId}`;
+  }
 
   return NextResponse.json({ ok: true });
 }
