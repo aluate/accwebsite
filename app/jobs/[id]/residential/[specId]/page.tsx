@@ -68,6 +68,23 @@ export default async function SpecEditorPage({
 }) {
   const { id, specId } = await params;
 
+  // ── Catalogs: kick off immediately — no dependency on spec data ─────────
+  // Running these before the first await means they execute in parallel with
+  // all spec-specific batches, cutting total wall-clock time significantly.
+  const catalogsPromise = Promise.all([
+    catalogs.paintColors(),
+    catalogs.stainColors(),
+    catalogs.melamineColors(),
+    catalogs.doorStyles(),
+    catalogs.hardwarePulls(),
+    catalogs.revaAccessories(),
+    catalogs.carcassMaterials(),
+    catalogs.drawerBoxes(),
+    catalogs.edgebands(),
+    catalogs.builderProfiles(),
+    catalogs.species(),
+  ]);
+
   // ── Batch 1: top-level spec + finish groups + rooms (all independent) ──────
   const [[specRow], finish_groups, rooms] = await Promise.all([
     sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as Promise<SpecRow[]>,
@@ -86,11 +103,11 @@ export default async function SpecEditorPage({
     pullsRaw, accsRaw,
     fgPullRowsRaw, roomTrimRowsRaw, specApplianceRows, specAccessoryRows2, specHardwareRows,
   ] = await Promise.all([
-    roomIds.length ? sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as Promise<AccRow[]> : Promise.resolve([] as AccRow[]),
-    roomIds.length ? sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as Promise<CabinetRow[]> : Promise.resolve([] as CabinetRow[]),
-    roomIds.length ? sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as Promise<RoomFinishRow[]> : Promise.resolve([] as RoomFinishRow[]),
-    fgIds.length   ? sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as Promise<MoldingRow[]> : Promise.resolve([] as MoldingRow[]),
-    fgIds.length   ? sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as Promise<MaterialRow[]> : Promise.resolve([] as MaterialRow[]),
+    roomIds.length ? (sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as Promise<AccRow[]>).catch(()=>[] as AccRow[]) : Promise.resolve([] as AccRow[]),
+    roomIds.length ? (sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as Promise<CabinetRow[]>).catch(()=>[] as CabinetRow[]) : Promise.resolve([] as CabinetRow[]),
+    roomIds.length ? (sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as Promise<RoomFinishRow[]>).catch(()=>[] as RoomFinishRow[]) : Promise.resolve([] as RoomFinishRow[]),
+    fgIds.length   ? (sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as Promise<MoldingRow[]>).catch(()=>[] as MoldingRow[]) : Promise.resolve([] as MoldingRow[]),
+    fgIds.length   ? (sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as Promise<MaterialRow[]>).catch(()=>[] as MaterialRow[]) : Promise.resolve([] as MaterialRow[]),
     fgIds.length   ? sql`
       SELECT fge.*, cel.description AS location_description
       FROM finish_group_edgebands fge
@@ -269,23 +286,13 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
-  // ── Batch 0: catalog data (DB-backed catalogs run concurrently) ──────────────
+  // ── Catalogs: await the promise started before Batch 1 ─────────────────
+  // By the time we reach here (after Batch 1-3), most catalog queries have
+  // already completed in the background.
   const [
     paintColors, stainColors, melamineColors, doorStyles, hardwarePulls,
     revaAccessories, carcassMaterials, drawerBoxes, edgebands, builderProfilesCat, speciesCat,
-  ] = await Promise.all([
-    catalogs.paintColors(),
-    catalogs.stainColors(),
-    catalogs.melamineColors(),
-    catalogs.doorStyles(),
-    catalogs.hardwarePulls(),
-    catalogs.revaAccessories(),
-    catalogs.carcassMaterials(),
-    catalogs.drawerBoxes(),
-    catalogs.edgebands(),
-    catalogs.builderProfiles(),
-    catalogs.species(),
-  ]);
+  ] = await catalogsPromise;
 
   const catalogData = {
     paintColors,
