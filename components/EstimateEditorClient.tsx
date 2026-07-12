@@ -704,6 +704,12 @@ export function EstimateEditorClient({
         </div>
         <div className="flex items-center gap-3">
           {dirty && <span className="text-xs text-yellow-400/70">Unsaved changes</span>}
+          <a
+            href={`/admin/estimating/${estimate.id}/quote`}
+            className="border border-white/15 hover:border-white/30 text-white/50 hover:text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
+          >
+            View Quote
+          </a>
           <button
             onClick={save}
             disabled={saving}
@@ -816,8 +822,7 @@ export function EstimateEditorClient({
             settings={settings}
             scope={estimate.scope}
             finishGroupCount={estimate.finish_group_count}
-            deliveryCost={estimate.delivery_cost}
-            taxAmount={estimate.tax_amount}
+taxAmount={estimate.tax_amount}
             marginPct={estimate.target_margin_pct}
             isBudget={!!estimate.is_budget_estimate}
             onMarginChange={(v) => updateEstimate({ target_margin_pct: v })}
