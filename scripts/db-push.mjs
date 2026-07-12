@@ -852,6 +852,71 @@ async function main() {
     );
   `);
 
+  // ── Phases 2-6 additions (2026-07-12) ────────────────────────────────────────
+  // Phase 2: Species/grade/grain orientation on finish_groups
+  for (const stmt of [
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS grade TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS grain_orientation TEXT`,
+    `ALTER TABLE catalog_melamine_colors ADD COLUMN IF NOT EXISTS has_grain INTEGER DEFAULT 0`,
+    `ALTER TABLE catalog_paint_colors ADD COLUMN IF NOT EXISTS has_grain INTEGER DEFAULT 0`,
+    `ALTER TABLE catalog_stain_colors ADD COLUMN IF NOT EXISTS has_grain INTEGER DEFAULT 0`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // Phase 4: Builder floor plans + palettes
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS builder_floor_plans (
+      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+      builder_company TEXT NOT NULL,
+      plan_name TEXT NOT NULL,
+      description TEXT,
+      created_at TIMESTAMPTZ DEFAULT now()
+    );
+    CREATE TABLE IF NOT EXISTS builder_floor_plan_rooms (
+      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+      floor_plan_id TEXT NOT NULL REFERENCES builder_floor_plans(id) ON DELETE CASCADE,
+      room_name TEXT NOT NULL,
+      finish_group_name TEXT,
+      sort_order INTEGER DEFAULT 0,
+      default_ceiling_height TEXT,
+      default_flooring TEXT
+    );
+    CREATE TABLE IF NOT EXISTS builder_palettes (
+      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+      builder_company TEXT NOT NULL,
+      palette_name TEXT NOT NULL,
+      finish_type TEXT,
+      default_carcass_id TEXT,
+      default_drawer_box_id TEXT,
+      default_pull_id TEXT,
+      notes TEXT,
+      created_at TIMESTAMPTZ DEFAULT now()
+    );
+    CREATE TABLE IF NOT EXISTS builder_palette_finish_groups (
+      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+      palette_id TEXT NOT NULL REFERENCES builder_palettes(id) ON DELETE CASCADE,
+      fg_label TEXT NOT NULL,
+      finish_type TEXT,
+      color_id TEXT,
+      carcass_id TEXT,
+      drawer_box_id TEXT,
+      door_style_id TEXT,
+      pull_id TEXT
+    );
+  `);
+
+  // Phase 6: verified column on catalog color tables for living catalog
+  for (const stmt of [
+    `ALTER TABLE catalog_paint_colors ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
+    `ALTER TABLE catalog_stain_colors ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
+    `ALTER TABLE catalog_melamine_colors ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
+    `ALTER TABLE catalog_species ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
+    `ALTER TABLE catalog_accessories ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
   console.log("Schema push complete.");
   await sql.end();
 }

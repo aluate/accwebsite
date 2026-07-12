@@ -19,6 +19,8 @@ type FinishGroupPayload = {
   edgeband_id: string;
   applied_panels: "slab" | "match_door" | null;
   species: string | null;
+  grade: string | null;
+  grain_orientation: string | null;
   rollout_box_id: string | null;
   notes: string;
   sort_order: number;
@@ -219,7 +221,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         INSERT INTO finish_groups
           (id, spec_id, label, finish_type, color_id, color_name,
            door_style_id, drawer_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-           applied_panels, species, rollout_box_id,
+           applied_panels, species, grade, grain_orientation, rollout_box_id,
            cabdoor_edge_id, cabdoor_profile_id, cabdoor_panel_id,
            notes, sort_order)
         VALUES
@@ -230,7 +232,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
            ${g.pull_id || null},
            ${g.box_material || "melamine"},
            ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-           ${g.applied_panels || "slab"}, ${g.species || null}, ${g.rollout_box_id || null},
+           ${g.applied_panels || "slab"}, ${g.species || null},
+           ${g.grade || null}, ${g.grain_orientation || null},
+           ${g.rollout_box_id || null},
            ${(g as Record<string, unknown>).cabdoor_edge_id as string || null},
            ${(g as Record<string, unknown>).cabdoor_profile_id as string || null},
            ${(g as Record<string, unknown>).cabdoor_panel_id as string || null},

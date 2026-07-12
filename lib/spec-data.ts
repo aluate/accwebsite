@@ -4,7 +4,7 @@ import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, Moldin
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
-type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
+type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; grade: string | null; grain_orientation: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
 type AccRow = { room_id: string; acc_id: string; qty: number };
@@ -150,6 +150,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
 
     return {
       id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
+      grade: g.grade ?? "", grain_orientation: g.grain_orientation ?? "",
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
       finish: {
         stain_name: isStain ? colorName : "",

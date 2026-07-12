@@ -4,7 +4,14 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type {
   PaintColor, StainColor, MelamineColor, DoorStyle, HardwarePull, RevaAccessory,
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
+  Species, BuilderProfile,
 } from "@/lib/catalogs";
+// asArray: normalize semicolon-joined string or array to string[] (inlined from catalogs.ts for client safety)
+function asArray(v: unknown): string[] {
+  if (v == null) return [];
+  if (Array.isArray(v)) return v.map(String);
+  return String(v).split(";").map((s) => s.trim()).filter(Boolean);
+}
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
@@ -27,6 +34,7 @@ type CatalogData = {
   applianceCatalog?: { type: string; manufacturer: string; model: string; cutout_w: number; cutout_h: number; cutout_d: number; notes: string }[];
   edgebands: Edgeband[];
   rooms: RoomCatalogEntry[];
+  species: Species[];
   cabDoorEdges?: { id: string; name: string }[];
   cabDoorProfiles?: { id: string; name: string }[];
   cabDoorPanels?: { id: string; name: string }[];
@@ -48,6 +56,8 @@ export type FinishGroup = {
   edgeband_id: string;
   applied_panels: "slab" | "match_door";
   species: string;
+  grade: string;
+  grain_orientation: string;
   notes: string; sort_order: number;
 };
 
@@ -132,6 +142,7 @@ type Props = {
   initialAccessories2?: SpecAccessoryItem[];
   initialHardware?: SpecHardwareItem[];
   catalogs: CatalogData;
+  builderProfiles?: BuilderProfile[];
   lastSaved: string;
 };
 
@@ -450,7 +461,7 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, lastSaved }: Props) {
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, builderProfiles = [], lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
@@ -666,9 +677,11 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
       pull_id: "",
       box_material: "melamine",
-      carcass_id: "", drawer_box_id: "", edgeband_id: "",
+      carcass_id: "", drawer_box_id: "", rollout_box_id: "", edgeband_id: "",
       applied_panels: "slab",
       species: "",
+      grade: "",
+      grain_orientation: "",
       notes: "",
       sort_order: idx,
     }]);
@@ -1239,9 +1252,35 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
             return (
               <div key={g.id} className="bg-[#2d2d2d] rounded p-4 sm:p-6 space-y-5">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <span className="text-[#f08122] font-condensed uppercase tracking-widest text-sm">{g.label}</span>
-                  <button onClick={() => removeGroup(g.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
+                  <div className="flex items-center gap-3">
+                    {builderProfiles.length > 0 && (
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          const profileId = e.target.value;
+                          if (!profileId) return;
+                          const profile = builderProfiles.find(p => p.id === profileId);
+                          if (!profile) return;
+                          updateGroup(g.id, {
+                            finish_type: (profile.default_finish_type as FinishType) || g.finish_type,
+                            carcass_id: profile.default_carcass_id || g.carcass_id,
+                            drawer_box_id: profile.default_drawer_box_id || g.drawer_box_id,
+                            pull_id: profile.default_pull_id || g.pull_id,
+                          });
+                          e.target.value = "";
+                        }}
+                        className="bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/50 focus:outline-none focus:border-[#f08122]/60 font-condensed"
+                      >
+                        <option value="">Load builder defaults…</option>
+                        {builderProfiles.map(p => (
+                          <option key={p.id} value={p.id}>{p.builder_name}{p.builder_company ? ` — ${p.builder_company}` : ""}</option>
+                        ))}
+                      </select>
+                    )}
+                    <button onClick={() => removeGroup(g.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
+                  </div>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
@@ -1380,15 +1419,54 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     </select>
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
-                    <div>
-                      <label className={LABEL}>Species</label>
-                      <input
-                        value={g.species ?? ""}
-                        onChange={(e) => updateGroup(g.id, { species: e.target.value })}
-                        placeholder="e.g. Red Oak, Alder, Maple, Paint Grade"
-                        className={INPUT}
-                      />
-                    </div>
+                    <>
+                      <div>
+                        <label className={LABEL}>Species</label>
+                        <select
+                          value={g.species ?? ""}
+                          onChange={(e) => updateGroup(g.id, { species: e.target.value, grade: "", grain_orientation: "" })}
+                          className={SELECT}
+                        >
+                          <option value="">-- Select Species --</option>
+                          {catalogs.species.map((s) => (
+                            <option key={s.id} value={s.name}>{s.name}</option>
+                          ))}
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>Grade</label>
+                        <select
+                          value={g.grade ?? ""}
+                          onChange={(e) => updateGroup(g.id, { grade: e.target.value })}
+                          className={SELECT}
+                          disabled={!g.species}
+                        >
+                          <option value="">-- Select Grade --</option>
+                          {g.species && (() => {
+                            const sp = catalogs.species.find(s => s.name === g.species);
+                            const grades = sp ? asArray(sp.grades) : [];
+                            return grades.map((gr) => <option key={gr} value={gr}>{gr}</option>);
+                          })()}
+                          {g.species && <option value="Other">Other</option>}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>Grain Orientation</label>
+                        <select
+                          value={g.grain_orientation ?? ""}
+                          onChange={(e) => updateGroup(g.id, { grain_orientation: e.target.value })}
+                          className={SELECT}
+                        >
+                          <option value="">-- Select Grain --</option>
+                          <option value="Random (standard)">Random (standard)</option>
+                          <option value="Vertical (linear)">Vertical (linear)</option>
+                          <option value="Horizontal">Horizontal</option>
+                          <option value="Bookmatched">Bookmatched</option>
+                          <option value="Rift & Quartered">Rift & Quartered</option>
+                        </select>
+                      </div>
+                    </>
                   )}
                   <div>
                     <label className={LABEL}>Notes</label>
@@ -1436,7 +1514,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       // Melamine: defaults to matching carcass, but PM can override if needed.
                       <select
                         value={g.edgeband_id ?? ""}
-                        onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value || null })}
+                        onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value || "" })}
                         className={SELECT}
                       >
                         <option value="">— Matches carcass material</option>
@@ -1657,17 +1735,59 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Accessories</p>
                 <div className="space-y-2">
                   {room.accessories.map((acc, ai) => {
+                    // Phase 5: cascading Type → Size → Part # picker
+                    const allAccs = catalogs.revaAccessories;
+                    const accTypes = [...new Set(allAccs.map(a => a.category).filter(Boolean))].sort() as string[];
+                    const selectedItem = allAccs.find(a => a.id === acc.acc_id);
+                    const selectedType = (acc as Record<string, unknown>)._type as string || (selectedItem?.category ?? "");
+                    const selectedSize = (acc as Record<string, unknown>)._size as string || "";
+                    const sizesForType = selectedType
+                      ? [...new Set(allAccs.filter(a => a.category === selectedType).flatMap(a => asArray(String(a.width_options_in ?? ""))))].sort()
+                      : [];
+                    const itemsForTypeSize = (selectedType && selectedSize)
+                      ? allAccs.filter(a => a.category === selectedType && asArray(String(a.width_options_in ?? "")).includes(selectedSize))
+                      : (selectedType ? allAccs.filter(a => a.category === selectedType) : []);
                     const isCustom = acc.acc_id && acc.acc_id.toLowerCase().includes("custom");
                     return (
                       <div key={ai} className="space-y-1.5">
-                        <div className="flex flex-wrap sm:flex-nowrap gap-3 items-stretch sm:items-center">
-                          <select value={acc.acc_id} onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })} className={SELECT + " flex-1"}>
-                            <option value="">-- Select Accessory --</option>
-                            {catalogs.revaAccessories.map((a) => <option key={a.id} value={a.id}>{a.name} - {a.brand}</option>)}
+                        <div className="grid grid-cols-3 gap-2 items-center">
+                          <select
+                            value={selectedType}
+                            onChange={(e) => {
+                              const t = e.target.value;
+                              updateAccessory(room.id, ai, { acc_id: "", ...({"_type": t, "_size": ""} as Record<string, unknown>) });
+                            }}
+                            className={SELECT}
+                          >
+                            <option value="">-- Type --</option>
+                            {accTypes.map(t => <option key={t} value={t}>{t}</option>)}
                           </select>
+                          <select
+                            value={selectedSize}
+                            onChange={(e) => {
+                              const sz = e.target.value;
+                              updateAccessory(room.id, ai, { acc_id: "", ...({"_size": sz} as Record<string, unknown>) });
+                            }}
+                            className={SELECT}
+                            disabled={!selectedType || sizesForType.length === 0}
+                          >
+                            <option value="">-- Size --</option>
+                            {sizesForType.map(sz => <option key={sz} value={sz}>{sz}&quot;</option>)}
+                          </select>
+                          <select
+                            value={acc.acc_id}
+                            onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })}
+                            className={SELECT}
+                            disabled={!selectedType}
+                          >
+                            <option value="">-- Part # --</option>
+                            {itemsForTypeSize.map(a => <option key={a.id} value={a.id}>{a.name} · {a.brand}</option>)}
+                          </select>
+                        </div>
+                        <div className="flex gap-2 items-center">
                           <input type="number" min={1} value={acc.qty} onChange={(e) => updateAccessory(room.id, ai, { qty: parseInt(e.target.value) || 1 })}
                             className="w-16 bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white text-center focus:outline-none focus:border-[#f08122]" />
-                          <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1">x</button>
+                          <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1 text-sm">× Remove</button>
                         </div>
                         {isCustom && (
                           <input
@@ -2037,8 +2157,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       )}
 
       {/* ACCESSORIES -- pulls + RevAShelf items (2026-05-28) */}
-      {tab === "accessories" && (
-        <AccessoriesTab specId={specId} initialData={initialAccessories} />
+      {false && tab === "accessories" && (
+        <AccessoriesTab specId={specId} initialData={{pulls:[],accessories:[]}} />
       )}
 
       {/* SUMMARY */}
