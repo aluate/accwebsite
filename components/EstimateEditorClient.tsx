@@ -6,6 +6,7 @@ import { EstimateFinishGroupEditor, type EstimateFG } from "@/components/Estimat
 import { CatalogPickerModal, type CatalogSelection } from "@/components/CatalogPickerModal";
 import {
   calcEstimateCost,
+  getAllConstructionProfiles,
   type EstimateRoom,
   type EstimateLineItem,
   type EstimateSettings,
@@ -26,6 +27,7 @@ type Estimate = {
   target_margin_pct: number;
   finish_group_count: number;
   notes: string | null;
+  profile_id: string | null;
   client_name: string | null;
 };
 
@@ -486,6 +488,8 @@ function CostSummaryPanel({
   marginPct,
   isBudget,
   onMarginChange,
+  profileId,
+  doorPresetId,
 }: {
   rooms: EstimateRoom[];
   settings: EstimateSettings;
@@ -496,6 +500,8 @@ function CostSummaryPanel({
   marginPct: number;
   isBudget: boolean;
   onMarginChange: (v: number) => void;
+  profileId?: string | null;
+  doorPresetId?: string | null;
 }) {
   const cost = useMemo(
     () =>
@@ -507,8 +513,10 @@ function CostSummaryPanel({
         delivery_cost: deliveryCost,
         tax_amount: taxAmount,
         target_margin_pct: marginPct,
+        profile_id: profileId,
+        door_preset_id: doorPresetId,
       }),
-    [rooms, settings, scope, finishGroupCount, deliveryCost, taxAmount, marginPct]
+    [rooms, settings, scope, finishGroupCount, deliveryCost, taxAmount, marginPct, profileId, doorPresetId]
   );
 
   const Row = ({ label, val, muted = false, bold = false }: { label: string; val: string; muted?: boolean; bold?: boolean }) => (
@@ -909,6 +917,20 @@ export function EstimateEditorClient({
             />
           </div>
 
+          {/* Construction profile */}
+          <div>
+            <Label>Construction</Label>
+            <select
+              value={estimate.profile_id ?? "ACC_STD"}
+              onChange={(e) => updateEstimate({ profile_id: e.target.value })}
+              className="bg-[#0d0e0f] border border-white/15 rounded-lg px-2 py-1 text-sm text-white focus:outline-none focus:border-[#f08122]/60"
+            >
+              {getAllConstructionProfiles().map((p) => (
+                <option key={p.profile_id} value={p.profile_id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Budget toggle */}
           <label className="flex items-center gap-2 text-sm text-white/50 cursor-pointer ml-auto">
             <input
@@ -996,6 +1018,8 @@ export function EstimateEditorClient({
             marginPct={estimate.target_margin_pct}
             isBudget={!!estimate.is_budget_estimate}
             onMarginChange={(v) => updateEstimate({ target_margin_pct: v })}
+            profileId={estimate.profile_id}
+            doorPresetId={(estimate as unknown as Record<string,unknown>).door_preset_id as string | null}
           />
         </div>
       </div>

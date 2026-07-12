@@ -178,15 +178,28 @@ export function getAllCabinetFeatures(): CabinetFeature[] { return cabinetFeatur
 export type ConstructionProfile = {
   profile_id: string;
   name: string;
+  // Construction method
+  frame_type: "frameless" | "face_frame";   // drives door dim calc branch
+  back_method: "dado" | "plant_on";         // dado = groove; plant_on = applied after
+  overlay_type: "full" | "half" | "inset";  // door overlap on face frame / case
+  joinery_method: string;                   // pocket_screw | dowel | cam_lock | biscuit
+  // Material
   mat_thickness_in: number;        // carcass body (sides, bottom, shelves, nailer)
+  body_mat_cost_per_sf: number;    // $/SF for body material (replaces DEFAULT_CARCASS_COST_PER_SF)
   back_thickness_in: number;       // back panel -- thinner material
   back_mat_cost_per_sf: number;    // $/SF for the back panel material
+  // Physical constants
   toekick_height_in: number;       // base cabinet toekick height
   door_reveal_side_in: number;     // gap between door edge and case (each side)
   door_reveal_top_in: number;      // gap above door
   door_reveal_bottom_in: number;   // gap below door
   door_reveal_between_in: number;  // gap between paired doors
   top_nailer_height_in: number;    // height of top stretcher
+  // Face frame only (zero for frameless)
+  face_frame_width_in: number;     // stile/rail width in inches
+  face_frame_cost_per_lf: number;  // $/LF for face frame lumber
+  // Labor
+  labor_assembly_mult: number;     // multiplier on shop labor (1.0 = baseline pocket screw)
 };
 
 function parseNum(v: string | number | null | undefined, fallback: number): number {
@@ -201,7 +214,12 @@ const PROFILE_MAP = new Map<string, ConstructionProfile>(
     {
       profile_id:             r.profile_id,
       name:                   r.name,
+      frame_type:             (r.frame_type === "face_frame" ? "face_frame" : "frameless") as "frameless" | "face_frame",
+      back_method:            (r.back_method === "plant_on" ? "plant_on" : "dado") as "dado" | "plant_on",
+      overlay_type:           (["full","half","inset"].includes(r.overlay_type) ? r.overlay_type : "full") as "full" | "half" | "inset",
+      joinery_method:         r.joinery_method ?? "pocket_screw",
       mat_thickness_in:       parseNum(r.mat_thickness_in,       0.75),
+      body_mat_cost_per_sf:   parseNum(r.body_mat_cost_per_sf,   3.22),
       back_thickness_in:      parseNum(r.back_thickness_in,      0.50),
       back_mat_cost_per_sf:   parseNum(r.back_mat_cost_per_sf,   2.40),
       toekick_height_in:      parseNum(r.toekick_height_in,      4.00),
@@ -210,6 +228,9 @@ const PROFILE_MAP = new Map<string, ConstructionProfile>(
       door_reveal_bottom_in:  parseNum(r.door_reveal_bottom_in,  0.125),
       door_reveal_between_in: parseNum(r.door_reveal_between_in, 0.125),
       top_nailer_height_in:   parseNum(r.top_nailer_height_in,   3.50),
+      face_frame_width_in:    parseNum(r.face_frame_width_in,    0),
+      face_frame_cost_per_lf: parseNum(r.face_frame_cost_per_lf, 0),
+      labor_assembly_mult:    parseNum(r.labor_assembly_mult,    1.00),
     }
   ])
 );
@@ -220,9 +241,11 @@ const DEFAULT_PROFILE: ConstructionProfile =
     ? Array.from(PROFILE_MAP.values()).find((p) => p.profile_id === "ACC_STD") ?? Array.from(PROFILE_MAP.values())[0]
     : {
         profile_id: "ACC_STD", name: "ACC Standard Frameless",
-        mat_thickness_in: 0.75, back_thickness_in: 0.5, back_mat_cost_per_sf: 2.40,
+        frame_type: "frameless", back_method: "dado", overlay_type: "full", joinery_method: "pocket_screw",
+        mat_thickness_in: 0.75, body_mat_cost_per_sf: 3.22, back_thickness_in: 0.5, back_mat_cost_per_sf: 2.40,
         toekick_height_in: 4.0, door_reveal_side_in: 0.125, door_reveal_top_in: 0.125,
         door_reveal_bottom_in: 0.125, door_reveal_between_in: 0.125, top_nailer_height_in: 3.5,
+        face_frame_width_in: 0, face_frame_cost_per_lf: 0, labor_assembly_mult: 1.0,
       };
 
 export function getConstructionProfile(id?: string | null): ConstructionProfile {
@@ -537,7 +560,7 @@ export function calcLineItemCost(
   if (rollout_count > 0) { materialMult += rollout_count * 0.08; laborMult += rollout_count * 0.15; }
 
   // Material cost from BOM
-  const carcass_cost     = result.bom.carcass_sf * DEFAULT_CARCASS_COST_PER_SF * materialMult;
+  const carcass_cost     = result.bom.carcass_sf * prof.body_mat_cost_per_sf * materialMult;
   const back_cost        = result.bom.back_sf    * prof.back_mat_cost_per_sf;
   const door_buyout_cost = result.bom.door_sf    * doorPrice;
   const drawer_buyout_cost = result.bom.drawer_front_sf * doorPrice;
@@ -557,7 +580,7 @@ export function calcLineItemCost(
     LABOR.fab_per_cab +
     LABOR.fab_per_drawer  * type.drawer_count +
     LABOR.fab_per_door    * type.door_count;
-  result.estimated_shop_labor_hrs += shop_hrs_per_unit * laborMult * qty;
+  result.estimated_shop_labor_hrs += shop_hrs_per_unit * laborMult * prof.labor_assembly_mult * qty;
 
   // Finish labor -- default: stain
   const fin_hrs_per_unit =

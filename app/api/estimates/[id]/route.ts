@@ -62,6 +62,7 @@ export async function PUT(
       finish_group_count  = COALESCE(${body.finish_group_count ?? null}, finish_group_count),
       notes               = COALESCE(${body.notes ?? null}, notes),
       status              = COALESCE(${body.status ?? null}, status),
+      profile_id          = COALESCE(${body.profile_id ?? null}, profile_id),
       updated_at          = ${now}
     WHERE id = ${id}
   `;

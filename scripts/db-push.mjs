@@ -766,6 +766,7 @@ async function main() {
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS drawer_style_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_edge_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_profile_id TEXT`,
+    `ALTER TABLE estimates ADD COLUMN IF NOT EXISTS profile_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
@@ -796,6 +797,7 @@ async function main() {
       target_margin_pct   NUMERIC NOT NULL DEFAULT 48,
       finish_group_count  INTEGER NOT NULL DEFAULT 1,
       notes               TEXT,
+      profile_id          TEXT,
       created_by          TEXT,
       created_at          TEXT NOT NULL,
       updated_at          TEXT NOT NULL

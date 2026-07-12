@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type Settings = {
   id: string;
@@ -236,6 +237,15 @@ export function EstimateSettingsClient({ settings }: { settings: Settings | null
           </p>
         </div>
 
+        <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+          <span className="text-sm text-white/40">Construction profiles define body material costs, reveals, and labor multipliers.</span>
+          <Link
+            href="/admin/estimating/settings/profiles"
+            className="text-sm text-[#f08122] hover:text-[#f08122]/80 transition-colors"
+          >
+            View profiles &rarr;
+          </Link>
+        </div>
         {settings?.updated_at && (
           <p className="text-xs text-white/20 text-right">
             Last saved: {new Date(settings.updated_at).toLocaleString()}
