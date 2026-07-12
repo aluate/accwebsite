@@ -8,10 +8,11 @@
  *   - whether WO filenames should be auto-parsed (WO*.pdf, CO*.pdf)
  *
  * Recipient keys:
- *   "client"    — job.client_email
- *   "pm"        — process.env.PM_EMAIL
- *   "eng"       — process.env.ENG_EMAIL  (falls back to PM_EMAIL)
- *   "shop"      — process.env.SHOP_EMAIL (falls back to PM_EMAIL)
+ *   "client"      — job.client_email
+ *   "pm"          — process.env.PM_EMAIL
+ *   "eng"         — process.env.ENG_EMAIL       (falls back to PM_EMAIL)
+ *   "shop"        — process.env.SHOP_EMAIL      (falls back to PM_EMAIL)
+ *   "residential" — process.env.RESIDENTIAL_EMAIL (falls back to PM_EMAIL)
  */
 
 export type JobMeta = {
@@ -24,7 +25,7 @@ export type JobMeta = {
   pm?: string | null;
 };
 
-export type RecipientKey = "client" | "pm" | "eng" | "shop";
+export type RecipientKey = "client" | "pm" | "eng" | "shop" | "residential";
 
 export type GateConfig = {
   /** Button label shown on the job detail page */
@@ -41,11 +42,13 @@ export type GateConfig = {
   docRequired?: boolean;
   /** Parse WO/CO numbers from uploaded filenames (WO46317.pdf, CO47306.pdf) */
   woUpload?: boolean;
-  /** Who to email on this transition */
+  /** Primary To: recipients on this transition */
   recipients: RecipientKey[];
+  /** CC: recipients (combined into one email with the primary recipients) */
+  ccKeys?: RecipientKey[];
   /** Email subject line */
   subject: (job: JobMeta) => string;
-  /** Email body text */
+  /** Email body text (plain-text fallback) */
   body: (job: JobMeta, note?: string) => string;
 };
 
@@ -84,13 +87,14 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     docLabel: "Finalized Design Drawings",
     docRequired: false,
     recipients: ["eng"],
+    ccKeys: ["residential", "pm"],
     subject: (j) => `${jobRef(j)} — Released to Engineering`,
     body: (j, note) =>
       `${jobRef(j)} has been released to Engineering.\n\n` +
       `Address: ${jobAddress(j)}\n` +
       `PM: ${j.pm ?? "—"}\n` +
       (note ? `\nNote: ${note}\n` : "") +
-      `\nPlease check the job portal for drawings.\n`,
+      `\nPlease check the job portal for drawings and the spec summary below.\n`,
   },
 
   production: {

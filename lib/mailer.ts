@@ -81,6 +81,7 @@ export async function sendEmail(opts: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
   cc?: string;
   replyTo?: string;
   attachments?: Array<{ filename: string; content: Buffer }>;
@@ -103,6 +104,7 @@ export async function sendEmail(opts: {
       replyTo: opts.replyTo,
       subject: opts.subject,
       text: opts.text,
+      html: opts.html,
       attachments: opts.attachments,
     });
     return { ok: true, messageId: info.messageId };
