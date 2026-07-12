@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await req.json();
 
   const allowed = [
-    "job_number", "status", "job_type", "client_name", "client_email", "client_phone",
+    "job_number", "bid_number", "status", "job_type", "client_name", "client_email", "client_phone",
     "site_address", "city", "pm", "builder_name", "builder_email",
     "builder_phone", "builder_company", "delivery_date", "notes",
     "notes_install", "notes_finishing", "notes_shop", "notes_client",

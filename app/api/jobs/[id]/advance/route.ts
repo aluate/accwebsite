@@ -119,6 +119,14 @@ export async function POST(
     }
   }
 
+  // ── 3b. Job number gate — required before advancing to engineering ─────────
+  if (toStatus === "engineering" && !job.job_number) {
+    return NextResponse.json(
+      { error: "A job number (ACC-YYYY-NNNN) must be assigned before releasing to engineering. Enter it in the job details first.", requiresJobNumber: true },
+      { status: 422 }
+    );
+  }
+
   // ── 4. Update job status ───────────────────────────────────────────────────
   const now = new Date().toISOString();
   await sql`UPDATE jobs SET status = ${toStatus} WHERE id = ${internalId}`;

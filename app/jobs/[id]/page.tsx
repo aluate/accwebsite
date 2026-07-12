@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
+import { WorkOrdersPanel } from "@/components/WorkOrdersPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
@@ -63,7 +64,7 @@ const MODULE_DEFS = [
 
 type Job = {
   id: string; seq: number; created_at: string; status: string; job_type: string;
-  job_number: string | null;
+  job_number: string | null; bid_number: string | null;
   client_name: string; client_email: string; client_phone: string;
   site_address: string; city: string;
   pm: string; builder_name: string; builder_email: string;
@@ -318,6 +319,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               city:           job.city,
               pm:             job.pm,
               job_number:     job.job_number,
+              bid_number:     job.bid_number,
               builder_name:   job.builder_name,
               builder_company: job.builder_company,
               builder_email:  job.builder_email,
@@ -384,6 +386,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           {(session.role === "admin" || session.role === "pm") && (
             <EngineeringReleasePanel jobId={internalId} />
+          )}
+
+          {(session.role === "admin" || session.role === "pm") && (
+            <WorkOrdersPanel jobId={internalId} />
           )}
 
           <div className="mt-6">

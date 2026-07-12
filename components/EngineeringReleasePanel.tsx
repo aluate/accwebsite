@@ -5,7 +5,6 @@ import {
   CHECKLIST_SECTIONS,
   allKeys,
   completionCount,
-  isComplete,
 } from "@/lib/engineering-release-checklist";
 
 interface DrawingFile {
@@ -28,34 +27,48 @@ interface ReleaseRecord {
 }
 
 export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
-  const [checklist, setChecklist]       = useState<Record<string, boolean>>({});
-  const [drawings, setDrawings]         = useState<DrawingFile[]>([]);
-  const [lastRelease, setLastRelease]   = useState<ReleaseRecord | null>(null);
-  const [notes, setNotes]               = useState("");
-  const [uploading, setUploading]       = useState(false);
-  const [sending, setSending]           = useState(false);
-  const [sendError, setSendError]       = useState<string | null>(null);
-  const [sendSuccess, setSendSuccess]   = useState(false);
-  const [open, setOpen]                 = useState(false);
-  const [saving, setSaving]             = useState(false);
+  const [checklist, setChecklist]         = useState<Record<string, boolean>>({});
+  const [autoVerified, setAutoVerified]   = useState<Set<string>>(new Set());
+  const [autoReasons, setAutoReasons]     = useState<Record<string, string>>({});
+  const [drawings, setDrawings]           = useState<DrawingFile[]>([]);
+  const [lastRelease, setLastRelease]     = useState<ReleaseRecord | null>(null);
+  const [notes, setNotes]                 = useState("");
+  const [uploading, setUploading]         = useState(false);
+  const [sending, setSending]             = useState(false);
+  const [sendError, setSendError]         = useState<string | null>(null);
+  const [sendSuccess, setSendSuccess]     = useState(false);
+  const [open, setOpen]                   = useState(false);
+  const [saving, setSaving]               = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileRef   = useRef<HTMLInputElement | null>(null);
 
   // ── Load state on mount ─────────────────────────────────────────────────
   useEffect(() => {
     void (async () => {
-      const [clRes, filesRes, relRes] = await Promise.all([
+      const [clRes, filesRes, relRes, autoRes] = await Promise.all([
         fetch(`/api/jobs/${jobId}/engineering-checklist`),
         fetch(`/api/jobs/${jobId}/files`),
         fetch(`/api/jobs/${jobId}/engineering-release`),
+        fetch(`/api/jobs/${jobId}/checklist-autocheck`),
       ]);
 
-      let loadedChecklist: Record<string, boolean> = {};
+      // Manual checklist (what's saved in DB)
+      let loadedManual: Record<string, boolean> = {};
       if (clRes.ok) {
         const d = await clRes.json() as { checklist: Record<string, boolean> };
-        loadedChecklist = d.checklist ?? {};
+        loadedManual = d.checklist ?? {};
       }
 
+      // Auto-check results from spec data
+      let autoChecked: Record<string, boolean> = {};
+      let reasons: Record<string, string> = {};
+      if (autoRes.ok) {
+        const d = await autoRes.json() as { autoChecked: Record<string, boolean>; reasons: Record<string, string> };
+        autoChecked = d.autoChecked ?? {};
+        reasons = d.reasons ?? {};
+      }
+
+      // Drawings
       let loadedDrawings: DrawingFile[] = [];
       if (filesRes.ok) {
         const d = await filesRes.json() as { files: Record<string, DrawingFile[]> };
@@ -63,11 +76,33 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
         setDrawings(loadedDrawings);
       }
 
-      // Auto-check drawings_attached if drawings already exist
-      const finalChecklist = autoCheckDrawings(loadedChecklist, loadedDrawings.length);
-      setChecklist(finalChecklist);
-      if (finalChecklist !== loadedChecklist) {
-        persistChecklist(finalChecklist);
+      // Merge: auto first, then manual overrides (explicit manual false beats auto true)
+      const merged: Record<string, boolean> = { ...autoChecked };
+      for (const [k, v] of Object.entries(loadedManual)) {
+        merged[k] = v;
+      }
+      // Auto-check drawings_attached if drawings exist (legacy path)
+      if (loadedDrawings.length > 0) merged.drawings_attached = true;
+
+      // Compute which keys are auto-verified (auto=true AND no explicit manual false)
+      const autoKeys = new Set<string>();
+      for (const [k, v] of Object.entries(autoChecked)) {
+        if (v && loadedManual[k] !== false) {
+          autoKeys.add(k);
+        }
+      }
+      if (loadedDrawings.length > 0 && loadedManual.drawings_attached !== false) {
+        autoKeys.add("drawings_attached");
+      }
+
+      setAutoVerified(autoKeys);
+      setAutoReasons(reasons);
+      setChecklist(merged);
+
+      // Persist newly auto-checked items so progress bar is correct on next load
+      const hasNewAuto = [...autoKeys].some(k => !loadedManual[k]);
+      if (hasNewAuto) {
+        persistChecklistImmediate(merged);
       }
 
       if (relRes.ok) {
@@ -78,7 +113,7 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId]);
 
-  // ── Auto-save checklist (debounced) ─────────────────────────────────────
+  // ── Persist helpers ─────────────────────────────────────────────────────
   const persistChecklist = useCallback((state: Record<string, boolean>) => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSaving(true);
@@ -92,7 +127,14 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     }, 600);
   }, [jobId]);
 
-  /** Flush any pending debounced save immediately before sending. */
+  function persistChecklistImmediate(state: Record<string, boolean>) {
+    void fetch(`/api/jobs/${jobId}/engineering-checklist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checklist: state }),
+    });
+  }
+
   const flushSave = useCallback(async (state: Record<string, boolean>) => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
@@ -110,15 +152,11 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   function toggle(key: string) {
     const next = { ...checklist, [key]: !checklist[key] };
     setChecklist(next);
-    persistChecklist(next);
-  }
-
-  /** Auto-check drawings_attached when drawings are present. */
-  function autoCheckDrawings(state: Record<string, boolean>, drawingCount: number): Record<string, boolean> {
-    if (drawingCount > 0 && !state.drawings_attached) {
-      return { ...state, drawings_attached: true };
+    // If user manually toggles an auto-verified item, remove auto badge
+    if (autoVerified.has(key)) {
+      setAutoVerified((prev) => { const s = new Set(prev); s.delete(key); return s; });
     }
-    return state;
+    persistChecklist(next);
   }
 
   // ── File upload ─────────────────────────────────────────────────────────
@@ -131,18 +169,20 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
       form.append("kind", "16_eng_drawings");
       await fetch(`/api/jobs/${jobId}/files`, { method: "POST", body: form });
     }
-    // Refresh drawing list
     const res = await fetch(`/api/jobs/${jobId}/files`);
     if (res.ok) {
       const d = await res.json() as { files: Record<string, DrawingFile[]> };
       const updated = d.files?.["16_eng_drawings"] ?? [];
       setDrawings(updated);
-      // Auto-check drawings_attached now that drawings exist
-      setChecklist((prev) => {
-        const next = autoCheckDrawings(prev, updated.length);
-        if (next !== prev) persistChecklist(next);
-        return next;
-      });
+      if (updated.length > 0) {
+        setChecklist((prev) => {
+          if (prev.drawings_attached) return prev;
+          const next = { ...prev, drawings_attached: true };
+          persistChecklist(next);
+          setAutoVerified((av) => new Set([...av, "drawings_attached"]));
+          return next;
+        });
+      }
     }
     setUploading(false);
   }
@@ -151,7 +191,6 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   async function sendRelease() {
     setSendError(null);
     setSending(true);
-    // Flush any pending debounced checklist save so the server sees 54/54
     await flushSave(checklist);
     const res = await fetch(`/api/jobs/${jobId}/engineering-release`, {
       method: "POST",
@@ -168,7 +207,6 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
       return;
     }
     setSendSuccess(true);
-    // Refresh release record
     const relRes = await fetch(`/api/jobs/${jobId}/engineering-release`);
     if (relRes.ok) {
       const d = await relRes.json() as { release: ReleaseRecord | null };
@@ -183,7 +221,6 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   const canSend     = allChecked && hasDrawings && !sending;
   const pct         = total > 0 ? Math.round((checked / total) * 100) : 0;
 
-  // Deduplicate drawings displayed (newest per base filename)
   const seen = new Set<string>();
   const canonDrawings = drawings.filter((d) => {
     const base = d.filename.replace(/^\d+-/, "");
@@ -229,6 +266,11 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
                 : "text-white/20 bg-white/5 border border-white/10")
             }>
               {checked}/{total}
+            </span>
+          )}
+          {autoVerified.size > 0 && (
+            <span className="text-[10px] font-condensed uppercase tracking-widest text-teal-400/60 bg-teal-900/10 border border-teal-700/20 px-2 py-0.5 rounded">
+              {autoVerified.size} auto-verified
             </span>
           )}
         </div>
@@ -283,6 +325,9 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
                 Checklist — {checked} / {total} complete
                 {saving && <span className="ml-2 text-white/20">saving…</span>}
               </span>
+              <span className="text-[10px] font-condensed uppercase tracking-widest text-teal-400/50">
+                {autoVerified.size > 0 && `${autoVerified.size} auto-verified from spec`}
+              </span>
               {allChecked && (
                 <span className="text-[10px] font-condensed uppercase tracking-widest text-green-400/80">All clear ✓</span>
               )}
@@ -304,36 +349,48 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
                 </p>
                 <div className="space-y-1">
                   {section.items.map((item) => {
-                    const checked = !!checklist[item.key];
+                    const isChecked = !!checklist[item.key];
+                    const isAuto    = autoVerified.has(item.key);
+                    const reason    = autoReasons[item.key];
                     return (
                       <label
                         key={item.key}
                         className="flex items-start gap-3 cursor-pointer group py-1 px-2 rounded hover:bg-white/5 transition-colors"
+                        title={isAuto && reason ? `Auto-verified: ${reason}` : undefined}
                       >
                         <div className="mt-0.5 shrink-0">
                           <div
                             className={
                               "w-4 h-4 rounded border flex items-center justify-center transition-colors " +
-                              (checked
+                              (isChecked && isAuto
+                                ? "bg-teal-500 border-teal-500"
+                                : isChecked
                                 ? "bg-[#f08122] border-[#f08122]"
                                 : "border-white/20 group-hover:border-white/40")
                             }
                             onClick={() => toggle(item.key)}
                           >
-                            {checked && (
+                            {isChecked && (
                               <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 8" fill="none">
                                 <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             )}
                           </div>
                         </div>
-                        <div className="min-w-0">
-                          <span
-                            className={"text-sm leading-snug " + (checked ? "text-white/40 line-through" : "text-white/80")}
-                            onClick={() => toggle(item.key)}
-                          >
-                            {item.label}
-                          </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={"text-sm leading-snug " + (isChecked ? "text-white/40 line-through" : "text-white/80")}
+                              onClick={() => toggle(item.key)}
+                            >
+                              {item.label}
+                            </span>
+                            {isAuto && (
+                              <span className="shrink-0 text-[9px] font-condensed uppercase tracking-widest text-teal-400/70 bg-teal-900/20 border border-teal-700/30 px-1.5 py-0.5 rounded">
+                                Auto
+                              </span>
+                            )}
+                          </div>
                           {item.note && (
                             <p className="text-[11px] text-white/25 mt-0.5 italic">{item.note}</p>
                           )}

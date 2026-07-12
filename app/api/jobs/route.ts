@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       pm, builder_name, builder_email, builder_phone, builder_company,
       delivery_date, notes,
       mod_residential, mod_commercial, mod_trim, mod_doors,
-      job_number
+      job_number, bid_number
     ) VALUES (
       ${id},
       (SELECT val FROM seq WHERE id = 1),
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       ${body.delivery_date ?? ""}, ${body.notes ?? ""},
       ${body.mod_residential ? 1 : 0}, ${body.mod_commercial ? 1 : 0},
       ${body.mod_trim ? 1 : 0}, ${body.mod_doors ? 1 : 0},
-      ${jobNumber}
+      ${jobNumber}, ${(body.bid_number as string | undefined)?.trim() || null}
     )
   `;
 
@@ -45,5 +45,5 @@ export async function POST(req: NextRequest) {
     payload: { job_number: jobNumber, client_name: body.client_name, site_address: body.site_address },
   }).catch(() => {});
 
-  return NextResponse.json({ id, job_number: jobNumber }, { status: 201 });
+  return NextResponse.json({ id, job_number: jobNumber, bid_number: (body.bid_number as string | undefined)?.trim() || null }, { status: 201 });
 }

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type EditableField =
   | "client_name" | "client_email" | "client_phone" | "site_address" | "city"
   | "pm" | "builder_name" | "builder_company" | "builder_email" | "builder_phone"
-  | "delivery_date" | "notes" | "job_number";
+  | "delivery_date" | "notes" | "job_number" | "bid_number";
 
 // EditableRow must live OUTSIDE the parent so React does not treat it as a
 // new component on every keystroke (which unmounts the input and loses focus).
@@ -164,6 +164,7 @@ export function JobInlineEditClient({ jobId, initialValues }: Props) {
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Project Info</p>
         {row("PM",       "pm")}
         {row("Job #",    "job_number")}
+        {row("Bid #",    "bid_number")}
         {row("Delivery", "delivery_date")}
       </div>
 
