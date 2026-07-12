@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import sql from "@/lib/db";
 
 const DIR = path.join(process.cwd(), "data/catalogs");
@@ -340,16 +340,16 @@ export type CountertopMaterial = { id: string; name: string; category: string | 
 // Arrays are stored semicolon-joined in DB; asArray() normalizes them for callers.
 // Boolean columns stored as INTEGER 0/1 in Postgres; coerce with !!.
 
-const _paintColors = cache(async (): Promise<PaintColor[]> => {
+const _paintColors = unstable_cache(async (): Promise<PaintColor[]> => {
   const rows = await sql`SELECT * FROM catalog_paint_colors ORDER BY brand, name`;
   return rows.map((r) => ({
     ...r,
     is_custom_match: !!r.is_custom_match,
     placeholder: !!r.placeholder,
   })) as PaintColor[];
-});
+}, ["cat-paint-colors"], { revalidate: 300 });
 
-const _stainColors = cache(async (): Promise<StainColor[]> => {
+const _stainColors = unstable_cache(async (): Promise<StainColor[]> => {
   const rows = await sql`SELECT * FROM catalog_stain_colors ORDER BY brand, name`;
   return rows.map((r) => ({
     ...r,
@@ -357,28 +357,28 @@ const _stainColors = cache(async (): Promise<StainColor[]> => {
     is_custom_match: !!r.is_custom_match,
     placeholder: !!r.placeholder,
   })) as StainColor[];
-});
+}, ["cat-stain-colors"], { revalidate: 300 });
 
-const _melamineColors = cache(async (): Promise<MelamineColor[]> => {
+const _melamineColors = unstable_cache(async (): Promise<MelamineColor[]> => {
   const rows = await sql`SELECT * FROM catalog_melamine_colors ORDER BY supplier, name`;
   return rows.map((r) => ({
     ...r,
     woodgrain: !!r.woodgrain,
     placeholder: !!r.placeholder,
   })) as MelamineColor[];
-});
+}, ["cat-melamine-colors"], { revalidate: 300 });
 
-const _carcassMaterials = cache(async (): Promise<CarcassMaterial[]> => {
+const _carcassMaterials = unstable_cache(async (): Promise<CarcassMaterial[]> => {
   const rows = await sql`SELECT * FROM catalog_carcass_materials ORDER BY name`;
   return rows.map((r) => ({ ...r, is_other: !!r.is_other })) as CarcassMaterial[];
-});
+}, ["cat-carcass-materials"], { revalidate: 300 });
 
-const _drawerBoxes = cache(async (): Promise<DrawerBox[]> => {
+const _drawerBoxes = unstable_cache(async (): Promise<DrawerBox[]> => {
   const rows = await sql`SELECT * FROM catalog_drawer_boxes ORDER BY name`;
   return rows.map((r) => ({ ...r, is_other: !!r.is_other })) as DrawerBox[];
-});
+}, ["cat-drawer-boxes"], { revalidate: 300 });
 
-const _edgebands = cache(async (): Promise<Edgeband[]> => {
+const _edgebands = unstable_cache(async (): Promise<Edgeband[]> => {
   const rows = await sql`SELECT * FROM catalog_edgebands ORDER BY supplier, product_name`;
   return rows.map((r) => ({
     ...r,
@@ -390,32 +390,32 @@ const _edgebands = cache(async (): Promise<Edgeband[]> => {
     thickness_in: r.thickness_in ?? null,
     // compatible_finish_type stored as semicolons — leave as-is; callers use asArray()
   })) as Edgeband[];
-});
+}, ["cat-edgebands"], { revalidate: 300 });
 
-const _edgebandLocations = cache(async (): Promise<EdgebandLocation[]> => {
+const _edgebandLocations = unstable_cache(async (): Promise<EdgebandLocation[]> => {
   const rows = await sql`SELECT * FROM catalog_edgeband_locations ORDER BY sort_order`;
   return rows as unknown as EdgebandLocation[];
-});
+}, ["cat-edgeband-locations"], { revalidate: 300 });
 
-const _species = cache(async (): Promise<Species[]> => {
+const _species = unstable_cache(async (): Promise<Species[]> => {
   const rows = await sql`SELECT * FROM catalog_species ORDER BY name`;
   return rows as unknown as Species[];
-});
+}, ["cat-species"], { revalidate: 300 });
 
-const _revaAccessories = cache(async (): Promise<RevaAccessory[]> => {
+const _revaAccessories = unstable_cache(async (): Promise<RevaAccessory[]> => {
   const rows = await sql`SELECT * FROM catalog_accessories ORDER BY category, name`;
   return rows as unknown as RevaAccessory[];
-});
+}, ["cat-reva-accessories"], { revalidate: 300 });
 
-const _builderProfiles = cache(async (): Promise<BuilderProfile[]> => {
+const _builderProfiles = unstable_cache(async (): Promise<BuilderProfile[]> => {
   const rows = await sql`SELECT * FROM catalog_builder_profiles ORDER BY builder_name`;
   return rows.map((r) => ({
     ...r,
     is_residential_default: !!r.is_residential_default,
   })) as BuilderProfile[];
-});
+}, ["cat-builder-profiles"], { revalidate: 300 });
 
-const _doorStyles = cache(async (): Promise<DoorStyle[]> => {
+const _doorStyles = unstable_cache(async (): Promise<DoorStyle[]> => {
   const rows = await sql`SELECT * FROM catalog_door_styles ORDER BY name`;
   return rows.map((r) => ({
     ...r,
@@ -423,12 +423,12 @@ const _doorStyles = cache(async (): Promise<DoorStyle[]> => {
     profile: (r as Record<string, unknown>).profile as string ?? "",
     overlay: null,
   })) as DoorStyle[];
-});
+}, ["cat-door-styles"], { revalidate: 300 });
 
-const _hardwarePulls = cache(async (): Promise<HardwarePull[]> => {
+const _hardwarePulls = unstable_cache(async (): Promise<HardwarePull[]> => {
   const rows = await sql`SELECT * FROM catalog_pulls ORDER BY name`;
   return rows as unknown as HardwarePull[];
-});
+}, ["cat-hardware-pulls"], { revalidate: 300 });
 
 // -- Loader registry ----------------------------------------------------------
 

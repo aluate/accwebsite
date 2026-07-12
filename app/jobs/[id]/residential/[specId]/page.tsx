@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const maxDuration = 30; // seconds — requires Vercel Pro; hobby cap is 10s
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
