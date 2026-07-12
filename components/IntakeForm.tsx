@@ -19,7 +19,7 @@ type InitialValues = Partial<{
   delivery_date: string; notes: string;
   notes_install: string; notes_finishing: string; notes_shop: string; notes_client: string;
   mod_residential: number; mod_commercial: number; mod_trim: number; mod_doors: number;
-  id: string;
+  bid_number: string; id: string;
 }>;
 
 export function IntakeForm({ initial }: { initial?: InitialValues }) {
@@ -132,6 +132,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
     const fd = new FormData(e.currentTarget);
     const body = {
       job_number:       fd.get("job_number"),
+      bid_number:       fd.get("bid_number"),
       job_type:         fd.get("job_type"),
       client_name:      fd.get("client_name"),
       client_email:     fd.get("client_email"),
@@ -172,8 +173,17 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
           body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error("Server error");
-        const data = await res.json();
+        const data = await res.json() as { id: string; job_number?: string };
         jobId = data.job_number || data.id;
+        // Patch bid_number separately (column may lag in prod — swallow error)
+        const bidNum = (body.bid_number as string | undefined)?.trim();
+        if (bidNum && data.id) {
+          await fetch(`/api/jobs/${data.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bid_number: bidNum }),
+          }).catch(() => {});
+        }
       }
       router.push(`/jobs/${jobId}`);
       router.refresh();
@@ -189,16 +199,27 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       {/* Job Number */}
       <div className={SECTION}>
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-4">Job Number</p>
-        <div className="max-w-xs">
-          <label className={LABEL}>TradeSoft Job # *</label>
-          <input
-            type="text"
-            name="job_number"
-            defaultValue={initial?.job_number ?? ""}
-            placeholder="e.g. 26162"
-            required={!isEdit}
-            className={INPUT}
-          />
+        <div className="grid grid-cols-2 gap-4 max-w-lg">
+          <div>
+            <label className={LABEL}>TradeSoft Job # <span className="text-white/30 normal-case font-normal tracking-normal">(optional — assign at engineering release)</span></label>
+            <input
+              type="text"
+              name="job_number"
+              defaultValue={initial?.job_number ?? ""}
+              placeholder="e.g. 26162"
+              className={INPUT}
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Bid # <span className="text-white/30 normal-case font-normal tracking-normal">(Project Pack bid ID)</span></label>
+            <input
+              type="text"
+              name="bid_number"
+              defaultValue={initial?.bid_number ?? ""}
+              placeholder="e.g. B-2026-042"
+              className={INPUT}
+            />
+          </div>
         </div>
       </div>
 
