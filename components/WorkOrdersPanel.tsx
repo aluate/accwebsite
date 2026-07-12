@@ -189,19 +189,32 @@ export function WorkOrdersPanel({ jobId }: Props) {
                           <div className="col-span-3">
                             <p className="text-white/30 text-[9px] font-condensed uppercase mb-0.5">Description</p>
                             {cat.code === 1 ? (
-                              <select
-                                value={w.finish_group_id}
-                                onChange={e => {
-                                  const fg = finishGroups.find(f => f.id === e.target.value);
-                                  updateWO(w.id, { finish_group_id: e.target.value, description: fg?.label ?? "" });
-                                }}
-                                className="w-full bg-[#1e1e1e] border border-white/10 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-[#f08122]"
-                              >
-                                <option value="">— pick FG —</option>
-                                {finishGroups.map(fg => (
-                                  <option key={fg.id} value={fg.id}>{fg.label}</option>
-                                ))}
-                              </select>
+                              <div className="space-y-1">
+                                <select
+                                  value={w.finish_group_id || "__other__"}
+                                  onChange={e => {
+                                    if (e.target.value === "__other__") {
+                                      updateWO(w.id, { finish_group_id: "", description: w.description });
+                                    } else {
+                                      const fg = finishGroups.find(f => f.id === e.target.value);
+                                      updateWO(w.id, { finish_group_id: e.target.value, description: fg?.label ?? "" });
+                                    }
+                                  }}
+                                  className="w-full bg-[#1e1e1e] border border-white/10 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-[#f08122]"
+                                >
+                                  <option value="__other__">— Other / freeform —</option>
+                                  {finishGroups.map(fg => (
+                                    <option key={fg.id} value={fg.id}>{fg.label}</option>
+                                  ))}
+                                </select>
+                                {/* Always show text input — lets PM customize FG label or enter freeform */}
+                                <input
+                                  value={w.description}
+                                  onChange={e => updateWO(w.id, { description: e.target.value })}
+                                  placeholder={w.finish_group_id ? "Description (auto-filled from FG)" : "Description"}
+                                  className="w-full bg-[#1e1e1e] border border-white/10 rounded px-2 py-1 text-white text-xs focus:outline-none focus:border-[#f08122]"
+                                />
+                              </div>
                             ) : (
                               <input
                                 value={w.description}
