@@ -26,31 +26,30 @@ import { sql, uid } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
+import { buildEngineeringEmail } from "@/lib/engineering-email";
 
-type JobRow = JobMeta & { status: string };
+type JobRow = JobMeta & {
+  status: string;
+  install_type?: string | null;
+  delivery_date?: string | null;
+  bid_number?: string | null;
+};
 
-function resolveRecipient(
-  key: string,
-  job: JobRow
-): string | null {
+function resolveRecipient(key: string, job: JobRow): string | null {
   switch (key) {
-    case "client": return job.client_email ?? null;
-    case "pm":     return process.env.PM_EMAIL ?? null;
-    case "eng":    return process.env.ENG_EMAIL ?? process.env.PM_EMAIL ?? null;
-    case "shop":   return process.env.SHOP_EMAIL ?? process.env.PM_EMAIL ?? null;
-    default:       return null;
+    case "client":      return job.client_email ?? null;
+    case "pm":          return process.env.PM_EMAIL ?? null;
+    case "eng":         return process.env.ENG_EMAIL ?? process.env.PM_EMAIL ?? null;
+    case "shop":        return process.env.SHOP_EMAIL ?? process.env.PM_EMAIL ?? null;
+    case "residential": return process.env.RESIDENTIAL_EMAIL ?? process.env.PM_EMAIL ?? null;
+    default:            return null;
   }
 }
 
-/** Parse WO/CO number from filename. Returns null if no match. */
 function parseWoNumber(filename: string): { woNumber: string; woType: "wo" | "co" } | null {
-  // Matches: WO46317.pdf, wo46317.pdf, CO47306.pdf, co47306.pdf
   const m = filename.match(/^(WO|CO)(\d+)\./i);
   if (!m) return null;
-  return {
-    woNumber: m[2],
-    woType: m[1].toLowerCase() === "co" ? "co" : "wo",
-  };
+  return { woNumber: m[2], woType: m[1].toLowerCase() === "co" ? "co" : "wo" };
 }
 
 export async function POST(
@@ -74,7 +73,7 @@ export async function POST(
   // ── 1. Load job ────────────────────────────────────────────────────────────
   const [job] = await sql<JobRow[]>`
     SELECT id, job_number, status, client_name, client_email,
-           site_address, city, pm
+           site_address, city, pm, install_type, delivery_date, bid_number
     FROM jobs
     WHERE id = ${id} OR job_number = ${id}
   `;
@@ -85,7 +84,6 @@ export async function POST(
   const fromIdx = STATUS_SEQUENCE.indexOf(job.status as typeof STATUS_SEQUENCE[number]);
   const toIdx   = STATUS_SEQUENCE.indexOf(toStatus as typeof STATUS_SEQUENCE[number]);
 
-  // Allow advancing forward only (or on_hold → any)
   const isOnHold = job.status === "on_hold";
   if (!isOnHold && (fromIdx === -1 || toIdx === -1 || toIdx <= fromIdx)) {
     return NextResponse.json(
@@ -94,7 +92,7 @@ export async function POST(
     );
   }
 
-  // ── 3. Gate check ──────────────────────────────────────────────────────────
+  // ── 3. Gate checks ─────────────────────────────────────────────────────────
   const gate = TRANSITION_GATES[toStatus];
   if (gate?.docRequired && fileIds.length === 0) {
     return NextResponse.json(
@@ -103,11 +101,16 @@ export async function POST(
     );
   }
 
-  // Hard gate: cannot advance to "complete" with open punch items
+  if (toStatus === "engineering" && !job.job_number) {
+    return NextResponse.json(
+      { error: "A job number must be assigned before releasing to Engineering." },
+      { status: 422 }
+    );
+  }
+
   if (toStatus === "complete") {
     const [punchCheck] = await sql<Array<{ open_count: number }>>`
-      SELECT COUNT(*) AS open_count
-      FROM punch_list_items
+      SELECT COUNT(*) AS open_count FROM punch_list_items
       WHERE job_id = ${internalId} AND status = 'open'
     `;
     const openCount = Number(punchCheck?.open_count ?? 0);
@@ -133,10 +136,11 @@ export async function POST(
       const parsed = parseWoNumber(f.filename);
       if (!parsed) continue;
       const woId = uid();
+      const desc = parsed.woType === "co" ? "Change Order" : "Work Order";
       await sql`
-        INSERT INTO work_orders (id, job_id, wo_number, wo_type, file_id, created_at)
-        VALUES (${woId}, ${internalId}, ${parsed.woNumber}, ${parsed.woType}, ${f.id}, ${now})
-        ON CONFLICT (job_id, wo_number) DO NOTHING
+        INSERT INTO work_orders (id, job_id, wo_number, description, created_at)
+        VALUES (${woId}, ${internalId}, ${parsed.woNumber}, ${desc}, ${now})
+        ON CONFLICT (id) DO NOTHING
       `;
     }
   }
@@ -144,36 +148,50 @@ export async function POST(
   // ── 6. Fire emails ─────────────────────────────────────────────────────────
   const emailErrors: string[] = [];
   if (gate) {
-    const subject = gate.subject(job);
-    const text    = gate.body(job, note);
+    const toAddress = gate.recipients
+      .map((k) => resolveRecipient(k, job))
+      .filter(Boolean)
+      .join(", ");
 
-    for (const recipientKey of gate.recipients) {
-      const to = resolveRecipient(recipientKey, job);
-      if (!to) continue;
+    const ccAddress = (gate.ccKeys ?? [])
+      .map((k) => resolveRecipient(k, job))
+      .filter(Boolean)
+      .join(", ") || undefined;
 
-      // For client-facing emails, use a different from-name
-      const result = await sendEmail({ to, subject, text });
+    if (toAddress) {
+      let emailOpts: Parameters<typeof sendEmail>[0];
 
-      // Log email (best-effort)
+      if (toStatus === "engineering") {
+        const { subject, text, html } = await buildEngineeringEmail(job, internalId, note);
+        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html };
+      } else {
+        const subject = gate.subject(job);
+        const text    = gate.body(job, note);
+        emailOpts = { to: toAddress, cc: ccAddress, subject, text };
+      }
+
+      const result = await sendEmail(emailOpts);
+
       try {
         await sql`
-          INSERT INTO transition_emails (id, job_id, to_status, recipient, subject, sent_at, error, created_at)
+          INSERT INTO transition_emails
+            (id, job_id, to_status, recipient, subject, sent_at, error, created_at)
           VALUES (
-            ${uid()}, ${internalId}, ${toStatus}, ${to}, ${subject},
+            ${uid()}, ${internalId}, ${toStatus}, ${toAddress}, ${emailOpts.subject},
             ${result.ok ? now : null},
             ${result.ok ? null : (result as { ok: false; error: string }).error},
             ${now}
           )
         `;
-      } catch { /* table may not exist yet on first run */ }
+      } catch { /* table may not exist yet */ }
 
       if (!result.ok) {
-        emailErrors.push(`${to}: ${(result as { ok: false; error: string }).error}`);
+        emailErrors.push(`${toAddress}: ${(result as { ok: false; error: string }).error}`);
       }
     }
   }
 
-  // ── 7. Activity log ────────────────────────────────────────────────────────
+  // ── 7. Activity log ─────────────────────────────────────────
   await logActivity({
     entityType: "job", entityId: internalId, jobId: internalId,
     eventType: "status_change",
