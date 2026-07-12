@@ -8,10 +8,11 @@
  *   - whether WO filenames should be auto-parsed (WO*.pdf, CO*.pdf)
  *
  * Recipient keys:
- *   "client"    — job.client_email
- *   "pm"        — process.env.PM_EMAIL
- *   "eng"       — process.env.ENG_EMAIL  (falls back to PM_EMAIL)
- *   "shop"      — process.env.SHOP_EMAIL (falls back to PM_EMAIL)
+ *   "client"      — job.client_email
+ *   "pm"          — process.env.PM_EMAIL
+ *   "eng"         — process.env.ENG_EMAIL       (falls back to PM_EMAIL)
+ *   "shop"        — process.env.SHOP_EMAIL      (falls back to PM_EMAIL)
+ *   "residential" — process.env.RESIDENTIAL_EMAIL (falls back to PM_EMAIL)
  */
 
 export type JobMeta = {
