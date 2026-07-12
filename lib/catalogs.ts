@@ -186,14 +186,25 @@ export type Edgeband = {
   id: string;
   product_name: string;
   supplier: string;
+  manufacturer: string | null;
+  sku: string | null;
   type: "melamine" | "pvc" | "abs" | "hardwood" | "custom";
+  material_type: string | null;
+  has_grain: boolean;
   color_match: string | null;
   // Mixed runtime: string when 1 value, string[] when multiple. Use asArray().
   compatible_finish_type: string | string[] | null;
   thickness_mm: string | null;
+  thickness_in: string | null;
   width_in: string | null;
   notes: string | null;
   placeholder: boolean;
+};
+
+export type EdgebandLocation = {
+  letter_code: string;
+  description: string;
+  sort_order: number;
 };
 
 export type BuilderProfile = {
@@ -372,8 +383,18 @@ const _edgebands = cache(async (): Promise<Edgeband[]> => {
   return rows.map((r) => ({
     ...r,
     placeholder: !!r.placeholder,
+    has_grain: !!r.has_grain,
+    manufacturer: r.manufacturer ?? null,
+    sku: r.sku ?? null,
+    material_type: r.material_type ?? null,
+    thickness_in: r.thickness_in ?? null,
     // compatible_finish_type stored as semicolons — leave as-is; callers use asArray()
   })) as Edgeband[];
+});
+
+const _edgebandLocations = cache(async (): Promise<EdgebandLocation[]> => {
+  const rows = await sql`SELECT * FROM catalog_edgeband_locations ORDER BY sort_order`;
+  return rows as unknown as EdgebandLocation[];
 });
 
 const _species = cache(async (): Promise<Species[]> => {
@@ -427,6 +448,7 @@ export const catalogs = {
   moldingTypes:    () => load<MoldingType>("molding_types"),
   moldingProfiles: () => load<MoldingProfile>("molding_profiles"),
   edgebands:       () => _edgebands(),
+  edgebandLocations: () => _edgebandLocations(),
   builderProfiles: () => _builderProfiles(),
 
   cabDoorInsideProfiles: () => load<CabDoorInsideProfile>("cabdoor_inside_profiles"),

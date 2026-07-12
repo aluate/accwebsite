@@ -21,7 +21,15 @@ export type FinishView = {
 export type MaterialView = { role: string; role_label: string; name: string; where_used: string; notes: string };
 export type DoorFrontView = { role: string; role_label: string; slot_label: string; style_name: string; material_name: string; oe_name: string; ie_name: string; panel_name: string; grain: string; vendor: string; notes: string };
 export type DrawerView = { role: string; role_label: string; slot_label: string; drawer_box_name: string; slides_name: string; notes: string };
-export type EdgebandView = { code: string; edgeband_name: string; supplier: string; thickness: string; where_used_label: string; notes: string };
+export type EdgebandView = {
+  letter_code: string;
+  location_description: string;
+  eb_name: string | null;
+  thickness_in: string | null;
+  manufacturer: string | null;
+  sku: string | null;
+  notes: string;
+};
 export type HardwareView = { role: string; role_label: string; slot_label: string; hardware_name: string; brand: string; qty: number | null; location: string; vendor: string; notes: string };
 export type CountertopView = { location: string; style_name: string; edge_name: string; splash_style: string; splash_edge_name: string; material_name: string; buildup_in: number | null; core_substrate: string; brackets: string; notes: string };
 export type MoldingView = { molding_type: string; type_label: string; profile_name: string; size_in: number | null; material_name: string; qty_lf: number | null; where_used: string[]; notes: string };
@@ -354,6 +362,7 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
   // Edgebands per FG
   const ebByFG: Map<string, { fg: FinishGroupView; ebs: EdgebandView[] }> = new Map();
   for (const fg of fgs) {
+    // Show edgeband schedule for any FG that has rows (even if edgeband_id is null)
     if (fg.edgebands.length > 0) ebByFG.set(fg.id, { fg, ebs: fg.edgebands });
   }
 
@@ -420,10 +429,10 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
         </>
       )}
 
-      {/* EDGEBANDING */}
+      {/* EDGEBANDING — Work Order EdgeBand Schedule */}
       {ebByFG.size > 0 && (
         <>
-          <Text style={[S.secHead, { marginTop: 8 }]}>EDGEBANDING</Text>
+          <Text style={[S.secHead, { marginTop: 8 }]}>WORK ORDER EDGEBAND SCHEDULE</Text>
           {Array.from(ebByFG.values()).map(({ fg, ebs }) => {
             const colorName = fg.finish.stain_name || fg.finish.paint_name || "";
             return (
@@ -432,20 +441,22 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
                   <Text style={S.fgBandTx}>{fg.label}{colorName ? `  ·  ${colorName}` : ""}</Text>
                 </View>
                 <View style={S.colHdr}>
-                  <Text style={[S.colHdrTx, { flex: 0.4 }]}>ID</Text>
+                  <Text style={[S.colHdrTx, { flex: 0.3 }]}>#</Text>
                   <Text style={[S.colHdrTx, { flex: 0.7 }]}>Thick</Text>
-                  <Text style={[S.colHdrTx, { flex: 1.5 }]}>Supplier</Text>
+                  <Text style={[S.colHdrTx, { flex: 1.5 }]}>Manufacturer</Text>
+                  <Text style={[S.colHdrTx, { flex: 0.5 }]}>SKU</Text>
                   <Text style={[S.colHdrTx, { flex: 2.5 }]}>Description</Text>
                   <Text style={[S.colHdrTx, { flex: 2.5 }]}>Where Used</Text>
                   <Text style={[S.colHdrTx, { flex: 1.5 }]}>Notes</Text>
                 </View>
                 {ebs.map((eb, ei) => (
                   <View key={ei} style={ei % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-                    <Text style={[S.cell, { flex: 0.4, fontFamily: "Helvetica-Bold", fontSize: 9, color: ORANGE }]}>{eb.code}</Text>
-                    <Text style={[S.cell, { flex: 0.7 }]}>{d(eb.thickness)}</Text>
-                    <Text style={[S.cell, { flex: 1.5 }]}>{d(eb.supplier)}</Text>
-                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.edgeband_name)}</Text>
-                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.where_used_label)}</Text>
+                    <Text style={[S.cell, { flex: 0.3, fontFamily: "Helvetica-Bold", fontSize: 9, color: ORANGE }]}>{eb.letter_code}</Text>
+                    <Text style={[S.cell, { flex: 0.7 }]}>{d(eb.thickness_in)}</Text>
+                    <Text style={[S.cell, { flex: 1.5 }]}>{d(eb.manufacturer)}</Text>
+                    <Text style={[S.cell, { flex: 0.5 }]}>{d(eb.sku)}</Text>
+                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.eb_name)}</Text>
+                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.location_description)}</Text>
                     <Text style={[S.cellMu, { flex: 1.5 }]}>{d(eb.notes)}</Text>
                   </View>
                 ))}

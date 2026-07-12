@@ -132,11 +132,20 @@ export type Room = {
   trim: TrimRow[];
 };
 
+export type EdgebandRowClient = {
+  letter_code: string;
+  edgeband_id: string | null;
+  notes: string;
+  sort_order: number;
+  location_description: string;
+};
+
 type Props = {
   specId: string; jobId: string;
   initialFinishGroups: FinishGroup[];
   initialRooms: Room[];
   initialMaterials: FinishMaterial[];   // v2 spec-form expansion (2026-05-06)
+  initialEdgebands?: Record<string, EdgebandRowClient[]>;  // edgeband rows keyed by fg id
   initialPulls: Record<string, PullRow[]>;     // finish_group_pulls keyed by fg id
   initialAppliances: ApplianceRow[];
   initialAccessories2?: SpecAccessoryItem[];
@@ -461,8 +470,10 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, builderProfiles = [], lastSaved }: Props) {
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialEdgebands = {}, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, builderProfiles = [], lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
+  // Edgeband rows per finish group — keyed by fgId, 8 rows each
+  const [edgebands, setEdgebands] = useState<Record<string, EdgebandRowClient[]>>(initialEdgebands);
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
   const [moldings, setMoldings] = useState<FinishMolding[]>([]);
@@ -2153,6 +2164,85 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               )}
             </div>
           </div>
+
+          {/* ── EdgeBand Schedule ─────────────────────────────────────── */}
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-4">EdgeBand Schedule — edit per finish group</p>
+            {groups.map((g) => {
+              const fgEbs = edgebands[g.id] ?? [];
+              return (
+                <div key={g.id} className="mb-6">
+                  <p className="text-[#f08122] font-condensed uppercase tracking-widest text-xs mb-2">{g.label} — EdgeBand Schedule</p>
+                  <div className="bg-[#2d2d2d] rounded overflow-hidden">
+                    <div className="grid grid-cols-12 gap-0 border-b border-white/10 px-3 py-1.5">
+                      <span className="col-span-1 text-white/40 text-[10px] font-condensed uppercase tracking-widest">#</span>
+                      <span className="col-span-4 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Where Used</span>
+                      <span className="col-span-4 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Edgeband</span>
+                      <span className="col-span-3 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Notes</span>
+                    </div>
+                    {fgEbs.length === 0 ? (
+                      <p className="text-white/20 text-xs px-3 py-3">No edgeband rows — save finish group to auto-populate.</p>
+                    ) : fgEbs.map((eb) => (
+                      <div key={eb.letter_code} className="grid grid-cols-12 gap-1 px-3 py-1.5 border-b border-white/5 items-center">
+                        <span className="col-span-1 text-[#f08122] font-condensed font-bold text-sm">{eb.letter_code}</span>
+                        <span className="col-span-4 text-white/60 text-xs">{eb.location_description}</span>
+                        <div className="col-span-4">
+                          <select
+                            value={eb.edgeband_id ?? ""}
+                            onChange={async (e) => {
+                              const newEbId = e.target.value || null;
+                              // Optimistic update
+                              setEdgebands((prev) => ({
+                                ...prev,
+                                [g.id]: (prev[g.id] ?? []).map((r) =>
+                                  r.letter_code === eb.letter_code ? { ...r, edgeband_id: newEbId } : r
+                                ),
+                              }));
+                              // Persist
+                              await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ edgeband_id: newEbId, notes: eb.notes }),
+                              });
+                            }}
+                            className="w-full bg-[#1a1a1a] border border-white/15 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[#f08122] transition-colors"
+                          >
+                            <option value="">— None —</option>
+                            {catalogs.edgebands.filter((e) => !e.placeholder).map((e) => (
+                              <option key={e.id} value={e.id}>{e.product_name}{e.manufacturer ? ` · ${e.manufacturer}` : ""}{e.thickness_in ? ` · ${e.thickness_in}"` : ""}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="col-span-3">
+                          <input
+                            value={eb.notes}
+                            onChange={async (e) => {
+                              const newNotes = e.target.value;
+                              setEdgebands((prev) => ({
+                                ...prev,
+                                [g.id]: (prev[g.id] ?? []).map((r) =>
+                                  r.letter_code === eb.letter_code ? { ...r, notes: newNotes } : r
+                                ),
+                              }));
+                            }}
+                            onBlur={async (e) => {
+                              await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ edgeband_id: eb.edgeband_id, notes: e.target.value }),
+                              });
+                            }}
+                            placeholder="Notes…"
+                            className="w-full bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -2221,6 +2311,45 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <SumRow label="Drawer Box"    value={dbox?.name} />
                       <SumRow label="Edgeband"      value={eb?.product_name} />
                     </div>
+                    {/* EdgeBand Schedule — read-only preview */}
+                    {(() => {
+                      const fgEbs = edgebands[g.id] ?? [];
+                      if (fgEbs.length === 0) return null;
+                      return (
+                        <div className="mt-3 mb-2">
+                          <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2">EdgeBand Schedule</p>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs border-collapse">
+                              <thead>
+                                <tr className="text-white/30 text-[10px] font-condensed uppercase tracking-widest border-b border-white/10">
+                                  <th className="text-left pb-1 pr-3 w-6">#</th>
+                                  <th className="text-left pb-1 pr-3">Where Used</th>
+                                  <th className="text-left pb-1 pr-3">Edgeband</th>
+                                  <th className="text-left pb-1 pr-3">Thickness</th>
+                                  <th className="text-left pb-1 pr-3">Manufacturer</th>
+                                  <th className="text-left pb-1">Notes</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {fgEbs.map((eb) => {
+                                  const ebCat = eb.edgeband_id ? catalogs.edgebands.find((e) => e.id === eb.edgeband_id) : undefined;
+                                  return (
+                                    <tr key={eb.letter_code} className="border-b border-white/5">
+                                      <td className="py-1 pr-3 text-[#f08122] font-bold font-condensed">{eb.letter_code}</td>
+                                      <td className="py-1 pr-3 text-white/50">{eb.location_description}</td>
+                                      <td className="py-1 pr-3 text-white/70">{ebCat?.product_name ?? "—"}</td>
+                                      <td className="py-1 pr-3 text-white/50">{ebCat?.thickness_in ?? "—"}</td>
+                                      <td className="py-1 pr-3 text-white/50">{ebCat?.manufacturer ?? "—"}</td>
+                                      <td className="py-1 text-white/40">{eb.notes || "—"}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      );
+                    })()}
                     {fgPulls.length > 0 && (
                       <div>
                         <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-1">Pulls</p>

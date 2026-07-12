@@ -917,6 +917,59 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
+
+  // Phase 7: Edgebanding rebuild — letter codes, auto-populate
+  // catalog_edgeband_locations: 8 fixed machine codes
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS catalog_edgeband_locations (
+      letter_code TEXT PRIMARY KEY,
+      description TEXT NOT NULL,
+      sort_order INTEGER DEFAULT 0
+    )
+  `);
+  await sql.unsafe(`
+    INSERT INTO catalog_edgeband_locations VALUES
+      ('D', 'Applied End Panels / Door & Drawer Fronts', 1),
+      ('E', 'Cabinet Body Parts', 2),
+      ('I', 'Adjustable Shelves', 3),
+      ('V', 'Open Adjustable Shelves', 4),
+      ('U', 'Bottom of Upper F.E.', 5),
+      ('B', 'Drawer Box Sides', 6),
+      ('C', 'Drawer Box Front and Backs', 7),
+      ('X', 'MISC.', 8)
+    ON CONFLICT DO NOTHING
+  `);
+
+  // Add new columns to catalog_edgebands
+  for (const stmt of [
+    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS sku TEXT`,
+    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS thickness_in TEXT`,
+    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS material_type TEXT`,
+    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS has_grain BOOLEAN DEFAULT FALSE`,
+    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS manufacturer TEXT`,
+    // Add default_edgeband_id to catalog tables
+    `ALTER TABLE catalog_carcass_materials ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
+    `ALTER TABLE catalog_species ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
+    `ALTER TABLE catalog_melamine_colors ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
+    `ALTER TABLE catalog_drawer_boxes ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+  }
+
+  // Restructure finish_group_edgebands to use letter_code FK
+  await sql.unsafe(`DROP TABLE IF EXISTS finish_group_edgebands`);
+  await sql.unsafe(`
+    CREATE TABLE IF NOT EXISTS finish_group_edgebands (
+      id TEXT PRIMARY KEY,
+      finish_group_id TEXT NOT NULL,
+      letter_code TEXT NOT NULL REFERENCES catalog_edgeband_locations(letter_code),
+      edgeband_id TEXT REFERENCES catalog_edgebands(id),
+      notes TEXT,
+      sort_order INTEGER DEFAULT 0,
+      UNIQUE(finish_group_id, letter_code)
+    )
+  `);
+
   console.log("Schema push complete.");
   await sql.end();
 }

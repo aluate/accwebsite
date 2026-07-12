@@ -59,6 +59,7 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 // per-finish state. Material is the first sub-section to land — others follow
 // the same pattern (door fronts, drawers, edgebands, hardware, countertops).
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
+type EdgebandRow = { id: string; finish_group_id: string; letter_code: string; edgeband_id: string | null; notes: string | null; sort_order: number; location_description: string };
 
 export default async function SpecEditorPage({
   params,
@@ -81,7 +82,7 @@ export default async function SpecEditorPage({
 
   // ── Batch 2: all child rows that depend on roomIds/fgIds ────────────────
   const [
-    accessories, cabinets, roomFinishes, moldingRows, materialRows,
+    accessories, cabinets, roomFinishes, moldingRows, materialRows, edgebandRows,
     pullsRaw, accsRaw,
     fgPullRowsRaw, roomTrimRowsRaw, specApplianceRows, specAccessoryRows2, specHardwareRows,
   ] = await Promise.all([
@@ -90,6 +91,13 @@ export default async function SpecEditorPage({
     roomIds.length ? sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as Promise<RoomFinishRow[]> : Promise.resolve([] as RoomFinishRow[]),
     fgIds.length   ? sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as Promise<MoldingRow[]> : Promise.resolve([] as MoldingRow[]),
     fgIds.length   ? sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as Promise<MaterialRow[]> : Promise.resolve([] as MaterialRow[]),
+    fgIds.length   ? sql`
+      SELECT fge.*, cel.description AS location_description
+      FROM finish_group_edgebands fge
+      JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
+      WHERE fge.finish_group_id IN ${sql(fgIds)}
+      ORDER BY fge.finish_group_id, fge.sort_order
+    `.catch(()=>[]) as Promise<EdgebandRow[]> : Promise.resolve([] as EdgebandRow[]),
     sql`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`.catch(() => []) as Promise<PullDbRow[]>,
     sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`.catch(() => []) as Promise<AccDbRow[]>,
     fgIds.length   ? sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`.catch(()=>[]) as Promise<FGPullRow[]> : Promise.resolve([] as FGPullRow[]),
@@ -235,6 +243,19 @@ export default async function SpecEditorPage({
   // cab_ext removed: carcass material IS the cab_ext; no separate row needed.
   const VALID_MATERIAL_ROLES = ["cab_int", "cab_ext2", "cab_int2"] as const;
   type MaterialRole = (typeof VALID_MATERIAL_ROLES)[number];
+  // Build edgebands keyed by finish_group_id
+  const initialEdgebands: Record<string, { letter_code: string; edgeband_id: string | null; notes: string; sort_order: number; location_description: string }[]> = {};
+  for (const eb of edgebandRows as EdgebandRow[]) {
+    if (!initialEdgebands[eb.finish_group_id]) initialEdgebands[eb.finish_group_id] = [];
+    initialEdgebands[eb.finish_group_id].push({
+      letter_code: eb.letter_code,
+      edgeband_id: eb.edgeband_id,
+      notes: eb.notes ?? "",
+      sort_order: eb.sort_order,
+      location_description: eb.location_description,
+    });
+  }
+
   const materialsHydrated = materialRows
     .filter((m): m is MaterialRow & { role: MaterialRole } =>
       (VALID_MATERIAL_ROLES as readonly string[]).includes(m.role)
@@ -306,6 +327,7 @@ export default async function SpecEditorPage({
         initialFinishGroups={finishGroupsHydrated}
         initialRooms={roomsWithAcc}
         initialMaterials={materialsHydrated}
+        initialEdgebands={initialEdgebands}
         initialPulls={initialPulls}
         initialAppliances={initialAppliances}
         initialAccessories2={initialAccessories2}

@@ -31,7 +31,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       sql`SELECT * FROM finish_group_materials   WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role`,
       sql`SELECT * FROM finish_group_door_fronts WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`,
       sql`SELECT * FROM finish_group_drawers     WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`,
-      sql`SELECT * FROM finish_group_edgebands   WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`,
+      sql`
+        SELECT fge.*, cel.description AS location_description
+        FROM finish_group_edgebands fge
+        JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
+        WHERE fge.finish_group_id IN ${sql(fgIds)}
+        ORDER BY fge.finish_group_id, fge.sort_order
+      `,
       sql`SELECT * FROM finish_group_hardware    WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`,
       sql`SELECT * FROM finish_group_countertops WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`,
     ]);

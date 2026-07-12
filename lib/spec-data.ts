@@ -11,7 +11,7 @@ type AccRow = { room_id: string; acc_id: string; qty: number };
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type DoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; style_id: string | null; material_id: string | null; oe_id: string | null; ie_id: string | null; panel_id: string | null; grain: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type DrawerRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; drawer_box_id: string | null; slides_id: string | null; notes: string | null; sort_order: number };
-type EdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string | null; where_used: string | null; notes: string | null; sort_order: number };
+type EdgebandRow = { id: string; finish_group_id: string; letter_code: string; edgeband_id: string | null; notes: string | null; sort_order: number; location_description: string; eb_name: string | null; eb_thickness_in: string | null; eb_manufacturer: string | null; eb_sku: string | null };
 type HardwareRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; hardware_id: string | null; qty: number | null; location: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type CountertopRow = { id: string; finish_group_id: string; location: string | null; style_id: string | null; edge_id: string | null; splash_style: string | null; splash_edge_id: string | null; material_id: string | null; buildup_in: number | null; core_substrate: string | null; brackets: string | null; notes: string | null; sort_order: number };
 type MoldingRow = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; notes: string | null; sort_order: number; size_in: number | null; material_id: string | null };
@@ -49,7 +49,19 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const materials   = fgIds.length ? await sql<MaterialRow[]>  `SELECT * FROM finish_group_materials   WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role`      : [] as MaterialRow[];
   const doorFronts  = fgIds.length ? await sql<DoorFrontRow[]> `SELECT * FROM finish_group_door_fronts WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as DoorFrontRow[];
   const drawers     = fgIds.length ? await sql<DrawerRow[]>    `SELECT * FROM finish_group_drawers     WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as DrawerRow[];
-  const edgebands   = fgIds.length ? await sql<EdgebandRow[]>  `SELECT * FROM finish_group_edgebands   WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as EdgebandRow[];
+  const edgebands   = fgIds.length ? await sql<EdgebandRow[]>`
+    SELECT fge.*,
+      cel.description AS location_description,
+      ce.product_name AS eb_name,
+      ce.thickness_in AS eb_thickness_in,
+      ce.manufacturer AS eb_manufacturer,
+      ce.sku AS eb_sku
+    FROM finish_group_edgebands fge
+    JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
+    LEFT JOIN catalog_edgebands ce ON ce.id = fge.edgeband_id
+    WHERE fge.finish_group_id = ANY(${sql(fgIds)})
+    ORDER BY fge.finish_group_id, fge.sort_order
+  ` : [] as EdgebandRow[];
   const hardware    = fgIds.length ? await sql<HardwareRow[]>  `SELECT * FROM finish_group_hardware    WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as HardwareRow[];
   const countertops = fgIds.length ? await sql<CountertopRow[]>`SELECT * FROM finish_group_countertops WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as CountertopRow[];
   const moldings    = fgIds.length ? await sql<MoldingRow[]>   `SELECT * FROM finish_moldings          WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as MoldingRow[];
@@ -97,22 +109,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   function hardwareName(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.name??""):"";}
   function hardwareBrand(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.brand??""):"";}
 
-  // Build edgeband code map from finish_group_edgebands table rows (preferred — carries where_used).
-  // Fall back to flat finish_groups.edgeband_id for FGs with no table rows.
-  const ebCodeMap = new Map<string, string>(); // edgeband_id → code
-  let ebCounter = 0;
-  // Seed from table rows first (preserves insertion order per spec)
-  for (const eb of edgebands) {
-    if (eb.edgeband_id && !ebCodeMap.has(eb.edgeband_id)) {
-      ebCodeMap.set(eb.edgeband_id, `EB${++ebCounter}`);
-    }
-  }
-  // Then seed any flat-column IDs not yet covered
-  for (const g of fgs) {
-    if (g.edgeband_id && !ebCodeMap.has(g.edgeband_id)) {
-      ebCodeMap.set(g.edgeband_id, `EB${++ebCounter}`);
-    }
-  }
+  // Group finish_group_edgebands rows by FG id (new schema: letter_code + joined fields)
   // Group finish_group_edgebands rows by FG id
   const ebRowsByFG = new Map<string, EdgebandRow[]>();
   for (const eb of edgebands) {
@@ -130,23 +127,17 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     const drawerBoxName = g.drawer_box_id ? (drawerBoxIdx.get(g.drawer_box_id) ?? g.drawer_box_id) : "";
     const rolloutBoxName = g.rollout_box_id ? (drawerBoxIdx.get(g.rollout_box_id) ?? g.rollout_box_id) : "";
 
-    // Build edgebands from table rows (with where_used_label). Fall back to flat column if no rows.
+    // Build edgebands from new letter_code schema (always 8 rows when available)
     const tableEbs = ebRowsByFG.get(g.id) ?? [];
-    let ebEntries: FinishGroupView["edgebands"];
-    if (tableEbs.length > 0) {
-      ebEntries = tableEbs.map((eb) => {
-        const id = eb.edgeband_id ?? "";
-        const code = id ? (ebCodeMap.get(id) ?? eb.code) : eb.code;
-        const data = id ? edgebandIdx.get(id) : undefined;
-        const whereUsedLabel = eb.where_used ? (EDGEBAND_WHERE_USED_LABEL[eb.where_used] ?? eb.where_used) : "";
-        return { code, edgeband_name: data?.name ?? "", supplier: data?.supplier ?? "", thickness: data?.thickness ?? "", where_used_label: whereUsedLabel, notes: eb.notes ?? "" };
-      });
-    } else {
-      // Legacy/fallback: flat column only
-      const ebData = g.edgeband_id ? edgebandIdx.get(g.edgeband_id) : undefined;
-      const ebCode = g.edgeband_id ? (ebCodeMap.get(g.edgeband_id) ?? "") : "";
-      ebEntries = ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", where_used_label: "", notes: "" }] : [];
-    }
+    const ebEntries: FinishGroupView["edgebands"] = tableEbs.map((eb) => ({
+      letter_code: eb.letter_code,
+      location_description: eb.location_description,
+      eb_name: eb.eb_name,
+      thickness_in: eb.eb_thickness_in,
+      manufacturer: eb.eb_manufacturer,
+      sku: eb.eb_sku,
+      notes: eb.notes ?? "",
+    }));
 
     return {
       id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
