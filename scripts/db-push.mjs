@@ -781,87 +781,97 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
-  // ── Estimating module (feature/estimating, 2026-07-12) ──────────────────────
-  // estimates: top-level bid record, optionally tied to a job
-  await sql`
-    CREATE TABLE IF NOT EXISTS estimates (
+  // ── Estimating module (feature/estimating, 2026-07-12) ────────────────────
+  for (const stmt of [
+    // estimates
+    `CREATE TABLE IF NOT EXISTS estimates (
       id                  TEXT PRIMARY KEY,
       job_id              TEXT REFERENCES jobs(id) ON DELETE SET NULL,
-      title               TEXT NOT NULL,
+      title               TEXT NOT NULL DEFAULT 'New Estimate',
       status              TEXT NOT NULL DEFAULT 'draft',
       scope               TEXT NOT NULL DEFAULT 'supply_install',
-      delivery_cost       REAL NOT NULL DEFAULT 0,
-      tax_amount          REAL NOT NULL DEFAULT 0,
+      delivery_cost       NUMERIC NOT NULL DEFAULT 0,
+      tax_amount          NUMERIC NOT NULL DEFAULT 0,
       is_budget_estimate  INTEGER NOT NULL DEFAULT 0,
-      target_margin_pct   REAL NOT NULL DEFAULT 48,
+      target_margin_pct   NUMERIC NOT NULL DEFAULT 48,
       finish_group_count  INTEGER NOT NULL DEFAULT 1,
       notes               TEXT,
-      created_by          TEXT REFERENCES builder_accounts(id) ON DELETE SET NULL,
+      created_by          TEXT,
       created_at          TEXT NOT NULL,
       updated_at          TEXT NOT NULL
-    )
-  `;
-  await sql`CREATE INDEX IF NOT EXISTS idx_estimates_job ON estimates(job_id)`;
-  await sql`CREATE INDEX IF NOT EXISTS idx_estimates_status ON estimates(status)`;
-
-  // estimate_rooms: rooms within an estimate (syncs with spec rooms via job_id)
-  await sql`
-    CREATE TABLE IF NOT EXISTS estimate_rooms (
-      id          TEXT PRIMARY KEY,
-      estimate_id TEXT NOT NULL REFERENCES estimates(id) ON DELETE CASCADE,
-      name        TEXT NOT NULL,
-      sort_order  INTEGER NOT NULL DEFAULT 0
-    )
-  `;
-  await sql`CREATE INDEX IF NOT EXISTS idx_estimate_rooms_est ON estimate_rooms(estimate_id)`;
-
-  // estimate_line_items: individual cabinet / trim / custom rows
-  await sql`
-    CREATE TABLE IF NOT EXISTS estimate_line_items (
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_estimates_job ON estimates(job_id)`,
+    // estimate_rooms
+    `CREATE TABLE IF NOT EXISTS estimate_rooms (
+      id           TEXT PRIMARY KEY,
+      estimate_id  TEXT NOT NULL REFERENCES estimates(id) ON DELETE CASCADE,
+      name         TEXT NOT NULL DEFAULT 'Room',
+      sort_order   INTEGER NOT NULL DEFAULT 0,
+      fg_id        TEXT,
+      crown        INTEGER NOT NULL DEFAULT 0,
+      toekick      INTEGER NOT NULL DEFAULT 0,
+      light_valance INTEGER NOT NULL DEFAULT 0
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_estimate_rooms_estimate ON estimate_rooms(estimate_id)`,
+    // estimate_line_items
+    `CREATE TABLE IF NOT EXISTS estimate_line_items (
       id                TEXT PRIMARY KEY,
       room_id           TEXT NOT NULL REFERENCES estimate_rooms(id) ON DELETE CASCADE,
       item_type         TEXT NOT NULL DEFAULT 'cabinet',
       cabinet_type_code TEXT,
       description       TEXT,
-      width_in          REAL,
-      height_in         REAL,
-      depth_in          REAL,
+      width_in          NUMERIC,
+      height_in         NUMERIC,
+      depth_in          NUMERIC,
       adj_shelves       INTEGER NOT NULL DEFAULT 1,
       qty               INTEGER NOT NULL DEFAULT 1,
       feature_codes     TEXT,
       end_panel         INTEGER NOT NULL DEFAULT 0,
-      unit_qty          REAL,
+      unit_qty          NUMERIC,
       unit_label        TEXT,
-      manual_unit_cost  REAL,
+      manual_unit_cost  NUMERIC,
       sort_order        INTEGER NOT NULL DEFAULT 0
-    )
-  `;
-  await sql`CREATE INDEX IF NOT EXISTS idx_estimate_items_room ON estimate_line_items(room_id)`;
-
-  // estimate_settings: singleton row with overhead config
-  await sql`
-    CREATE TABLE IF NOT EXISTS estimate_settings (
-      id                   TEXT PRIMARY KEY DEFAULT 'singleton',
-      pm_hrs_base          REAL NOT NULL DEFAULT 2.0,
-      pm_hrs_per_fg        REAL NOT NULL DEFAULT 1.5,
-      eng_hrs_base         REAL NOT NULL DEFAULT 1.0,
-      eng_hrs_per_fg       REAL NOT NULL DEFAULT 0.75,
-      purchasing_hrs_base  REAL NOT NULL DEFAULT 2.0,
-      pm_rate              REAL NOT NULL DEFAULT 55,
-      eng_rate             REAL NOT NULL DEFAULT 55,
-      shop_rate            REAL NOT NULL DEFAULT 25,
-      finish_rate          REAL NOT NULL DEFAULT 25,
-      install_rate         REAL NOT NULL DEFAULT 45,
-      fixed_overhead_pct   REAL NOT NULL DEFAULT 16.5,
-      default_margin_pct   REAL NOT NULL DEFAULT 48,
-      updated_at           TEXT NOT NULL DEFAULT '2026-07-12T00:00:00Z'
-    )
-  `;
-  // Seed default settings row if not present
-  await sql`
-    INSERT INTO estimate_settings (id) VALUES ('singleton')
-    ON CONFLICT (id) DO NOTHING
-  `;
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_eli_room ON estimate_line_items(room_id)`,
+    // estimate_settings singleton
+    `CREATE TABLE IF NOT EXISTS estimate_settings (
+      id                  TEXT PRIMARY KEY DEFAULT 'singleton',
+      pm_hrs_base         NUMERIC NOT NULL DEFAULT 2,
+      pm_hrs_per_fg       NUMERIC NOT NULL DEFAULT 1.5,
+      eng_hrs_base        NUMERIC NOT NULL DEFAULT 1,
+      eng_hrs_per_fg      NUMERIC NOT NULL DEFAULT 0.75,
+      purchasing_hrs_base NUMERIC NOT NULL DEFAULT 2,
+      pm_rate             NUMERIC NOT NULL DEFAULT 55,
+      eng_rate            NUMERIC NOT NULL DEFAULT 55,
+      shop_rate           NUMERIC NOT NULL DEFAULT 25,
+      finish_rate         NUMERIC NOT NULL DEFAULT 25,
+      install_rate        NUMERIC NOT NULL DEFAULT 45,
+      fixed_overhead_pct  NUMERIC NOT NULL DEFAULT 16.5,
+      default_margin_pct  NUMERIC NOT NULL DEFAULT 48,
+      updated_at          TEXT NOT NULL DEFAULT '2026-01-01T00:00:00Z'
+    )`,
+    `INSERT INTO estimate_settings (id) VALUES ('singleton') ON CONFLICT DO NOTHING`,
+    // estimate_finish_groups — catalog-restricted FG per estimate
+    `CREATE TABLE IF NOT EXISTS estimate_finish_groups (
+      id                  TEXT PRIMARY KEY,
+      estimate_id         TEXT NOT NULL REFERENCES estimates(id) ON DELETE CASCADE,
+      name                TEXT NOT NULL DEFAULT 'Finish Group',
+      sort_order          INTEGER NOT NULL DEFAULT 0,
+      finish_catalog_id   TEXT,
+      door_catalog_id     TEXT,
+      pull_catalog_id     TEXT,
+      carcass_catalog_id  TEXT NOT NULL DEFAULT 'ACC-CARC-HARDROCK',
+      created_at          TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_efg_estimate ON estimate_finish_groups(estimate_id)`,
+    // rooms FK to finish group
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS fg_id TEXT`,
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS crown         INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
+  }
 
   console.log("Schema push complete.");
   await sql.end();

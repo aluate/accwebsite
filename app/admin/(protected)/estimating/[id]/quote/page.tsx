@@ -33,10 +33,10 @@ export default async function EstimateQuotePage({
 
   return (
     <EstimateQuoteClient
-      estimate={estimateRows[0] as Parameters<typeof EstimateQuoteClient>[0]["estimate"]}
+      estimate={estimateRows[0] as unknown as Parameters<typeof EstimateQuoteClient>[0]["estimate"]}
       rooms={roomRows as Parameters<typeof EstimateQuoteClient>[0]["rooms"]}
       items={itemRows as Parameters<typeof EstimateQuoteClient>[0]["items"]}
-      settings={settingsRows[0] as Parameters<typeof EstimateQuoteClient>[0]["settings"]}
+      settings={settingsRows[0] as unknown as Parameters<typeof EstimateQuoteClient>[0]["settings"]}
     />
   );
 }

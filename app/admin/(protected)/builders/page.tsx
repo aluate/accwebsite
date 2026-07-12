@@ -458,7 +458,7 @@ export default function BuildersAdminPage() {
                 <button
                   type="button"
                   onClick={() => { setResetId(null); setResetPw(""); }}
-                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 transition-colors"
+                  className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-sm px-4 py-2 rounded transition-colors"
                 >
                   Cancel
                 </button>
@@ -466,7 +466,6 @@ export default function BuildersAdminPage() {
             </form>
           </div>
         )}
-
       </main>
     </div>
   );

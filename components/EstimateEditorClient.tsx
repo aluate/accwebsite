@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { EstimateFinishGroupEditor } from "@/components/EstimateFinishGroupEditor";
+import { CatalogPickerModal, type CatalogSelection } from "@/components/CatalogPickerModal";
 import {
   calcEstimateCost,
   type EstimateRoom,
@@ -308,6 +310,7 @@ function RoomCard({
   onAddItem,
   onRenameRoom,
   onDeleteRoom,
+  onOpenCatalog,
 }: {
   room: DbRoom;
   items: DbItem[];
@@ -318,6 +321,7 @@ function RoomCard({
   onAddItem: (roomId: string, type: string) => void;
   onRenameRoom: (id: string, name: string) => void;
   onDeleteRoom: (id: string) => void;
+  onOpenCatalog: () => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -394,17 +398,24 @@ function RoomCard({
           {/* Add row */}
           <div className="flex gap-2 px-4 py-2.5 border-t border-white/5">
             <button
-              onClick={() => onAddItem(room.id, "cabinet")}
-              className="text-xs text-[#f08122]/80 hover:text-[#f08122] transition-colors"
+              onClick={onOpenCatalog}
+              className="text-xs bg-[#f08122]/15 hover:bg-[#f08122]/25 text-[#f08122] px-2.5 py-1 rounded transition-colors"
             >
-              + Add cabinet row
+              + From Catalog
+            </button>
+            <span className="text-white/15">·</span>
+            <button
+              onClick={() => onAddItem(room.id, "cabinet")}
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
+              + Manual row
             </button>
             <span className="text-white/15">·</span>
             <button
               onClick={() => onAddItem(room.id, "custom")}
               className="text-xs text-white/30 hover:text-white/60 transition-colors"
             >
-              + Custom line item
+              + Custom line
             </button>
           </div>
         </>
@@ -563,6 +574,9 @@ export function EstimateEditorClient({
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [bulkRoomInput, setBulkRoomInput] = useState("");
+  const [showBulkAdd, setShowBulkAdd] = useState(false);
+  const [catalogRoomId, setCatalogRoomId] = useState<string | null>(null);
 
   const settings: EstimateSettings = initialSettings ?? {
     pm_hrs_base: 2, pm_hrs_per_fg: 1.5, eng_hrs_base: 1, eng_hrs_per_fg: 0.75,
@@ -613,7 +627,6 @@ export function EstimateEditorClient({
       width_in: null, height_in: null, depth_in: null,
       adj_shelves: 1, qty: 1, feature_codes: null,
       end_panel: 0, unit_qty: null, unit_label: null, manual_unit_cost: null,
-      sort_order: items.filter((i) => i.room_id === roomId).length,
     };
     setItems((prev) => [...prev, newItem]);
     setDirty(true);
@@ -629,6 +642,56 @@ export function EstimateEditorClient({
     });
     const { id } = await res.json();
     setRooms((prev) => [...prev, { id, estimate_id: estimate.id, name: name.trim(), sort_order: prev.length }]);
+  }
+
+  async function bulkAddRooms() {
+    const names = bulkRoomInput.split(",").map((n) => n.trim()).filter(Boolean);
+    if (!names.length) return;
+    for (const name of names) {
+      const res = await fetch(`/api/estimates/${estimate.id}/rooms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const { id } = await res.json();
+      setRooms((prev) => [...prev, { id, estimate_id: estimate.id, name, sort_order: prev.length }]);
+    }
+    setBulkRoomInput("");
+    setShowBulkAdd(false);
+  }
+
+  async function addFromCatalog(sel: CatalogSelection, roomId: string) {
+    const res = await fetch(`/api/estimates/${estimate.id}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        room_id: roomId,
+        item_type: "cabinet",
+        cabinet_type_code: sel.catalog_entry.cabinet_type_code,
+        description: sel.catalog_entry.display_name,
+        width_in: sel.width_in,
+        height_in: sel.height_in,
+        depth_in: sel.depth_in,
+        adj_shelves: sel.adj_shelves,
+        qty: sel.qty,
+        feature_codes: sel.feature_codes.length ? JSON.stringify(sel.feature_codes) : null,
+        end_panel: sel.feature_codes.includes("END_PANEL_L") || sel.feature_codes.includes("END_PANEL_R") ? 1 : 0,
+      }),
+    });
+    const { id } = await res.json();
+    const newItem: DbItem = {
+      id, room_id: roomId, item_type: "cabinet",
+      cabinet_type_code: sel.catalog_entry.cabinet_type_code,
+      description: sel.catalog_entry.display_name,
+      width_in: sel.width_in, height_in: sel.height_in, depth_in: sel.depth_in,
+      adj_shelves: sel.adj_shelves, qty: sel.qty,
+      feature_codes: sel.feature_codes.length ? JSON.stringify(sel.feature_codes) : null,
+      end_panel: sel.feature_codes.includes("END_PANEL_L") || sel.feature_codes.includes("END_PANEL_R") ? 1 : 0,
+      unit_qty: null, unit_label: null, manual_unit_cost: null,
+    };
+    setItems((prev) => [...prev, newItem]);
+    setDirty(true);
+    setCatalogRoomId(null);
   }
 
   async function renameRoom(id: string, name: string) {
@@ -790,6 +853,11 @@ export function EstimateEditorClient({
           </label>
         </div>
 
+        {/* Finish Groups */}
+        <div className="mb-5">
+          <EstimateFinishGroupEditor estimateId={estimate.id} />
+        </div>
+
         <div className="grid grid-cols-[1fr_280px] gap-5">
           {/* Left: rooms */}
           <div>
@@ -805,15 +873,46 @@ export function EstimateEditorClient({
                 onAddItem={addItem}
                 onRenameRoom={renameRoom}
                 onDeleteRoom={deleteRoom}
+                onOpenCatalog={() => setCatalogRoomId(room.id)}
               />
             ))}
 
-            <button
-              onClick={addRoom}
-              className="w-full mt-1 border border-dashed border-white/15 hover:border-[#f08122]/40 text-white/40 hover:text-[#f08122]/80 rounded-xl py-3 text-sm transition-colors"
-            >
-              + Add room
-            </button>
+            {showBulkAdd ? (
+              <div className="mt-1 border border-dashed border-[#f08122]/40 rounded-xl p-3 space-y-2">
+                <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest">
+                  Room names (comma-separated)
+                </p>
+                <input
+                  autoFocus
+                  value={bulkRoomInput}
+                  onChange={(e) => setBulkRoomInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") bulkAddRooms(); if (e.key === "Escape") setShowBulkAdd(false); }}
+                  placeholder="Kitchen, Master Bath, Laundry..."
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-1.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#f08122]/50"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={bulkAddRooms}
+                    className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-xs px-4 py-1.5 rounded transition-colors"
+                  >
+                    Add Rooms
+                  </button>
+                  <button
+                    onClick={() => { setShowBulkAdd(false); setBulkRoomInput(""); }}
+                    className="text-white/30 hover:text-white text-xs px-3 py-1.5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowBulkAdd(true)}
+                className="w-full mt-1 border border-dashed border-white/15 hover:border-[#f08122]/40 text-white/40 hover:text-[#f08122]/80 rounded-xl py-3 text-sm transition-colors"
+              >
+                + Add room
+              </button>
+            )}
           </div>
 
           {/* Right: cost summary */}
@@ -822,13 +921,22 @@ export function EstimateEditorClient({
             settings={settings}
             scope={estimate.scope}
             finishGroupCount={estimate.finish_group_count}
-taxAmount={estimate.tax_amount}
+            deliveryCost={estimate.delivery_cost}
+            taxAmount={estimate.tax_amount}
             marginPct={estimate.target_margin_pct}
             isBudget={!!estimate.is_budget_estimate}
             onMarginChange={(v) => updateEstimate({ target_margin_pct: v })}
           />
         </div>
       </div>
+
+      {/* Catalog Picker Modal */}
+      {catalogRoomId && (
+        <CatalogPickerModal
+          onAdd={(sel) => addFromCatalog(sel, catalogRoomId)}
+          onClose={() => setCatalogRoomId(null)}
+        />
+      )}
     </div>
   );
 }

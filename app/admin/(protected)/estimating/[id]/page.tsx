@@ -36,10 +36,10 @@ export default async function EstimateEditorPage({
 
   return (
     <EstimateEditorClient
-      estimate={estimateRows[0] as Parameters<typeof EstimateEditorClient>[0]["estimate"]}
+      estimate={estimateRows[0] as unknown as Parameters<typeof EstimateEditorClient>[0]["estimate"]}
       rooms={roomRows as Parameters<typeof EstimateEditorClient>[0]["rooms"]}
       items={itemRows as Parameters<typeof EstimateEditorClient>[0]["items"]}
-      settings={settingsRows[0] as Parameters<typeof EstimateEditorClient>[0]["settings"]}
+      settings={settingsRows[0] as unknown as Parameters<typeof EstimateEditorClient>[0]["settings"]}
       jobs={jobsRows as Parameters<typeof EstimateEditorClient>[0]["jobs"]}
       cabinetTypes={cabinetTypes as Parameters<typeof EstimateEditorClient>[0]["cabinetTypes"]}
       cabinetFeatures={cabinetFeatures as Parameters<typeof EstimateEditorClient>[0]["cabinetFeatures"]}

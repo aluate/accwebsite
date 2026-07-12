@@ -163,11 +163,11 @@ export type CostSummary = {
 // --- Cabinet type map --------------------------------------------------------
 
 const TYPE_MAP = new Map<string, CabinetType>(
-  (cabinetTypes as CabinetType[]).map((t) => [t.code, t])
+  (cabinetTypes as unknown as CabinetType[]).map((t) => [t.code, t])
 );
 
 export function getCabinetType(code: string): CabinetType | undefined { return TYPE_MAP.get(code); }
-export function getAllCabinetTypes(): CabinetType[] { return cabinetTypes as CabinetType[]; }
+export function getAllCabinetTypes(): CabinetType[] { return cabinetTypes as unknown as CabinetType[]; }
 export function getAllCabinetFeatures(): CabinetFeature[] { return cabinetFeatures as CabinetFeature[]; }
 
 // --- Construction profile ----------------------------------------------------
@@ -255,7 +255,7 @@ const DEFAULT_HINGE_COST: number = (() => {
   return row?.unit_cost ?? 2.77;
 })();
 
-const SLIDE_ROW = (slidesCatalog as SlideRow[]).find(
+const SLIDE_ROW = (slidesCatalog as unknown as SlideRow[]).find(
   (r) => r.id !== "HDS-000" && r.id !== "HDS-099" && r.unit_cost_21in && r.unit_cost_21in > 0
 );
 const DEFAULT_SLIDE_COST_15 = SLIDE_ROW?.unit_cost_15in ?? 9.10;
