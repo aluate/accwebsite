@@ -214,5 +214,57 @@
     "material_impact": "none",
     "description": "Override for non-standard labor. Die walls",
     "notes": "complex geometry"
+  },
+  {
+    "code": "END_PANEL_L",
+    "name": "End Panel Left",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "medium",
+    "description": "Applied end panel needed on the LEFT side of this cabinet.",
+    "notes": "Flag for BOM count. Engine adds panel SF cost to this line item."
+  },
+  {
+    "code": "END_PANEL_R",
+    "name": "End Panel Right",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "medium",
+    "description": "Applied end panel needed on the RIGHT side of this cabinet.",
+    "notes": "Flag for BOM count. Engine adds panel SF cost to this line item."
+  },
+  {
+    "code": "FILLER_L",
+    "name": "Filler Left",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Filler strip needed on the LEFT side of this cabinet.",
+    "notes": "Cut-down panel strip. Material only."
+  },
+  {
+    "code": "FILLER_R",
+    "name": "Filler Right",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Filler strip needed on the RIGHT side of this cabinet.",
+    "notes": "Cut-down panel strip. Material only."
   }
 ]

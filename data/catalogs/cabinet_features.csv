@@ -19,3 +19,7 @@ PULL_ALLOWANCE,Pull Allowance Override,,none,variable,Use a dollar allowance ins
 GLAZE,Glaze Finish,,high,medium,Glaze color applied over base finish and wiped back.,Adds finishing step between sealer and topcoat. Extra material + significant labor.
 DISTRESS,Distressing / Aging,,high,low,Physical distressing before finish (rub-through, worm holes, chain marks etc.).,All labor — pre-finish shop time. Very job-specific. Flag triggers manual labor review.
 CUSTOM_LABOR,Custom Labor Override,,manual,none,Override for non-standard labor. Die walls, complex geometry, custom builds.,Estimator enters hours directly. System applies labor rate. Required for anything not in taxonomy.
+END_PANEL_L,End Panel Left,BASE;UPPER;TALL,low,medium,Applied end panel needed on the LEFT side of this cabinet.,Flag for BOM count. Engine adds panel SF cost to this line item.
+END_PANEL_R,End Panel Right,BASE;UPPER;TALL,low,medium,Applied end panel needed on the RIGHT side of this cabinet.,Flag for BOM count. Engine adds panel SF cost to this line item.
+FILLER_L,Filler Left,BASE;UPPER;TALL,low,low,Filler strip needed on the LEFT side of this cabinet.,Cut-down panel strip. Material only.
+FILLER_R,Filler Right,BASE;UPPER;TALL,low,low,Filler strip needed on the RIGHT side of this cabinet.,Cut-down panel strip. Material only.
