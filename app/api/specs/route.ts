@@ -61,5 +61,21 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // ── Seed standard hardware on every new spec ───────────────────────────
+  // These 5 rows appear on every ACC job. Techs edit qty/notes as needed.
+  const hwRows = [
+    { id: uid(), type: "Hinges",        part_no: "71B3550", room: "All",       qty: 1, notes: "Blum 110 CLIP top Blumotion — soft close",          sort_order: 0 },
+    { id: uid(), type: "Drawer Slides", part_no: "563H",    room: "All",       qty: 1, notes: "Blum Tandem Plus Blumotion — undermount soft close",  sort_order: 1 },
+    { id: uid(), type: "Rollout Slides",part_no: "3132",    room: "All",       qty: 1, notes: "Knape & Vogt 3132 — sidemount, non soft close",       sort_order: 2 },
+    { id: uid(), type: "Shelf Pins",    part_no: "SC-5",    room: "All",       qty: 1, notes: "5mm push-in shelf clip",                             sort_order: 3 },
+    { id: uid(), type: "Closet Rod",    part_no: "",        room: "",          qty: 1, notes: "",                                                   sort_order: 4 },
+  ];
+  for (const h of hwRows) {
+    await sql`
+      INSERT INTO spec_hardware (id, spec_id, type, part_no, room, qty, notes, sort_order)
+      VALUES (${h.id}, ${id}, ${h.type}, ${h.part_no || null}, ${h.room || null}, ${h.qty}, ${h.notes || null}, ${h.sort_order})
+    `;
+  }
+
   return NextResponse.json({ id }, { status: 201 });
 }

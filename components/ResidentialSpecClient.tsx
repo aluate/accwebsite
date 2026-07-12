@@ -482,6 +482,28 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [appliances, setAppliances] = useState<ApplianceRow[]>(initialAppliances);
   const [specAccs, setSpecAccs] = useState<SpecAccessoryItem[]>(initialAccessories2 ?? []);
   const [specHW, setSpecHW] = useState<SpecHardwareItem[]>(initialHardware ?? []);
+
+  // Auto-seed standard ACC hardware for specs that have none yet.
+  // Fires once on mount; immediately saves to DB so it persists.
+  useEffect(() => {
+    if ((initialHardware ?? []).length > 0) return; // already has rows
+    const ACC_STANDARD: SpecHardwareItem[] = [
+      { id: uid(), type: "Hinges",         part_no: "71B3550", room: "All", qty: 1, notes: "Blum 110 CLIP top Blumotion — soft close",         sort_order: 0 },
+      { id: uid(), type: "Drawer Slides",  part_no: "563H",    room: "All", qty: 1, notes: "Blum Tandem Plus Blumotion — undermount soft close", sort_order: 1 },
+      { id: uid(), type: "Rollout Slides", part_no: "3132",    room: "All", qty: 1, notes: "Knape & Vogt 3132 — sidemount, non soft close",      sort_order: 2 },
+      { id: uid(), type: "Shelf Pins",     part_no: "SC-5",    room: "All", qty: 1, notes: "5mm push-in shelf clip",                            sort_order: 3 },
+      { id: uid(), type: "Closet Rod",     part_no: "",        room: "",    qty: 1, notes: "",                                                  sort_order: 4 },
+    ];
+    setSpecHW(ACC_STANDARD);
+    // Save immediately so the rows persist on refresh
+    fetch(`/api/specs/${specId}/hardware`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hardware: ACC_STANDARD }),
+    }).catch(() => {}); // silent — user can re-save manually if this fails
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -2142,10 +2164,11 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 <button
                   onClick={() => {
                     const defaults: SpecHardwareItem[] = [
-                      { id: uid(), type: "Hinges", part_no: "", room: "All", qty: 1, notes: "", sort_order: 0 },
-                      { id: uid(), type: "Drawer Slides", part_no: "", room: "All", qty: 1, notes: "", sort_order: 1 },
-                      { id: uid(), type: "Shelf Clips", part_no: "", room: "All", qty: 1, notes: "", sort_order: 2 },
-                      { id: uid(), type: "Soft-Close Buffers", part_no: "", room: "All", qty: 1, notes: "", sort_order: 3 },
+                      { id: uid(), type: "Hinges",         part_no: "71B3550", room: "All", qty: 1, notes: "Blum 110 CLIP top Blumotion — soft close",          sort_order: 0 },
+                      { id: uid(), type: "Drawer Slides",  part_no: "563H",    room: "All", qty: 1, notes: "Blum Tandem Plus Blumotion — undermount soft close", sort_order: 1 },
+                      { id: uid(), type: "Rollout Slides", part_no: "3132",    room: "All", qty: 1, notes: "Knape & Vogt 3132 — sidemount, non soft close",      sort_order: 2 },
+                      { id: uid(), type: "Shelf Pins",     part_no: "SC-5",    room: "All", qty: 1, notes: "5mm push-in shelf clip",                            sort_order: 3 },
+                      { id: uid(), type: "Closet Rod",     part_no: "",        room: "",    qty: 1, notes: "",                                                  sort_order: 4 },
                     ];
                     setSpecHW(defaults); markDirty();
                   }}
