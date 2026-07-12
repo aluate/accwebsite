@@ -1878,7 +1878,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       )}
 
       {/* CABINETS — removed from tabs (Karl 2026-07-09) */}
-      {false && tab === "cabinets" && (
+      {false && (tab as string) === "cabinets" && (
         <CabinetsDrawingsView
           jobId={jobId}
           legacyManualEntry={
@@ -2157,7 +2157,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       )}
 
       {/* ACCESSORIES -- pulls + RevAShelf items (2026-05-28) */}
-      {false && tab === "accessories" && (
+      {false && (tab as string) === "accessories" && (
         <AccessoriesTab specId={specId} initialData={{pulls:[],accessories:[]}} />
       )}
 

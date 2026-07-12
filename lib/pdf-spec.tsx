@@ -62,26 +62,6 @@ export type RoomTrimEntry = { id: string; room_id: string; trim_type: string; si
 export type ApplianceEntry = { id: string; appliance_type: string; manufacturer: string; model_no: string; room_name: string; notes: string; cutout_w: number | null; cutout_h: number | null; cutout_d: number | null; sort_order: number };
 
 
-export type SpecPullRow = {
-  id: string;
-  make: string;
-  model: string;
-  size: string;
-  room: string;
-  notes: string;
-  qty: number;
-};
-
-export type SpecAccessoryRow = {
-  id: string;
-  part_number: string;
-  description: string;
-  qty: number;
-  handed: string;
-  room: string;
-  notes: string;
-};
-
 export type SpecPDFData = {
   job_id: string; spec_name: string; generated_at: string;
   client_name: string; client_email: string | null;
