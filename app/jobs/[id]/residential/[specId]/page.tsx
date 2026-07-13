@@ -39,6 +39,15 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 // the same pattern (door fronts, drawers, edgebands, hardware, countertops).
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 
+type EdgebandRow = {
+  fg_id: string;
+  letter_code: string;
+  edgeband_id: string | null;
+  notes: string;
+  sort_order: number;
+  location_description: string;
+};
+
 export default async function SpecEditorPage({
   params,
 }: {
@@ -248,6 +257,40 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
+  // Edgebands: per-finish-group schedule rows with catalog location descriptions
+  let edgebandRows: EdgebandRow[] = [];
+  try {
+    edgebandRows = fgIds.length
+      ? await sql`
+          SELECT
+            fge.finish_group_id AS fg_id,
+            fge.letter_code,
+            fge.edgeband_id,
+            COALESCE(fge.notes, '') AS notes,
+            COALESCE(cel.sort_order, 0) AS sort_order,
+            COALESCE(cel.description, fge.letter_code) AS location_description
+          FROM finish_group_edgebands fge
+          LEFT JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
+          WHERE fge.spec_id = ${specId}
+          ORDER BY cel.sort_order NULLS LAST, fge.letter_code
+        ` as EdgebandRow[]
+      : [];
+  } catch {
+    // Table not yet created
+  }
+
+  const initialEdgebands: Record<string, import("@/components/ResidentialSpecClient").EdgebandRowClient[]> = {};
+  for (const row of edgebandRows) {
+    if (!initialEdgebands[row.fg_id]) initialEdgebands[row.fg_id] = [];
+    initialEdgebands[row.fg_id].push({
+      letter_code: row.letter_code,
+      edgeband_id: row.edgeband_id,
+      notes: row.notes,
+      sort_order: row.sort_order,
+      location_description: row.location_description,
+    });
+  }
+
   const catalogData = {
     paintColors:      catalogs.paintColors(),
     stainColors:      catalogs.stainColors(),
@@ -294,6 +337,7 @@ export default async function SpecEditorPage({
         initialAppliances={initialAppliances}
         initialAccessories2={initialAccessories2}
         initialHardware={initialHardware}
+        initialEdgebands={initialEdgebands}
         catalogs={catalogData}
         builderProfiles={builderProfiles}
         lastSaved={spec.updated_at}

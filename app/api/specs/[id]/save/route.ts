@@ -8,7 +8,7 @@ import { sql, uid } from "@/lib/db";
 type FinishGroupPayload = {
   id: string;
   label: string;
-  finish_type: "paint" | "stain" | "melamine";
+  finish_type: "paint" | "stain" | "melamine" | "plam" | "";
   color_id: string;
   color_name: string;
   door_style_id: string;
@@ -156,6 +156,74 @@ function validate(payload: SavePayload): Violation[] {
   }
 
   return v;
+}
+
+// -- autoPopulateEdgebands: upsert 8 standard edgeband location rows per FG
+// Called on every save; only sets edgeband_id on INSERT (preserves user edits on UPDATE).
+
+async function autoPopulateEdgebands(
+  specId: string,
+  fgId: string,
+  g: FinishGroupPayload,
+): Promise<void> {
+  // Determine face edgeband from finish type + color
+  let faceEbId: string | null = null;
+  if (g.edgeband_id) {
+    faceEbId = g.edgeband_id;
+  } else if (g.finish_type === "melamine" && g.color_id) {
+    try {
+      const rows = await sql`SELECT default_edgeband_id FROM catalog_melamine_colors WHERE id = ${g.color_id} LIMIT 1`;
+      faceEbId = (rows[0] as { default_edgeband_id: string | null } | undefined)?.default_edgeband_id ?? null;
+    } catch (_) {}
+  } else if (g.finish_type === "plam" && g.color_id) {
+    try {
+      const rows = await sql`SELECT default_edgeband_id FROM catalog_plam_colors WHERE id = ${g.color_id} LIMIT 1`;
+      faceEbId = (rows[0] as { default_edgeband_id: string | null } | undefined)?.default_edgeband_id ?? null;
+    } catch (_) {}
+  }
+
+  // Carcass edgeband
+  let carcassEbId: string | null = null;
+  if (g.carcass_id) {
+    try {
+      const rows = await sql`SELECT default_edgeband_id FROM catalog_carcass_materials WHERE id = ${g.carcass_id} LIMIT 1`;
+      carcassEbId = (rows[0] as { default_edgeband_id: string | null } | undefined)?.default_edgeband_id ?? null;
+    } catch (_) {}
+  }
+
+  // Drawer edgeband
+  let drawerEbId: string | null = null;
+  if (g.drawer_box_id) {
+    try {
+      const rows = await sql`SELECT default_edgeband_id FROM catalog_drawer_boxes WHERE id = ${g.drawer_box_id} LIMIT 1`;
+      drawerEbId = (rows[0] as { default_edgeband_id: string | null } | undefined)?.default_edgeband_id ?? null;
+    } catch (_) {}
+  }
+
+  // 8 standard locations: D=door face, E=exposed end, V=vertical divider, U=upper cabinet face,
+  // I=interior/carcass, B=drawer box, C=drawer front, X=custom/none
+  const rows: Array<{ code: string; ebId: string | null; sortOrder: number }> = [
+    { code: "D", ebId: faceEbId,    sortOrder: 1 },
+    { code: "E", ebId: faceEbId,    sortOrder: 2 },
+    { code: "V", ebId: faceEbId,    sortOrder: 3 },
+    { code: "U", ebId: faceEbId,    sortOrder: 4 },
+    { code: "I", ebId: carcassEbId, sortOrder: 5 },
+    { code: "B", ebId: drawerEbId,  sortOrder: 6 },
+    { code: "C", ebId: drawerEbId,  sortOrder: 7 },
+    { code: "X", ebId: null,        sortOrder: 8 },
+  ];
+
+  for (const row of rows) {
+    await sql`
+      INSERT INTO finish_group_edgebands
+        (id, finish_group_id, letter_code, edgeband_id, sort_order)
+      VALUES
+        (${uid()}, ${fgId}, ${row.code}, ${row.ebId}, ${row.sortOrder})
+      ON CONFLICT (finish_group_id, letter_code) DO UPDATE
+        SET edgeband_id = EXCLUDED.edgeband_id
+        WHERE finish_group_edgebands.edgeband_id IS NULL
+    `;
+  }
 }
 
 // -- Save handler
@@ -348,18 +416,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         } catch (_) { /* seeding failure -- skip */ }
       }
 
-      // edgebands -- seed one row from edgeband_id
-      if (g.edgeband_id) {
-        try {
-          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_edgebands WHERE finish_group_id = ${fgId}`;
-          if (Number((cnt[0] as { c: string | number }).c) === 0) {
-            await sql`
-              INSERT INTO finish_group_edgebands (id, finish_group_id, code, edgeband_id, sort_order)
-              VALUES (${uid()}, ${fgId}, ${'EB1'}, ${g.edgeband_id}, ${0})
-            `;
-          }
-        } catch (_) { /* seeding failure -- skip */ }
-      }
+      // edgebands -- auto-populate 8 standard location rows per FG on every save.
+      // Rows: D/E/V/U = face finish edgeband; I = carcass edgeband; B/C = drawer edgeband; X = custom/none.
+      // Uses ON CONFLICT (finish_group_id, letter_code) DO UPDATE ... WHERE edgeband_id IS NULL
+      // so user's manual selections are never overwritten.
+      try {
+        await autoPopulateEdgebands(id, fgId, g);
+      } catch (_) { /* seeding failure -- skip */ }
 
       // hardware -- seed door_pulls and drawer_pulls rows from pull_id
       if (g.pull_id) {
