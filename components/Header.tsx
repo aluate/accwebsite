@@ -35,6 +35,7 @@ const ADMIN_NAV = [
   { label: "Libraries",       href: "/admin/libraries" },
   { label: "Portal Accounts", href: "/admin/portal-accounts" },
   { label: "Schedule Admin",  href: "/admin/schedule" },
+  { label: "Bug Reports",     href: "/admin/bugs" },
   { label: "Search",          href: "/search" },
   { label: "Punch",           href: "/punch" },
   { label: "Warranty",        href: "/warranty" },
@@ -42,6 +43,7 @@ const ADMIN_NAV = [
 
 const PM_NAV = [
   { label: "Schedule Admin",  href: "/admin/schedule" },
+  { label: "Bug Reports",     href: "/admin/bugs" },
   { label: "Search",          href: "/search" },
   { label: "Punch",           href: "/punch" },
   { label: "Warranty",        href: "/warranty" },

@@ -871,12 +871,9 @@ async function main() {
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS crown         INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
-  ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
-  }
-
-  console.log("Schema push complete.");
-  await sql.end();
-}
-
-main().catch((e) => { console.error(e); process.exit(1); });
+    // Bug reports
+    `CREATE TABLE IF NOT EXISTS bug_reports (
+      id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+      page_url     TEXT NOT NULL,
+      user_name    TEXT NOT NULL,
+      user_role  

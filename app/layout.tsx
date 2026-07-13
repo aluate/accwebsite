@@ -3,6 +3,7 @@ import { Inter, Abel, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { BugReportButton } from "@/components/BugReportButton";
 import { SITE } from "@/data/site";
 import { getBuilder } from "@/lib/auth";
 
@@ -45,9 +46,4 @@ export default async function RootLayout({
     <html lang="en" className={`${inter.variable} ${abel.variable} ${barlowCondensed.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#3d3d3d] text-white antialiased">
         <Header userRole={userRole} />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
-    </html>
-  );
-}
+        <main className="flex-1">{child
