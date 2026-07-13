@@ -1,0 +1,18 @@
+[
+  {
+    "catalog_id": "ACC-CARC-HARDROCK",
+    "display_name": "Hardrock Maple Melamine",
+    "source_sku": "CAR-001",
+    "cost_per_sf": "1.72",
+    "description": "Standard carcass — hardrock maple melamine board",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-CARC-MAPPLY",
+    "display_name": "Maple Plywood",
+    "source_sku": "CAR-002",
+    "cost_per_sf": "3.22",
+    "description": "Premium carcass — PF maple plywood",
+    "active": true
+  }
+]

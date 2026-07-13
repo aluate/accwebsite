@@ -1,0 +1,270 @@
+[
+  {
+    "code": "FINISHED_INTERIOR",
+    "name": "Finished Interior",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "high",
+    "material_impact": "medium",
+    "description": "All interior surfaces finished (stained/painted) instead of standard liner.",
+    "notes": "Triggers full finishing sub-assembly on box interior. Required for open cabinets."
+  },
+  {
+    "code": "SINK_CUTOUT",
+    "name": "Sink Cutout",
+    "applies_to": "BASE",
+    "labor_impact": "medium",
+    "material_impact": "low",
+    "description": "CNC cutout in cabinet bottom for sink undermount.",
+    "notes": "Adds CNC time. Small material waste. Usually paired with false_front."
+  },
+  {
+    "code": "FALSE_FRONT",
+    "name": "False Front",
+    "applies_to": "BASE",
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Decorative panel in drawer space with no drawer box behind it.",
+    "notes": "Replaces drawer box sub-assembly with panel-only. Still needs hinge/push hardware."
+  },
+  {
+    "code": "CLOSET_ROD",
+    "name": "Closet Rod",
+    "applies_to": [
+      "BASE",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Closet rod installed inside cabinet with rod cups.",
+    "notes": "Adds rod material (LF × cabinet depth) + install labor. Seen on pantry/closet pieces."
+  },
+  {
+    "code": "ROLLOUT_SHELF",
+    "name": "Rollout Shelf (each)",
+    "applies_to": [
+      "BASE",
+      "TALL"
+    ],
+    "labor_impact": "medium",
+    "material_impact": "medium",
+    "description": "Rollout shelf = drawer box on full-extension slides. Add per qty.",
+    "notes": "Each rollout = drawer box labor + full-extension slides. Count them individually."
+  },
+  {
+    "code": "TRASH_PULLOUT",
+    "name": "Trash Pullout",
+    "applies_to": "BASE",
+    "labor_impact": "medium",
+    "material_impact": "medium",
+    "description": "Soft-close pullout trash hardware inside base cabinet.",
+    "notes": "Specialty hardware cost + assembly labor. Usually replaces standard shelf."
+  },
+  {
+    "code": "LAZY_SUSAN",
+    "name": "Lazy Susan",
+    "applies_to": [
+      "BASE",
+      "UPPER"
+    ],
+    "labor_impact": "high",
+    "material_impact": "high",
+    "description": "Rotating shelf hardware. Full-circle or kidney-shaped.",
+    "notes": "Special hardware + assembly. Typically 2-door corner cabinet."
+  },
+  {
+    "code": "GLASS_DOOR",
+    "name": "Glass Door (per door)",
+    "applies_to": [
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "high",
+    "description": "Door has glass panel instead of solid wood/MDF.",
+    "notes": "Door material changes entirely (buyout glass door or frame + glass). Finish labor similar."
+  },
+  {
+    "code": "GLASS_INSERT",
+    "name": "Glass Insert (per door)",
+    "applies_to": [
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "medium",
+    "material_impact": "medium",
+    "description": "Shop-built door with glass panel inserted (not buyout door).",
+    "notes": "Adds routing + glass sourcing. More labor than solid door."
+  },
+  {
+    "code": "APPLIED_END_PANEL",
+    "name": "Applied End Panel",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "medium",
+    "description": "Panelized end applied to exposed cabinet side.",
+    "notes": "Additional panel cut + finish + apply. Usually matches door style."
+  },
+  {
+    "code": "FURNITURE_TOE",
+    "name": "Furniture Toe / Bun Foot",
+    "applies_to": "BASE",
+    "labor_impact": "medium",
+    "material_impact": "medium",
+    "description": "Decorative furniture-style toekick or bun feet instead of standard toe.",
+    "notes": "Different toe construction. May add height. Labor and material vary."
+  },
+  {
+    "code": "LIGHT_RAIL",
+    "name": "Light Rail Molding",
+    "applies_to": "UPPER",
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Horizontal molding applied to bottom of upper cabinets.",
+    "notes": "LF of cabinet run × material cost. Install labor minimal."
+  },
+  {
+    "code": "CROWN_MOLDING",
+    "name": "Crown Molding",
+    "applies_to": [
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "medium",
+    "material_impact": "medium",
+    "description": "Crown profile applied to top of uppers or talls.",
+    "notes": "LF × profile material cost. Miter/coping labor. Tracked in Molding Totals report."
+  },
+  {
+    "code": "CORNER_HINGE_45",
+    "name": "45° Corner Hinge",
+    "applies_to": [
+      "BASE",
+      "UPPER"
+    ],
+    "labor_impact": "none",
+    "material_impact": "medium",
+    "description": "Specialty hinge required for 45° diagonal corner cabinets. Different plate and cup than standard.",
+    "notes": "Not interchangeable with standard Blum. Flag auto-applies when cabinet type is B-CORNER-45 or W-CORNER-45."
+  },
+  {
+    "code": "SOFT_CLOSE_HINGE",
+    "name": "Soft Close Hinges",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "none",
+    "material_impact": "low",
+    "description": "Blum soft-close hinge upgrade.",
+    "notes": "Material delta only (standard hinge → Blum soft-close). No labor change."
+  },
+  {
+    "code": "PUSH_TO_OPEN",
+    "name": "Push to Open",
+    "applies_to": [
+      "BASE",
+      "UPPER"
+    ],
+    "labor_impact": "none",
+    "material_impact": "low",
+    "description": "Push-to-open hardware (no pull required).",
+    "notes": "Material only. Removes pull cost. Used on appliance garages and hidden cabinets."
+  },
+  {
+    "code": "PULL_ALLOWANCE",
+    "name": "Pull Allowance Override",
+    "applies_to": null,
+    "labor_impact": "none",
+    "material_impact": "variable",
+    "description": "Use a dollar allowance instead of a specific pull from library.",
+    "notes": "Tiers: $5 / $10 / $15 / $20 / $35 / $50 / $75 / $100+ / custom (free entry). Use when pull not in library or client-supplied. $5-$15 = basic/builder. $20-$35 = standard decorative. $50+ = specialty/custom."
+  },
+  {
+    "code": "GLAZE",
+    "name": "Glaze Finish",
+    "applies_to": null,
+    "labor_impact": "high",
+    "material_impact": "medium",
+    "description": "Glaze color applied over base finish and wiped back.",
+    "notes": "Adds finishing step between sealer and topcoat. Extra material + significant labor."
+  },
+  {
+    "code": "DISTRESS",
+    "name": "Distressing / Aging",
+    "applies_to": null,
+    "labor_impact": "high",
+    "material_impact": "low",
+    "description": "Physical distressing before finish (rub-through",
+    "notes": "worm holes"
+  },
+  {
+    "code": "CUSTOM_LABOR",
+    "name": "Custom Labor Override",
+    "applies_to": null,
+    "labor_impact": "manual",
+    "material_impact": "none",
+    "description": "Override for non-standard labor. Die walls",
+    "notes": "complex geometry"
+  },
+  {
+    "code": "END_PANEL_L",
+    "name": "End Panel Left",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "medium",
+    "description": "Applied end panel needed on the LEFT side of this cabinet.",
+    "notes": "Flag for BOM count. Engine adds panel SF cost to this line item."
+  },
+  {
+    "code": "END_PANEL_R",
+    "name": "End Panel Right",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "medium",
+    "description": "Applied end panel needed on the RIGHT side of this cabinet.",
+    "notes": "Flag for BOM count. Engine adds panel SF cost to this line item."
+  },
+  {
+    "code": "FILLER_L",
+    "name": "Filler Left",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Filler strip needed on the LEFT side of this cabinet.",
+    "notes": "Cut-down panel strip. Material only."
+  },
+  {
+    "code": "FILLER_R",
+    "name": "Filler Right",
+    "applies_to": [
+      "BASE",
+      "UPPER",
+      "TALL"
+    ],
+    "labor_impact": "low",
+    "material_impact": "low",
+    "description": "Filler strip needed on the RIGHT side of this cabinet.",
+    "notes": "Cut-down panel strip. Material only."
+  }
+]

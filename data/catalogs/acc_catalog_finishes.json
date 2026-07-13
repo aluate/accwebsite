@@ -1,0 +1,137 @@
+[
+  {
+    "catalog_id": "ACC-MEL-1",
+    "display_name": "Valenti Walnut",
+    "finish_type": "MELAMINE",
+    "source_sku": "MEL-SW-W03",
+    "hex_preview": null,
+    "description": "Stevenswood Walnut series — Wood Matte texture",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-MEL-2",
+    "display_name": "Amble Walnut",
+    "finish_type": "MELAMINE",
+    "source_sku": "MEL-SW-W04",
+    "hex_preview": null,
+    "description": "Stevenswood Walnut series — Wood Matte texture",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-MEL-3",
+    "display_name": "Opus Walnut",
+    "finish_type": "MELAMINE",
+    "source_sku": "MEL-SW-W13",
+    "hex_preview": null,
+    "description": "Stevenswood Walnut series — Wood Matte texture",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-MEL-4",
+    "display_name": "Roan Walnut",
+    "finish_type": "MELAMINE",
+    "source_sku": "MEL-SW-W43",
+    "hex_preview": null,
+    "description": "Stevenswood Walnut series — Wood Matte texture",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-MEL-5",
+    "display_name": "Magpie Walnut",
+    "finish_type": "MELAMINE",
+    "source_sku": "MEL-SW-W45",
+    "hex_preview": null,
+    "description": "Stevenswood Walnut series — Wood Matte texture",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-STAIN-1",
+    "display_name": "Bellini",
+    "finish_type": "STAIN",
+    "source_sku": "STN-ACC-BELLINI",
+    "hex_preview": "#C8A882",
+    "description": "ACC in-house stain",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-STAIN-2",
+    "display_name": "Gimlet",
+    "finish_type": "STAIN",
+    "source_sku": "STN-ACC-GIMLET",
+    "hex_preview": "#A0785A",
+    "description": "ACC in-house stain",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-STAIN-3",
+    "display_name": "Amaretto",
+    "finish_type": "STAIN",
+    "source_sku": "STN-ACC-AMARETTO",
+    "hex_preview": "#7A5C3E",
+    "description": "ACC in-house stain",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-STAIN-4",
+    "display_name": "Manhattan",
+    "finish_type": "STAIN",
+    "source_sku": "STN-ACC-MANHATTAN",
+    "hex_preview": "#5C3D1E",
+    "description": "ACC in-house stain",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-STAIN-5",
+    "display_name": "Natural",
+    "finish_type": "STAIN",
+    "source_sku": "STN-ACC-NATURAL",
+    "hex_preview": "#D4B896",
+    "description": "ACC in-house stain — no color added",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PAINT-1",
+    "display_name": "ML Cabinetcoat White",
+    "finish_type": "PAINT",
+    "source_sku": "PNT-ML-CC-WHITE",
+    "hex_preview": "#F8F8F6",
+    "description": "ML Campbell Cabinetcoat White",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PAINT-2",
+    "display_name": "ML Cabinetcoat Extra White",
+    "finish_type": "PAINT",
+    "source_sku": "PNT-ML-CC-EXTRAWHITE",
+    "hex_preview": "#FFFFFF",
+    "description": "ML Campbell Cabinetcoat Extra White",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PAINT-3",
+    "display_name": "ML Cabinetcoat Linen",
+    "finish_type": "PAINT",
+    "source_sku": "PNT-ML-CC-LINEN",
+    "hex_preview": "#E8DDD0",
+    "description": "ML Campbell Cabinetcoat Linen",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PAINT-4",
+    "display_name": "ML Cabinetcoat Black",
+    "finish_type": "PAINT",
+    "source_sku": "PNT-ML-CC-BLACK",
+    "hex_preview": "#1A1A1A",
+    "description": "ML Campbell Cabinetcoat Black",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PAINT-5",
+    "display_name": "ML Custom Match",
+    "finish_type": "PAINT",
+    "source_sku": "PNT-ML-COATING-ONLY",
+    "hex_preview": "#808080",
+    "description": "Client-supplied color — specify at order",
+    "active": true
+  }
+]

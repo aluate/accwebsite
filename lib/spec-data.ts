@@ -4,14 +4,14 @@ import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, Moldin
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
-type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; grade: string | null; grain_orientation: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
+type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
 type AccRow = { room_id: string; acc_id: string; qty: number };
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type DoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; style_id: string | null; material_id: string | null; oe_id: string | null; ie_id: string | null; panel_id: string | null; grain: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type DrawerRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; drawer_box_id: string | null; slides_id: string | null; notes: string | null; sort_order: number };
-type EdgebandRow = { id: string; finish_group_id: string; letter_code: string; edgeband_id: string | null; notes: string | null; sort_order: number; location_description: string; eb_name: string | null; eb_thickness_in: string | null; eb_manufacturer: string | null; eb_sku: string | null };
+type EdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string | null; where_used: string | null; notes: string | null; sort_order: number };
 type HardwareRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; hardware_id: string | null; qty: number | null; location: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type CountertopRow = { id: string; finish_group_id: string; location: string | null; style_id: string | null; edge_id: string | null; splash_style: string | null; splash_edge_id: string | null; material_id: string | null; buildup_in: number | null; core_substrate: string | null; brackets: string | null; notes: string | null; sort_order: number };
 type MoldingRow = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; notes: string | null; sort_order: number; size_in: number | null; material_id: string | null };
@@ -49,19 +49,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const materials   = fgIds.length ? await sql<MaterialRow[]>  `SELECT * FROM finish_group_materials   WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role`      : [] as MaterialRow[];
   const doorFronts  = fgIds.length ? await sql<DoorFrontRow[]> `SELECT * FROM finish_group_door_fronts WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as DoorFrontRow[];
   const drawers     = fgIds.length ? await sql<DrawerRow[]>    `SELECT * FROM finish_group_drawers     WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as DrawerRow[];
-  const edgebands   = fgIds.length ? await sql<EdgebandRow[]>`
-    SELECT fge.*,
-      cel.description AS location_description,
-      ce.product_name AS eb_name,
-      ce.thickness_in AS eb_thickness_in,
-      ce.manufacturer AS eb_manufacturer,
-      ce.sku AS eb_sku
-    FROM finish_group_edgebands fge
-    JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
-    LEFT JOIN catalog_edgebands ce ON ce.id = fge.edgeband_id
-    WHERE fge.finish_group_id = ANY(${sql(fgIds)})
-    ORDER BY fge.finish_group_id, fge.sort_order
-  ` : [] as EdgebandRow[];
+  const edgebands   = fgIds.length ? await sql<EdgebandRow[]>  `SELECT * FROM finish_group_edgebands   WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as EdgebandRow[];
   const hardware    = fgIds.length ? await sql<HardwareRow[]>  `SELECT * FROM finish_group_hardware    WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as HardwareRow[];
   const countertops = fgIds.length ? await sql<CountertopRow[]>`SELECT * FROM finish_group_countertops WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as CountertopRow[];
   const moldings    = fgIds.length ? await sql<MoldingRow[]>   `SELECT * FROM finish_moldings          WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` : [] as MoldingRow[];
@@ -70,25 +58,11 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const rfs  = roomIds.length ? await sql<RoomFinishRow[]>`SELECT * FROM room_finishes    WHERE room_id IN ${sql(roomIds)}` : [] as RoomFinishRow[];
   const accs = roomIds.length ? await sql<AccRow[]>        `SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` : [] as AccRow[];
 
-  // Fetch DB-backed catalogs concurrently; file-based ones read synchronously below.
-  const [
-    carcassMaterialsArr, drawerBoxesArr, edgebandsArr, doorStylesArr,
-    accArr, paintColorsArr, stainColorsArr,
-  ] = await Promise.all([
-    catalogs.carcassMaterials(),
-    catalogs.drawerBoxes(),
-    catalogs.edgebands(),
-    catalogs.doorStyles(),
-    catalogs.revaAccessories(),
-    catalogs.paintColors(),
-    catalogs.stainColors(),
-  ]);
-
-  const carcassIdx=new Map(carcassMaterialsArr.map(c=>[c.id,c.name]));
-  const drawerBoxIdx=new Map(drawerBoxesArr.map(d=>[d.id,d.name]));
-  const edgebandIdx=new Map(edgebandsArr.map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));
-  const doorStyleIdx=new Map(doorStylesArr.map(d=>[d.id,d.name]));
-  const accIdx=new Map(accArr.map(a=>[a.id,{name:a.name,brand:a.brand}]));
+  const carcassIdx=new Map(catalogs.carcassMaterials().map(c=>[c.id,c.name]));
+  const drawerBoxIdx=new Map(catalogs.drawerBoxes().map(d=>[d.id,d.name]));
+  const edgebandIdx=new Map(catalogs.edgebands().map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));
+  const doorStyleIdx=new Map(catalogs.doorStyles().map(d=>[d.id,d.name]));
+  const accIdx=new Map(catalogs.revaAccessories().map(a=>[a.id,{name:a.name,brand:a.brand}]));
   const moldingProfIdx=new Map(catalogs.moldingProfiles().map(p=>[p.id,p.name]));
   const moldingMatIdx=new Map(catalogs.moldingMaterials().map(m=>[m.id,m.name]));
   const sheenIdx=new Map(catalogs.sheens().map(s=>[s.id,s.name]));
@@ -99,8 +73,8 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const cabdoorEdgeIdx=new Map(catalogs.cabDoorEdgeDetails().map(e=>[e.id,e.name]));
   const cabdoorInsideIdx=new Map(catalogs.cabDoorInsideProfiles().map(i=>[i.id,i.id]));
   const cabdoorPanelIdx=new Map(catalogs.cabDoorPanels().map(p=>[p.id,p.id]));
-  const paintIdx=new Map(paintColorsArr.map(p=>[p.id,p.name]));
-  const stainIdx=new Map(stainColorsArr.map(s=>[s.id,s.name]));
+  const paintIdx=new Map(catalogs.paintColors().map(p=>[p.id,p.name]));
+  const stainIdx=new Map(catalogs.stainColors().map(s=>[s.id,s.name]));
   const ctopStyleIdx=new Map(catalogs.countertopStyles().map(s=>[s.id,s.name]));
   const ctopEdgeIdx=new Map(catalogs.countertopEdges().map(e=>[e.id,e.name]));
   const ctopMatIdx=new Map(catalogs.countertopMaterials().map(m=>[m.id,m.name]));
@@ -109,7 +83,22 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   function hardwareName(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.name??""):"";}
   function hardwareBrand(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.brand??""):"";}
 
-  // Group finish_group_edgebands rows by FG id (new schema: letter_code + joined fields)
+  // Build edgeband code map from finish_group_edgebands table rows (preferred — carries where_used).
+  // Fall back to flat finish_groups.edgeband_id for FGs with no table rows.
+  const ebCodeMap = new Map<string, string>(); // edgeband_id → code
+  let ebCounter = 0;
+  // Seed from table rows first (preserves insertion order per spec)
+  for (const eb of edgebands) {
+    if (eb.edgeband_id && !ebCodeMap.has(eb.edgeband_id)) {
+      ebCodeMap.set(eb.edgeband_id, `EB${++ebCounter}`);
+    }
+  }
+  // Then seed any flat-column IDs not yet covered
+  for (const g of fgs) {
+    if (g.edgeband_id && !ebCodeMap.has(g.edgeband_id)) {
+      ebCodeMap.set(g.edgeband_id, `EB${++ebCounter}`);
+    }
+  }
   // Group finish_group_edgebands rows by FG id
   const ebRowsByFG = new Map<string, EdgebandRow[]>();
   for (const eb of edgebands) {
@@ -127,21 +116,26 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     const drawerBoxName = g.drawer_box_id ? (drawerBoxIdx.get(g.drawer_box_id) ?? g.drawer_box_id) : "";
     const rolloutBoxName = g.rollout_box_id ? (drawerBoxIdx.get(g.rollout_box_id) ?? g.rollout_box_id) : "";
 
-    // Build edgebands from new letter_code schema (always 8 rows when available)
+    // Build edgebands from table rows (with where_used_label). Fall back to flat column if no rows.
     const tableEbs = ebRowsByFG.get(g.id) ?? [];
-    const ebEntries: FinishGroupView["edgebands"] = tableEbs.map((eb) => ({
-      letter_code: eb.letter_code,
-      location_description: eb.location_description,
-      eb_name: eb.eb_name,
-      thickness_in: eb.eb_thickness_in,
-      manufacturer: eb.eb_manufacturer,
-      sku: eb.eb_sku,
-      notes: eb.notes ?? "",
-    }));
+    let ebEntries: FinishGroupView["edgebands"];
+    if (tableEbs.length > 0) {
+      ebEntries = tableEbs.map((eb) => {
+        const id = eb.edgeband_id ?? "";
+        const code = id ? (ebCodeMap.get(id) ?? eb.code) : eb.code;
+        const data = id ? edgebandIdx.get(id) : undefined;
+        const whereUsedLabel = eb.where_used ? (EDGEBAND_WHERE_USED_LABEL[eb.where_used] ?? eb.where_used) : "";
+        return { code, edgeband_name: data?.name ?? "", supplier: data?.supplier ?? "", thickness: data?.thickness ?? "", where_used_label: whereUsedLabel, notes: eb.notes ?? "" };
+      });
+    } else {
+      // Legacy/fallback: flat column only
+      const ebData = g.edgeband_id ? edgebandIdx.get(g.edgeband_id) : undefined;
+      const ebCode = g.edgeband_id ? (ebCodeMap.get(g.edgeband_id) ?? "") : "";
+      ebEntries = ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", where_used_label: "", notes: "" }] : [];
+    }
 
     return {
       id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
-      grade: g.grade ?? "", grain_orientation: g.grain_orientation ?? "",
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
       finish: {
         stain_name: isStain ? colorName : "",
@@ -161,7 +155,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const roomViews: RoomView[] = rooms.map((r) => {
     const finishes=rfs.filter(f=>f.room_id===r.id).map(f=>({finish_group_id:f.finish_group_id,finish_label:fgLabelIdx.get(f.finish_group_id)??f.finish_group_id,zone:f.zone??""}));
     const seeded=finishes.length===0&&r.finish_group_id?[{finish_group_id:r.finish_group_id,finish_label:fgLabelIdx.get(r.finish_group_id)??r.finish_group_id,zone:""}]:finishes;
-    return{id:r.id,name:r.name,notes:r.notes??"",flooring:(r as Record<string,unknown>).flooring as string??"",ceiling_height:(r as Record<string,unknown>).ceiling_height as string??"",soffit:(r as Record<string,unknown>).soffit as string??"",backsplash:(r as Record<string,unknown>).backsplash as string??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:""}),qty:a.qty}))};
+    return{id:r.id,name:r.name,notes:r.notes??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:""}),qty:a.qty}))};
   });
 
   const accRollupMap=new Map<string,AccessoryRollupRow>();

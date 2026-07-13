@@ -1,0 +1,6 @@
+catalog_id,display_name,source_sku,unit_cost,description,active
+ACC-PULL-1,Bar Pull 3in,PL-001,10,Standard 3in bar pull,true
+ACC-PULL-2,Bar Pull 5in,PL-002,12,Standard 5in bar pull,true
+ACC-PULL-3,Bar Pull 8in,PL-003,15,Standard 8in bar pull,true
+ACC-PULL-4,Bar Pull 12in,PL-004,20,Standard 12in bar pull,true
+ACC-PULL-5,Cup Pull 3in,PL-005,10,3in cup pull for drawer banks,true

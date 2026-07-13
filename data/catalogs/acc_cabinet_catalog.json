@@ -1,0 +1,895 @@
+[
+  {
+    "sku_prefix": "B-1DO",
+    "display_name": "Base 1-Door",
+    "category": "BASE",
+    "cabinet_type_code": "B-1DO",
+    "min_width_in": 12,
+    "max_width_in": 21,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R",
+      "FINISHED_INTERIOR"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "B-2DO",
+    "display_name": "Base 2-Door",
+    "category": "BASE",
+    "cabinet_type_code": "B-2DO",
+    "min_width_in": 24,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R",
+      "FINISHED_INTERIOR"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "B-1DO-1DR",
+    "display_name": "Base 1-Door 1-Drawer",
+    "category": "BASE",
+    "cabinet_type_code": "B-1DO-1DR",
+    "min_width_in": 12,
+    "max_width_in": 21,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "B-2DO-1DR",
+    "display_name": "Base 2-Door 1-Drawer",
+    "category": "BASE",
+    "cabinet_type_code": "B-2DO-1DR",
+    "min_width_in": 24,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "DB-2DR",
+    "display_name": "Drawer Base 2-Drawer",
+    "category": "BASE",
+    "cabinet_type_code": "DB-2DR",
+    "min_width_in": 12,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Tandem slides >= 25in wide",
+    "active": true
+  },
+  {
+    "sku_prefix": "DB-3DR",
+    "display_name": "Drawer Base 3-Drawer",
+    "category": "BASE",
+    "cabinet_type_code": "DB-3DR",
+    "min_width_in": 12,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Most common base. Tandem slides >= 25in wide. Cap 36in.",
+    "active": true
+  },
+  {
+    "sku_prefix": "DB-4DR",
+    "display_name": "Drawer Base 4-Drawer",
+    "category": "BASE",
+    "cabinet_type_code": "DB-4DR",
+    "min_width_in": 24,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Tandem slides >= 25in wide. Cap 36in.",
+    "active": true
+  },
+  {
+    "sku_prefix": "B-TRASH",
+    "display_name": "Trash Pullout Base",
+    "category": "BASE",
+    "cabinet_type_code": "B-TRASH",
+    "min_width_in": 15,
+    "max_width_in": 18,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "TRASH_PULLOUT",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "SB-1DO",
+    "display_name": "Sink Base 1-Door",
+    "category": "BASE",
+    "cabinet_type_code": "SB-1DO",
+    "min_width_in": 24,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "SINK_CUTOUT",
+      "FALSE_FRONT",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "SB-2DO",
+    "display_name": "Sink Base 2-Door",
+    "category": "BASE",
+    "cabinet_type_code": "SB-2DO",
+    "min_width_in": 30,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "SINK_CUTOUT",
+      "FALSE_FRONT",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "B-CORNER-BC",
+    "display_name": "Base Blind Corner",
+    "category": "BASE",
+    "cabinet_type_code": "B-CORNER-BC",
+    "min_width_in": 36,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "SOFT_CLOSE_HINGE",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "B-LAZY",
+    "display_name": "Base Corner Lazy Susan",
+    "category": "BASE",
+    "cabinet_type_code": "B-LAZY",
+    "min_width_in": 33,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "LAZY_SUSAN",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-1DO",
+    "display_name": "Upper 1-Door",
+    "category": "UPPER",
+    "cabinet_type_code": "W-1DO",
+    "min_width_in": 9,
+    "max_width_in": 21,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 36,
+    "allowed_depths_in": [
+      12,
+      16
+    ],
+    "default_depth_in": 12,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "GLASS_DOOR",
+      "GLASS_INSERT",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R",
+      "FINISHED_INTERIOR"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-2DO",
+    "display_name": "Upper 2-Door",
+    "category": "UPPER",
+    "cabinet_type_code": "W-2DO",
+    "min_width_in": 24,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 36,
+    "allowed_depths_in": [
+      12,
+      16
+    ],
+    "default_depth_in": 12,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "GLASS_DOOR",
+      "GLASS_INSERT",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R",
+      "FINISHED_INTERIOR"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-1DO-2AS",
+    "display_name": "Upper 1-Door 2-Shelf",
+    "category": "UPPER",
+    "cabinet_type_code": "W-1DO-2AS",
+    "min_width_in": 9,
+    "max_width_in": 21,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 36,
+    "allowed_depths_in": [
+      12,
+      16
+    ],
+    "default_depth_in": 12,
+    "adj_shelves_default": "2",
+    "compatible_features": [
+      "GLASS_DOOR",
+      "SOFT_CLOSE_HINGE",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-2DO-2AS",
+    "display_name": "Upper 2-Door 2-Shelf",
+    "category": "UPPER",
+    "cabinet_type_code": "W-2DO-2AS",
+    "min_width_in": 24,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 36,
+    "allowed_depths_in": [
+      12,
+      16
+    ],
+    "default_depth_in": 12,
+    "adj_shelves_default": "2",
+    "compatible_features": [
+      "GLASS_DOOR",
+      "SOFT_CLOSE_HINGE",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-OPEN",
+    "display_name": "Open Wall / Display",
+    "category": "UPPER",
+    "cabinet_type_code": "W-OPEN",
+    "min_width_in": 12,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      12,
+      18,
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 30,
+    "allowed_depths_in": [
+      12,
+      16
+    ],
+    "default_depth_in": 12,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "FINISHED_INTERIOR",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-CORNER-BC",
+    "display_name": "Upper Blind Corner",
+    "category": "UPPER",
+    "cabinet_type_code": "W-CORNER-BC",
+    "min_width_in": 24,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 36,
+    "allowed_depths_in": 12,
+    "default_depth_in": 12,
+    "adj_shelves_default": "1",
+    "compatible_features": [
+      "SOFT_CLOSE_HINGE",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "W-UPPER-UPPER",
+    "display_name": "Upper Upper (Above Cabinets)",
+    "category": "UPPER",
+    "cabinet_type_code": "W-1DO",
+    "min_width_in": 9,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      12,
+      18
+    ],
+    "default_height_in": 12,
+    "allowed_depths_in": 12,
+    "default_depth_in": 12,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Short uppers above standard uppers or fridge. 12in or 18in tall.",
+    "active": true
+  },
+  {
+    "sku_prefix": "W-REF",
+    "display_name": "Over Refrigerator Upper",
+    "category": "UPPER",
+    "cabinet_type_code": "W-2DO",
+    "min_width_in": 30,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      12,
+      18
+    ],
+    "default_height_in": 12,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Sits over fridge. 24in deep to match fridge depth.",
+    "active": true
+  },
+  {
+    "sku_prefix": "T-PANTRY",
+    "display_name": "Tall Pantry",
+    "category": "TALL",
+    "cabinet_type_code": "T-PANTRY",
+    "min_width_in": 18,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 90,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "4",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "PUSH_TO_OPEN",
+      "END_PANEL_L",
+      "END_PANEL_R",
+      "FILLER_L",
+      "FILLER_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "T-UTIL",
+    "display_name": "Utility / Broom Tall",
+    "category": "TALL",
+    "cabinet_type_code": "T-UTIL",
+    "min_width_in": 18,
+    "max_width_in": 24,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 84,
+    "allowed_depths_in": [
+      21,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "2",
+    "compatible_features": [
+      "ROLLOUT_SHELF",
+      "SOFT_CLOSE_HINGE",
+      "CLOSET_ROD",
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": null,
+    "active": true
+  },
+  {
+    "sku_prefix": "T-OVEN",
+    "display_name": "Oven Tower",
+    "category": "TALL",
+    "cabinet_type_code": "T-OVEN",
+    "min_width_in": 24,
+    "max_width_in": 33,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 84,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Oven surround. Manual review required.",
+    "active": true
+  },
+  {
+    "sku_prefix": "T-REFER",
+    "display_name": "Refrigerator Surround / Tall Panel",
+    "category": "TALL",
+    "cabinet_type_code": "T-REFER",
+    "min_width_in": 33,
+    "max_width_in": 42,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 90,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": [
+      "END_PANEL_L",
+      "END_PANEL_R"
+    ],
+    "fixed_unit_price": 0,
+    "notes": "Fridge panels + top box. No interior parts.",
+    "active": true
+  },
+  {
+    "sku_prefix": "PANEL-END",
+    "display_name": "End Panel (3/4)",
+    "category": "PANEL",
+    "cabinet_type_code": "PANEL-END",
+    "min_width_in": 3,
+    "max_width_in": 6,
+    "width_increment_in": 1.5,
+    "allowed_heights_in": [
+      34.5,
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 34.5,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Exposed side of cabinet run. Matches door species.",
+    "active": true
+  },
+  {
+    "sku_prefix": "PANEL-FULL",
+    "display_name": "Full Height Panel (1.5)",
+    "category": "PANEL",
+    "cabinet_type_code": "PANEL-FULL",
+    "min_width_in": 3,
+    "max_width_in": 6,
+    "width_increment_in": 1.5,
+    "allowed_heights_in": [
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 90,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "1.5in thick full-height applied panel.",
+    "active": true
+  },
+  {
+    "sku_prefix": "PANEL-APPL",
+    "display_name": "Appliance / Decor Panel",
+    "category": "PANEL",
+    "cabinet_type_code": "PANEL-END",
+    "min_width_in": 3,
+    "max_width_in": 36,
+    "width_increment_in": 3,
+    "allowed_heights_in": [
+      30,
+      34.5,
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 34.5,
+    "allowed_depths_in": [
+      3,
+      6,
+      24
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Decorative panel next to range / fridge / dishwasher. Size to match appliance.",
+    "active": true
+  },
+  {
+    "sku_prefix": "FILLER-BASE",
+    "display_name": "Base Filler Strip",
+    "category": "FILLER",
+    "cabinet_type_code": "FILLER-BASE",
+    "min_width_in": 1.5,
+    "max_width_in": 6,
+    "width_increment_in": 1.5,
+    "allowed_heights_in": 34.5,
+    "default_height_in": 34.5,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Fill gap between cabinet and wall at base level.",
+    "active": true
+  },
+  {
+    "sku_prefix": "FILLER-UPPER",
+    "display_name": "Upper Filler Strip",
+    "category": "FILLER",
+    "cabinet_type_code": "FILLER-UPPER",
+    "min_width_in": 1.5,
+    "max_width_in": 6,
+    "width_increment_in": 1.5,
+    "allowed_heights_in": [
+      30,
+      36,
+      42
+    ],
+    "default_height_in": 36,
+    "allowed_depths_in": 12,
+    "default_depth_in": 12,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Fill gap at upper cabinet level.",
+    "active": true
+  },
+  {
+    "sku_prefix": "FILLER-TALL",
+    "display_name": "Tall Filler Strip",
+    "category": "FILLER",
+    "cabinet_type_code": "FILLER-TALL",
+    "min_width_in": 1.5,
+    "max_width_in": 6,
+    "width_increment_in": 1.5,
+    "allowed_heights_in": [
+      84,
+      90,
+      96
+    ],
+    "default_height_in": 90,
+    "allowed_depths_in": 24,
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Fill gap next to tall cabinet.",
+    "active": true
+  },
+  {
+    "sku_prefix": "SHELF-FLOAT",
+    "display_name": "Floating Shelf",
+    "category": "SHELF",
+    "cabinet_type_code": "SHELF-FLOAT",
+    "min_width_in": 12,
+    "max_width_in": 60,
+    "width_increment_in": 3,
+    "allowed_heights_in": 1.5,
+    "default_height_in": 1.5,
+    "allowed_depths_in": [
+      12,
+      16,
+      24
+    ],
+    "default_depth_in": 12,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Edgebanded floating shelf. No box.",
+    "active": true
+  },
+  {
+    "sku_prefix": "SHELF-COUNTER",
+    "display_name": "Countertop Sub",
+    "category": "ACCESSORY",
+    "cabinet_type_code": "SHELF-COUNTER",
+    "min_width_in": 12,
+    "max_width_in": 120,
+    "width_increment_in": 3,
+    "allowed_heights_in": 1.5,
+    "default_height_in": 1.5,
+    "allowed_depths_in": [
+      24,
+      25.5
+    ],
+    "default_depth_in": 24,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Placeholder countertop line. W x depth = SF x cost.",
+    "active": true
+  },
+  {
+    "sku_prefix": "ACC-CLEAT",
+    "display_name": "Wall Cleat / Coat Hook Rail",
+    "category": "ACCESSORY",
+    "cabinet_type_code": "ACC-CLEAT",
+    "min_width_in": 12,
+    "max_width_in": 96,
+    "width_increment_in": 6,
+    "allowed_heights_in": 1.5,
+    "default_height_in": 1.5,
+    "allowed_depths_in": 1.5,
+    "default_depth_in": 1.5,
+    "adj_shelves_default": "0",
+    "compatible_features": null,
+    "fixed_unit_price": 0,
+    "notes": "Mounted wood cleat or coat hook rail.",
+    "active": true
+  },
+  {
+    "sku_prefix": "ACC-CUSTOM",
+    "display_name": "Custom / Specialty",
+    "category": "ACCESSORY",
+    "cabinet_type_code": "ACC-CUSTOM",
+    "min_width_in": 0,
+    "max_width_in": 999,
+    "width_increment_in": 1,
+    "allowed_heights_in": 0,
+    "default_height_in": 0,
+    "allowed_depths_in": 0,
+    "default_depth_in": 0,
+    "adj_shelves_default": "0",
+    "compatible_features": "CUSTOM_LABOR",
+    "fixed_unit_price": 0,
+    "notes": "Enter dims and price manually.",
+    "active": true
+  }
+]

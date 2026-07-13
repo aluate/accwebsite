@@ -1,0 +1,3 @@
+catalog_id,display_name,door_type,cabdoor_preset_id,species,description,active,price_per_sqft,cabdoor_style_wood,cabdoor_style_paint,species_wood,species_paint
+ACC-DOOR-SLAB,Slab,SLAB,,TBD,Clean flat slab door. Species TBD.,true,0,,,,
+ACC-DOOR-116,CabDoor 116,CABDOOR,PRESET-116,TBD,ACC standard profile. Fill in CabDoor preset ID.,true,12.93,113,116,Alder,Paint Grade Hardwood

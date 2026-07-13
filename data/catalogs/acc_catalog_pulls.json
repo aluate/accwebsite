@@ -1,0 +1,42 @@
+[
+  {
+    "catalog_id": "ACC-PULL-1",
+    "display_name": "Bar Pull 3in",
+    "source_sku": "PL-001",
+    "unit_cost": 10,
+    "description": "Standard 3in bar pull",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PULL-2",
+    "display_name": "Bar Pull 5in",
+    "source_sku": "PL-002",
+    "unit_cost": 12,
+    "description": "Standard 5in bar pull",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PULL-3",
+    "display_name": "Bar Pull 8in",
+    "source_sku": "PL-003",
+    "unit_cost": 15,
+    "description": "Standard 8in bar pull",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PULL-4",
+    "display_name": "Bar Pull 12in",
+    "source_sku": "PL-004",
+    "unit_cost": 20,
+    "description": "Standard 12in bar pull",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-PULL-5",
+    "display_name": "Cup Pull 3in",
+    "source_sku": "PL-005",
+    "unit_cost": 10,
+    "description": "3in cup pull for drawer banks",
+    "active": true
+  }
+]

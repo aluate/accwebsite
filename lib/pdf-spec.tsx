@@ -21,23 +21,13 @@ export type FinishView = {
 export type MaterialView = { role: string; role_label: string; name: string; where_used: string; notes: string };
 export type DoorFrontView = { role: string; role_label: string; slot_label: string; style_name: string; material_name: string; oe_name: string; ie_name: string; panel_name: string; grain: string; vendor: string; notes: string };
 export type DrawerView = { role: string; role_label: string; slot_label: string; drawer_box_name: string; slides_name: string; notes: string };
-export type EdgebandView = {
-  letter_code: string;
-  location_description: string;
-  eb_name: string | null;
-  thickness_in: string | null;
-  manufacturer: string | null;
-  sku: string | null;
-  notes: string;
-};
+export type EdgebandView = { code: string; edgeband_name: string; supplier: string; thickness: string; where_used_label: string; notes: string };
 export type HardwareView = { role: string; role_label: string; slot_label: string; hardware_name: string; brand: string; qty: number | null; location: string; vendor: string; notes: string };
 export type CountertopView = { location: string; style_name: string; edge_name: string; splash_style: string; splash_edge_name: string; material_name: string; buildup_in: number | null; core_substrate: string; brackets: string; notes: string };
 export type MoldingView = { molding_type: string; type_label: string; profile_name: string; size_in: number | null; material_name: string; qty_lf: number | null; where_used: string[]; notes: string };
 
 export type FinishGroupView = {
   id: string; label: string; finish_type: string; notes: string; species: string;
-  grade: string;
-  grain_orientation: string;
   applied_panels: string | null;
   rollout_box_name: string;
   finish: FinishView;
@@ -53,7 +43,6 @@ export type FinishGroupView = {
 export type RoomFinishView = { finish_group_id: string; finish_label: string; zone: string };
 export type RoomView = {
   id: string; name: string; notes: string;
-  flooring: string; ceiling_height: string; soffit: string; backsplash: string;
   finishes: RoomFinishView[];
   accessories: { name: string; brand: string; qty: number }[];
 };
@@ -68,7 +57,6 @@ export type FGPullRow = { id: string; description: string; part_no: string; fini
 
 export type RoomTrimEntry = { id: string; room_id: string; trim_type: string; size_desc: string; material: string; qty_lf: number; notes: string; sort_order: number };
 export type ApplianceEntry = { id: string; appliance_type: string; manufacturer: string; model_no: string; room_name: string; notes: string; cutout_w: number | null; cutout_h: number | null; cutout_d: number | null; sort_order: number };
-
 
 export type SpecPDFData = {
   job_id: string; spec_name: string; generated_at: string;
@@ -235,7 +223,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   const fgPulls = data.finish_group_pulls ?? {};
 
   // Column flex widths
-  const COL = { fg: 0.9, color: 1.4, species: 0.7, grade: 0.6, grain: 0.7, carcass: 1.1, drawerBox: 1.1, rolloutBox: 1.0, doorStyle: 1.3, appliedPanels: 0.8, pulls: 2.0, notes: 1.4 };
+  const COL = { fg: 0.9, color: 1.6, species: 0.9, carcass: 1.3, drawerBox: 1.3, rolloutBox: 1.3, doorStyle: 1.5, appliedPanels: 0.9, pulls: 2.2, notes: 1.6 };
 
   const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
   return (
@@ -254,13 +242,11 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             <Text style={[S.colHdrTx, { flex: COL.fg }]}>Finish Group</Text>
             <Text style={[S.colHdrTx, { flex: COL.color }]}>Color</Text>
             <Text style={[S.colHdrTx, { flex: COL.species }]}>Species</Text>
-            <Text style={[S.colHdrTx, { flex: COL.grade }]}>Grade</Text>
-            <Text style={[S.colHdrTx, { flex: COL.grain }]}>Grain</Text>
             <Text style={[S.colHdrTx, { flex: COL.carcass }]}>Carcass</Text>
             <Text style={[S.colHdrTx, { flex: COL.drawerBox }]}>Drawer Box</Text>
             <Text style={[S.colHdrTx, { flex: COL.rolloutBox }]}>Rollout Box</Text>
             <Text style={[S.colHdrTx, { flex: COL.doorStyle }]}>Door Style</Text>
-            <Text style={[S.colHdrTx, { flex: COL.appliedPanels }]}>Panels</Text>
+            <Text style={[S.colHdrTx, { flex: COL.appliedPanels }]}>Applied Panels</Text>
             <Text style={[S.colHdrTx, { flex: COL.pulls }]}>Pulls</Text>
             <Text style={[S.colHdrTx, { flex: COL.notes }]}>Notes</Text>
           </View>
@@ -280,8 +266,6 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
                 <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
                 <Text style={[S.cell, { flex: COL.species }]}>{d(fg.species)}</Text>
-                <Text style={[S.cell, { flex: COL.grade }]}>{d(fg.grade)}</Text>
-                <Text style={[S.cell, { flex: COL.grain }]}>{d(fg.grain_orientation)}</Text>
                 <Text style={[S.cell, { flex: COL.carcass }]}>{d(carcass)}</Text>
                 <Text style={[S.cell, { flex: COL.drawerBox }]}>{d(drawerBox)}</Text>
                 <Text style={[S.cell, { flex: COL.rolloutBox }]}>{d(fg.rollout_box_name) === "—" ? d(drawerBox) : d(fg.rollout_box_name)}</Text>
@@ -322,16 +306,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
               <View key={room.id} style={ri % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
                 <Text style={[S.cell, { flex: 2, fontFamily: "Helvetica-Bold" }]}>{room.name || "—"}</Text>
                 <Text style={[S.cell, { flex: 0.8, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fgText}</Text>
-                <Text style={[S.cellMu, { flex: 4.7 }]}>
-                  {[
-                    zones,
-                    room.flooring ? `Floor: ${room.flooring}` : "",
-                    room.ceiling_height ? `Ceiling: ${room.ceiling_height}` : "",
-                    room.soffit ? `Soffit: ${room.soffit}` : "",
-                    room.backsplash ? `Backsplash: ${room.backsplash}` : "",
-                    room.notes,
-                  ].filter(Boolean).join(" · ") || "—"}
-                </Text>
+                <Text style={[S.cellMu, { flex: 4.7 }]}>{zones || "—"}</Text>
               </View>
             );
           })}
@@ -362,7 +337,6 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
   // Edgebands per FG
   const ebByFG: Map<string, { fg: FinishGroupView; ebs: EdgebandView[] }> = new Map();
   for (const fg of fgs) {
-    // Show edgeband schedule for any FG that has rows (even if edgeband_id is null)
     if (fg.edgebands.length > 0) ebByFG.set(fg.id, { fg, ebs: fg.edgebands });
   }
 
@@ -429,10 +403,10 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
         </>
       )}
 
-      {/* EDGEBANDING — Work Order EdgeBand Schedule */}
+      {/* EDGEBANDING */}
       {ebByFG.size > 0 && (
         <>
-          <Text style={[S.secHead, { marginTop: 8 }]}>WORK ORDER EDGEBAND SCHEDULE</Text>
+          <Text style={[S.secHead, { marginTop: 8 }]}>EDGEBANDING</Text>
           {Array.from(ebByFG.values()).map(({ fg, ebs }) => {
             const colorName = fg.finish.stain_name || fg.finish.paint_name || "";
             return (
@@ -441,22 +415,20 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
                   <Text style={S.fgBandTx}>{fg.label}{colorName ? `  ·  ${colorName}` : ""}</Text>
                 </View>
                 <View style={S.colHdr}>
-                  <Text style={[S.colHdrTx, { flex: 0.3 }]}>#</Text>
+                  <Text style={[S.colHdrTx, { flex: 0.4 }]}>ID</Text>
                   <Text style={[S.colHdrTx, { flex: 0.7 }]}>Thick</Text>
-                  <Text style={[S.colHdrTx, { flex: 1.5 }]}>Manufacturer</Text>
-                  <Text style={[S.colHdrTx, { flex: 0.5 }]}>SKU</Text>
+                  <Text style={[S.colHdrTx, { flex: 1.5 }]}>Supplier</Text>
                   <Text style={[S.colHdrTx, { flex: 2.5 }]}>Description</Text>
                   <Text style={[S.colHdrTx, { flex: 2.5 }]}>Where Used</Text>
                   <Text style={[S.colHdrTx, { flex: 1.5 }]}>Notes</Text>
                 </View>
                 {ebs.map((eb, ei) => (
                   <View key={ei} style={ei % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-                    <Text style={[S.cell, { flex: 0.3, fontFamily: "Helvetica-Bold", fontSize: 9, color: ORANGE }]}>{eb.letter_code}</Text>
-                    <Text style={[S.cell, { flex: 0.7 }]}>{d(eb.thickness_in)}</Text>
-                    <Text style={[S.cell, { flex: 1.5 }]}>{d(eb.manufacturer)}</Text>
-                    <Text style={[S.cell, { flex: 0.5 }]}>{d(eb.sku)}</Text>
-                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.eb_name)}</Text>
-                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.location_description)}</Text>
+                    <Text style={[S.cell, { flex: 0.4, fontFamily: "Helvetica-Bold", fontSize: 9, color: ORANGE }]}>{eb.code}</Text>
+                    <Text style={[S.cell, { flex: 0.7 }]}>{d(eb.thickness)}</Text>
+                    <Text style={[S.cell, { flex: 1.5 }]}>{d(eb.supplier)}</Text>
+                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.edgeband_name)}</Text>
+                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.where_used_label)}</Text>
                     <Text style={[S.cellMu, { flex: 1.5 }]}>{d(eb.notes)}</Text>
                   </View>
                 ))}

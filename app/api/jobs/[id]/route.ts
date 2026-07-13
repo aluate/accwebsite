@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await req.json();
 
   const allowed = [
-    "job_number", "bid_number", "status", "job_type", "client_name", "client_email", "client_phone",
+    "job_number", "status", "job_type", "client_name", "client_email", "client_phone",
     "site_address", "city", "pm", "builder_name", "builder_email",
     "builder_phone", "builder_company", "delivery_date", "notes",
     "notes_install", "notes_finishing", "notes_shop", "notes_client",
@@ -43,34 +43,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   await sql`UPDATE jobs SET ${sql(updates)} WHERE id = ${internalId}`;
-
-  // Cascade date changes → job_events so calendar stays in sync
-  if ("delivery_date" in updates) {
-    const newDate = updates.delivery_date as string | null;
-    if (newDate) {
-      // Update any scheduled cab/top delivery events for this job
-      await sql`
-        UPDATE job_events
-        SET date_start = ${newDate}, date_end = ${newDate}, updated_at = ${new Date().toISOString()}
-        WHERE job_id = ${internalId}
-          AND event_type IN ('cab_delivery', 'top_delivery')
-          AND date_start IS NOT NULL
-      `;
-    }
-  }
-  if ("install_start_date" in updates) {
-    const newDate = updates.install_start_date as string | null;
-    if (newDate) {
-      // Update the primary install event for this job (latest by sort_order/created_at)
-      await sql`
-        UPDATE job_events
-        SET date_start = ${newDate}, updated_at = ${new Date().toISOString()}
-        WHERE job_id = ${internalId}
-          AND event_type = 'install'
-          AND date_start IS NOT NULL
-      `;
-    }
-  }
 
   // Log status change or general update
   const actor = (body._actor as string | undefined) || "pm";

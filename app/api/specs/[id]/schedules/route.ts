@@ -56,8 +56,9 @@ type DrawerPayload = {
 
 type EdgebandPayload = {
   finish_group_id: string;
-  letter_code: string;
+  code: string;
   edgeband_id: string | null;
+  where_used: string | null;
   notes: string | null;
   sort_order: number;
 };
@@ -288,12 +289,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       for (const e of payload.edgebands ?? []) {
         await tx`
           INSERT INTO finish_group_edgebands
-            (id, finish_group_id, letter_code, edgeband_id, notes, sort_order)
+            (id, finish_group_id, code, edgeband_id, where_used, notes, sort_order)
           VALUES
-            (${uid()}, ${e.finish_group_id}, ${e.letter_code}, ${e.edgeband_id},
-             ${e.notes}, ${e.sort_order})
-          ON CONFLICT (finish_group_id, letter_code) DO UPDATE
-          SET edgeband_id = EXCLUDED.edgeband_id, notes = EXCLUDED.notes
+            (${uid()}, ${e.finish_group_id}, ${e.code}, ${e.edgeband_id},
+             ${e.where_used}, ${e.notes}, ${e.sort_order})
         `;
       }
 

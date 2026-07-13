@@ -1,0 +1,227 @@
+[
+  {
+    "operation_code": "LABOR_CNC",
+    "operation_name": "CNC Router",
+    "phase": "fabrication",
+    "scale_by": "sqft_material",
+    "hrs_per_unit": "0.00680",
+    "source": "DB3D_3EQ derived",
+    "notes": "6.37 min for ~15.5 SF material on 32.25\"W cab = 0.0068 HR/SF. Scales with material quantity."
+  },
+  {
+    "operation_code": "LABOR_EDGEBANDER",
+    "operation_name": "Edgebander",
+    "phase": "fabrication",
+    "scale_by": "lf_edgeband",
+    "hrs_per_unit": "0.00272",
+    "source": "DB3D_3EQ derived",
+    "notes": "1.76 min for ~10.8 LF edgeband = 0.00272 HR/LF. Scales with perimeter."
+  },
+  {
+    "operation_code": "LABOR_BEAM_SAW",
+    "operation_name": "Beam Saw",
+    "phase": "fabrication",
+    "scale_by": "sqft_material",
+    "hrs_per_unit": "0.00292",
+    "source": "DB3D_3EQ derived",
+    "notes": "1.36 min for ~7.8 SF = 0.00292 HR/SF. Scales with sheet goods cuts."
+  },
+  {
+    "operation_code": "LABOR_DRILL_DOWEL",
+    "operation_name": "Drill & Dowel",
+    "phase": "fabrication",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.0250",
+    "source": "DB3D_3EQ exact",
+    "notes": "1.5 min per cabinet. Fixed per box — doesn't scale with width."
+  },
+  {
+    "operation_code": "LABOR_ROUGH_ASSEMBLY",
+    "operation_name": "Rough Assembly Base/Wall",
+    "phase": "fabrication",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.1111",
+    "source": "DB3D_3EQ exact",
+    "notes": "6.67 min per cabinet. Fixed — same effort regardless of width."
+  },
+  {
+    "operation_code": "LABOR_PANEL_LAYUP",
+    "operation_name": "Panel Layup",
+    "phase": "fabrication",
+    "scale_by": "sqft_material",
+    "hrs_per_unit": "0.00465",
+    "source": "DB3D_3EQ derived",
+    "notes": "Panel lamination. Scales with SF. ~4.33 min for large panel. Estimate."
+  },
+  {
+    "operation_code": "LABOR_KITTING",
+    "operation_name": "Kitting — Base/Wall/Carts",
+    "phase": "fabrication",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.1000",
+    "source": "DB3D_3EQ exact",
+    "notes": "6 min per cabinet. Fixed. Load into carts for delivery to finish dept."
+  },
+  {
+    "operation_code": "LABOR_FINISH_PREP",
+    "operation_name": "Finish Prep",
+    "phase": "fabrication",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.3006",
+    "source": "DB3D_3EQ exact",
+    "notes": "18 min per cabinet. Fixed prep work before finish dept. Sanding, cleaning, masking."
+  },
+  {
+    "operation_code": "LABOR_FINISHING_STAIN",
+    "operation_name": "Finishing — Stain (carcass)",
+    "phase": "finishing",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.7252",
+    "source": "DB3D_3EQ exact",
+    "notes": "0.4835 + 0.2417 HR = 43.5 min per carcass. Includes seal + topcoat. Stain finish only."
+  },
+  {
+    "operation_code": "LABOR_FINISHING_PAINT",
+    "operation_name": "Finishing — Paint (carcass)",
+    "phase": "finishing",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.8500",
+    "source": "estimate",
+    "notes": "Estimate — paint requires more prep/sanding between coats than stain. Verify with shop."
+  },
+  {
+    "operation_code": "LABOR_FINISHING_MEL",
+    "operation_name": "Finishing — Melamine (carcass)",
+    "phase": "finishing",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.1500",
+    "source": "estimate",
+    "notes": "Minimal finish — clean and touch-up only. No stain/paint. Estimate."
+  },
+  {
+    "operation_code": "LABOR_FINISHING_DOOR_STAIN",
+    "operation_name": "Finishing — Stain (door/drawer front)",
+    "phase": "finishing",
+    "scale_by": "per_door",
+    "hrs_per_unit": "0.2902",
+    "source": "DB3D_3EQ derived",
+    "notes": "0.4835+0.2636+0.1318 HR for 3 fronts = 0.29 HR/front. Stain finish."
+  },
+  {
+    "operation_code": "LABOR_FINISHING_DOOR_PAINT",
+    "operation_name": "Finishing — Paint (door/drawer front)",
+    "phase": "finishing",
+    "scale_by": "per_door",
+    "hrs_per_unit": "0.3500",
+    "source": "estimate",
+    "notes": "Estimate — more coats than stain. Verify."
+  },
+  {
+    "operation_code": "LABOR_DRAWER_BOX",
+    "operation_name": "Drawer Box Build",
+    "phase": "fabrication",
+    "scale_by": "per_drawer",
+    "hrs_per_unit": "0.3000",
+    "source": "DB3D_3EQ derived",
+    "notes": "0.2000 + 0.0500 + 0.0667 HR per drawer = 18 min. Box construction + locking device."
+  },
+  {
+    "operation_code": "LABOR_DRAWER_FRONT",
+    "operation_name": "Drawer Front Final Assembly",
+    "phase": "fabrication",
+    "scale_by": "per_door",
+    "hrs_per_unit": "0.2333",
+    "source": "DB3D_3EQ derived",
+    "notes": "0.0333 + 0.2000 HR per front = 14 min. Attach front to box, adjust, bumpers."
+  },
+  {
+    "operation_code": "LABOR_DRAWER_SLIDES_INSTALL",
+    "operation_name": "Drawer Slide Install",
+    "phase": "fabrication",
+    "scale_by": "per_drawer",
+    "hrs_per_unit": "0.0500",
+    "source": "estimate",
+    "notes": "~3 min per pair. Mounting slides in cabinet opening. Estimate — not broken out in DB3D_3EQ."
+  },
+  {
+    "operation_code": "LABOR_LOAD_PACK",
+    "operation_name": "Load/Pack Truck",
+    "phase": "delivery",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.1667",
+    "source": "DB3D_3EQ exact",
+    "notes": "10 min per cabinet. Load onto truck, wrap, secure."
+  },
+  {
+    "operation_code": "LABOR_UNLOAD_TRUCK",
+    "operation_name": "Unload Truck",
+    "phase": "installation",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.2500",
+    "source": "DB3D_3EQ exact",
+    "notes": "15 min per cabinet. Unload, stage on site."
+  },
+  {
+    "operation_code": "LABOR_INSTALL_BASE",
+    "operation_name": "Install — Base Cabinets",
+    "phase": "installation",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.8333",
+    "source": "DB3D_3EQ exact",
+    "notes": "50 min per base cabinet. Level, fasten, connect. From PPAK install assembly."
+  },
+  {
+    "operation_code": "LABOR_INSTALL_UPPER",
+    "operation_name": "Install — Upper/Wall Cabinets",
+    "phase": "installation",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.6667",
+    "source": "estimate",
+    "notes": "~40 min per upper. Lighter than base but requires layout/level. Estimate."
+  },
+  {
+    "operation_code": "LABOR_INSTALL_TALL",
+    "operation_name": "Install — Tall Cabinets",
+    "phase": "installation",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "1.1667",
+    "source": "estimate",
+    "notes": "~70 min per tall. Full-height scribing and securing. Estimate."
+  },
+  {
+    "operation_code": "LABOR_INSTALL_TOEKICK",
+    "operation_name": "Install — Toekick",
+    "phase": "installation",
+    "scale_by": "per_lf",
+    "hrs_per_unit": "0.0556",
+    "source": "DB3D_3EQ derived",
+    "notes": "0.1667 HR for ~3 LF toekick run = 0.056 HR/LF."
+  },
+  {
+    "operation_code": "LABOR_INSTALL_PULL",
+    "operation_name": "Install — Pulls",
+    "phase": "installation",
+    "scale_by": "per_pull",
+    "hrs_per_unit": "0.0400",
+    "source": "DB3D_3EQ exact",
+    "notes": "2.4 min per pull. From drawer front sub-assembly. InstLabor rate."
+  },
+  {
+    "operation_code": "LABOR_ENGINEERING",
+    "operation_name": "Engineering",
+    "phase": "engineering",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.2500",
+    "source": "DB3D_3EQ exact",
+    "notes": "15 min per cabinet. Drawing review, BOM check, release. EngPMLabor rate."
+  },
+  {
+    "operation_code": "LABOR_PM",
+    "operation_name": "Project Management",
+    "phase": "engineering",
+    "scale_by": "per_cabinet",
+    "hrs_per_unit": "0.2499",
+    "source": "DB3D_3EQ exact",
+    "notes": "15 min per cabinet. PM coordination, scheduling, client comms. EngPMLabor rate."
+  }
+]

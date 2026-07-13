@@ -84,7 +84,6 @@ export type JobEventWithJoins = JobEvent & {
   crew_kind: CrewKind | null;
   job_client_name: string | null;
   job_site_address: string | null;
-  job_job_number: string | null;
 };
 
 export type JobEventAuditRow = {

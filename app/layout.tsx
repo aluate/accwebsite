@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Abel, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
-import { getBuilder } from "@/lib/auth";
 import { Footer } from "@/components/Footer";
 import { SITE } from "@/data/site";
 
@@ -36,15 +35,13 @@ export const metadata: Metadata = {
   keywords: ["custom cabinets", "millwork", "cabinetry", "Coeur d'Alene", "Idaho", "commercial millwork", "residential cabinets"],
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const builder = await getBuilder().catch(() => null);
-  const userRole = builder?.role ?? undefined;
   return (
     <html lang="en" className={`${inter.variable} ${abel.variable} ${barlowCondensed.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#3d3d3d] text-white antialiased">
-        <Header userRole={userRole} />
+        <Header />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

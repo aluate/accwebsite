@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 type EditableField =
   | "client_name" | "client_email" | "client_phone" | "site_address" | "city"
   | "pm" | "builder_name" | "builder_company" | "builder_email" | "builder_phone"
-  | "delivery_date" | "notes" | "job_number" | "bid_number";
+  | "delivery_date" | "notes" | "job_number";
 
-// EditableRow must live OUTSIDE the parent so React does not treat it as a
-// new component on every keystroke (which unmounts the input and loses focus).
+// ── EditableRow must live OUTSIDE the parent so React doesn't treat it as a
+//    new component on every keystroke (which would unmount the input mid-type).
 interface RowProps {
   label: string;
   field: EditableField;
@@ -89,6 +89,8 @@ function EditableRow({
   );
 }
 
+// ── Main component ────────────────────────────────────────────────────────────
+
 interface Props {
   jobId: string;
   initialValues: Partial<Record<EditableField, string | null>>;
@@ -151,6 +153,7 @@ export function JobInlineEditClient({ jobId, initialValues }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Client */}
       <div className="bg-[#1e1e1e] rounded-lg border border-white/8 p-4">
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Client</p>
         {row("Name",    "client_name")}
@@ -160,30 +163,19 @@ export function JobInlineEditClient({ jobId, initialValues }: Props) {
         {row("City",    "city")}
       </div>
 
+      {/* Project Info */}
       <div className="bg-[#1e1e1e] rounded-lg border border-white/8 p-4">
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Project Info</p>
         {row("PM",       "pm")}
         {row("Job #",    "job_number")}
-        {row("Bid #",    "bid_number")}
         {row("Delivery", "delivery_date")}
       </div>
 
+      {/* Builder */}
       <div className="bg-[#1e1e1e] rounded-lg border border-white/8 p-4">
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Builder</p>
-        {row("Name",    "builder_name")}
-        {row("Company", "builder_company")}
-        {row("Email",   "builder_email", "mailto:")}
-        {row("Phone",   "builder_phone", "tel:")}
+        {row("Builder", "builder")}
       </div>
-
-      <div className="bg-[#1e1e1e] rounded-lg border border-white/8 p-4">
-        <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Notes</p>
-        {row("Notes", "notes", undefined, true)}
-      </div>
-
-      {saving && (
-        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest text-center">Saving…</p>
-      )}
     </div>
   );
 }

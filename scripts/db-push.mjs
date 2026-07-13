@@ -766,6 +766,7 @@ async function main() {
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS drawer_style_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_edge_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_profile_id TEXT`,
+    `ALTER TABLE estimates ADD COLUMN IF NOT EXISTS profile_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
@@ -781,197 +782,101 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
 
-
-  // ── Phase 1: Catalog tables (2026-07-12) ─────────────────────────────────────
-  await sql.unsafe(`
-    CREATE TABLE IF NOT EXISTS catalog_paint_colors (
-      id TEXT PRIMARY KEY, brand TEXT, collection TEXT, code TEXT,
-      name TEXT NOT NULL, hex_approx TEXT,
-      is_custom_match INTEGER NOT NULL DEFAULT 0,
-      placeholder INTEGER NOT NULL DEFAULT 0, notes TEXT
-    );
-    CREATE TABLE IF NOT EXISTS catalog_stain_colors (
-      id TEXT PRIMARY KEY, brand TEXT, code TEXT, name TEXT NOT NULL,
-      is_in_house_mix INTEGER NOT NULL DEFAULT 0,
-      is_custom_match INTEGER NOT NULL DEFAULT 0,
-      notes TEXT, placeholder INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS catalog_melamine_colors (
-      id TEXT PRIMARY KEY, supplier TEXT, collection TEXT, line TEXT,
-      code TEXT, name TEXT NOT NULL, texture TEXT,
-      woodgrain INTEGER NOT NULL DEFAULT 0,
-      price_tier TEXT, hex_approx TEXT, notes TEXT,
-      placeholder INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS catalog_carcass_materials (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, material_class TEXT,
-      species TEXT, prefinish TEXT, supplier_code TEXT, notes TEXT,
-      is_other INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS catalog_drawer_boxes (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, construction TEXT,
-      species TEXT, prefinish TEXT, notes TEXT,
-      is_other INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS catalog_edgebands (
-      id TEXT PRIMARY KEY, product_name TEXT NOT NULL, supplier TEXT,
-      type TEXT, color_match TEXT, compatible_finish_type TEXT,
-      thickness_mm TEXT, width_in TEXT, notes TEXT,
-      placeholder INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS catalog_species (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, grades TEXT,
-      hardness_janka TEXT, typical_use TEXT, notes TEXT
-    );
-    CREATE TABLE IF NOT EXISTS catalog_accessories (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, brand TEXT, series TEXT,
-      category TEXT, width_options_in TEXT, finish_options TEXT, notes TEXT
-    );
-    CREATE TABLE IF NOT EXISTS catalog_builder_profiles (
-      id TEXT PRIMARY KEY, builder_name TEXT NOT NULL, builder_company TEXT,
-      default_finish_type TEXT, default_carcass_id TEXT,
-      default_drawer_box_id TEXT, default_pull_id TEXT,
-      default_paint_brand TEXT, default_accessories TEXT,
-      preferred_cabdoor_usage_groups TEXT, notes TEXT,
-      is_residential_default INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS catalog_door_styles (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, vendor TEXT,
-      cabdoor_preset_id TEXT, construction TEXT,
-      compatible_finish TEXT, placeholder INTEGER NOT NULL DEFAULT 0, notes TEXT
-    );
-    CREATE TABLE IF NOT EXISTS catalog_pulls (
-      id TEXT PRIMARY KEY, name TEXT NOT NULL, brand TEXT, model TEXT,
-      type TEXT, hole_spacing_in TEXT, length_in TEXT,
-      finish_options TEXT, notes TEXT
-    );
-    CREATE TABLE IF NOT EXISTS catalog_appliances (
-      id TEXT PRIMARY KEY, appliance_type TEXT NOT NULL,
-      manufacturer TEXT, model_no TEXT,
-      cutout_w TEXT, cutout_h TEXT, cutout_d TEXT, notes TEXT
-    );
-  `);
-
-  // ── Phases 2-6 additions (2026-07-12) ────────────────────────────────────────
-  // Phase 2: Species/grade/grain orientation on finish_groups
+  // ── Estimating module (feature/estimating, 2026-07-12) ────────────────────
   for (const stmt of [
-    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS grade TEXT`,
-    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS grain_orientation TEXT`,
-    `ALTER TABLE catalog_melamine_colors ADD COLUMN IF NOT EXISTS has_grain INTEGER DEFAULT 0`,
-    `ALTER TABLE catalog_paint_colors ADD COLUMN IF NOT EXISTS has_grain INTEGER DEFAULT 0`,
-    `ALTER TABLE catalog_stain_colors ADD COLUMN IF NOT EXISTS has_grain INTEGER DEFAULT 0`,
+    // estimates
+    `CREATE TABLE IF NOT EXISTS estimates (
+      id                  TEXT PRIMARY KEY,
+      job_id              TEXT REFERENCES jobs(id) ON DELETE SET NULL,
+      title               TEXT NOT NULL DEFAULT 'New Estimate',
+      status              TEXT NOT NULL DEFAULT 'draft',
+      scope               TEXT NOT NULL DEFAULT 'supply_install',
+      delivery_cost       NUMERIC NOT NULL DEFAULT 0,
+      tax_amount          NUMERIC NOT NULL DEFAULT 0,
+      is_budget_estimate  INTEGER NOT NULL DEFAULT 0,
+      target_margin_pct   NUMERIC NOT NULL DEFAULT 48,
+      finish_group_count  INTEGER NOT NULL DEFAULT 1,
+      notes               TEXT,
+      profile_id          TEXT,
+      created_by          TEXT,
+      created_at          TEXT NOT NULL,
+      updated_at          TEXT NOT NULL
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_estimates_job ON estimates(job_id)`,
+    // estimate_rooms
+    `CREATE TABLE IF NOT EXISTS estimate_rooms (
+      id           TEXT PRIMARY KEY,
+      estimate_id  TEXT NOT NULL REFERENCES estimates(id) ON DELETE CASCADE,
+      name         TEXT NOT NULL DEFAULT 'Room',
+      sort_order   INTEGER NOT NULL DEFAULT 0,
+      fg_id        TEXT,
+      crown        INTEGER NOT NULL DEFAULT 0,
+      toekick      INTEGER NOT NULL DEFAULT 0,
+      light_valance INTEGER NOT NULL DEFAULT 0
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_estimate_rooms_estimate ON estimate_rooms(estimate_id)`,
+    // estimate_line_items
+    `CREATE TABLE IF NOT EXISTS estimate_line_items (
+      id                TEXT PRIMARY KEY,
+      room_id           TEXT NOT NULL REFERENCES estimate_rooms(id) ON DELETE CASCADE,
+      item_type         TEXT NOT NULL DEFAULT 'cabinet',
+      cabinet_type_code TEXT,
+      description       TEXT,
+      width_in          NUMERIC,
+      height_in         NUMERIC,
+      depth_in          NUMERIC,
+      adj_shelves       INTEGER NOT NULL DEFAULT 1,
+      qty               INTEGER NOT NULL DEFAULT 1,
+      feature_codes     TEXT,
+      end_panel         INTEGER NOT NULL DEFAULT 0,
+      unit_qty          NUMERIC,
+      unit_label        TEXT,
+      manual_unit_cost  NUMERIC,
+      sort_order        INTEGER NOT NULL DEFAULT 0
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_eli_room ON estimate_line_items(room_id)`,
+    // estimate_settings singleton
+    `CREATE TABLE IF NOT EXISTS estimate_settings (
+      id                  TEXT PRIMARY KEY DEFAULT 'singleton',
+      pm_hrs_base         NUMERIC NOT NULL DEFAULT 2,
+      pm_hrs_per_fg       NUMERIC NOT NULL DEFAULT 1.5,
+      eng_hrs_base        NUMERIC NOT NULL DEFAULT 1,
+      eng_hrs_per_fg      NUMERIC NOT NULL DEFAULT 0.75,
+      purchasing_hrs_base NUMERIC NOT NULL DEFAULT 2,
+      pm_rate             NUMERIC NOT NULL DEFAULT 55,
+      eng_rate            NUMERIC NOT NULL DEFAULT 55,
+      shop_rate           NUMERIC NOT NULL DEFAULT 25,
+      finish_rate         NUMERIC NOT NULL DEFAULT 25,
+      install_rate        NUMERIC NOT NULL DEFAULT 45,
+      fixed_overhead_pct  NUMERIC NOT NULL DEFAULT 16.5,
+      default_margin_pct  NUMERIC NOT NULL DEFAULT 48,
+      updated_at          TEXT NOT NULL DEFAULT '2026-01-01T00:00:00Z'
+    )`,
+    `INSERT INTO estimate_settings (id) VALUES ('singleton') ON CONFLICT DO NOTHING`,
+    // estimate_finish_groups — catalog-restricted FG per estimate
+    `CREATE TABLE IF NOT EXISTS estimate_finish_groups (
+      id                  TEXT PRIMARY KEY,
+      estimate_id         TEXT NOT NULL REFERENCES estimates(id) ON DELETE CASCADE,
+      name                TEXT NOT NULL DEFAULT 'Finish Group',
+      sort_order          INTEGER NOT NULL DEFAULT 0,
+      finish_catalog_id   TEXT,
+      door_catalog_id     TEXT,
+      pull_catalog_id     TEXT,
+      carcass_catalog_id  TEXT NOT NULL DEFAULT 'ACC-CARC-HARDROCK',
+      created_at          TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_efg_estimate ON estimate_finish_groups(estimate_id)`,
+    // rooms FK to finish group
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS fg_id TEXT`,
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS crown         INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
   }
-
-  // Phase 4: Builder floor plans + palettes
-  await sql.unsafe(`
-    CREATE TABLE IF NOT EXISTS builder_floor_plans (
-      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
-      builder_company TEXT NOT NULL,
-      plan_name TEXT NOT NULL,
-      description TEXT,
-      created_at TIMESTAMPTZ DEFAULT now()
-    );
-    CREATE TABLE IF NOT EXISTS builder_floor_plan_rooms (
-      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
-      floor_plan_id TEXT NOT NULL REFERENCES builder_floor_plans(id) ON DELETE CASCADE,
-      room_name TEXT NOT NULL,
-      finish_group_name TEXT,
-      sort_order INTEGER DEFAULT 0,
-      default_ceiling_height TEXT,
-      default_flooring TEXT
-    );
-    CREATE TABLE IF NOT EXISTS builder_palettes (
-      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
-      builder_company TEXT NOT NULL,
-      palette_name TEXT NOT NULL,
-      finish_type TEXT,
-      default_carcass_id TEXT,
-      default_drawer_box_id TEXT,
-      default_pull_id TEXT,
-      notes TEXT,
-      created_at TIMESTAMPTZ DEFAULT now()
-    );
-    CREATE TABLE IF NOT EXISTS builder_palette_finish_groups (
-      id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
-      palette_id TEXT NOT NULL REFERENCES builder_palettes(id) ON DELETE CASCADE,
-      fg_label TEXT NOT NULL,
-      finish_type TEXT,
-      color_id TEXT,
-      carcass_id TEXT,
-      drawer_box_id TEXT,
-      door_style_id TEXT,
-      pull_id TEXT
-    );
-  `);
-
-  // Phase 6: verified column on catalog color tables for living catalog
-  for (const stmt of [
-    `ALTER TABLE catalog_paint_colors ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
-    `ALTER TABLE catalog_stain_colors ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
-    `ALTER TABLE catalog_melamine_colors ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
-    `ALTER TABLE catalog_species ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
-    `ALTER TABLE catalog_accessories ADD COLUMN IF NOT EXISTS verified INTEGER NOT NULL DEFAULT 1`,
-  ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
-  }
-
-
-  // Phase 7: Edgebanding rebuild — letter codes, auto-populate
-  // catalog_edgeband_locations: 8 fixed machine codes
-  await sql.unsafe(`
-    CREATE TABLE IF NOT EXISTS catalog_edgeband_locations (
-      letter_code TEXT PRIMARY KEY,
-      description TEXT NOT NULL,
-      sort_order INTEGER DEFAULT 0
-    )
-  `);
-  await sql.unsafe(`
-    INSERT INTO catalog_edgeband_locations VALUES
-      ('D', 'Applied End Panels / Door & Drawer Fronts', 1),
-      ('E', 'Cabinet Body Parts', 2),
-      ('I', 'Adjustable Shelves', 3),
-      ('V', 'Open Adjustable Shelves', 4),
-      ('U', 'Bottom of Upper F.E.', 5),
-      ('B', 'Drawer Box Sides', 6),
-      ('C', 'Drawer Box Front and Backs', 7),
-      ('X', 'MISC.', 8)
-    ON CONFLICT DO NOTHING
-  `);
-
-  // Add new columns to catalog_edgebands
-  for (const stmt of [
-    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS sku TEXT`,
-    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS thickness_in TEXT`,
-    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS material_type TEXT`,
-    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS has_grain BOOLEAN DEFAULT FALSE`,
-    `ALTER TABLE catalog_edgebands ADD COLUMN IF NOT EXISTS manufacturer TEXT`,
-    // Add default_edgeband_id to catalog tables
-    `ALTER TABLE catalog_carcass_materials ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
-    `ALTER TABLE catalog_species ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
-    `ALTER TABLE catalog_melamine_colors ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
-    `ALTER TABLE catalog_drawer_boxes ADD COLUMN IF NOT EXISTS default_edgeband_id TEXT`,
-  ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
-  }
-
-  // Restructure finish_group_edgebands to use letter_code FK
-  await sql.unsafe(`DROP TABLE IF EXISTS finish_group_edgebands`);
-  await sql.unsafe(`
-    CREATE TABLE IF NOT EXISTS finish_group_edgebands (
-      id TEXT PRIMARY KEY,
-      finish_group_id TEXT NOT NULL,
-      letter_code TEXT NOT NULL REFERENCES catalog_edgeband_locations(letter_code),
-      edgeband_id TEXT REFERENCES catalog_edgebands(id),
-      notes TEXT,
-      sort_order INTEGER DEFAULT 0,
-      UNIQUE(finish_group_id, letter_code)
-    )
-  `);
 
   console.log("Schema push complete.");
   await sql.end();
 }
 
-main().cat
+main().catch((e) => { console.error(e); process.exit(1); });

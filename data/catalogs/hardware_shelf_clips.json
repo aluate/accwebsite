@@ -5,7 +5,8 @@
     "brand": "Hardware Resources",
     "model": "SC-5",
     "type": "push_in",
-    "notes": "Standard 5mm shelf pin"
+    "unit_cost": 0.35,
+    "notes": "Standard 5mm shelf pin — estimate $0.35/pin. Verify bulk price."
   },
   {
     "id": "HSC-002",
@@ -13,22 +14,16 @@
     "brand": "Rev-A-Shelf",
     "model": "RV-5MM-SP",
     "type": "push_in",
-    "notes": "Spoon-style for nominally thicker shelves"
+    "unit_cost": 0.4,
+    "notes": "Spoon-style for nominally thicker shelves — estimate. Verify."
   },
   {
     "id": "HSC-003",
     "name": "Adjustable Pilaster + Clip",
-    "brand": "Knape & Vogt",
-    "model": "255-ALU",
-    "type": "pilaster",
-    "notes": "Heavy-duty adjustable"
-  },
-  {
-    "id": "HSC-099",
-    "name": "Other",
-    "brand": null,
+    "brand": "Knape & Vo",
     "model": null,
     "type": null,
-    "notes": "Specify in notes"
+    "unit_cost": null,
+    "notes": null
   }
 ]

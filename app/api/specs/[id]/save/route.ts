@@ -19,8 +19,6 @@ type FinishGroupPayload = {
   edgeband_id: string;
   applied_panels: "slab" | "match_door" | null;
   species: string | null;
-  grade: string | null;
-  grain_orientation: string | null;
   rollout_box_id: string | null;
   notes: string;
   sort_order: number;
@@ -160,60 +158,6 @@ function validate(payload: SavePayload): Violation[] {
   return v;
 }
 
-// -- Auto-populate edgeband schedule
-async function autoPopulateEdgebands(fgId: string, fg: {
-  finish_type: string;
-  color_id: string | null;
-  carcass_id: string | null;
-  drawer_box_id: string | null;
-  species: string | null;
-}) {
-  let faceEbId: string | null = null;
-  let carcassEbId: string | null = null;
-  let drawerEbId: string | null = null;
-
-  if ((fg.finish_type === 'paint' || fg.finish_type === 'stain') && fg.species) {
-    const row = await sql`SELECT default_edgeband_id FROM catalog_species WHERE name = ${fg.species} LIMIT 1`;
-    faceEbId = row[0]?.default_edgeband_id ?? null;
-  } else if (fg.finish_type === 'melamine' && fg.color_id) {
-    const row = await sql`SELECT default_edgeband_id FROM catalog_melamine_colors WHERE id = ${fg.color_id} LIMIT 1`;
-    faceEbId = row[0]?.default_edgeband_id ?? null;
-  } else if (fg.finish_type === 'plam' && fg.color_id) {
-    const row = await sql`SELECT default_edgeband_id FROM catalog_melamine_colors WHERE id = ${fg.color_id} LIMIT 1`;
-    faceEbId = row[0]?.default_edgeband_id ?? null;
-  }
-
-  if (fg.carcass_id) {
-    const row = await sql`SELECT default_edgeband_id FROM catalog_carcass_materials WHERE id = ${fg.carcass_id} LIMIT 1`;
-    carcassEbId = row[0]?.default_edgeband_id ?? null;
-  }
-
-  if (fg.drawer_box_id) {
-    const row = await sql`SELECT default_edgeband_id FROM catalog_drawer_boxes WHERE id = ${fg.drawer_box_id} LIMIT 1`;
-    drawerEbId = row[0]?.default_edgeband_id ?? null;
-  }
-
-  const rows = [
-    { letter_code: 'D', edgeband_id: faceEbId,    sort_order: 1 },
-    { letter_code: 'E', edgeband_id: faceEbId,    sort_order: 2 },
-    { letter_code: 'I', edgeband_id: carcassEbId, sort_order: 3 },
-    { letter_code: 'V', edgeband_id: faceEbId,    sort_order: 4 },
-    { letter_code: 'U', edgeband_id: faceEbId,    sort_order: 5 },
-    { letter_code: 'B', edgeband_id: drawerEbId,  sort_order: 6 },
-    { letter_code: 'C', edgeband_id: drawerEbId,  sort_order: 7 },
-    { letter_code: 'X', edgeband_id: null,         sort_order: 8 },
-  ];
-
-  for (const row of rows) {
-    await sql`
-      INSERT INTO finish_group_edgebands (id, finish_group_id, letter_code, edgeband_id, sort_order)
-      VALUES (${uid()}, ${fgId}, ${row.letter_code}, ${row.edgeband_id}, ${row.sort_order})
-      ON CONFLICT (finish_group_id, letter_code) DO UPDATE
-      SET edgeband_id = EXCLUDED.edgeband_id, sort_order = EXCLUDED.sort_order
-    `;
-  }
-}
-
 // -- Save handler
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -275,7 +219,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         INSERT INTO finish_groups
           (id, spec_id, label, finish_type, color_id, color_name,
            door_style_id, drawer_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-           applied_panels, species, grade, grain_orientation, rollout_box_id,
+           applied_panels, species, rollout_box_id,
            cabdoor_edge_id, cabdoor_profile_id, cabdoor_panel_id,
            notes, sort_order)
         VALUES
@@ -286,9 +230,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
            ${g.pull_id || null},
            ${g.box_material || "melamine"},
            ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-           ${g.applied_panels || "slab"}, ${g.species || null},
-           ${g.grade || null}, ${g.grain_orientation || null},
-           ${g.rollout_box_id || null},
+           ${g.applied_panels || "slab"}, ${g.species || null}, ${g.rollout_box_id || null},
            ${(g as Record<string, unknown>).cabdoor_edge_id as string || null},
            ${(g as Record<string, unknown>).cabdoor_profile_id as string || null},
            ${(g as Record<string, unknown>).cabdoor_panel_id as string || null},
@@ -406,16 +348,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         } catch (_) { /* seeding failure -- skip */ }
       }
 
-      // edgebands -- auto-populate 8 rows from finish group inputs
-      try {
-        await autoPopulateEdgebands(fgId, {
-          finish_type: g.finish_type,
-          color_id: g.color_id || null,
-          carcass_id: g.carcass_id || null,
-          drawer_box_id: g.drawer_box_id || null,
-          species: g.species || null,
-        });
-      } catch (_) { /* auto-populate failure -- skip */ }
+      // edgebands -- seed one row from edgeband_id
+      if (g.edgeband_id) {
+        try {
+          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_edgebands WHERE finish_group_id = ${fgId}`;
+          if (Number((cnt[0] as { c: string | number }).c) === 0) {
+            await sql`
+              INSERT INTO finish_group_edgebands (id, finish_group_id, code, edgeband_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'EB1'}, ${g.edgeband_id}, ${0})
+            `;
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
 
       // hardware -- seed door_pulls and drawer_pulls rows from pull_id
       if (g.pull_id) {

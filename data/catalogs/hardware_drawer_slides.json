@@ -7,6 +7,9 @@
     "mount": null,
     "close": null,
     "length_options_in": null,
+    "unit_cost_15in": "0",
+    "unit_cost_18in": "0",
+    "unit_cost_21in": "0",
     "notes": "No slides — push-fit or alternate mechanism"
   },
   {
@@ -21,7 +24,10 @@
       18,
       21
     ],
-    "notes": "Standard ACC base drawer"
+    "unit_cost_15in": "9.10",
+    "unit_cost_18in": "12.50",
+    "unit_cost_21in": "18.00",
+    "notes": "Standard ACC base drawer — costs from PPAK 2026 per pair. Verify current price."
   },
   {
     "id": "HDS-BLU-002",
@@ -35,7 +41,10 @@
       18,
       21
     ],
-    "notes": "Push-to-open + soft-close"
+    "unit_cost_15in": "11.00",
+    "unit_cost_18in": "14.50",
+    "unit_cost_21in": "20.00",
+    "notes": "Push-to-open + soft-close — estimate. Verify."
   },
   {
     "id": "HDS-SAL-001",
@@ -49,30 +58,9 @@
       18,
       21
     ],
-    "notes": "Salice equivalent"
-  },
-  {
-    "id": "HDS-HET-001",
-    "name": "Hettich Quadro V6 Silent System",
-    "brand": "Hettich",
-    "model": "9080",
-    "mount": "undermount",
-    "close": "soft-close",
-    "length_options_in": [
-      15,
-      18,
-      21
-    ],
-    "notes": "Hettich equivalent"
-  },
-  {
-    "id": "HDS-099",
-    "name": "Other",
-    "brand": null,
-    "model": null,
-    "mount": null,
-    "close": null,
-    "length_options_in": null,
-    "notes": "Specify in notes"
+    "unit_cost_15in": "9.00",
+    "unit_cost_18in": "12.00",
+    "unit_cost_21in": null,
+    "notes": null
   }
 ]

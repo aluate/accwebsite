@@ -1,34 +1,12 @@
 export const dynamic = "force-dynamic";
-export const maxDuration = 30; // seconds — requires Vercel Pro; hobby cap is 10s
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { catalogs } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
-import type { AccessoriesData } from "@/components/AccessoriesTab";
 
 type SpecRow    = { id: string; job_id: string; name: string; status: string; updated_at: string };
-type PullDbRow  = { id: string; make: string|null; model: string|null; size: string|null; room: string|null; notes: string|null; qty: number };
-type AccDbRow   = { id: string; part_number: string|null; description: string|null; qty: number; handed: string; room: string|null; notes: string|null };
-
-function buildAccessoriesData(pullsRaw: PullDbRow[], accsRaw: AccDbRow[]): AccessoriesData {
-  return {
-    pulls: pullsRaw.map((r) => ({
-      id: r.id, make: r.make ?? "", model: r.model ?? "",
-      size: r.size ?? "", room: r.room ?? "", notes: r.notes ?? "", qty: r.qty,
-    })),
-    accessories: accsRaw.map((r) => {
-      const h = r.handed || "N/A";
-      const handed = (h === "Left" || h === "Right") ? h : "N/A" as const;
-      return {
-        id: r.id, part_number: r.part_number ?? "",
-        description: r.description ?? "", qty: r.qty, handed,
-        room: r.room ?? "", notes: r.notes ?? "",
-      };
-    }),
-  };
-}
 type FGRow      = {
   id: string; label: string; finish_type: "paint"|"stain"|"melamine"|"plam"|"";
   color_id: string; color_name: string;
@@ -38,8 +16,6 @@ type FGRow      = {
   carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null;
   applied_panels: "slab" | "match_door" | null;
   species: string | null;
-  grade: string | null;
-  grain_orientation: string | null;
   notes: string; sort_order: number;
 };
 
@@ -60,7 +36,6 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 // per-finish state. Material is the first sub-section to land — others follow
 // the same pattern (door fronts, drawers, edgebands, hardware, countertops).
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
-type EdgebandRow = { id: string; finish_group_id: string; letter_code: string; edgeband_id: string | null; notes: string | null; sort_order: number; location_description: string };
 
 export default async function SpecEditorPage({
   params,
@@ -69,71 +44,68 @@ export default async function SpecEditorPage({
 }) {
   const { id, specId } = await params;
 
-  // ── Catalogs: kick off immediately — no dependency on spec data ─────────
-  // Running these before the first await means they execute in parallel with
-  // all spec-specific batches, cutting total wall-clock time significantly.
-  const catalogsPromise = Promise.all([
-    catalogs.paintColors(),
-    catalogs.stainColors(),
-    catalogs.melamineColors(),
-    catalogs.doorStyles(),
-    catalogs.hardwarePulls(),
-    catalogs.revaAccessories(),
-    catalogs.carcassMaterials(),
-    catalogs.drawerBoxes(),
-    catalogs.edgebands(),
-    catalogs.builderProfiles(),
-    catalogs.species(),
-  ]);
-
-  // ── Batch 1: top-level spec + finish groups + rooms (all independent) ──────
-  const [[specRow], finish_groups, rooms] = await Promise.all([
-    sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as Promise<SpecRow[]>,
-    sql`SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<FGRow[]>,
-    sql`SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order` as Promise<RoomRow[]>,
-  ]);
-  const spec = specRow;
+  const [spec] = await sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as SpecRow[];
   if (!spec) notFound();
 
+  const finish_groups = await sql`
+    SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order
+  ` as FGRow[];
+
+  const rooms = await sql`
+    SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order
+  ` as RoomRow[];
+
   const roomIds = rooms.map((r) => r.id);
-  const fgIds   = finish_groups.map((g) => g.id);
 
-  // ── Batch 2: all child rows that depend on roomIds/fgIds ────────────────
-  const [
-    accessories, cabinets, roomFinishes, moldingRows, materialRows, edgebandRows,
-    pullsRaw, accsRaw,
-    fgPullRowsRaw, roomTrimRowsRaw, specApplianceRows, specAccessoryRows2, specHardwareRows,
-  ] = await Promise.all([
-    roomIds.length ? (sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as Promise<AccRow[]>).catch(()=>[] as AccRow[]) : Promise.resolve([] as AccRow[]),
-    roomIds.length ? (sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as Promise<CabinetRow[]>).catch(()=>[] as CabinetRow[]) : Promise.resolve([] as CabinetRow[]),
-    roomIds.length ? (sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as Promise<RoomFinishRow[]>).catch(()=>[] as RoomFinishRow[]) : Promise.resolve([] as RoomFinishRow[]),
-    fgIds.length   ? (sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as Promise<MoldingRow[]>).catch(()=>[] as MoldingRow[]) : Promise.resolve([] as MoldingRow[]),
-    fgIds.length   ? (sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as Promise<MaterialRow[]>).catch(()=>[] as MaterialRow[]) : Promise.resolve([] as MaterialRow[]),
-    fgIds.length   ? sql`
-      SELECT fge.*, cel.description AS location_description
-      FROM finish_group_edgebands fge
-      JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
-      WHERE fge.finish_group_id IN ${sql(fgIds)}
-      ORDER BY fge.finish_group_id, fge.sort_order
-    `.catch(()=>[]) as Promise<EdgebandRow[]> : Promise.resolve([] as EdgebandRow[]),
-    sql`SELECT * FROM spec_pulls WHERE spec_id = ${specId} ORDER BY sort_order`.catch(() => []) as Promise<PullDbRow[]>,
-    sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`.catch(() => []) as Promise<AccDbRow[]>,
-    fgIds.length   ? sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order`.catch(()=>[]) as Promise<FGPullRow[]> : Promise.resolve([] as FGPullRow[]),
-    roomIds.length ? sql`SELECT * FROM room_trim WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order`.catch(()=>[]) as Promise<RoomTrimRow[]> : Promise.resolve([] as RoomTrimRow[]),
-    sql`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order`.catch(()=>[]) as Promise<SpecApplianceRow[]>,
-    sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order`.catch(()=>[]) as Promise<SpecAccessoryRow2[]>,
-    sql`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order`.catch(()=>[]) as Promise<SpecHardwareRow[]>,
-  ]);
+  const accessories: AccRow[] = roomIds.length
+    ? await sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` as AccRow[]
+    : [];
 
-  const accessoriesData: AccessoriesData = buildAccessoriesData(pullsRaw, accsRaw);
-  const fgPullRows      = fgPullRowsRaw;
-  const roomTrimRows    = roomTrimRowsRaw;
+  const cabinets: CabinetRow[] = roomIds.length
+    ? await sql`SELECT * FROM cabinet_line_items WHERE room_id IN ${sql(roomIds)} ORDER BY sort_order` as CabinetRow[]
+    : [];
 
-  // ── Batch 3: molding rooms (depends on moldingRows from batch 2) ─────────
+  const roomFinishes: RoomFinishRow[] = roomIds.length
+    ? await sql`SELECT * FROM room_finishes WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as RoomFinishRow[]
+    : [];
+
+  // Phase 1B (2026-05): per-finish moldings with where-used rooms.
+  const fgIds = finish_groups.map((g) => g.id);
+
+  const moldingRows: MoldingRow[] = fgIds.length
+    ? await sql`SELECT * FROM finish_moldings WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as MoldingRow[]
+    : [];
+
+  // Spec form v2 child tables (2026-05-06). Material first; others next.
+  const materialRows: MaterialRow[] = fgIds.length
+    ? await sql`SELECT * FROM finish_group_materials WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, role` as MaterialRow[]
+    : [];
+
   const moldingIds = moldingRows.map((m) => m.id);
+
   const moldingRoomRows: MoldingRoomRow[] = moldingIds.length
     ? await sql`SELECT * FROM finish_molding_rooms WHERE molding_id IN ${sql(moldingIds)}` as MoldingRoomRow[]
     : [];
+
+  // Phase 1 additions: pulls, trim, appliances (2026-07-02)
+  let fgPullRows: FGPullRow[] = [];
+  let roomTrimRows: RoomTrimRow[] = [];
+  let specApplianceRows: SpecApplianceRow[] = [];
+  let specAccessoryRows2: SpecAccessoryRow2[] = [];
+  let specHardwareRows: SpecHardwareRow[] = [];
+  try {
+    fgPullRows = fgIds.length
+      ? await sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FGPullRow[]
+      : [];
+    roomTrimRows = roomIds.length
+      ? await sql`SELECT * FROM room_trim WHERE room_id IN ${sql(roomIds)} ORDER BY room_id, sort_order` as RoomTrimRow[]
+      : [];
+    specApplianceRows = await sql`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order` as SpecApplianceRow[];
+    specAccessoryRows2 = await sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order` as SpecAccessoryRow2[];
+    specHardwareRows = await sql`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order` as SpecHardwareRow[];
+  } catch {
+    // Tables not yet created — will be created on first db-push
+  }
 
   const moldings = moldingRows.map((m) => ({
     id: m.id,
@@ -215,8 +187,6 @@ export default async function SpecEditorPage({
     edgeband_id:   g.edgeband_id   ?? "",
     applied_panels: (g.applied_panels ?? "slab") as "slab" | "match_door",
     species:        g.species        ?? "",
-    grade:          g.grade          ?? "",
-    grain_orientation: g.grain_orientation ?? "",
   }));
 
   // Build pulls keyed by finish_group_id
@@ -261,19 +231,6 @@ export default async function SpecEditorPage({
   // cab_ext removed: carcass material IS the cab_ext; no separate row needed.
   const VALID_MATERIAL_ROLES = ["cab_int", "cab_ext2", "cab_int2"] as const;
   type MaterialRole = (typeof VALID_MATERIAL_ROLES)[number];
-  // Build edgebands keyed by finish_group_id
-  const initialEdgebands: Record<string, { letter_code: string; edgeband_id: string | null; notes: string; sort_order: number; location_description: string }[]> = {};
-  for (const eb of edgebandRows as EdgebandRow[]) {
-    if (!initialEdgebands[eb.finish_group_id]) initialEdgebands[eb.finish_group_id] = [];
-    initialEdgebands[eb.finish_group_id].push({
-      letter_code: eb.letter_code,
-      edgeband_id: eb.edgeband_id,
-      notes: eb.notes ?? "",
-      sort_order: eb.sort_order,
-      location_description: eb.location_description,
-    });
-  }
-
   const materialsHydrated = materialRows
     .filter((m): m is MaterialRow & { role: MaterialRole } =>
       (VALID_MATERIAL_ROLES as readonly string[]).includes(m.role)
@@ -287,33 +244,26 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
-  // ── Catalogs: await the promise started before Batch 1 ─────────────────
-  // By the time we reach here (after Batch 1-3), most catalog queries have
-  // already completed in the background.
-  const [
-    paintColors, stainColors, melamineColors, doorStyles, hardwarePulls,
-    revaAccessories, carcassMaterials, drawerBoxes, edgebands, builderProfilesCat, speciesCat,
-  ] = await catalogsPromise;
-
   const catalogData = {
-    paintColors,
-    stainColors,
-    melamineColors,
-    doorStyles,
-    hardwarePulls,
-    revaAccessories,
+    paintColors:      catalogs.paintColors(),
+    stainColors:      catalogs.stainColors(),
+    melamineColors:   catalogs.melamineColors(),
+    doorStyles:       catalogs.doorStyles(),
+    hardwarePulls:    catalogs.hardwarePulls(),
+    revaAccessories:  catalogs.revaAccessories(),
     cabinetFamilies:  catalogs.cabinetFamilies(),
-    carcassMaterials,
-    drawerBoxes,
-    edgebands,
-    species:          speciesCat,
+    carcassMaterials: catalogs.carcassMaterials(),
+    drawerBoxes:      catalogs.drawerBoxes(),
+    edgebands:        catalogs.edgebands(),
     rooms:            catalogs.rooms(),
     moldingTypes:     catalogs.moldingTypes(),
     moldingProfiles:  catalogs.moldingProfiles(),
     moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
-    cabDoorProfiles:  catalogs.cabDoorInsideProfiles() as unknown as { id: string; name: string }[],
-    cabDoorPanels:    catalogs.cabDoorPanels() as unknown as { id: string; name: string }[],
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 
   return (
@@ -335,13 +285,11 @@ export default async function SpecEditorPage({
         initialFinishGroups={finishGroupsHydrated}
         initialRooms={roomsWithAcc}
         initialMaterials={materialsHydrated}
-        initialEdgebands={initialEdgebands}
         initialPulls={initialPulls}
         initialAppliances={initialAppliances}
         initialAccessories2={initialAccessories2}
         initialHardware={initialHardware}
         catalogs={catalogData}
-        builderProfiles={builderProfilesCat}
         lastSaved={spec.updated_at}
       />
     </section>

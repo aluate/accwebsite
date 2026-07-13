@@ -9,46 +9,28 @@ import { sql } from "@/lib/db";
 // Force dynamic so Next.js/webpack doesn't statically analyze child_process args
 
 // /api/admin/libraries/[name]
-// GET   → returns rows as JSON (DB-backed) or CSV text (file-backed).
-//         ?format=csv forces CSV download for file-backed catalogs.
-//         ?blast=<rowId> returns { count, breakdown } for FK usage.
-// PUT   → replaces catalog rows in DB (DB-backed) or CSV (file-backed, local only).
-//         Accepts JSON array for DB-backed catalogs.
+// GET   → returns the CSV text (admin-only).
+//          ?download=1 sets Content-Disposition: attachment.
+// PUT   → replaces the CSV with the request body (text/csv).
+//          Validates: header row matches the existing header row exactly.
+//          Returns { ok, rows }. NOTE: sync-catalogs does NOT run here on
+//          Vercel (filesystem is read-only). Edit CSVs locally and redeploy.
 //
 // Security: admin-only via requireRole. Path traversal blocked: name must
-// match /^[a-z0-9_]+$/i.
+// match /^[a-z0-9_]+$/i and resolve under data/catalogs/.
+//
+// TODO: CSV files are read from local disk (data/catalogs/). This will not
+// work on Vercel (read-only filesystem). Migrate catalog storage to Supabase
+// Storage or DB table when deploying to production.
 
 const CATALOGS = path.join(process.cwd(), "data", "catalogs");
 
-// Map library name → DB table (DB-backed catalogs).
-const DB_TABLE_MAP: Record<string, string> = {
-  colors_paint:    "catalog_paint_colors",
-  colors_stain:    "catalog_stain_colors",
-  colors_melamine: "catalog_melamine_colors",
-  colors_carcass:  "catalog_carcass_materials",
-  drawer_box:      "catalog_drawer_boxes",
-  edgeband:        "catalog_edgebands",
-  species:         "catalog_species",
-  accessories_reva:"catalog_accessories",
-  builder_profiles:"catalog_builder_profiles",
-  door_styles:     "catalog_door_styles",
-  hardware_pulls:  "catalog_pulls",
-  appliances:      "catalog_appliances",
-};
-
-function isDbBacked(name: string): boolean {
-  return name in DB_TABLE_MAP;
-}
-
-function resolveFilePath(name: string): string | null {
+function resolveCatalogPath(name: string): string | null {
   if (!/^[a-z0-9_]+$/i.test(name)) return null;
-  // Allow CSV or JSON
-  for (const ext of [".csv", ".json"]) {
-    const file = path.join(CATALOGS, `${name}${ext}`);
-    if (!path.resolve(file).startsWith(path.resolve(CATALOGS) + path.sep)) return null;
-    if (fs.existsSync(file)) return file;
-  }
-  return null;
+  const file = path.join(CATALOGS, `${name}.csv`);
+  if (!path.resolve(file).startsWith(path.resolve(CATALOGS) + path.sep)) return null;
+  if (!fs.existsSync(file)) return null;
+  return file;
 }
 
 function parseHeader(text: string): string[] {
@@ -102,7 +84,8 @@ async function getBlastRadius(libraryName: string, rowId: string) {
 export async function GET(req: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   await requireRole("admin");
   const { name } = await params;
-  if (!/^[a-z0-9_]+$/i.test(name)) return NextResponse.json({ error: "Invalid name" }, { status: 400 });
+  const file = resolveCatalogPath(name);
+  if (!file) return NextResponse.json({ error: "Library not found" }, { status: 404 });
 
   const blastId = req.nextUrl.searchParams.get("blast");
   if (blastId) {
@@ -110,34 +93,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ name
     return NextResponse.json(radius);
   }
 
-  // DB-backed catalog
-  if (isDbBacked(name)) {
-    const table = DB_TABLE_MAP[name];
-    try {
-      const rows = await sql.unsafe(`SELECT * FROM ${table} ORDER BY id`);
-      return NextResponse.json(rows);
-    } catch (e) {
-      return NextResponse.json({ error: `DB query failed: ${(e as Error).message}` }, { status: 500 });
-    }
-  }
-
-  // File-backed: return CSV or JSON
-  const file = resolveFilePath(name);
-  if (!file) return NextResponse.json({ error: "Library not found" }, { status: 404 });
-
   const text = fs.readFileSync(file, "utf-8");
   const download = req.nextUrl.searchParams.get("download");
-
-  if (file.endsWith(".json")) {
-    return NextResponse.json(JSON.parse(text), {
-      headers: download ? { "Content-Disposition": `attachment; filename="${name}.json"` } : {},
-    });
-  }
-
   return new NextResponse(text, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      ...(download ? { "Content-Disposition": `attachment; filename="${name}.csv"` } : {}),
+      ...(download
+        ? { "Content-Disposition": `attachment; filename="${name}.csv"` }
+        : {}),
     },
   });
 }
@@ -145,62 +108,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ name
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ name: string }> }) {
   await requireRole("admin");
   const { name } = await params;
-  if (!/^[a-z0-9_]+$/i.test(name)) return NextResponse.json({ error: "Invalid name" }, { status: 400 });
 
-  // DB-backed: accept JSON array, upsert rows
-  if (isDbBacked(name)) {
-    const table = DB_TABLE_MAP[name];
-    let rows: Record<string, unknown>[];
-    try {
-      rows = await req.json() as Record<string, unknown>[];
-    } catch {
-      return NextResponse.json({ error: "Body must be a JSON array" }, { status: 400 });
-    }
-    if (!Array.isArray(rows) || rows.length === 0) {
-      return NextResponse.json({ error: "Empty or non-array body" }, { status: 400 });
-    }
-
-    // Serialize array values to semicolon-joined strings (matching seed convention)
-    function ser(v: unknown): unknown {
-      if (v == null) return null;
-      if (Array.isArray(v)) return (v as unknown[]).join(";");
-      return v;
-    }
-
-    const colNames = Object.keys(rows[0]);
-    if (!colNames.includes("id")) {
-      return NextResponse.json({ error: "Each row must have an 'id' field" }, { status: 400 });
-    }
-
-    let count = 0;
-    for (const row of rows) {
-      const id = row.id as string;
-      if (!id) continue;
-      const setCols = colNames.filter(c => c !== "id").map(c => `${c} = EXCLUDED.${c}`).join(", ");
-      const colList = colNames.join(", ");
-      const placeholders = colNames.map((_, i) => `$${i + 1}`).join(", ");
-      const values = colNames.map(c => ser(row[c]));
-      await sql.unsafe(
-        `INSERT INTO ${table} (${colList}) VALUES (${placeholders}) ON CONFLICT (id) DO UPDATE SET ${setCols}`,
-        values as never[]
-      );
-      count++;
-    }
-
-    return NextResponse.json({ ok: true, rows: count });
-  }
-
-  // File-backed: Vercel read-only guard, then replace CSV
+  // Vercel: filesystem is read-only in production.
   if (process.env.VERCEL) {
     return NextResponse.json({
-      error: "File-backed catalog editing is not available on Vercel. Migrate this catalog to DB or edit locally.",
+      error: "Catalog editing is not available on Vercel. Edit the CSV locally, run npm run sync-catalogs, and commit/deploy.",
     }, { status: 501 });
   }
 
-  const file = resolveFilePath(name);
-  if (!file || !file.endsWith(".csv")) {
-    return NextResponse.json({ error: "Library not found or not a CSV" }, { status: 404 });
-  }
+  const file = resolveCatalogPath(name);
+  if (!file) return NextResponse.json({ error: "Library not found" }, { status: 404 });
 
   const newText = await req.text();
   if (!newText.trim()) return NextResponse.json({ error: "Empty body" }, { status: 400 });
@@ -217,6 +134,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ name
   }
 
   fs.writeFileSync(file, newText, "utf-8");
+  // NOTE: sync-catalogs.mjs is not run here to avoid webpack bundling issues.
+  // After editing CSVs locally, run `npm run sync-catalogs` manually.
+
   const rows = Math.max(0, newText.replace(/\r\n/g, "\n").split("\n").filter((l) => l.trim()).length - 1);
   return NextResponse.json({ ok: true, rows });
 }

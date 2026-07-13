@@ -34,8 +34,8 @@ const ALL_STATUSES = [
 ];
 
 const ACTIVE_STATUSES = [
-  "intake", "bid", "design", "field_dims", "engineering", "procurement",
-  "production", "delivery", "install", "punch",
+  "production", "delivery", "install", "punch", "field_dims",
+  "engineering", "procurement", "design", "bid",
 ];
 
 type SortKey = "delivery_asc" | "delivery_desc" | "install_asc" | "install_desc" | "client_az" | "client_za";
@@ -228,57 +228,6 @@ function InlineInstallTypeCell({
       <option value="">—</option>
       <option value="acc">ACC Crew</option>
       <option value="sub">Sub</option>
-    </select>
-  );
-}
-
-// ── Inline status selector ────────────────────────────────────────────────────
-
-function InlineStatusCell({
-  jobId,
-  value,
-  onSaved,
-}: {
-  jobId: string;
-  value: string;
-  onSaved: (jobId: string, field: string, newValue: string | null) => void;
-}) {
-  const [saving, setSaving] = useState(false);
-
-  async function change(newVal: string) {
-    if (!newVal || newVal === value) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/jobs/${jobId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newVal }),
-      });
-      if (!res.ok) throw new Error("save failed");
-      onSaved(jobId, "status", newVal);
-    } catch {
-      alert("Failed to save status.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const colorCls = STATUS_COLOR[value] ?? "text-white/40 bg-white/10";
-
-  return (
-    <select
-      value={value}
-      onChange={(e) => change(e.target.value)}
-      disabled={saving}
-      onClick={(e) => e.stopPropagation()}
-      className={`rounded px-2 py-0.5 text-[10px] font-condensed uppercase tracking-widest border-0 focus:outline-none focus:ring-1 focus:ring-[#f08122]/60 cursor-pointer disabled:opacity-50 ${colorCls}`}
-      style={{ background: "inherit" }}
-    >
-      {ALL_STATUSES.map((s) => (
-        <option key={s} value={s} className="bg-[#1c1c1c] text-white normal-case tracking-normal text-xs">
-          {STATUS_LABEL[s] ?? s}
-        </option>
-      ))}
     </select>
   );
 }
@@ -538,6 +487,8 @@ export function PmDashboardClient({
               {filtered.map((job) => {
                 const conflicts = conflictMap.get(job.id) ?? [];
                 const hasConflict = conflicts.length > 0;
+                const statusCls = STATUS_COLOR[job.status] ?? "text-white/40 bg-white/10";
+                const statusTxt = STATUS_LABEL[job.status] ?? job.status.replace(/_/g, " ");
                 const jobRef = job.job_number ?? job.id;
 
                 return (
@@ -616,11 +567,9 @@ export function PmDashboardClient({
 
                     {/* Status */}
                     <td className="py-3">
-                      <InlineStatusCell
-                        jobId={job.id}
-                        value={job.status}
-                        onSaved={handleSaved}
-                      />
+                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
+                        {statusTxt}
+                      </span>
                     </td>
                   </tr>
                 );

@@ -1,16 +1,16 @@
-id,preset_name,inside_profile_id,panel_id,edge_detail_id,mitre_pattern_id,arch,glaze,lite,notes,placeholder
-PRESET-SHAKER-CLASSIC,"Shaker Classic (P-1, Pnl-63, E-6)",P-1,Pnl-63,E-6,,false,false,standard+deluxe,"Most-requested shaker. Group A inside, Group A panel, R-1/4 standard edge.",false
-PRESET-SHAKER-FLAT,"Shaker Flat-Back (P-1, Pnl-1, E-6)",P-1,Pnl-1,E-6,,false,false,standard+deluxe,Slab inside-look with flat raised panel.,false
-PRESET-RAISED-A,"Classic Raised Panel (P-9, Pnl-3)",P-9,Pnl-3,E-6,,true,true,standard+deluxe,Glazed-friendly. Group A raised.,false
-PRESET-BEADED-A,"Beaded Inset (P-23, Pnl-7)",P-23,Pnl-7,E-6,,true,true,standard,Bead detail; great for traditional kitchens.,false
-PRESET-APPLIED-MOULDING,"Applied Moulding (P-26, Pnl-58)",P-26,Pnl-58,E-6,,true,true,standard+deluxe,Applied moulding panel for ornate detail.,false
-PRESET-REVERSE-RAISED,"Reverse Raised (P-9, Pnl-149)",P-9,Pnl-149,E-6,,true,true,standard+deluxe,Reverse raised look.,false
-PRESET-MITRE-LEXINGTON,Lexington Mitre (MP-01),,Pnl-1,,MP-01,false,false,standard+deluxe,"3"" mitre. Pair with Group A flat-back panel.",false
-PRESET-MITRE-CONCORD,Concord Mitre (MP-02),,Pnl-1,,MP-02,false,false,standard+deluxe,"3"" mitre. Pair with Group A flat-back panel.",false
-PRESET-MITRE-CHERRY-HILL,Cherry Hill Mitre (MP-27),,Pnl-1,,MP-27,false,false,standard+deluxe,"3"" mitre.",false
-PRESET-MITRE-PETERSBURG,Petersburg Mitre (MP-3 + E-32),,Pnl-1,E-32,MP-3,false,false,none,"2-1/4"" mitre with default E-32 edge.",false
-PRESET-MITRE-WILLIAMSBURG,Williamsburg Mitre (MP-4 + E-46),,Pnl-1,E-46,MP-4,false,false,none,"2-1/4"" mitre with default E-46 edge.",false
-PRESET-MITRE-CHANTILLY,Chantilly Mitre (MP-20),,Pnl-1,,MP-20,false,false,none,"2-1/4"" mitre, rope moulding inlaid.",false
-PRESET-MITRE-HARTFORD,Hartford Mitre (MP-19),,Pnl-1,,MP-19,false,false,none,"2-1/2"" mitre.",false
-PRESET-MITRE-ALEXANDRIA,Alexandria Mitre (MP-26),,Pnl-1,,MP-26,false,false,standard+deluxe,"2-1/2"" mitre.",false
-PRESET-MITRE-BROOKHAVEN-P15,Brookhaven Rosewood (MP-7P + P-15),P-15,Pnl-1,,MP-7P,false,false,standard+deluxe,Rosewood edge. Replace inside profile to vary the look. Great for glazed.,false
+id,preset_name,inside_profile_id,panel_id,edge_detail_id,mitre_pattern_id,arch,glaze,lite,notes,placeholder,price_per_sqft
+PRESET-SHAKER-CLASSIC,"Shaker Classic (P-1, Pnl-63, E-6)",P-1,Pnl-63,E-6,,false,false,standard+deluxe,"Most-requested shaker. Group A inside, Group A panel, R-1/4 standard edge.",false,0
+PRESET-SHAKER-FLAT,"Shaker Flat-Back (P-1, Pnl-1, E-6)",P-1,Pnl-1,E-6,,false,false,standard+deluxe,Slab inside-look with flat raised panel.,false,0
+PRESET-RAISED-A,"Classic Raised Panel (P-9, Pnl-3)",P-9,Pnl-3,E-6,,true,true,standard+deluxe,Glazed-friendly. Group A raised.,false,0
+PRESET-BEADED-A,"Beaded Inset (P-23, Pnl-7)",P-23,Pnl-7,E-6,,true,true,standard,Bead detail; great for traditional kitchens.,false,0
+PRESET-APPLIED-MOULDING,"Applied Moulding (P-26, Pnl-58)",P-26,Pnl-58,E-6,,true,true,standard+deluxe,Applied moulding panel for ornate detail.,false,0
+PRESET-REVERSE-RAISED,"Reverse Raised (P-9, Pnl-149)",P-9,Pnl-149,E-6,,true,true,standard+deluxe,Reverse raised look.,false,0
+PRESET-MITRE-LEXINGTON,Lexington Mitre (MP-01),,Pnl-1,,MP-01,false,false,standard+deluxe,"3"" mitre. Pair with Group A flat-back panel.",false,0
+PRESET-MITRE-CONCORD,Concord Mitre (MP-02),,Pnl-1,,MP-02,false,false,standard+deluxe,"3"" mitre. Pair with Group A flat-back panel.",false,0
+PRESET-MITRE-CHERRY-HILL,Cherry Hill Mitre (MP-27),,Pnl-1,,MP-27,false,false,standard+deluxe,"3"" mitre.",false,0
+PRESET-MITRE-PETERSBURG,Petersburg Mitre (MP-3 + E-32),,Pnl-1,E-32,MP-3,false,false,none,"2-1/4"" mitre with default E-32 edge.",false,0
+PRESET-MITRE-WILLIAMSBURG,Williamsburg Mitre (MP-4 + E-46),,Pnl-1,E-46,MP-4,false,false,none,"2-1/4"" mitre with default E-46 edge.",false,0
+PRESET-MITRE-CHANTILLY,Chantilly Mitre (MP-20),,Pnl-1,,MP-20,false,false,none,"2-1/4"" mitre, rope moulding inlaid.",false,0
+PRESET-MITRE-HARTFORD,Hartford Mitre (MP-19),,Pnl-1,,MP-19,false,false,none,"2-1/2"" mitre.",false,0
+PRESET-MITRE-ALEXANDRIA,Alexandria Mitre (MP-26),,Pnl-1,,MP-26,false,false,standard+deluxe,"2-1/2"" mitre.",false,0
+PRESET-MITRE-BROOKHAVEN-P15,Brookhaven Rosewood (MP-7P + P-15),P-15,Pnl-1,,MP-7P,false,false,standard+deluxe,Rosewood edge. Replace inside profile to vary the look. Great for glazed.,false,0

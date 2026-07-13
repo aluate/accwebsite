@@ -1,0 +1,16 @@
+catalog_id,display_name,finish_type,source_sku,hex_preview,description,active
+ACC-MEL-1,Valenti Walnut,MELAMINE,MEL-SW-W03,,Stevenswood Walnut series — Wood Matte texture,true
+ACC-MEL-2,Amble Walnut,MELAMINE,MEL-SW-W04,,Stevenswood Walnut series — Wood Matte texture,true
+ACC-MEL-3,Opus Walnut,MELAMINE,MEL-SW-W13,,Stevenswood Walnut series — Wood Matte texture,true
+ACC-MEL-4,Roan Walnut,MELAMINE,MEL-SW-W43,,Stevenswood Walnut series — Wood Matte texture,true
+ACC-MEL-5,Magpie Walnut,MELAMINE,MEL-SW-W45,,Stevenswood Walnut series — Wood Matte texture,true
+ACC-STAIN-1,Bellini,STAIN,STN-ACC-BELLINI,#C8A882,ACC in-house stain,true
+ACC-STAIN-2,Gimlet,STAIN,STN-ACC-GIMLET,#A0785A,ACC in-house stain,true
+ACC-STAIN-3,Amaretto,STAIN,STN-ACC-AMARETTO,#7A5C3E,ACC in-house stain,true
+ACC-STAIN-4,Manhattan,STAIN,STN-ACC-MANHATTAN,#5C3D1E,ACC in-house stain,true
+ACC-STAIN-5,Natural,STAIN,STN-ACC-NATURAL,#D4B896,ACC in-house stain — no color added,true
+ACC-PAINT-1,ML Cabinetcoat White,PAINT,PNT-ML-CC-WHITE,#F8F8F6,ML Campbell Cabinetcoat White,true
+ACC-PAINT-2,ML Cabinetcoat Extra White,PAINT,PNT-ML-CC-EXTRAWHITE,#FFFFFF,ML Campbell Cabinetcoat Extra White,true
+ACC-PAINT-3,ML Cabinetcoat Linen,PAINT,PNT-ML-CC-LINEN,#E8DDD0,ML Campbell Cabinetcoat Linen,true
+ACC-PAINT-4,ML Cabinetcoat Black,PAINT,PNT-ML-CC-BLACK,#1A1A1A,ML Campbell Cabinetcoat Black,true
+ACC-PAINT-5,ML Custom Match,PAINT,PNT-ML-COATING-ONLY,#808080,Client-supplied color — specify at order,true

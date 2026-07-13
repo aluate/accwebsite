@@ -1,0 +1,20 @@
+[
+  {
+    "catalog_id": "ACC-DOOR-SLAB",
+    "display_name": "Slab",
+    "door_type": "SLAB",
+    "cabdoor_preset_id": null,
+    "species": "TBD",
+    "description": "Clean flat slab door. Species TBD.",
+    "active": true
+  },
+  {
+    "catalog_id": "ACC-DOOR-116",
+    "display_name": "CabDoor 116",
+    "door_type": "CABDOOR",
+    "cabdoor_preset_id": "PRESET-116",
+    "species": "TBD",
+    "description": "ACC standard profile. Fill in CabDoor preset ID.",
+    "active": true
+  }
+]

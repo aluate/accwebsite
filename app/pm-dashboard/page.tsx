@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { sql, withDbTimeout } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { requireBuilder } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { PmDashboardClient } from "@/components/PmDashboardClient";
@@ -25,31 +25,26 @@ export default async function PmDashboardPage() {
     redirect("/jobs");
   }
 
-  let jobs: PmJob[] = [];
-  try {
-    jobs = await withDbTimeout(() => sql<PmJob[]>`
-      SELECT
-        id,
-        job_number,
-        client_name,
-        site_address,
-        city,
-        pm,
-        builder_name,
-        delivery_date,
-        install_type,
-        install_start_date,
-        status
-      FROM jobs
-      WHERE status NOT IN ('complete')
-      ORDER BY
-        CASE WHEN delivery_date IS NULL THEN 1 ELSE 0 END,
-        delivery_date ASC,
-        client_name ASC
-    `);
-  } catch {
-    // DB busy — show empty dashboard rather than crash
-  }
+  const jobs = await sql<PmJob[]>`
+    SELECT
+      id,
+      job_number,
+      client_name,
+      site_address,
+      city,
+      pm,
+      builder_name,
+      delivery_date,
+      install_type,
+      install_start_date,
+      status
+    FROM jobs
+    WHERE status NOT IN ('complete')
+    ORDER BY
+      CASE WHEN delivery_date IS NULL THEN 1 ELSE 0 END,
+      delivery_date ASC,
+      client_name ASC
+  `;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">

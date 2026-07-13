@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { cache } from "react";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import sql from "@/lib/db";
@@ -30,7 +29,7 @@ export async function createSession(builder_id: string): Promise<string> {
   return token;
 }
 
-export const getSessionFromToken = cache(async function getSessionFromToken(token: string): Promise<BuilderSession | null> {
+export async function getSessionFromToken(token: string): Promise<BuilderSession | null> {
   const now = new Date().toISOString();
   const rows = await sql<BuilderSession[]>`
     SELECT ba.id, ba.username, ba.name, ba.company, ba.email, ba.role
@@ -39,7 +38,7 @@ export const getSessionFromToken = cache(async function getSessionFromToken(toke
     WHERE bs.token = ${token} AND bs.expires_at > ${now} AND ba.active = 1
   `;
   return rows[0] ?? null;
-});
+}
 
 export async function deleteSession(token: string): Promise<void> {
   await sql`DELETE FROM builder_sessions WHERE token = ${token}`;

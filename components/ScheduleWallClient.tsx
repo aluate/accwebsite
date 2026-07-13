@@ -38,26 +38,25 @@ type ScheduleData = {
 // ── Color palette ─────────────────────────────────────────────────────────────
 
 const CREW_PALETTE = [
-  { bg: "rgba(240,129,34,0.50)",  bar: "#f08122", text: "#f08122" }, // ACC orange
-  { bg: "rgba(96,165,250,0.50)",  bar: "#60a5fa", text: "#93c5fd" }, // sky
-  { bg: "rgba(167,139,250,0.50)", bar: "#a78bfa", text: "#c4b5fd" }, // violet
-  { bg: "rgba(74,222,128,0.50)",  bar: "#4ade80", text: "#86efac" }, // green
-  { bg: "rgba(251,113,133,0.50)", bar: "#fb7185", text: "#fda4af" }, // rose
-  { bg: "rgba(250,204,21,0.50)",  bar: "#facc15", text: "#fde047" }, // amber
+  { bg: "rgba(240,129,34,0.22)",  bar: "#f08122", text: "#f08122" }, // ACC orange
+  { bg: "rgba(96,165,250,0.22)",  bar: "#60a5fa", text: "#93c5fd" }, // sky
+  { bg: "rgba(167,139,250,0.22)", bar: "#a78bfa", text: "#c4b5fd" }, // violet
+  { bg: "rgba(74,222,128,0.22)",  bar: "#4ade80", text: "#86efac" }, // green
+  { bg: "rgba(251,113,133,0.22)", bar: "#fb7185", text: "#fda4af" }, // rose
+  { bg: "rgba(250,204,21,0.22)",  bar: "#facc15", text: "#fde047" }, // amber
 ];
-const UNASSIGNED_COLOR = { bg: "rgba(220,38,38,0.50)", bar: "#dc2626", text: "#fca5a5" };
-const SUB_CREW_COLOR   = { bg: "rgba(192,132,252,0.50)", bar: "#c084fc", text: "#d8b4fe" }; // purple — sub installers
+const UNASSIGNED_COLOR = { bg: "rgba(220,38,38,0.22)", bar: "#dc2626", text: "#fca5a5" };
 const HOT_STRIPE = "#f97316"; // thick left-border stripe for service/punch
 
 // Event-type color palette (Karl to refine shades — mechanism in place)
 const EVENT_TYPE_COLOR: Record<string, { bg: string; bar: string; text: string }> = {
-  cab_delivery:      { bg: "rgba(96,165,250,0.50)",  bar: "#60a5fa", text: "#93c5fd" }, // blue — shipping
-  top_delivery:      { bg: "rgba(34,211,238,0.50)",  bar: "#22d3ee", text: "#67e8f9" }, // cyan — tops
-  install:           { bg: "rgba(249,115,22,0.50)",  bar: "#f97316", text: "#fb923c" }, // orange-red — install
-  service:           { bg: "rgba(250,204,21,0.50)",  bar: "#facc15", text: "#fde047" }, // amber — service
-  punch:             { bg: "rgba(251,113,133,0.50)", bar: "#fb7185", text: "#fda4af" }, // rose — punch
-  final_walkthrough: { bg: "rgba(74,222,128,0.50)",  bar: "#4ade80", text: "#86efac" }, // green — final
-  other:             { bg: "rgba(148,163,184,0.50)", bar: "#94a3b8", text: "#cbd5e1" }, // slate — other
+  cab_delivery:      { bg: "rgba(96,165,250,0.22)",  bar: "#60a5fa", text: "#93c5fd" }, // blue — shipping
+  top_delivery:      { bg: "rgba(34,211,238,0.20)",  bar: "#22d3ee", text: "#67e8f9" }, // cyan — tops
+  install:           { bg: "rgba(249,115,22,0.22)",  bar: "#f97316", text: "#fb923c" }, // orange-red — install
+  service:           { bg: "rgba(250,204,21,0.22)",  bar: "#facc15", text: "#fde047" }, // amber — service
+  punch:             { bg: "rgba(251,113,133,0.22)", bar: "#fb7185", text: "#fda4af" }, // rose — punch
+  final_walkthrough: { bg: "rgba(74,222,128,0.22)",  bar: "#4ade80", text: "#86efac" }, // green — final
+  other:             { bg: "rgba(148,163,184,0.18)", bar: "#94a3b8", text: "#cbd5e1" }, // slate — other
 };
 function eventTypeColor(eventType: string) {
   return EVENT_TYPE_COLOR[eventType] ?? UNASSIGNED_COLOR;
@@ -161,7 +160,7 @@ function ScheduleSkeleton() {
             </div>
           ))}
         </div>
-        <aside className="w-48 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
+        <aside className="w-72 border-l border-white/5 p-3 bg-[#0d0d0d] space-y-2">
           <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-12 bg-white/5 rounded animate-pulse" />
@@ -211,15 +210,6 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
   );
 
-  // View filter: "delivery" | "install" — cycles on TV every 60s
-  const DELIVERY_TYPES = new Set(["cab_delivery", "top_delivery"]);
-  const [calView, setCalView] = useState<"delivery" | "install">("delivery");
-  useEffect(() => {
-    if (!tvMode) return;
-    const id = setInterval(() => setCalView((v) => v === "delivery" ? "install" : "delivery"), 60000);
-    return () => clearInterval(id);
-  }, [tvMode]);
-
   const fetchData = useCallback(async () => {
     setFetching(true);
     setLoadError(false);
@@ -258,8 +248,8 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const jobs    = data?.jobs  ?? [];
   const ptoRows = data?.ptoRows ?? [];
 
-  // ── Week-anchor navigation: always show 5 weeks starting from anchor Monday ─
-  const [viewWeekStart, setViewWeekStart] = useState(() => isoWeekStart(initialToday));
+  // ── Month navigation: default to the month containing today ───────────────
+  const [viewMonth, setViewMonth] = useState(() => monthKey(initialToday));
   const [jumpValue, setJumpValue] = useState("");
 
   const [showAddForm, setShowAddForm]   = useState(false);
@@ -276,20 +266,26 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
 
-  // ── Week count: 3 on TV (no scroll), 8 on desktop (scrollable) ──────────
-  const weekCount = tvMode ? 3 : 8;
+  // ── Weeks visible for the current view month ──────────────────────────────
   const weeks: string[][] = useMemo(() => {
+    const firstDay  = isoFirstOfMonth(viewMonth);
+    const lastDay   = isoLastOfMonth(viewMonth);
+    const startMon  = isoWeekStart(firstDay);
+    const endMon    = isoWeekStart(lastDay);
     const out: string[][] = [];
-    for (let w = 0; w < weekCount; w++) {
+    let cur = startMon;
+    let safety = 8;
+    while (cur <= endMon && safety-- > 0) {
       const week: string[] = [];
-      for (let d = 0; d < 5; d++) week.push(isoDateOffset(viewWeekStart, w * 7 + d));
+      for (let i = 0; i < 5; i++) week.push(isoDateOffset(cur, i));
       out.push(week);
+      cur = isoDateOffset(cur, 7);
     }
     return out;
-  }, [viewWeekStart, weekCount]);
+  }, [viewMonth]);
 
-  const visibleStart = weeks[0][0];
-  const visibleEnd   = weeks[weekCount - 1][4];
+  const visibleStart = weeks[0]?.[0] ?? isoFirstOfMonth(viewMonth);
+  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? isoLastOfMonth(viewMonth);
 
   // ── Holiday map for visible range ─────────────────────────────────────────
   const holidayMap = useMemo<Map<string, string>>(() => {
@@ -336,14 +332,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     [filteredForward, visibleStart, visibleEnd]
   );
 
-  const DELIVERY_SET = new Set(["cab_delivery", "top_delivery"]);
-  const viewEvents = useMemo(() =>
-    visibleEvents.filter((e) =>
-      calView === "delivery" ? DELIVERY_SET.has(e.event_type) : !DELIVERY_SET.has(e.event_type)
-    ),
-    [visibleEvents, calView]
-  );
-  const laneMap = useMemo(() => assignLanes(viewEvents), [viewEvents]);
+  const laneMap = useMemo(() => assignLanes(visibleEvents), [visibleEvents]);
 
   // Mobile agenda: week days Mon-Fri for the selected week
   const mobileWeekDays = useMemo(() => {
@@ -480,46 +469,39 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
               </p>
             </div>
 
-            {/* Week navigation */}
+            {/* Month navigation */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setViewWeekStart((w) => isoDateOffset(w, -7))}
+                onClick={() => setViewMonth((m) => advanceMonth(m, -1))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Previous week"
+                title="Previous month"
               >
                 ‹
               </button>
-              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[11rem] text-center">
-                {visibleStart.slice(5).replace("-", "/")} – {visibleEnd.slice(5).replace("-", "/")} {visibleEnd.slice(0, 4)}
+              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[7rem] text-center">
+                {MONTH_NAMES[parseInt(viewMonth.slice(5)) - 1]} {viewMonth.slice(0, 4)}
               </span>
               <button
-                onClick={() => setViewWeekStart((w) => isoDateOffset(w, 7))}
+                onClick={() => setViewMonth((m) => advanceMonth(m, 1))}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Next week"
+                title="Next month"
               >
                 ›
               </button>
               <button
-                onClick={() => setViewWeekStart(isoWeekStart(today))}
+                onClick={() => setViewMonth(monthKey(today))}
                 className="px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-white/70 transition-colors"
               >
                 Today
               </button>
-            </div>
-
-            {/* View filter tabs */}
-            <div className="flex gap-1">
-              {(["delivery", "install"] as const).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setCalView(v)}
-                  className={`px-3 py-1 rounded text-[10px] font-condensed uppercase tracking-widest transition-colors ${
-                    calView === v ? "bg-[#f08122] text-white" : "bg-white/5 text-white/40 hover:text-white/70"
-                  }`}
-                >
-                  {v === "delivery" ? "📦 Deliveries" : "🔨 Installs"}
-                </button>
-              ))}
+              {/* Jump to date */}
+              <input
+                type="month"
+                value={viewMonth}
+                onChange={(e) => { if (e.target.value) setViewMonth(e.target.value); }}
+                className="bg-transparent border border-white/10 rounded px-2 py-0.5 text-[10px] text-white/50 focus:outline-none focus:border-[#f08122]/50 w-28"
+                title="Jump to month"
+              />
             </div>
           </div>
 
@@ -566,29 +548,6 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         </header>
       )}
 
-      {/* TV view label — cycles every 60s */}
-      {tvMode && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCalView("delivery")}
-              className={`px-4 py-1.5 rounded font-condensed uppercase tracking-widest text-sm transition-colors ${calView === "delivery" ? "bg-blue-500/80 text-white" : "bg-white/10 text-white/50"}`}
-            >
-              📦 Deliveries
-            </button>
-            <button
-              onClick={() => setCalView("install")}
-              className={`px-4 py-1.5 rounded font-condensed uppercase tracking-widest text-sm transition-colors ${calView === "install" ? "bg-orange-500/80 text-white" : "bg-white/10 text-white/50"}`}
-            >
-              🔨 Installs &amp; Service
-            </button>
-          </div>
-          <span className="text-white/30 text-[10px] font-condensed uppercase tracking-widest">
-            auto-cycles every 60s
-          </span>
-        </div>
-      )}
-
       {/* Body */}
       <div className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
 
@@ -599,9 +558,8 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             today={today}
             visibleStart={visibleStart}
             visibleEnd={visibleEnd}
-            events={viewEvents}
+            events={visibleEvents}
             laneMap={laneMap}
-            tvMode={tvMode}
             crews={crews}
             splitLabels={splitLabels}
             holidayMap={holidayMap}
@@ -620,7 +578,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         {/* On Deck */}
         {!tvMode && (
           <aside
-            className={`w-48 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
+            className={`w-72 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
               dropTargetKey === "ondeck"
                 ? "border-[#f08122]/60 bg-[#1a1410]"
                 : "border-white/5"
@@ -1054,7 +1012,6 @@ type SpanningCalendarProps = {
   visibleEnd: string;
   events: JobEventWithJoins[];
   laneMap: Map<string, number>;
-  tvMode: boolean;
   crews: Crew[];
   splitLabels: Map<string, string>;
   holidayMap: Map<string, string>;
@@ -1071,20 +1028,19 @@ type SpanningCalendarProps = {
 
 function SpanningCalendar({
   weeks, today, events, laneMap, crews, splitLabels, holidayMap, ptoMap,
-  draggingId, dropTargetKey, isAdmin, tvMode,
+  draggingId, dropTargetKey, isAdmin,
   onDragStart, onDragEnd, onDragOverCell, onDrop, onEventClick,
 }: SpanningCalendarProps) {
 
   const maxLanes = useMemo(() => {
     let max = 0;
     for (const [, lane] of laneMap) if (lane > max) max = lane;
-    // TV: cap at 2 so 3 big weeks fit; desktop: cap at 4 with scroll
-    return tvMode ? Math.min(max + 1, 2) : Math.min(max + 1, 4);
-  }, [laneMap, tvMode]);
+    return max + 1;
+  }, [laneMap]);
 
-  const ROW_HEADER_H = tvMode ? 28 : 22;
-  const LANE_H       = tvMode ? 32 : 22;
-  const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 8;
+  const ROW_HEADER_H = 22;
+  const LANE_H       = 20;
+  const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
 
   // Compute bar segments per week row
   const segmentsByWeek = useMemo<BarSegment[][]>(() =>
@@ -1156,8 +1112,8 @@ function SpanningCalendar({
                   onDragOver={(e) => { if (draggingId) { e.preventDefault(); onDragOverCell(iso); } }}
                       onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
                 >
-                  <div className="flex items-center gap-1.5 px-1.5 pt-1" style={{ height: ROW_HEADER_H }}>
-                    <span className={`text-sm font-bold px-1.5 py-0.5 rounded leading-none ${isToday ? "bg-green-500 text-white" : "bg-white/20 text-white/90"}`}>
+                  <div className="flex items-baseline gap-1 px-1 pt-0.5" style={{ height: ROW_HEADER_H }}>
+                    <span className={`text-[10px] font-condensed ${isToday ? "text-[#f08122]" : "text-white/20"}`}>
                       {iso.slice(8)}
                     </span>
                     {holiday && (
@@ -1192,19 +1148,10 @@ function SpanningCalendar({
               const ev = events.find((e) => e.id === seg.eventId);
               if (!ev) return null;
               const lane        = laneMap.get(ev.id) ?? 0;
-              // Sub-contractor installs get purple; everything else uses event-type color
-              const isDelivery  = ev.event_type === "cab_delivery" || ev.event_type === "top_delivery";
-              const col         = (!isDelivery && ev.crew_kind === "sub")
-                ? SUB_CREW_COLOR
-                : eventTypeColor(ev.event_type);
+              const col         = eventTypeColor(ev.event_type);
               const colSpan     = seg.colEnd - seg.colStart + 1;
               const split       = splitLabels.get(ev.id);
-              const jobNum     = ev.job_job_number ? `#${ev.job_job_number}` : null;
               const clientLabel = ev.job_client_name ?? ev.job_id;
-              // For delivery bars: prepend job number; for install bars: name only
-              const barLabel    = (isDelivery && jobNum)
-                ? `${jobNum} · ${clientLabel}`
-                : clientLabel;
 
               return (
                 <div
@@ -1231,21 +1178,22 @@ function SpanningCalendar({
                     color:       col.text,
                     paddingLeft:  5,
                     paddingRight: seg.continuesNext ? 2 : 4,
-                    fontSize:     tvMode ? 18 : 13,
+                    fontSize:     12,
                     zIndex:       10 + lane,
                   }}
-                  title={`${barLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
+                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
                 >
                   {seg.isContinuation && (
                     <span className="mr-0.5 opacity-40 text-[8px]">&#8249;</span>
                   )}
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
-                    {/* Always show name — on continuations too so you can read it at the week boundary */}
-                    {barLabel}
-                    {/* Crew only on install-type events (not delivery) */}
-                    {ev.crew_name && ev.event_type !== "cab_delivery" && ev.event_type !== "top_delivery" && (
-                      <span className="opacity-70"> · {ev.crew_name}</span>
+                    {!seg.isContinuation && clientLabel}
+                    {!seg.isContinuation && ev.crew_name && (
+                      <span className="opacity-60"> &middot; {ev.crew_name}</span>
+                    )}
+                    {!seg.isContinuation && ev.description && (
+                      <span className="opacity-55"> &mdash; {ev.description}</span>
                     )}
                     {split && (
                       <span className="opacity-45"> [{split}]</span>

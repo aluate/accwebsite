@@ -150,7 +150,6 @@ export const CHECKLIST_SECTIONS: ChecklistSection[] = [
     id: "project_setup",
     label: "6. Project Setup",
     items: [
-      { key: "job_number_confirmed", label: "Job number assigned (ACC-YYYY-NNNN)", note: "Auto-verified when job number is set on the job" },
       { key: "snappak_setup",      label: "SnapPak set up correctly with correct milestones" },
       { key: "ship_date_known",    label: "Ship date confirmed to the best of our knowledge" },
       { key: "project_folder",     label: "Project folder set up and in place" },

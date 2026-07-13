@@ -20,10 +20,11 @@ function createSql() {
   if (!url) throw new Error("DATABASE_URL env var is not set");
   return postgres(url, {
     ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
-    // max: 10 — PgBouncer transaction mode multiplexes connections so each
-    // query only holds a slot for its own duration. More parallelism = fewer
-    // sequential round-trips on pages with many catalog + spec queries.
-    max: 10,
+    // max: 3 — Supabase Pro gives 25 dedicated pooler connections.
+    // Each Vercel Lambda is its own process with its own pool.
+    // max: 3 lets Promise.all run 3 queries in parallel (schedule page
+    // runs 5 concurrent queries; serial through max: 1 takes 8–12s total).
+    max: 3,
     // idle_timeout: 2 — release connections to PgBouncer quickly after use,
     // so other Lambda invocations can acquire them. 20s idle keeps connections
     // tied up unnecessarily across requests.
@@ -70,47 +71,32 @@ const sql = new Proxy(getSql as unknown as ReturnType<typeof postgres>, {
 export default sql;
 export { sql };
 
+export function uid(): string {
+  return randomBytes(8).toString("hex");
+}
+
 /**
- * Run a DB query with an AbortSignal deadline so the query is actually
- * CANCELLED when the timeout fires — freeing the PgBouncer slot immediately
- * rather than leaving a pending Lambda holding the queue slot.
- *
- * Usage:
- *   const rows = await withDbTimeout(() =>
- *     sql`SELECT ...`
- *   );
- *
- *   // For Promise.all:
- *   const [a, b] = await withDbTimeout(() =>
- *     Promise.all([sql`...`, sql`...`])
- *   );
- *
- * Default: 8 000 ms.
+ * withDbTimeout — wraps a DB operation in a race against a timeout.
+ * Prevents Vercel Lambda from hanging silently until the 10s hard kill.
+ * Default: 12 seconds (leaves headroom for the Lambda to return a proper error;
+ * raised from 8s to accommodate schedule page with 5 parallel queries).
  */
 export async function withDbTimeout<T>(
   fn: () => Promise<T>,
-  ms = 12000,
+  ms = 12000
 ): Promise<T> {
-  let rejectTimeout!: (e: Error) => void;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    rejectTimeout = reject;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`DB query timed out after ${ms}ms`)),
+      ms
+    );
   });
-
-  const timer = setTimeout(() => {
-    rejectTimeout(new Error(`Database timed out after ${ms / 1000}s — pool may be busy`));
-  }, ms);
-
   try {
-    return await Promise.race([fn(), timeoutPromise]);
-  } catch (err) {
-    throw err;
+    return await Promise.race([fn(), timeout]);
   } finally {
     clearTimeout(timer);
   }
-}
-
-export function uid(): string {
-  return randomBytes(8).toString("hex");
 }
 
 export async function nextJobId(): Promise<{ id: string; seq: number }> {

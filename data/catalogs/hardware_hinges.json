@@ -7,6 +7,7 @@
     "type": null,
     "overlay": null,
     "close": null,
+    "unit_cost": 0,
     "notes": "No hinge — push-to-open or trackball"
   },
   {
@@ -17,7 +18,8 @@
     "type": "euro_concealed",
     "overlay": "full",
     "close": "soft-close",
-    "notes": "Standard ACC hinge — drawing label: Blum 110 Int-Soft Close"
+    "unit_cost": 2.77,
+    "notes": "Standard ACC hinge — $0.52 plate + $2.25 clip from PPAK 2026. Verify current price."
   },
   {
     "id": "HH-BLU-120",
@@ -27,7 +29,8 @@
     "type": "euro_concealed",
     "overlay": "full",
     "close": "soft-close",
-    "notes": "Wide-opening variant — drawing label: Blum 120, Soft Close. Used on pantries, corner cabs. Spivey, Bissell (2026 jobs)."
+    "unit_cost": 2.77,
+    "notes": "Wide-opening variant — drawing label: Blum 120, Soft Close. Used on pantries, corner cabs."
   },
   {
     "id": "HH-BLU-38N",
@@ -37,7 +40,8 @@
     "type": "euro_concealed",
     "overlay": "1/2",
     "close": "soft-close",
-    "notes": "Half overlay variant"
+    "unit_cost": 2.6,
+    "notes": "Half overlay variant — estimate based on BLU-110. Verify."
   },
   {
     "id": "HH-BLU-INSET",
@@ -47,16 +51,7 @@
     "type": "euro_concealed",
     "overlay": "inset",
     "close": "soft-close",
-    "notes": "Inset doors"
-  },
-  {
-    "id": "HH-099",
-    "name": "Other",
-    "brand": null,
-    "model": null,
-    "type": null,
-    "overlay": null,
-    "close": null,
-    "notes": "Specify in notes"
+    "unit_cost": 2,
+    "notes": null
   }
 ]

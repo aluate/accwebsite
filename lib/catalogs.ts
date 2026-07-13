@@ -1,7 +1,5 @@
 import path from "path";
 import fs from "fs";
-import { unstable_cache } from "next/cache";
-import sql from "@/lib/db";
 
 const DIR = path.join(process.cwd(), "data/catalogs");
 
@@ -70,9 +68,6 @@ export type DoorStyle = {
   compatible_finish: string | string[] | null;
   notes: string | null;
   placeholder: boolean;
-  // DB-backed extra fields
-  vendor?: string | string[] | null;
-  cabdoor_preset_id?: string | null;
 };
 
 export type HardwarePull = {
@@ -143,7 +138,6 @@ export type CarcassMaterial = {
   prefinish: string | null;
   notes: string | null;
   is_other: boolean;
-  supplier_code?: string | null;
 };
 
 export type DrawerBox = {
@@ -186,25 +180,14 @@ export type Edgeband = {
   id: string;
   product_name: string;
   supplier: string;
-  manufacturer: string | null;
-  sku: string | null;
   type: "melamine" | "pvc" | "abs" | "hardwood" | "custom";
-  material_type: string | null;
-  has_grain: boolean;
   color_match: string | null;
   // Mixed runtime: string when 1 value, string[] when multiple. Use asArray().
   compatible_finish_type: string | string[] | null;
   thickness_mm: string | null;
-  thickness_in: string | null;
   width_in: string | null;
   notes: string | null;
   placeholder: boolean;
-};
-
-export type EdgebandLocation = {
-  letter_code: string;
-  description: string;
-  sort_order: number;
 };
 
 export type BuilderProfile = {
@@ -336,120 +319,25 @@ export type CountertopStyle    = { id: string; name: string; description: string
 export type CountertopEdge     = { id: string; name: string; description: string | null; notes: string | null };
 export type CountertopMaterial = { id: string; name: string; category: string | null; brand_examples: string | string[] | null; notes: string | null };
 
-// ── DB-backed async loaders (React cache — one hit per request) ───────────────
-// Arrays are stored semicolon-joined in DB; asArray() normalizes them for callers.
-// Boolean columns stored as INTEGER 0/1 in Postgres; coerce with !!.
-
-const _paintColors = unstable_cache(async (): Promise<PaintColor[]> => {
-  const rows = await sql`SELECT * FROM catalog_paint_colors ORDER BY brand, name`;
-  return rows.map((r) => ({
-    ...r,
-    is_custom_match: !!r.is_custom_match,
-    placeholder: !!r.placeholder,
-  })) as PaintColor[];
-}, ["cat-paint-colors"], { revalidate: 300 });
-
-const _stainColors = unstable_cache(async (): Promise<StainColor[]> => {
-  const rows = await sql`SELECT * FROM catalog_stain_colors ORDER BY brand, name`;
-  return rows.map((r) => ({
-    ...r,
-    is_in_house_mix: !!r.is_in_house_mix,
-    is_custom_match: !!r.is_custom_match,
-    placeholder: !!r.placeholder,
-  })) as StainColor[];
-}, ["cat-stain-colors"], { revalidate: 300 });
-
-const _melamineColors = unstable_cache(async (): Promise<MelamineColor[]> => {
-  const rows = await sql`SELECT * FROM catalog_melamine_colors ORDER BY supplier, name`;
-  return rows.map((r) => ({
-    ...r,
-    woodgrain: !!r.woodgrain,
-    placeholder: !!r.placeholder,
-  })) as MelamineColor[];
-}, ["cat-melamine-colors"], { revalidate: 300 });
-
-const _carcassMaterials = unstable_cache(async (): Promise<CarcassMaterial[]> => {
-  const rows = await sql`SELECT * FROM catalog_carcass_materials ORDER BY name`;
-  return rows.map((r) => ({ ...r, is_other: !!r.is_other })) as CarcassMaterial[];
-}, ["cat-carcass-materials"], { revalidate: 300 });
-
-const _drawerBoxes = unstable_cache(async (): Promise<DrawerBox[]> => {
-  const rows = await sql`SELECT * FROM catalog_drawer_boxes ORDER BY name`;
-  return rows.map((r) => ({ ...r, is_other: !!r.is_other })) as DrawerBox[];
-}, ["cat-drawer-boxes"], { revalidate: 300 });
-
-const _edgebands = unstable_cache(async (): Promise<Edgeband[]> => {
-  const rows = await sql`SELECT * FROM catalog_edgebands ORDER BY supplier, product_name`;
-  return rows.map((r) => ({
-    ...r,
-    placeholder: !!r.placeholder,
-    has_grain: !!r.has_grain,
-    manufacturer: r.manufacturer ?? null,
-    sku: r.sku ?? null,
-    material_type: r.material_type ?? null,
-    thickness_in: r.thickness_in ?? null,
-    // compatible_finish_type stored as semicolons — leave as-is; callers use asArray()
-  })) as Edgeband[];
-}, ["cat-edgebands"], { revalidate: 300 });
-
-const _edgebandLocations = unstable_cache(async (): Promise<EdgebandLocation[]> => {
-  const rows = await sql`SELECT * FROM catalog_edgeband_locations ORDER BY sort_order`;
-  return rows as unknown as EdgebandLocation[];
-}, ["cat-edgeband-locations"], { revalidate: 300 });
-
-const _species = unstable_cache(async (): Promise<Species[]> => {
-  const rows = await sql`SELECT * FROM catalog_species ORDER BY name`;
-  return rows as unknown as Species[];
-}, ["cat-species"], { revalidate: 300 });
-
-const _revaAccessories = unstable_cache(async (): Promise<RevaAccessory[]> => {
-  const rows = await sql`SELECT * FROM catalog_accessories ORDER BY category, name`;
-  return rows as unknown as RevaAccessory[];
-}, ["cat-reva-accessories"], { revalidate: 300 });
-
-const _builderProfiles = unstable_cache(async (): Promise<BuilderProfile[]> => {
-  const rows = await sql`SELECT * FROM catalog_builder_profiles ORDER BY builder_name`;
-  return rows.map((r) => ({
-    ...r,
-    is_residential_default: !!r.is_residential_default,
-  })) as BuilderProfile[];
-}, ["cat-builder-profiles"], { revalidate: 300 });
-
-const _doorStyles = unstable_cache(async (): Promise<DoorStyle[]> => {
-  const rows = await sql`SELECT * FROM catalog_door_styles ORDER BY name`;
-  return rows.map((r) => ({
-    ...r,
-    placeholder: !!r.placeholder,
-    profile: (r as Record<string, unknown>).profile as string ?? "",
-    overlay: null,
-  })) as DoorStyle[];
-}, ["cat-door-styles"], { revalidate: 300 });
-
-const _hardwarePulls = unstable_cache(async (): Promise<HardwarePull[]> => {
-  const rows = await sql`SELECT * FROM catalog_pulls ORDER BY name`;
-  return rows as unknown as HardwarePull[];
-}, ["cat-hardware-pulls"], { revalidate: 300 });
-
 // -- Loader registry ----------------------------------------------------------
 
 export const catalogs = {
-  paintColors:    () => _paintColors(),
-  stainColors:    () => _stainColors(),
-  melamineColors: () => _melamineColors(),
-  species:        () => _species(),
-  doorStyles:     () => _doorStyles(),
-  hardwarePulls:  () => _hardwarePulls(),
-  revaAccessories:() => _revaAccessories(),
+  paintColors:    () => load<PaintColor>("colors_paint"),
+  stainColors:    () => load<StainColor>("colors_stain"),
+  melamineColors: () => load<MelamineColor>("colors_melamine"),
+  species:        () => load<Species>("species"),
+  doorStyles:     () => load<DoorStyle>("door_styles"),
+  hardwarePulls:  () => load<HardwarePull>("hardware_pulls"),
+  revaAccessories:() => load<RevaAccessory>("accessories_reva"),
 
-  carcassMaterials: () => _carcassMaterials(),
-  drawerBoxes:      () => _drawerBoxes(),
+  carcassMaterials: () => load<CarcassMaterial>("colors_carcass"),
+  drawerBoxes:      () => load<DrawerBox>("drawer_box"),
   rooms:            () => load<Room>("rooms"),
 
   moldingTypes:    () => load<MoldingType>("molding_types"),
   moldingProfiles: () => load<MoldingProfile>("molding_profiles"),
-  edgebands:       () => _edgebands(),
-  edgebandLocations: () => _edgebandLocations(),
-  builderProfiles: () => _builderProfiles(),
+  edgebands:       () => load<Edgeband>("edgeband"),
+  builderProfiles: () => load<BuilderProfile>("builder_profiles"),
 
   cabDoorInsideProfiles: () => load<CabDoorInsideProfile>("cabdoor_inside_profiles"),
   cabDoorPanels:         () => load<CabDoorPanel>("cabdoor_panels"),

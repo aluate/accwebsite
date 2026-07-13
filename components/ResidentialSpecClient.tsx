@@ -4,18 +4,10 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type {
   PaintColor, StainColor, MelamineColor, DoorStyle, HardwarePull, RevaAccessory,
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
-  Species, BuilderProfile,
 } from "@/lib/catalogs";
-// asArray: normalize semicolon-joined string or array to string[] (inlined from catalogs.ts for client safety)
-function asArray(v: unknown): string[] {
-  if (v == null) return [];
-  if (Array.isArray(v)) return v.map(String);
-  return String(v).split(";").map((s) => s.trim()).filter(Boolean);
-}
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
-import { AccessoriesTab, type AccessoriesData } from "@/components/AccessoriesTab";
 
 // Kept for backward compat with existing moldings data; tab removed from UI
 type FinishMolding = {
@@ -34,7 +26,6 @@ type CatalogData = {
   applianceCatalog?: { type: string; manufacturer: string; model: string; cutout_w: number; cutout_h: number; cutout_d: number; notes: string }[];
   edgebands: Edgeband[];
   rooms: RoomCatalogEntry[];
-  species: Species[];
   cabDoorEdges?: { id: string; name: string }[];
   cabDoorProfiles?: { id: string; name: string }[];
   cabDoorPanels?: { id: string; name: string }[];
@@ -56,8 +47,6 @@ export type FinishGroup = {
   edgeband_id: string;
   applied_panels: "slab" | "match_door";
   species: string;
-  grade: string;
-  grain_orientation: string;
   notes: string; sort_order: number;
 };
 
@@ -132,26 +121,16 @@ export type Room = {
   trim: TrimRow[];
 };
 
-export type EdgebandRowClient = {
-  letter_code: string;
-  edgeband_id: string | null;
-  notes: string;
-  sort_order: number;
-  location_description: string;
-};
-
 type Props = {
   specId: string; jobId: string;
   initialFinishGroups: FinishGroup[];
   initialRooms: Room[];
   initialMaterials: FinishMaterial[];   // v2 spec-form expansion (2026-05-06)
-  initialEdgebands?: Record<string, EdgebandRowClient[]>;  // edgeband rows keyed by fg id
   initialPulls: Record<string, PullRow[]>;     // finish_group_pulls keyed by fg id
   initialAppliances: ApplianceRow[];
   initialAccessories2?: SpecAccessoryItem[];
   initialHardware?: SpecHardwareItem[];
   catalogs: CatalogData;
-  builderProfiles?: BuilderProfile[];
   lastSaved: string;
 };
 
@@ -470,10 +449,8 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialEdgebands = {}, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, builderProfiles = [], lastSaved }: Props) {
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
-  // Edgeband rows per finish group — keyed by fgId, 8 rows each
-  const [edgebands, setEdgebands] = useState<Record<string, EdgebandRowClient[]>>(initialEdgebands);
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
   const [moldings, setMoldings] = useState<FinishMolding[]>([]);
@@ -482,28 +459,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [appliances, setAppliances] = useState<ApplianceRow[]>(initialAppliances);
   const [specAccs, setSpecAccs] = useState<SpecAccessoryItem[]>(initialAccessories2 ?? []);
   const [specHW, setSpecHW] = useState<SpecHardwareItem[]>(initialHardware ?? []);
-
-  // Auto-seed standard ACC hardware for specs that have none yet.
-  // Fires once on mount; immediately saves to DB so it persists.
-  useEffect(() => {
-    if ((initialHardware ?? []).length > 0) return; // already has rows
-    const ACC_STANDARD: SpecHardwareItem[] = [
-      { id: uid(), type: "Hinges",         part_no: "71B3550", room: "All", qty: 1, notes: "Blum 110 CLIP top Blumotion — soft close",         sort_order: 0 },
-      { id: uid(), type: "Drawer Slides",  part_no: "563H",    room: "All", qty: 1, notes: "Blum Tandem Plus Blumotion — undermount soft close", sort_order: 1 },
-      { id: uid(), type: "Rollout Slides", part_no: "3132",    room: "All", qty: 1, notes: "Knape & Vogt 3132 — sidemount, non soft close",      sort_order: 2 },
-      { id: uid(), type: "Shelf Pins",     part_no: "SC-5",    room: "All", qty: 1, notes: "5mm push-in shelf clip",                            sort_order: 3 },
-      { id: uid(), type: "Closet Rod",     part_no: "",        room: "",    qty: 1, notes: "",                                                  sort_order: 4 },
-    ];
-    setSpecHW(ACC_STANDARD);
-    // Save immediately so the rows persist on refresh
-    fetch(`/api/specs/${specId}/hardware`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hardware: ACC_STANDARD }),
-    }).catch(() => {}); // silent — user can re-save manually if this fails
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -710,11 +665,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
       pull_id: "",
       box_material: "melamine",
-      carcass_id: "", drawer_box_id: "", rollout_box_id: "", edgeband_id: "",
+      carcass_id: "", drawer_box_id: "", edgeband_id: "",
       applied_panels: "slab",
       species: "",
-      grade: "",
-      grain_orientation: "",
       notes: "",
       sort_order: idx,
     }]);
@@ -1285,35 +1238,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
             return (
               <div key={g.id} className="bg-[#2d2d2d] rounded p-4 sm:p-6 space-y-5">
-                <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center justify-between">
                   <span className="text-[#f08122] font-condensed uppercase tracking-widest text-sm">{g.label}</span>
-                  <div className="flex items-center gap-3">
-                    {builderProfiles.length > 0 && (
-                      <select
-                        defaultValue=""
-                        onChange={(e) => {
-                          const profileId = e.target.value;
-                          if (!profileId) return;
-                          const profile = builderProfiles.find(p => p.id === profileId);
-                          if (!profile) return;
-                          updateGroup(g.id, {
-                            finish_type: (profile.default_finish_type as FinishType) || g.finish_type,
-                            carcass_id: profile.default_carcass_id || g.carcass_id,
-                            drawer_box_id: profile.default_drawer_box_id || g.drawer_box_id,
-                            pull_id: profile.default_pull_id || g.pull_id,
-                          });
-                          e.target.value = "";
-                        }}
-                        className="bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/50 focus:outline-none focus:border-[#f08122]/60 font-condensed"
-                      >
-                        <option value="">Load builder defaults…</option>
-                        {builderProfiles.map(p => (
-                          <option key={p.id} value={p.id}>{p.builder_name}{p.builder_company ? ` — ${p.builder_company}` : ""}</option>
-                        ))}
-                      </select>
-                    )}
-                    <button onClick={() => removeGroup(g.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
-                  </div>
+                  <button onClick={() => removeGroup(g.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
@@ -1452,54 +1379,15 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     </select>
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
-                    <>
-                      <div>
-                        <label className={LABEL}>Species</label>
-                        <select
-                          value={g.species ?? ""}
-                          onChange={(e) => updateGroup(g.id, { species: e.target.value, grade: "", grain_orientation: "" })}
-                          className={SELECT}
-                        >
-                          <option value="">-- Select Species --</option>
-                          {catalogs.species.map((s) => (
-                            <option key={s.id} value={s.name}>{s.name}</option>
-                          ))}
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className={LABEL}>Grade</label>
-                        <select
-                          value={g.grade ?? ""}
-                          onChange={(e) => updateGroup(g.id, { grade: e.target.value })}
-                          className={SELECT}
-                          disabled={!g.species}
-                        >
-                          <option value="">-- Select Grade --</option>
-                          {g.species && (() => {
-                            const sp = catalogs.species.find(s => s.name === g.species);
-                            const grades = sp ? asArray(sp.grades) : [];
-                            return grades.map((gr) => <option key={gr} value={gr}>{gr}</option>);
-                          })()}
-                          {g.species && <option value="Other">Other</option>}
-                        </select>
-                      </div>
-                      <div>
-                        <label className={LABEL}>Grain Orientation</label>
-                        <select
-                          value={g.grain_orientation ?? ""}
-                          onChange={(e) => updateGroup(g.id, { grain_orientation: e.target.value })}
-                          className={SELECT}
-                        >
-                          <option value="">-- Select Grain --</option>
-                          <option value="Random (standard)">Random (standard)</option>
-                          <option value="Vertical (linear)">Vertical (linear)</option>
-                          <option value="Horizontal">Horizontal</option>
-                          <option value="Bookmatched">Bookmatched</option>
-                          <option value="Rift & Quartered">Rift & Quartered</option>
-                        </select>
-                      </div>
-                    </>
+                    <div>
+                      <label className={LABEL}>Species</label>
+                      <input
+                        value={g.species ?? ""}
+                        onChange={(e) => updateGroup(g.id, { species: e.target.value })}
+                        placeholder="e.g. Red Oak, Alder, Maple, Paint Grade"
+                        className={INPUT}
+                      />
+                    </div>
                   )}
                   <div>
                     <label className={LABEL}>Notes</label>
@@ -1544,17 +1432,11 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   <div>
                     <label className={LABEL}>Edgeband {requiresEdgebandPick ? "*" : ""}</label>
                     {g.finish_type === "melamine" ? (
-                      // Melamine: defaults to matching carcass, but PM can override if needed.
-                      <select
-                        value={g.edgeband_id ?? ""}
-                        onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value || "" })}
-                        className={SELECT}
-                      >
-                        <option value="">— Matches carcass material</option>
-                        {catalogs.edgebands.filter((e) => !e.placeholder).map((e) => (
-                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
-                        ))}
-                      </select>
+                      // Melamine: edgeband IS the carcass material — no separate pick needed.
+                      // Store no edgeband_id (null). Display a read-only callout.
+                      <div className={INPUT + " text-white/50 text-xs italic"}>
+                        Matches carcass material
+                      </div>
                     ) : (
                       // Paint / Stain: PM must pick an edgeband from the filtered list.
                       <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
@@ -1768,59 +1650,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Accessories</p>
                 <div className="space-y-2">
                   {room.accessories.map((acc, ai) => {
-                    // Phase 5: cascading Type → Size → Part # picker
-                    const allAccs = catalogs.revaAccessories;
-                    const accTypes = [...new Set(allAccs.map(a => a.category).filter(Boolean))].sort() as string[];
-                    const selectedItem = allAccs.find(a => a.id === acc.acc_id);
-                    const selectedType = (acc as Record<string, unknown>)._type as string || (selectedItem?.category ?? "");
-                    const selectedSize = (acc as Record<string, unknown>)._size as string || "";
-                    const sizesForType = selectedType
-                      ? [...new Set(allAccs.filter(a => a.category === selectedType).flatMap(a => asArray(String(a.width_options_in ?? ""))))].sort()
-                      : [];
-                    const itemsForTypeSize = (selectedType && selectedSize)
-                      ? allAccs.filter(a => a.category === selectedType && asArray(String(a.width_options_in ?? "")).includes(selectedSize))
-                      : (selectedType ? allAccs.filter(a => a.category === selectedType) : []);
                     const isCustom = acc.acc_id && acc.acc_id.toLowerCase().includes("custom");
                     return (
                       <div key={ai} className="space-y-1.5">
-                        <div className="grid grid-cols-3 gap-2 items-center">
-                          <select
-                            value={selectedType}
-                            onChange={(e) => {
-                              const t = e.target.value;
-                              updateAccessory(room.id, ai, { acc_id: "", ...({"_type": t, "_size": ""} as Record<string, unknown>) });
-                            }}
-                            className={SELECT}
-                          >
-                            <option value="">-- Type --</option>
-                            {accTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                        <div className="flex flex-wrap sm:flex-nowrap gap-3 items-stretch sm:items-center">
+                          <select value={acc.acc_id} onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })} className={SELECT + " flex-1"}>
+                            <option value="">-- Select Accessory --</option>
+                            {catalogs.revaAccessories.map((a) => <option key={a.id} value={a.id}>{a.name} - {a.brand}</option>)}
                           </select>
-                          <select
-                            value={selectedSize}
-                            onChange={(e) => {
-                              const sz = e.target.value;
-                              updateAccessory(room.id, ai, { acc_id: "", ...({"_size": sz} as Record<string, unknown>) });
-                            }}
-                            className={SELECT}
-                            disabled={!selectedType || sizesForType.length === 0}
-                          >
-                            <option value="">-- Size --</option>
-                            {sizesForType.map(sz => <option key={sz} value={sz}>{sz}&quot;</option>)}
-                          </select>
-                          <select
-                            value={acc.acc_id}
-                            onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })}
-                            className={SELECT}
-                            disabled={!selectedType}
-                          >
-                            <option value="">-- Part # --</option>
-                            {itemsForTypeSize.map(a => <option key={a.id} value={a.id}>{a.name} · {a.brand}</option>)}
-                          </select>
-                        </div>
-                        <div className="flex gap-2 items-center">
                           <input type="number" min={1} value={acc.qty} onChange={(e) => updateAccessory(room.id, ai, { qty: parseInt(e.target.value) || 1 })}
                             className="w-16 bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white text-center focus:outline-none focus:border-[#f08122]" />
-                          <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1 text-sm">× Remove</button>
+                          <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1">x</button>
                         </div>
                         {isCustom && (
                           <input
@@ -1911,7 +1751,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       )}
 
       {/* CABINETS — removed from tabs (Karl 2026-07-09) */}
-      {false && (tab as string) === "cabinets" && (
+      {false && tab === "cabinets" && (
         <CabinetsDrawingsView
           jobId={jobId}
           legacyManualEntry={
@@ -2164,11 +2004,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 <button
                   onClick={() => {
                     const defaults: SpecHardwareItem[] = [
-                      { id: uid(), type: "Hinges",         part_no: "71B3550", room: "All", qty: 1, notes: "Blum 110 CLIP top Blumotion — soft close",          sort_order: 0 },
-                      { id: uid(), type: "Drawer Slides",  part_no: "563H",    room: "All", qty: 1, notes: "Blum Tandem Plus Blumotion — undermount soft close", sort_order: 1 },
-                      { id: uid(), type: "Rollout Slides", part_no: "3132",    room: "All", qty: 1, notes: "Knape & Vogt 3132 — sidemount, non soft close",      sort_order: 2 },
-                      { id: uid(), type: "Shelf Pins",     part_no: "SC-5",    room: "All", qty: 1, notes: "5mm push-in shelf clip",                            sort_order: 3 },
-                      { id: uid(), type: "Closet Rod",     part_no: "",        room: "",    qty: 1, notes: "",                                                  sort_order: 4 },
+                      { id: uid(), type: "Hinges", part_no: "", room: "All", qty: 1, notes: "", sort_order: 0 },
+                      { id: uid(), type: "Drawer Slides", part_no: "", room: "All", qty: 1, notes: "", sort_order: 1 },
+                      { id: uid(), type: "Shelf Clips", part_no: "", room: "All", qty: 1, notes: "", sort_order: 2 },
+                      { id: uid(), type: "Soft-Close Buffers", part_no: "", room: "All", qty: 1, notes: "", sort_order: 3 },
                     ];
                     setSpecHW(defaults); markDirty();
                   }}
@@ -2187,91 +2026,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               )}
             </div>
           </div>
-
-          {/* ── EdgeBand Schedule ─────────────────────────────────────── */}
-          <div className="pt-6 border-t border-white/10">
-            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-4">EdgeBand Schedule — edit per finish group</p>
-            {groups.map((g) => {
-              const fgEbs = edgebands[g.id] ?? [];
-              return (
-                <div key={g.id} className="mb-6">
-                  <p className="text-[#f08122] font-condensed uppercase tracking-widest text-xs mb-2">{g.label} — EdgeBand Schedule</p>
-                  <div className="bg-[#2d2d2d] rounded overflow-hidden">
-                    <div className="grid grid-cols-12 gap-0 border-b border-white/10 px-3 py-1.5">
-                      <span className="col-span-1 text-white/40 text-[10px] font-condensed uppercase tracking-widest">#</span>
-                      <span className="col-span-4 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Where Used</span>
-                      <span className="col-span-4 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Edgeband</span>
-                      <span className="col-span-3 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Notes</span>
-                    </div>
-                    {fgEbs.length === 0 ? (
-                      <p className="text-white/20 text-xs px-3 py-3">No edgeband rows — save finish group to auto-populate.</p>
-                    ) : fgEbs.map((eb) => (
-                      <div key={eb.letter_code} className="grid grid-cols-12 gap-1 px-3 py-1.5 border-b border-white/5 items-center">
-                        <span className="col-span-1 text-[#f08122] font-condensed font-bold text-sm">{eb.letter_code}</span>
-                        <span className="col-span-4 text-white/60 text-xs">{eb.location_description}</span>
-                        <div className="col-span-4">
-                          <select
-                            value={eb.edgeband_id ?? ""}
-                            onChange={async (e) => {
-                              const newEbId = e.target.value || null;
-                              // Optimistic update
-                              setEdgebands((prev) => ({
-                                ...prev,
-                                [g.id]: (prev[g.id] ?? []).map((r) =>
-                                  r.letter_code === eb.letter_code ? { ...r, edgeband_id: newEbId } : r
-                                ),
-                              }));
-                              // Persist
-                              await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ edgeband_id: newEbId, notes: eb.notes }),
-                              });
-                            }}
-                            className="w-full bg-[#1a1a1a] border border-white/15 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[#f08122] transition-colors"
-                          >
-                            <option value="">— None —</option>
-                            {catalogs.edgebands.filter((e) => !e.placeholder).map((e) => (
-                              <option key={e.id} value={e.id}>{e.product_name}{e.manufacturer ? ` · ${e.manufacturer}` : ""}{e.thickness_in ? ` · ${e.thickness_in}"` : ""}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-span-3">
-                          <input
-                            value={eb.notes}
-                            onChange={async (e) => {
-                              const newNotes = e.target.value;
-                              setEdgebands((prev) => ({
-                                ...prev,
-                                [g.id]: (prev[g.id] ?? []).map((r) =>
-                                  r.letter_code === eb.letter_code ? { ...r, notes: newNotes } : r
-                                ),
-                              }));
-                            }}
-                            onBlur={async (e) => {
-                              await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ edgeband_id: eb.edgeband_id, notes: e.target.value }),
-                              });
-                            }}
-                            placeholder="Notes…"
-                            className="w-full bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </div>
-      )}
-
-      {/* ACCESSORIES -- pulls + RevAShelf items (2026-05-28) */}
-      {false && (tab as string) === "accessories" && (
-        <AccessoriesTab specId={specId} initialData={{pulls:[],accessories:[]}} />
       )}
 
       {/* SUMMARY */}
@@ -2286,7 +2041,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               if (!g.door_style_id) issues.push(`${g.label}: no door style selected`);
               if (!g.carcass_id) issues.push(`${g.label}: no carcass material selected`);
               if (!g.drawer_box_id) issues.push(`${g.label}: no drawer box selected`);
-              if (!g.edgeband_id && g.finish_type !== "melamine") issues.push(`${g.label}: no edgeband selected`);
+              if (!g.edgeband_id) issues.push(`${g.label}: no edgeband selected`);
             });
             rooms.forEach((r) => {
               const hasFinish = (r.finishes ?? []).some((f) => f.finish_group_id) || r.finish_group_id;
@@ -2334,45 +2089,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <SumRow label="Drawer Box"    value={dbox?.name} />
                       <SumRow label="Edgeband"      value={eb?.product_name} />
                     </div>
-                    {/* EdgeBand Schedule — read-only preview */}
-                    {(() => {
-                      const fgEbs = edgebands[g.id] ?? [];
-                      if (fgEbs.length === 0) return null;
-                      return (
-                        <div className="mt-3 mb-2">
-                          <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2">EdgeBand Schedule</p>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-xs border-collapse">
-                              <thead>
-                                <tr className="text-white/30 text-[10px] font-condensed uppercase tracking-widest border-b border-white/10">
-                                  <th className="text-left pb-1 pr-3 w-6">#</th>
-                                  <th className="text-left pb-1 pr-3">Where Used</th>
-                                  <th className="text-left pb-1 pr-3">Edgeband</th>
-                                  <th className="text-left pb-1 pr-3">Thickness</th>
-                                  <th className="text-left pb-1 pr-3">Manufacturer</th>
-                                  <th className="text-left pb-1">Notes</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {fgEbs.map((eb) => {
-                                  const ebCat = eb.edgeband_id ? catalogs.edgebands.find((e) => e.id === eb.edgeband_id) : undefined;
-                                  return (
-                                    <tr key={eb.letter_code} className="border-b border-white/5">
-                                      <td className="py-1 pr-3 text-[#f08122] font-bold font-condensed">{eb.letter_code}</td>
-                                      <td className="py-1 pr-3 text-white/50">{eb.location_description}</td>
-                                      <td className="py-1 pr-3 text-white/70">{ebCat?.product_name ?? "—"}</td>
-                                      <td className="py-1 pr-3 text-white/50">{ebCat?.thickness_in ?? "—"}</td>
-                                      <td className="py-1 pr-3 text-white/50">{ebCat?.manufacturer ?? "—"}</td>
-                                      <td className="py-1 text-white/40">{eb.notes || "—"}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      );
-                    })()}
                     {fgPulls.length > 0 && (
                       <div>
                         <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-1">Pulls</p>
@@ -2435,22 +2151,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                           <p key={ti} className="text-white/60 text-xs">{t.trim_type}{t.size_desc ? ` · ${t.size_desc}` : ""}{t.qty_lf ? ` · ${t.qty_lf} LF` : ""}</p>
                         ))}
                       </div>
-                    )}
-                    {(room.flooring || room.ceiling_height || room.soffit || room.backsplash) && (
-                      <div className="mt-1">
-                        <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Room Details</p>
-                        <p className="text-white/60 text-xs">
-                          {[
-                            room.flooring       ? `Floor: ${room.flooring}`           : "",
-                            room.ceiling_height ? `Ceiling: ${room.ceiling_height}`   : "",
-                            room.soffit         ? `Soffit: ${room.soffit}`             : "",
-                            room.backsplash     ? `Backsplash: ${room.backsplash}`     : "",
-                          ].filter(Boolean).join(" · ")}
-                        </p>
-                      </div>
-                    )}
-                    {room.notes && (
-                      <p className="text-white/50 text-xs italic mt-1">{room.notes}</p>
                     )}
                   </div>
                 );

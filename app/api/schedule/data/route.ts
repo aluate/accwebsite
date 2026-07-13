@@ -21,7 +21,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { sql, withDbTimeout } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { requireBuilder } from "@/lib/auth";
 import { listCrews, forwardEvents, onDeckEvents, isoDateOffset } from "@/lib/schedule";
 import type { CrewPto } from "@/lib/schedule-types";
@@ -38,57 +38,39 @@ type JobMini = {
 type PtoWithCrew = CrewPto & { crew_name: string };
 
 export async function GET() {
-  try {
-    await requireBuilder();
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  await requireBuilder();
 
   const today = new Date().toISOString().slice(0, 10);
   const windowStartIso = isoDateOffset(today, -30);
   const windowEndIso   = isoDateOffset(today, 60);
 
+  const [crews, fwdEvents, deckEvents, jobs] = await Promise.all([
+    listCrews({ activeOnly: true }),
+    forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 }),
+    onDeckEvents(),
+    sql<JobMini[]>`
+      SELECT id, client_name, site_address, city, client_phone, client_email
+      FROM jobs ORDER BY created_at DESC
+    `,
+  ]);
+
+  let ptoRows: PtoWithCrew[] = [];
   try {
-    // Run max 3 at a time to match the postgres pool max:3 setting.
-    // Auth already consumed one connection; release it before the batch.
-    const [crews, fwdEvents] = await withDbTimeout(() =>
-      Promise.all([
-        listCrews({ activeOnly: true }),
-        forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 }),
-      ]), 15000
-    );
+    ptoRows = (await sql`
+      SELECT p.*, c.name AS crew_name
+      FROM crew_pto p JOIN crews c ON c.id = p.crew_id
+      ORDER BY p.date_start
+    `) as unknown as PtoWithCrew[];
+  } catch { /* crew_pto may not exist on older deployments */ }
 
-    const [deckEvents, jobs] = await withDbTimeout(() =>
-      Promise.all([
-        onDeckEvents(),
-        sql<JobMini[]>`
-          SELECT id, client_name, site_address, city, client_phone, client_email
-          FROM jobs ORDER BY created_at DESC
-        `,
-      ]), 15000
-    );
-
-    let ptoRows: PtoWithCrew[] = [];
-    try {
-      ptoRows = (await sql`
-        SELECT p.*, c.name AS crew_name
-        FROM crew_pto p JOIN crews c ON c.id = p.crew_id
-        ORDER BY p.date_start
-      `) as unknown as PtoWithCrew[];
-    } catch { /* crew_pto may not exist */ }
-
-    return NextResponse.json({
-      today,
-      crews,
-      forwardEvents: fwdEvents,
-      onDeckEvents:  deckEvents,
-      jobs,
-      ptoRows,
-      windowStartIso,
-      windowEndIso,
-    });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "DB error";
-    return NextResponse.json({ error: msg }, { status: 503 });
-  }
+  return NextResponse.json({
+    today,
+    crews,
+    forwardEvents: fwdEvents,
+    onDeckEvents:  deckEvents,
+    jobs,
+    ptoRows,
+    windowStartIso,
+    windowEndIso,
+  });
 }

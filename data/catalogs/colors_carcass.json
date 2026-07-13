@@ -6,7 +6,9 @@
     "species": "maple",
     "prefinish": "prefinished",
     "supplier_code": "HARDROCK MAPLE MEL",
-    "notes": "Standard ACC carcass for melamine-fronted jobs. Drawing label: HARDROCK MAPLE MEL. Must be called out with supplier code — ambiguous \"Plywood Box\" language caused $70k error on Spivey job.",
+    "unit_cost_per_sheet": "55.00",
+    "sqft_per_sheet": "32",
+    "notes": "Standard ACC carcass for melamine jobs. $1.72/SF. Drawing label: HARDROCK MAPLE MEL. Must specify supplier code — ambiguous \"Plywood Box\" language caused $70k error on Spivey job. Verify current sheet price.",
     "is_other": false
   },
   {
@@ -16,7 +18,9 @@
     "species": "maple",
     "prefinish": "prefinished",
     "supplier_code": "PF MAPLE PLY",
-    "notes": "Premium plywood box — used when paint/stain doors are upgraded. Drawing label: PF Maple Ply or PREFIN. MAPLE PLYWOOD. Must specify SKU — see CAR-001 incident note.",
+    "unit_cost_per_sheet": "103.00",
+    "sqft_per_sheet": "32",
+    "notes": "Premium plywood box for paint/stain jobs. $3.22/SF from PPAK 2026. Drawing label: PF Maple Ply or PREFIN. MAPLE PLYWOOD. Must specify SKU — see CAR-001 incident note. Verify current price.",
     "is_other": false
   },
   {
@@ -26,7 +30,9 @@
     "species": "maple",
     "prefinish": "melamine_coated",
     "supplier_code": "MAPLE MEL PLY",
-    "notes": "Melamine-coated plywood box. Drawing label: Maple Mel Ply (Spivey). Same substrate as CAR-002 but melamine face instead of raw prefinish. Confirm SKU with purchasing.",
+    "unit_cost_per_sheet": "103.00",
+    "sqft_per_sheet": "32",
+    "notes": "Melamine-coated plywood box. Drawing label: Maple Mel Ply (Spivey). Same substrate as CAR-002 but melamine face. Confirm SKU with purchasing. Verify price.",
     "is_other": false
   },
   {
@@ -36,7 +42,9 @@
     "species": "birch",
     "prefinish": "prefinished",
     "supplier_code": "PF BIRCH PLY",
-    "notes": "Cheaper plywood alt — use when maple ply is unavailable or over budget",
+    "unit_cost_per_sheet": "90.00",
+    "sqft_per_sheet": "32",
+    "notes": "Cheaper plywood alt — use when maple ply unavailable or over budget. Estimate. Verify.",
     "is_other": false
   },
   {
@@ -46,17 +54,9 @@
     "species": "n/a",
     "prefinish": "white_melamine",
     "supplier_code": "WHITE PB",
-    "notes": "Rare — only when customer specifically asks",
-    "is_other": false
-  },
-  {
-    "id": "CAR-099",
-    "name": "Other (specify in notes)",
-    "material_class": "other",
-    "species": null,
-    "prefinish": null,
-    "supplier_code": null,
-    "notes": "Escape hatch — PM must enter material in the per-finish notes field",
-    "is_other": true
+    "unit_cost_per_sheet": "48.00",
+    "sqft_per_sheet": "32",
+    "notes": "Rare — only when customer specifical",
+    "is_other": null
   }
 ]
