@@ -122,10 +122,30 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     if (tableEbs.length > 0) {
       ebEntries = tableEbs.map((eb) => {
         const id = eb.edgeband_id ?? "";
-        const code = id ? (ebCodeMap.get(id) ?? eb.code) : eb.code;
-        const data = id ? edgebandIdx.get(id) : undefined;
-        const whereUsedLabel = eb.where_used ? (EDGEBAND_WHERE_USED_LABEL[eb.where_used] ?? eb.where_used) : "";
-        return { code, edgeband_name: data?.name ?? "", supplier: data?.supplier ?? "", thickness: data?.thickness ?? "", where_used_label: whereUsedLabel, notes: eb.notes ?? "" };
+        const code = eb.code; // letter code (D/E/V/U/I/B/C/X) — use directly
+        // Resolve edgeband product name from sentinel or custom free-entry fields
+        let edgebandName = "";
+        let supplier = "";
+        let thickness = "";
+        if (id === "paint_to_match") {
+          edgebandName = "Paint to Match";
+        } else if (id === "stain_to_match") {
+          edgebandName = "Stain to Match";
+        } else if (!id) {
+          // Custom free entry: where_used = ### (product number), notes = product name
+          const parts = [eb.where_used, eb.notes].filter(Boolean);
+          edgebandName = parts.join("  ");
+        } else {
+          // Legacy catalog ID lookup
+          const data = edgebandIdx.get(id);
+          edgebandName = data?.name ?? id;
+          supplier = data?.supplier ?? "";
+          thickness = data?.thickness ?? "";
+        }
+        const whereUsedLabel = eb.where_used && id !== "paint_to_match" && id !== "stain_to_match" && !id
+          ? eb.where_used // for custom: show the ### in the Where Used column
+          : (EDGEBAND_WHERE_USED_LABEL[eb.where_used ?? ""] ?? "");
+        return { code, edgeband_name: edgebandName, supplier, thickness, where_used_label: "", notes: eb.notes ?? "" };
       });
     } else {
       // Legacy/fallback: flat column only

@@ -137,6 +137,7 @@ export type Room = {
 export type EdgebandRowClient = {
   letter_code: string;
   edgeband_id: string | null;
+  where_used: string | null;
   notes: string;
   sort_order: number;
   location_description: string;
@@ -2130,60 +2131,128 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     </div>
                     {fgEbs.length === 0 ? (
                       <p className="text-white/20 text-xs px-3 py-3">No edgeband rows — save finish group to auto-populate.</p>
-                    ) : fgEbs.map((eb) => (
-                      <div key={eb.letter_code} className="grid grid-cols-12 gap-1 px-3 py-1.5 border-b border-white/5 items-center">
-                        <span className="col-span-1 text-[#f08122] font-condensed font-bold text-sm">{eb.letter_code}</span>
-                        <span className="col-span-4 text-white/60 text-xs">{eb.location_description}</span>
-                        <div className="col-span-4">
-                          <select
-                            value={eb.edgeband_id ?? ""}
-                            onChange={async (e) => {
-                              const newEbId = e.target.value || null;
-                              setEdgebands((prev) => ({
-                                ...prev,
-                                [g.id]: (prev[g.id] ?? []).map((r) =>
-                                  r.letter_code === eb.letter_code ? { ...r, edgeband_id: newEbId } : r
-                                ),
-                              }));
-                              await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ edgeband_id: newEbId, notes: eb.notes }),
-                              });
-                            }}
-                            className="w-full bg-[#1a1a1a] border border-white/15 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[#f08122] transition-colors"
-                          >
-                            <option value="">— None —</option>
-                            {catalogs.edgebands.filter((e) => !e.placeholder).map((e) => (
-                              <option key={e.id} value={e.id}>{e.product_name}{e.supplier ? ` · ${e.supplier}` : ""}{e.thickness_mm ? ` · ${e.thickness_mm}mm` : ""}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-span-3">
-                          <input
-                            value={eb.notes}
-                            onChange={(e) => {
-                              const v = e.target.value;
-                              setEdgebands((prev) => ({
-                                ...prev,
-                                [g.id]: (prev[g.id] ?? []).map((r) =>
-                                  r.letter_code === eb.letter_code ? { ...r, notes: v } : r
-                                ),
-                              }));
-                            }}
-                            onBlur={async (e) => {
-                              await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ edgeband_id: eb.edgeband_id, notes: e.target.value }),
-                              });
-                            }}
-                            placeholder="Notes…"
-                            className="w-full bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                    ) : fgEbs.map((eb) => {
+                      const ebMode: "paint" | "stain" | "custom" | "none" =
+                        eb.edgeband_id === "paint_to_match" ? "paint" :
+                        eb.edgeband_id === "stain_to_match" ? "stain" :
+                        (eb.edgeband_id === null && (eb.where_used || eb.notes)) ? "custom" : "none";
+                      return (() => {
+                        const patchRow = async (ebId: string | null, whereUsed: string | null, notes: string | null) => {
+                          setEdgebands((prev) => ({
+                            ...prev,
+                            [g.id]: (prev[g.id] ?? []).map((r) =>
+                              r.letter_code === eb.letter_code
+                                ? { ...r, edgeband_id: ebId, where_used: whereUsed, notes: notes ?? "" }
+                                : r
+                            ),
+                          }));
+                          await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ edgeband_id: ebId, where_used: whereUsed, notes }),
+                          });
+                        };
+
+                        const BTN = "px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest transition-colors border";
+                        const BTN_ON  = "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]";
+                        const BTN_OFF = "border-white/10 text-white/30 hover:text-white/60 hover:border-white/25";
+
+                        return (
+                          <div key={eb.letter_code} className="px-3 py-2 border-b border-white/5">
+                            {/* Row header: letter code + location */}
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-[#f08122] font-condensed font-bold text-sm w-5">{eb.letter_code}</span>
+                              <span className="text-white/40 text-[10px] font-condensed uppercase tracking-widest">{eb.location_description}</span>
+                            </div>
+                            {/* Option buttons */}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <button
+                                type="button"
+                                className={`${BTN} ${ebMode === "paint" ? BTN_ON : BTN_OFF}`}
+                                onClick={() => patchRow("paint_to_match", null, null)}
+                              >
+                                Paint to Match
+                              </button>
+                              <button
+                                type="button"
+                                className={`${BTN} ${ebMode === "stain" ? BTN_ON : BTN_OFF}`}
+                                onClick={() => patchRow("stain_to_match", null, null)}
+                              >
+                                Stain to Match
+                              </button>
+                              <button
+                                type="button"
+                                className={`${BTN} ${ebMode === "custom" || ebMode === "none" ? BTN_ON : BTN_OFF}`}
+                                onClick={() => {
+                                  if (ebMode !== "custom" && ebMode !== "none") {
+                                    patchRow(null, eb.where_used, eb.notes || null);
+                                  }
+                                }}
+                              >
+                                Custom
+                              </button>
+                              {ebMode !== "none" && (
+                                <button
+                                  type="button"
+                                  className={`${BTN} border-white/5 text-white/20 hover:text-red-400 hover:border-red-400/30 ml-1`}
+                                  onClick={() => patchRow(null, null, null)}
+                                  title="Clear"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                            {/* Custom free-entry fields */}
+                            {(ebMode === "custom" || ebMode === "none") && (
+                              <div className="flex gap-2 mt-1.5">
+                                <input
+                                  value={eb.where_used ?? ""}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setEdgebands((prev) => ({
+                                      ...prev,
+                                      [g.id]: (prev[g.id] ?? []).map((r) =>
+                                        r.letter_code === eb.letter_code ? { ...r, where_used: v } : r
+                                      ),
+                                    }));
+                                  }}
+                                  onBlur={async (e) => {
+                                    await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
+                                      method: "PATCH",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ edgeband_id: null, where_used: e.target.value || null, notes: eb.notes || null }),
+                                    });
+                                  }}
+                                  placeholder="Product ###"
+                                  className="w-28 bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors font-condensed"
+                                />
+                                <input
+                                  value={eb.notes ?? ""}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setEdgebands((prev) => ({
+                                      ...prev,
+                                      [g.id]: (prev[g.id] ?? []).map((r) =>
+                                        r.letter_code === eb.letter_code ? { ...r, notes: v } : r
+                                      ),
+                                    }));
+                                  }}
+                                  onBlur={async (e) => {
+                                    await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
+                                      method: "PATCH",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ edgeband_id: null, where_used: eb.where_used || null, notes: e.target.value || null }),
+                                    });
+                                  }}
+                                  placeholder="Product name"
+                                  className="flex-1 bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })();
+                    })}
                   </div>
                 </div>
               );
@@ -2233,7 +2302,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 const door = catalogs.doorStyles.find((d) => d.id === g.door_style_id);
                 const carc = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
                 const dbox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
-                const eb   = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
+                // FG-level edgeband (legacy field — edgeband schedule rows are the primary source now)
+                const _ebLegacy = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
                 const fgPulls = pulls[g.id] ?? [];
                 const doorFlag = !g.door_style_id || door?.name === "Other / Custom";
                 return (
@@ -2250,7 +2320,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <SumRow label="Species"       value={g.species} />
                       <SumRow label="Carcass"       value={carc?.name} />
                       <SumRow label="Drawer Box"    value={dbox?.name} />
-                      <SumRow label="Edgeband"      value={eb?.product_name} />
+                      {/* Edgeband shown in schedule table below — not in summary grid */}
                     </div>
                     {fgPulls.length > 0 && (
                       <div>
@@ -2277,23 +2347,24 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                                 <tr className="text-white/30 text-[10px] font-condensed uppercase tracking-widest border-b border-white/10">
                                   <th className="text-left pb-1 pr-3 w-6">#</th>
                                   <th className="text-left pb-1 pr-3">Where Used</th>
-                                  <th className="text-left pb-1 pr-3">Edgeband</th>
-                                  <th className="text-left pb-1 pr-3">Thickness</th>
-                                  <th className="text-left pb-1 pr-3">Manufacturer</th>
-                                  <th className="text-left pb-1">Notes</th>
+                                  <th className="text-left pb-1">Edgeband</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {fgEbs.map((eb) => {
-                                  const ebCat = eb.edgeband_id ? catalogs.edgebands.find((e) => e.id === eb.edgeband_id) : undefined;
+                                  // Resolve edgeband display from sentinel or custom fields
+                                  const ebDisplay =
+                                    eb.edgeband_id === "paint_to_match" ? "Paint to Match" :
+                                    eb.edgeband_id === "stain_to_match" ? "Stain to Match" :
+                                    !eb.edgeband_id
+                                      ? [eb.where_used, eb.notes].filter(Boolean).join("  ") || "—"
+                                      : (catalogs.edgebands.find((e) => e.id === eb.edgeband_id)?.product_name ?? eb.edgeband_id);
+                                  const isEmpty = !eb.edgeband_id && !eb.where_used && !eb.notes;
                                   return (
                                     <tr key={eb.letter_code} className="border-b border-white/5">
                                       <td className="py-1 pr-3 text-[#f08122] font-bold font-condensed">{eb.letter_code}</td>
                                       <td className="py-1 pr-3 text-white/50">{eb.location_description}</td>
-                                      <td className="py-1 pr-3 text-white/70">{ebCat?.product_name ?? "—"}</td>
-                                      <td className="py-1 pr-3 text-white/50">{ebCat?.thickness_mm ?? "—"}</td>
-                                      <td className="py-1 pr-3 text-white/50">{ebCat?.supplier ?? "—"}</td>
-                                      <td className="py-1 text-white/40">{eb.notes || "—"}</td>
+                                      <td className={`py-1 pr-3 ${isEmpty ? "text-white/20 italic" : "text-white/70"}`}>{ebDisplay}</td>
                                     </tr>
                                   );
                                 })}

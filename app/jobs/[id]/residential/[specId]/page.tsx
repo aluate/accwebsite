@@ -45,6 +45,7 @@ type EdgebandRow = {
   edgeband_id: string | null;
   notes: string;
   sort_order: number;
+  where_used: string;
   location_description: string;
 };
 
@@ -266,6 +267,7 @@ export default async function SpecEditorPage({
             fge.finish_group_id AS fg_id,
             fge.letter_code,
             fge.edgeband_id,
+            COALESCE(fge.where_used, '') AS where_used,
             COALESCE(fge.notes, '') AS notes,
             COALESCE(cel.sort_order, 0) AS sort_order,
             COALESCE(cel.description, fge.letter_code) AS location_description
@@ -285,6 +287,7 @@ export default async function SpecEditorPage({
     initialEdgebands[row.fg_id].push({
       letter_code: row.letter_code,
       edgeband_id: row.edgeband_id,
+      where_used: row.where_used,
       notes: row.notes,
       sort_order: row.sort_order,
       location_description: row.location_description,
