@@ -86,11 +86,18 @@ export async function sendEmail(opts: {
   replyTo?: string;
   attachments?: Array<{ filename: string; content: Buffer }>;
 }): Promise<SendResult> {
+  // TEST_EMAIL_OVERRIDE: redirect ALL outbound email to a single address for testing.
+  // Set this Vercel env var temporarily when testing email flows; clear it for prod.
+  const testOverride = process.env.TEST_EMAIL_OVERRIDE;
+  const effectiveTo = testOverride ?? opts.to;
+  const effectiveCc = testOverride ? undefined : opts.cc;
+  const subjectPrefix = testOverride ? `[TEST → ${opts.to}] ` : "";
+
   if (isPreviewMode()) {
     console.log("\n[mailer/preview] Would send email:");
-    console.log(`  To: ${opts.to}`);
-    if (opts.cc) console.log(`  Cc: ${opts.cc}`);
-    console.log(`  Subject: ${opts.subject}`);
+    console.log(`  To: ${effectiveTo}${testOverride ? ` (overriding ${opts.to})` : ""}`);
+    if (effectiveCc) console.log(`  Cc: ${effectiveCc}`);
+    console.log(`  Subject: ${subjectPrefix}${opts.subject}`);
     console.log(`  ---\n${opts.text}\n  ---`);
     return { ok: true, messageId: null, previewMode: true };
   }
@@ -99,10 +106,10 @@ export async function sendEmail(opts: {
     const t = await transport();
     const info = await t.sendMail({
       from: `"ACC" <${process.env.GMAIL_USER}>`,
-      to: opts.to,
-      cc: opts.cc,
+      to: effectiveTo,
+      cc: effectiveCc,
       replyTo: opts.replyTo,
-      subject: opts.subject,
+      subject: subjectPrefix + opts.subject,
       text: opts.text,
       html: opts.html,
       attachments: opts.attachments,
