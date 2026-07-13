@@ -4,8 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CHECKLIST_SECTIONS,
   allKeys,
-  completionCount,
-  isComplete,
 } from "@/lib/engineering-release-checklist";
 
 interface DrawingFile {
@@ -29,6 +27,7 @@ interface ReleaseRecord {
 
 export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   const [checklist, setChecklist]       = useState<Record<string, boolean>>({});
+  const [autoChecked, setAutoChecked]   = useState<Record<string, boolean>>({});
   const [drawings, setDrawings]         = useState<DrawingFile[]>([]);
   const [lastRelease, setLastRelease]   = useState<ReleaseRecord | null>(null);
   const [notes, setNotes]               = useState("");
@@ -41,6 +40,14 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileRef   = useRef<HTMLInputElement | null>(null);
 
+  // ── Effective check: auto OR manual ─────────────────────────────────────
+  function isEffectivelyChecked(key: string): boolean {
+    return !!(autoChecked[key] || checklist[key]);
+  }
+  function isAuto(key: string): boolean {
+    return !!autoChecked[key];
+  }
+
   // ── Load state on mount ─────────────────────────────────────────────────
   useEffect(() => {
     void (async () => {
@@ -50,10 +57,13 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
         fetch(`/api/jobs/${jobId}/engineering-release`),
       ]);
 
-      let loadedChecklist: Record<string, boolean> = {};
       if (clRes.ok) {
-        const d = await clRes.json() as { checklist: Record<string, boolean> };
-        loadedChecklist = d.checklist ?? {};
+        const d = await clRes.json() as {
+          checklist: Record<string, boolean>;
+          autoChecked: Record<string, boolean>;
+        };
+        setChecklist(d.checklist ?? {});
+        setAutoChecked(d.autoChecked ?? {});
       }
 
       let loadedDrawings: DrawingFile[] = [];
@@ -61,13 +71,10 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
         const d = await filesRes.json() as { files: Record<string, DrawingFile[]> };
         loadedDrawings = d.files?.["16_eng_drawings"] ?? [];
         setDrawings(loadedDrawings);
-      }
-
-      // Auto-check drawings_attached if drawings already exist
-      const finalChecklist = autoCheckDrawings(loadedChecklist, loadedDrawings.length);
-      setChecklist(finalChecklist);
-      if (finalChecklist !== loadedChecklist) {
-        persistChecklist(finalChecklist);
+        // Auto-check drawings_attached if drawings already exist
+        if (loadedDrawings.length > 0) {
+          setAutoChecked((prev) => ({ ...prev, drawings_attached: true }));
+        }
       }
 
       if (relRes.ok) {
@@ -92,7 +99,6 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     }, 600);
   }, [jobId]);
 
-  /** Flush any pending debounced save immediately before sending. */
   const flushSave = useCallback(async (state: Record<string, boolean>) => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
@@ -108,17 +114,37 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   }, [jobId]);
 
   function toggle(key: string) {
+    // Don't allow un-checking an auto-checked item manually
+    if (autoChecked[key]) return;
     const next = { ...checklist, [key]: !checklist[key] };
     setChecklist(next);
     persistChecklist(next);
   }
 
-  /** Auto-check drawings_attached when drawings are present. */
-  function autoCheckDrawings(state: Record<string, boolean>, drawingCount: number): Record<string, boolean> {
-    if (drawingCount > 0 && !state.drawings_attached) {
-      return { ...state, drawings_attached: true };
+  function checkAllInSection(sectionId: string) {
+    const section = CHECKLIST_SECTIONS.find((s) => s.id === sectionId);
+    if (!section) return;
+    const next = { ...checklist };
+    for (const item of section.items) {
+      if (!autoChecked[item.key]) {
+        next[item.key] = true;
+      }
     }
-    return state;
+    setChecklist(next);
+    persistChecklist(next);
+  }
+
+  function uncheckAllInSection(sectionId: string) {
+    const section = CHECKLIST_SECTIONS.find((s) => s.id === sectionId);
+    if (!section) return;
+    const next = { ...checklist };
+    for (const item of section.items) {
+      if (!autoChecked[item.key]) {
+        next[item.key] = false;
+      }
+    }
+    setChecklist(next);
+    persistChecklist(next);
   }
 
   // ── File upload ─────────────────────────────────────────────────────────
@@ -131,18 +157,14 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
       form.append("kind", "16_eng_drawings");
       await fetch(`/api/jobs/${jobId}/files`, { method: "POST", body: form });
     }
-    // Refresh drawing list
     const res = await fetch(`/api/jobs/${jobId}/files`);
     if (res.ok) {
       const d = await res.json() as { files: Record<string, DrawingFile[]> };
       const updated = d.files?.["16_eng_drawings"] ?? [];
       setDrawings(updated);
-      // Auto-check drawings_attached now that drawings exist
-      setChecklist((prev) => {
-        const next = autoCheckDrawings(prev, updated.length);
-        if (next !== prev) persistChecklist(next);
-        return next;
-      });
+      if (updated.length > 0) {
+        setAutoChecked((prev) => ({ ...prev, drawings_attached: true }));
+      }
     }
     setUploading(false);
   }
@@ -151,7 +173,6 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   async function sendRelease() {
     setSendError(null);
     setSending(true);
-    // Flush any pending debounced checklist save so the server sees 54/54
     await flushSave(checklist);
     const res = await fetch(`/api/jobs/${jobId}/engineering-release`, {
       method: "POST",
@@ -168,7 +189,6 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
       return;
     }
     setSendSuccess(true);
-    // Refresh release record
     const relRes = await fetch(`/api/jobs/${jobId}/engineering-release`);
     if (relRes.ok) {
       const d = await relRes.json() as { release: ReleaseRecord | null };
@@ -177,13 +197,15 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   }
 
   // ── Derived state ────────────────────────────────────────────────────────
-  const { checked, total } = completionCount(checklist);
-  const allChecked  = checked === total;
-  const hasDrawings = drawings.length > 0;
-  const canSend     = allChecked && hasDrawings && !sending;
-  const pct         = total > 0 ? Math.round((checked / total) * 100) : 0;
+  const keys = allKeys();
+  const checkedCount = keys.filter((k) => isEffectivelyChecked(k)).length;
+  const total        = keys.length;
+  const allDone      = checkedCount === total;
+  const hasDrawings  = drawings.length > 0;
+  const canSend      = allDone && hasDrawings && !sending;
+  const pct          = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+  const autoCount    = keys.filter((k) => isAuto(k)).length;
 
-  // Deduplicate drawings displayed (newest per base filename)
   const seen = new Set<string>();
   const canonDrawings = drawings.filter((d) => {
     const base = d.filename.replace(/^\d+-/, "");
@@ -224,11 +246,11 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
           {!lastRelease && (
             <span className={
               "text-[10px] font-condensed uppercase tracking-widest px-2 py-0.5 rounded " +
-              (allChecked && hasDrawings
+              (allDone && hasDrawings
                 ? "text-[#f08122] bg-[#f08122]/10 border border-[#f08122]/30"
                 : "text-white/20 bg-white/5 border border-white/10")
             }>
-              {checked}/{total}
+              {checkedCount}/{total}
             </span>
           )}
         </div>
@@ -244,7 +266,7 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
               className="h-full rounded-full transition-all duration-300"
               style={{
                 width: `${pct}%`,
-                backgroundColor: allChecked ? "#4ade80" : "#f08122",
+                backgroundColor: allDone ? "#4ade80" : "#f08122",
               }}
             />
           </div>
@@ -280,70 +302,123 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-condensed uppercase tracking-widest text-white/30">
-                Checklist — {checked} / {total} complete
+                Checklist — {checkedCount} / {total} complete
+                {autoCount > 0 && (
+                  <span className="ml-2 text-sky-400/60">· {autoCount} auto from spec</span>
+                )}
                 {saving && <span className="ml-2 text-white/20">saving…</span>}
               </span>
-              {allChecked && (
+              {allDone && (
                 <span className="text-[10px] font-condensed uppercase tracking-widest text-green-400/80">All clear ✓</span>
               )}
             </div>
             <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-300"
-                style={{ width: `${pct}%`, backgroundColor: allChecked ? "#4ade80" : "#f08122" }}
+                style={{ width: `${pct}%`, backgroundColor: allDone ? "#4ade80" : "#f08122" }}
               />
             </div>
           </div>
 
           {/* Checklist sections */}
           <div className="space-y-5">
-            {CHECKLIST_SECTIONS.map((section) => (
-              <div key={section.id}>
-                <p className="text-[10px] font-condensed uppercase tracking-widest text-white/20 mb-2">
-                  {section.label}
-                </p>
-                <div className="space-y-1">
-                  {section.items.map((item) => {
-                    const checked = !!checklist[item.key];
-                    return (
-                      <label
-                        key={item.key}
-                        className="flex items-start gap-3 cursor-pointer group py-1 px-2 rounded hover:bg-white/5 transition-colors"
+            {CHECKLIST_SECTIONS.map((section) => {
+              const sectionKeys = section.items.map((i) => i.key);
+              const sectionChecked = sectionKeys.filter((k) => isEffectivelyChecked(k)).length;
+              const sectionTotal   = sectionKeys.length;
+              const sectionAllDone = sectionChecked === sectionTotal;
+              const hasManual = section.items.some((i) => !autoChecked[i.key]);
+
+              return (
+                <div key={section.id}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-condensed uppercase tracking-widest text-white/20">
+                      {section.label}
+                      <span className="ml-2 text-white/15">
+                        {sectionChecked}/{sectionTotal}
+                      </span>
+                    </p>
+                    {hasManual && !sectionAllDone && (
+                      <button
+                        onClick={() => checkAllInSection(section.id)}
+                        className="text-[10px] font-condensed uppercase tracking-widest text-white/20 hover:text-[#f08122] transition-colors px-2 py-0.5 rounded border border-white/10 hover:border-[#f08122]/30"
                       >
-                        <div className="mt-0.5 shrink-0">
-                          <div
-                            className={
-                              "w-4 h-4 rounded border flex items-center justify-center transition-colors " +
-                              (checked
-                                ? "bg-[#f08122] border-[#f08122]"
-                                : "border-white/20 group-hover:border-white/40")
-                            }
-                            onClick={() => toggle(item.key)}
-                          >
-                            {checked && (
-                              <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 8" fill="none">
-                                <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
+                        Check All
+                      </button>
+                    )}
+                    {hasManual && sectionAllDone && (
+                      <button
+                        onClick={() => uncheckAllInSection(section.id)}
+                        className="text-[10px] font-condensed uppercase tracking-widest text-white/15 hover:text-white/40 transition-colors px-2 py-0.5 rounded border border-white/5 hover:border-white/20"
+                      >
+                        Uncheck
+                      </button>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    {section.items.map((item) => {
+                      const effective = isEffectivelyChecked(item.key);
+                      const auto      = isAuto(item.key);
+                      return (
+                        <label
+                          key={item.key}
+                          className={
+                            "flex items-start gap-3 py-1 px-2 rounded transition-colors " +
+                            (auto ? "cursor-default" : "cursor-pointer group hover:bg-white/5")
+                          }
+                        >
+                          <div className="mt-0.5 shrink-0">
+                            <div
+                              className={
+                                "w-4 h-4 rounded border flex items-center justify-center transition-colors " +
+                                (effective && auto
+                                  ? "bg-sky-500/70 border-sky-500/70"
+                                  : effective
+                                  ? "bg-[#f08122] border-[#f08122]"
+                                  : "border-white/20 group-hover:border-white/40")
+                              }
+                              onClick={() => !auto && toggle(item.key)}
+                            >
+                              {effective && auto && (
+                                <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 12" fill="currentColor">
+                                  <path d="M6 1L1 7h4l-1 4 5-6H5l1-4z" />
+                                </svg>
+                              )}
+                              {effective && !auto && (
+                                <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 8" fill="none">
+                                  <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              )}
+                            </div>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={
+                                  "text-sm leading-snug " +
+                                  (effective && !auto ? "text-white/40 line-through" : effective && auto ? "text-white/50" : "text-white/80")
+                                }
+                                onClick={() => !auto && toggle(item.key)}
+                              >
+                                {item.label}
+                              </span>
+                              {auto && (
+                                <span className="text-[9px] font-condensed uppercase tracking-widest text-sky-400/60 bg-sky-900/20 border border-sky-700/20 px-1.5 py-0.5 rounded shrink-0">
+                                  auto
+                                </span>
+                              )}
+                            </div>
+                            {item.note && (
+                              <p className="text-[11px] text-white/25 mt-0.5 italic">{item.note}</p>
                             )}
                           </div>
-                        </div>
-                        <div className="min-w-0">
-                          <span
-                            className={"text-sm leading-snug " + (checked ? "text-white/40 line-through" : "text-white/80")}
-                            onClick={() => toggle(item.key)}
-                          >
-                            {item.label}
-                          </span>
-                          {item.note && (
-                            <p className="text-[11px] text-white/25 mt-0.5 italic">{item.note}</p>
-                          )}
-                        </div>
-                      </label>
-                    );
-                  })}
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Drawings upload */}
@@ -426,10 +501,10 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
 
               {!canSend && (
                 <p className="text-[11px] text-white/25">
-                  {!allChecked && !hasDrawings
-                    ? `Complete all ${total - checked} remaining items and upload drawings`
-                    : !allChecked
-                    ? `${total - checked} checklist item${total - checked !== 1 ? "s" : ""} remaining`
+                  {!allDone && !hasDrawings
+                    ? `Complete all ${total - checkedCount} remaining items and upload drawings`
+                    : !allDone
+                    ? `${total - checkedCount} checklist item${total - checkedCount !== 1 ? "s" : ""} remaining`
                     : "Upload approved drawings to release"}
                 </p>
               )}
