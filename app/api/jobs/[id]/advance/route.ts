@@ -27,6 +27,7 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
+import { runEngineeringReleaseSideEffects } from "@/lib/engineering-release";
 
 type JobRow = JobMeta & {
   status: string;
@@ -162,8 +163,38 @@ export async function POST(
       let emailOpts: Parameters<typeof sendEmail>[0];
 
       if (toStatus === "engineering") {
+        // Find latest spec
+        const [latestSpec] = await sql<{ id: string }[]>`
+          SELECT id FROM residential_specs WHERE job_id = ${internalId}
+          ORDER BY created_at DESC LIMIT 1
+        `;
+
+        let attachments: { filename: string; content: Buffer }[] = [];
+
+        if (latestSpec) {
+          try {
+            const releaseResult = await runEngineeringReleaseSideEffects(
+              internalId, latestSpec.id, job
+            );
+            // Build attachments: spec PDF first, then cover sheets
+            attachments = [
+              {
+                filename: `${job.job_number ?? internalId} Spec.pdf`,
+                content: releaseResult.specPdfBuffer,
+              },
+              ...releaseResult.coversheets.map((cs) => ({
+                filename: cs.filename,
+                content: cs.buffer,
+              })),
+            ];
+          } catch (err) {
+            // Don't block the release if PDF generation fails
+            console.error("Engineering release PDF generation failed:", err);
+          }
+        }
+
         const { subject, text, html } = await buildEngineeringEmail(job, internalId, note);
-        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html };
+        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html, attachments };
       } else {
         const subject = gate.subject(job);
         const text    = gate.body(job, note);
