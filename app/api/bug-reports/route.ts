@@ -105,13 +105,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status") ?? "open";
 
-  const rows = await sql`
-    SELECT * FROM bug_reports
-    WHERE status = ${status}
-    ORDER BY
-      CASE severity WHEN 'blocker' THEN 1 WHEN 'annoying' THEN 2 ELSE 3 END,
-      created_at ASC
-  `;
+  const rows = status === "all"
+    ? await sql`
+        SELECT * FROM bug_reports
+        ORDER BY
+          CASE status WHEN 'open' THEN 0 ELSE 1 END,
+          CASE severity WHEN 'blocker' THEN 1 WHEN 'annoying' THEN 2 ELSE 3 END,
+          created_at ASC
+      `
+    : await sql`
+        SELECT * FROM bug_reports
+        WHERE status = ${status}
+        ORDER BY
+          CASE severity WHEN 'blocker' THEN 1 WHEN 'annoying' THEN 2 ELSE 3 END,
+          created_at ASC
+      `;
 
   return NextResponse.json({ bugs: rows });
 }
