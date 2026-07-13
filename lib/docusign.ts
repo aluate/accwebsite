@@ -17,7 +17,7 @@
  */
 
 import { sql } from "@/lib/db";
-import { renderSpecPDF } from "@/lib/pdf-spec";
+import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 import { createClient } from "@supabase/supabase-js";
 
@@ -54,7 +54,7 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   const data = await loadSpecPDFData(specId);
 
   // 1. Spec PDF (fresh render).
-  const specBuf = await renderSpecPDF(data);
+  const specBuf = await renderSpecPDFBuffer(data);
 
   // 2. Drawings — most-recent drawing file from Supabase Storage.
   const [jobRow] = await sql`SELECT builder_company FROM jobs WHERE id = ${data.job_id}`;
