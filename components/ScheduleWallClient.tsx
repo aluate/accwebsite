@@ -68,6 +68,13 @@ function crewColor(crewId: string | null, crews: Crew[]) {
   return idx === -1 ? UNASSIGNED_COLOR : CREW_PALETTE[idx % CREW_PALETTE.length];
 }
 
+// Color bars by crew kind: in-house = ACC orange, sub = purple
+function crewKindColor(crewKind: string | null): { bg: string; bar: string; text: string } {
+  if (crewKind === "inhouse") return { bg: "rgba(240,129,34,0.25)",  bar: "#f08122", text: "#f8a855" };
+  if (crewKind === "sub")     return { bg: "rgba(167,139,250,0.25)", bar: "#a78bfa", text: "#c4b5fd" };
+  return UNASSIGNED_COLOR; // unassigned → red
+}
+
 const EVENT_TYPE_ICON: Record<EventType, string> = {
   cab_delivery:      "📦",
   top_delivery:      "🪨",
@@ -94,10 +101,28 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
  *
  * Returns a Map<event_id, lane_index>.
  */
+// Type display priority: installs first, deliveries last
+const TYPE_LANE_PRIORITY: Record<string, number> = {
+  install:           0,
+  service:           1,
+  punch:             2,
+  final_walkthrough: 3,
+  other:             4,
+  top_delivery:      5,
+  cab_delivery:      6,
+};
+
 function assignLanes(events: JobEventWithJoins[]): Map<string, number> {
+  // Sort by type priority first, then date — ensures installs always claim
+  // lower-numbered lanes before deliveries do.
   const sorted = [...events]
     .filter((e) => e.date_start)
-    .sort((a, b) => (a.date_start! < b.date_start! ? -1 : 1));
+    .sort((a, b) => {
+      const pa = TYPE_LANE_PRIORITY[a.event_type] ?? 99;
+      const pb = TYPE_LANE_PRIORITY[b.event_type] ?? 99;
+      if (pa !== pb) return pa - pb;
+      return (a.date_start! < b.date_start! ? -1 : 1);
+    });
 
   const laneMap = new Map<string, number>();
   // For each lane, track the latest end_date occupied.
@@ -128,15 +153,15 @@ function ScheduleSkeleton() {
       <div className="hidden md:flex" style={{ minHeight: "calc(100vh - 64px)" }}>
         <div className="flex-1 p-3 space-y-2">
           {/* Day-of-week header */}
-          <div className="grid grid-cols-5 gap-px mb-1">
-            {["Mon","Tue","Wed","Thu","Fri"].map((d) => (
+          <div className="grid grid-cols-6 gap-px mb-1">
+            {["Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => (
               <div key={d} className="h-5 bg-white/5 rounded animate-pulse" />
             ))}
           </div>
           {/* Week rows */}
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="grid grid-cols-5 gap-px">
-              {Array.from({ length: 5 }).map((_, j) => (
+            <div key={i} className="grid grid-cols-6 gap-px">
+              {Array.from({ length: 6 }).map((_, j) => (
                 <div key={j} className="h-20 bg-white/5 rounded animate-pulse" />
               ))}
             </div>
@@ -318,18 +343,21 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   // weekOffset 0 = today's week as first row; positive = scroll forward
   const [weekOffset, setWeekOffset] = useState(0);
 
+  // TV shows 3 weeks tight; normal shows 5 weeks
+  const numWeeks = tvMode ? 3 : 5;
+
   const weeks = useMemo<string[][]>(() => {
     const base = isoWeekStart(today);          // Monday of today's week
     const windowStart = isoDateOffset(base, weekOffset * 7);
     const out: string[][] = [];
-    for (let w = 0; w < 6; w++) {
+    for (let w = 0; w < numWeeks; w++) {
       const weekMon = isoDateOffset(windowStart, w * 7);
       const week: string[] = [];
-      for (let d = 0; d < 5; d++) week.push(isoDateOffset(weekMon, d));
+      for (let d = 0; d < 6; d++) week.push(isoDateOffset(weekMon, d)); // Mon–Sat
       out.push(week);
     }
     return out;
-  }, [today, weekOffset]);
+  }, [today, weekOffset, numWeeks]);
 
   const [showAddForm, setShowAddForm]   = useState(false);
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
@@ -347,7 +375,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
 
   // ── Visible window ────────────────────────────────────────────────────────
   const visibleStart = weeks[0]?.[0] ?? today;
-  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? today;
+  const visibleEnd   = weeks[weeks.length - 1]?.[5] ?? today;
 
   // ── Window label for header ───────────────────────────────────────────────
   const windowLabel = (() => {
@@ -417,7 +445,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   // Mobile agenda: week days Mon-Fri for the selected week
   const mobileWeekDays = useMemo(() => {
     const days: { day: string; events: typeof forwardEvents }[] = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
       const day = isoDateOffset(mobileWeekStart, i);
       const events = forwardEvents.filter((e) => {
         if (!e.date_start) return false;
@@ -429,7 +457,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     return days;
   }, [forwardEvents, mobileWeekStart]);
 
-  const mobileWeekEnd = isoDateOffset(mobileWeekStart, 4);
+  const mobileWeekEnd = isoDateOffset(mobileWeekStart, 5);
   const mobileWeekHasToday = today >= mobileWeekStart && today <= mobileWeekEnd;
 
   // ── "1 of N" split labels ─────────────────────────────────────────────────
@@ -1199,8 +1227,8 @@ function SpanningCalendar({
     return max + 1;
   }, [laneMap]);
 
-  const ROW_HEADER_H = 22;
-  const LANE_H       = 20;
+  const ROW_HEADER_H = 28;
+  const LANE_H       = 24;
   const CELL_MIN_H   = ROW_HEADER_H + maxLanes * LANE_H + 12;
 
   // Compute bar segments per week row
@@ -1233,11 +1261,13 @@ function SpanningCalendar({
     <div className="select-none">
 
       {/* Day-of-week header */}
-      <div className="grid grid-cols-5 gap-px mb-1">
-        {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
+      <div className="grid grid-cols-6 gap-px mb-1">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d, i) => (
           <div
             key={d}
-            className="text-center text-[10px] font-condensed uppercase tracking-widest text-white/20 py-1"
+            className={`text-center text-xs font-condensed uppercase tracking-widest py-1.5 font-bold ${
+              i === 5 ? "text-white/35" : "text-white/70"
+            }`}
           >
             {d}
           </div>
@@ -1250,7 +1280,7 @@ function SpanningCalendar({
         return (
           <div
             key={week[0]}
-            className="relative grid grid-cols-5 gap-px mb-px"
+            className="relative grid grid-cols-6 gap-px mb-px"
             style={{ minHeight: CELL_MIN_H }}
           >
             {/* ── Day cells ── */}
@@ -1273,8 +1303,8 @@ function SpanningCalendar({
                   onDragOver={(e) => { if (draggingId) { e.preventDefault(); onDragOverCell(iso); } }}
                       onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
                 >
-                  <div className="flex items-baseline gap-1 px-1 pt-0.5" style={{ height: ROW_HEADER_H }}>
-                    <span className={`text-[10px] font-condensed ${isToday ? "text-[#f08122]" : "text-white/20"}`}>
+                  <div className="flex items-baseline gap-1.5 px-1.5 pt-1" style={{ height: ROW_HEADER_H }}>
+                    <span className={`text-sm font-bold tabular-nums leading-none ${isToday ? "text-[#f08122]" : "text-white/75"}`}>
                       {iso.slice(8)}
                     </span>
                     {holiday && (
@@ -1309,10 +1339,12 @@ function SpanningCalendar({
               const ev = events.find((e) => e.id === seg.eventId);
               if (!ev) return null;
               const lane        = laneMap.get(ev.id) ?? 0;
-              const col         = eventTypeColor(ev.event_type);
+              const col         = crewKindColor(ev.crew_kind);
               const colSpan     = seg.colEnd - seg.colStart + 1;
               const split       = splitLabels.get(ev.id);
-              const clientLabel = ev.job_client_name ?? ev.job_id;
+              const jobNum      = ev.job_job_number ? `#${ev.job_job_number}` : "";
+              const clientLabel = [jobNum, ev.job_client_name].filter(Boolean).join(" ");
+              const displayLabel = clientLabel || ev.job_id;
 
               return (
                 <div
@@ -1321,14 +1353,14 @@ function SpanningCalendar({
                   onDragStart={(e) => { e.stopPropagation(); if (isAdmin) onDragStart(ev.id); }}
                   onDragEnd={onDragEnd}
                   onClick={(e) => { e.stopPropagation(); if (!draggingId) onEventClick(ev); }}
-                  className={`absolute flex items-center overflow-hidden text-[9px] font-condensed ${
+                  className={`absolute flex items-center overflow-hidden font-condensed ${
                     isAdmin ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
                   }`}
                   style={{
-                    top:        ROW_HEADER_H + lane * LANE_H + 1,
-                    left:       `calc(${seg.colStart} / 5 * 100% + 1px)`,
-                    width:      `calc(${colSpan} / 5 * 100% - 3px)`,
-                    height:     LANE_H - 3,
+                    top:        ROW_HEADER_H + lane * LANE_H + 2,
+                    left:       `calc(${seg.colStart} / 6 * 100% + 1px)`,
+                    width:      `calc(${colSpan} / 6 * 100% - 3px)`,
+                    height:     LANE_H - 4,
                     background: col.bg,
                     borderLeft: `3px solid ${col.bar}`,
                     borderRadius: seg.isContinuation
@@ -1337,31 +1369,32 @@ function SpanningCalendar({
                       ? "3px 0 0 3px"
                       : "3px",
                     color:       col.text,
-                    paddingLeft:  5,
-                    paddingRight: seg.continuesNext ? 2 : 4,
-                    fontSize:     12,
+                    paddingLeft:  6,
+                    paddingRight: seg.continuesNext ? 2 : 5,
+                    fontSize:     13,
+                    fontWeight:   600,
                     zIndex:       10 + lane,
                   }}
-                  title={`${clientLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
+                  title={`${displayLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
                 >
                   {seg.isContinuation && (
-                    <span className="mr-0.5 opacity-40 text-[8px]">&#8249;</span>
+                    <span className="mr-0.5 shrink-0 opacity-50 text-[10px]">&#8249;</span>
                   )}
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
-                    {!seg.isContinuation && clientLabel}
-                    {!seg.isContinuation && ev.crew_name && (
-                      <span className="opacity-60"> &middot; {ev.crew_name}</span>
+                    {displayLabel}
+                    {ev.crew_name && (
+                      <span style={{ fontWeight: 400, opacity: 0.75 }}> &middot; {ev.crew_name}</span>
                     )}
-                    {!seg.isContinuation && ev.description && (
-                      <span className="opacity-55"> &mdash; {ev.description}</span>
+                    {ev.description && (
+                      <span style={{ fontWeight: 400, opacity: 0.6 }}> &mdash; {ev.description}</span>
                     )}
                     {split && (
-                      <span className="opacity-45"> [{split}]</span>
+                      <span style={{ fontWeight: 400, opacity: 0.5 }}> [{split}]</span>
                     )}
                   </span>
                   {seg.continuesNext && (
-                    <span className="ml-auto shrink-0 opacity-40 text-[8px] pl-0.5">&#8250;</span>
+                    <span className="ml-auto shrink-0 opacity-50 text-[10px] pl-0.5">&#8250;</span>
                   )}
                 </div>
               );

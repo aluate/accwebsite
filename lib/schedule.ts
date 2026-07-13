@@ -12,7 +12,8 @@ export type { EventType, EventStatus, CrewKind, Crew, JobEvent, JobEventWithJoin
 
 const EVENT_SELECT = `
   SELECT je.*, c.name AS crew_name, c.kind AS crew_kind,
-         j.client_name AS job_client_name, j.site_address AS job_site_address
+         j.client_name AS job_client_name, j.site_address AS job_site_address,
+         j.job_number AS job_job_number
   FROM job_events je
   LEFT JOIN crews c ON c.id = je.crew_id
   LEFT JOIN jobs  j ON j.id = je.job_id
