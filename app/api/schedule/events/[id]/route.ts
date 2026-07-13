@@ -38,6 +38,7 @@ type PatchPayload = {
   blocked_on?: string | null;
   parent_event_id?: string | null;
   sort_order?: number;
+  duration_days?: number | null;
 };
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -35,6 +35,7 @@ type CreatePayload = {
   note?:       string | null;
   blocked_on?: string | null;
   parent_event_id?: string | null;
+  duration_days?: number | null;
 };
 
 export async function GET(req: NextRequest) {
@@ -77,6 +78,7 @@ export async function POST(req: NextRequest) {
     note:            body.note ?? null,
     blocked_on:      body.blocked_on ?? null,
     parent_event_id: body.parent_event_id,   // undefined = auto-link, null = explicit no-link
+    duration_days:   typeof body.duration_days === 'number' ? body.duration_days : null,
     actor:           builder.username,
   });
 

@@ -512,8 +512,10 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     } else if (targetIso && event.date_start && !event.date_end) {
       newEnd = null; // single-day stays single-day
     } else if (targetIso && !event.date_start) {
-      // On-deck → calendar: apply type default
-      const dur = DEFAULT_DURATION[event.event_type] ?? 1;
+      // On-deck → calendar: use stored duration_days, fall back to type default
+      const dur = (event.duration_days && event.duration_days > 1)
+        ? event.duration_days
+        : (DEFAULT_DURATION[event.event_type] ?? 1);
       if (dur > 1) newEnd = calculateEndDate(targetIso, dur);
     }
 
@@ -1339,7 +1341,10 @@ function SpanningCalendar({
               const ev = events.find((e) => e.id === seg.eventId);
               if (!ev) return null;
               const lane        = laneMap.get(ev.id) ?? 0;
-              const col         = crewKindColor(ev.crew_kind);
+              const DELIVERY_TYPES = new Set(["cab_delivery", "top_delivery"]);
+              const col = DELIVERY_TYPES.has(ev.event_type)
+                ? eventTypeColor(ev.event_type)
+                : crewKindColor(ev.crew_kind);
               const colSpan     = seg.colEnd - seg.colStart + 1;
               const split       = splitLabels.get(ev.id);
               const jobNum      = ev.job_job_number ? `#${ev.job_job_number}` : "";

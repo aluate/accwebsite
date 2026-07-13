@@ -90,7 +90,7 @@ export async function findSiblingEvent(input: { jobId: string; eventType: EventT
   return rows[0] ?? null;
 }
 
-export type CreateEventInput = { job_id: string; event_type: EventType; description?: string|null; date_start?: string|null; date_end?: string|null; crew_id?: string|null; status?: EventStatus; note?: string|null; blocked_on?: string|null; parent_event_id?: string|null; sort_order?: number; actor: string };
+export type CreateEventInput = { job_id: string; event_type: EventType; description?: string|null; date_start?: string|null; date_end?: string|null; crew_id?: string|null; status?: EventStatus; note?: string|null; blocked_on?: string|null; parent_event_id?: string|null; sort_order?: number; duration_days?: number|null; actor: string };
 export type CreateEventResult = { ok: true; event: JobEventWithJoins; auto_linked_parent?: string } | { ok: false; error: string };
 
 export async function createEvent(input: CreateEventInput): Promise<CreateEventResult> {
@@ -107,7 +107,7 @@ export async function createEvent(input: CreateEventInput): Promise<CreateEventR
   } else { parent_event_id = input.parent_event_id; }
   const id = uid(); const now = new Date().toISOString();
   await sql.begin(async (tx) => {
-    await tx`INSERT INTO job_events (id, job_id, event_type, description, date_start, date_end, crew_id, status, note, blocked_on, parent_event_id, sort_order, created_at, created_by, updated_at, updated_by) VALUES (${id}, ${input.job_id}, ${input.event_type}, ${input.description??null}, ${input.date_start??null}, ${input.date_end??null}, ${input.crew_id??null}, ${status}, ${input.note??null}, ${input.blocked_on??null}, ${parent_event_id}, ${input.sort_order??0}, ${now}, ${input.actor}, ${now}, ${input.actor})`;
+    await tx`INSERT INTO job_events (id, job_id, event_type, description, date_start, date_end, crew_id, status, note, blocked_on, parent_event_id, sort_order, duration_days, created_at, created_by, updated_at, updated_by) VALUES (${id}, ${input.job_id}, ${input.event_type}, ${input.description??null}, ${input.date_start??null}, ${input.date_end??null}, ${input.crew_id??null}, ${status}, ${input.note??null}, ${input.blocked_on??null}, ${parent_event_id}, ${input.sort_order??0}, ${input.duration_days??1}, ${now}, ${input.actor}, ${now}, ${input.actor})`;
     const [after] = await tx<JobEvent[]>`SELECT * FROM job_events WHERE id = ${id}`;
     await tx`INSERT INTO job_event_audit (id, event_id, job_id, action, before_json, after_json, changed_at, changed_by) VALUES (${uid()}, ${id}, ${input.job_id}, 'create', null, ${JSON.stringify(after)}, ${now}, ${input.actor})`;
   });
@@ -137,7 +137,7 @@ export async function updateEvent(id: string, patch: UpdateEventPatch, actor: st
   }
   const now = next.updated_at;
   await sql.begin(async (tx) => {
-    await tx`UPDATE job_events SET event_type=${next.event_type}, description=${next.description}, date_start=${next.date_start}, date_end=${next.date_end}, crew_id=${next.crew_id}, status=${next.status}, note=${next.note}, blocked_on=${next.blocked_on}, parent_event_id=${next.parent_event_id}, sort_order=${next.sort_order}, updated_at=${now}, updated_by=${actor} WHERE id=${id}`;
+    await tx`UPDATE job_events SET event_type=${next.event_type}, description=${next.description}, date_start=${next.date_start}, date_end=${next.date_end}, crew_id=${next.crew_id}, status=${next.status}, note=${next.note}, blocked_on=${next.blocked_on}, parent_event_id=${next.parent_event_id}, sort_order=${next.sort_order}, duration_days=${next.duration_days??1}, updated_at=${now}, updated_by=${actor} WHERE id=${id}`;
     const [after] = await tx<JobEvent[]>`SELECT * FROM job_events WHERE id = ${id}`;
     await tx`INSERT INTO job_event_audit (id, event_id, job_id, action, before_json, after_json, changed_at, changed_by) VALUES (${uid()}, ${id}, ${before.job_id}, 'update', ${JSON.stringify(before)}, ${JSON.stringify(after)}, ${now}, ${actor})`;
   });

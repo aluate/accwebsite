@@ -77,6 +77,7 @@ export type JobEvent = {
   updated_by: string | null;
   actual_start?: string | null;
   actual_end?:   string | null;
+  duration_days?: number | null;
 };
 
 export type JobEventWithJoins = JobEvent & {

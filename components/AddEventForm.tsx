@@ -133,8 +133,9 @@ export function AddEventForm({
       date_end:    onDeck ? null : (dateEnd || null),
       crew_id:     crewId || null,
       status,
-      note:        note || null,
-      blocked_on:  blockedOn || null,
+      note:         note || null,
+      blocked_on:   blockedOn || null,
+      duration_days: parseInt(duration, 10) || 1,
     };
 
     try {
@@ -273,14 +274,33 @@ export function AddEventForm({
               Use for work waiting on parts, sign-off, or tops template.
             </p>
             {onDeck && (
-              <div className="mt-3">
-                <label className={LABEL}>Blocked On</label>
-                <input
-                  value={blockedOn}
-                  onChange={(e) => setBlockedOn(e.target.value)}
-                  placeholder='e.g. "waiting on tops template", "parts on order"'
-                  className={INPUT}
-                />
+              <div className="mt-3 space-y-3">
+                {/* Duration stored so drag-to-calendar auto-sizes the install */}
+                <div className="flex items-center gap-3 bg-[#111] border border-white/10 rounded px-3 py-2">
+                  <label className="text-[#f08122]/80 text-[10px] font-condensed uppercase tracking-widest whitespace-nowrap">
+                    Duration when scheduled (working days)
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={duration}
+                    onChange={(e) => handleDurationChange(e.target.value)}
+                    className="w-16 bg-[#1a1a1a] border border-[#f08122]/30 rounded px-2 py-1 text-sm text-white text-center focus:outline-none focus:border-[#f08122]"
+                  />
+                  <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest">
+                    Auto-applied when you drag to a date
+                  </p>
+                </div>
+                <div>
+                  <label className={LABEL}>Blocked On</label>
+                  <input
+                    value={blockedOn}
+                    onChange={(e) => setBlockedOn(e.target.value)}
+                    placeholder='e.g. "waiting on tops template", "parts on order"'
+                    className={INPUT}
+                  />
+                </div>
               </div>
             )}
           </div>
