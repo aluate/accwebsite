@@ -50,7 +50,11 @@ export async function GET() {
     onDeckEvents(),
     sql<JobMini[]>`
       SELECT id, client_name, site_address, city, client_phone, client_email
-      FROM jobs ORDER BY created_at DESC
+      FROM jobs
+      WHERE status <> 'complete'
+         OR created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
+      ORDER BY created_at DESC
+      LIMIT 300
     `,
   ]);
 
@@ -65,12 +69,4 @@ export async function GET() {
 
   return NextResponse.json({
     today,
-    crews,
-    forwardEvents: fwdEvents,
-    onDeckEvents:  deckEvents,
-    jobs,
-    ptoRows,
-    windowStartIso,
-    windowEndIso,
-  });
-}
+    crews
