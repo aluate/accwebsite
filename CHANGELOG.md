@@ -5,6 +5,22 @@ Each entry: what changed and why it changed. Maintained by Claude in the deploy 
 
 ---
 
+## 26.07.12.001 — 2026-07-12
+**Commit:** `00ad182`
+**What:** Bug report system — full end-to-end workflow.
+- Floating "Report a Bug" pill button on all internal pages (bottom-right, logged-in users only)
+- Auto-captures: current page URL, user name, user role
+- Fields: what were you trying to do, what happened, severity (Blocker / Annoying / Minor)
+- POST /api/bug-reports → inserts to `bug_reports` Supabase table
+- /admin/bugs page with tab filters (Open / Fixed / Won't Fix / All) and one-click status updates
+- Bug Reports link added to Admin nav
+- Daily 8am digest email via scheduled task `acc-bug-digest`
+- Also in this deploy: /admin/schedule 504 fix (thin-shell + client-fetch pattern, per-query 7s timeout)
+
+**Why:** Team-wide feedback loop — anyone can log a bug from wherever they are in the app without leaving the page.
+
+---
+
 ## 26.05.26.001 — 2026-05-26
 **Commit:** `c7cec96`
 **What:** Schedule page layout cleanup — updated job schedule page component.
