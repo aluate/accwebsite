@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
-export async function POST() {
+export async function GET() {
   try {
     await sql`
       CREATE TABLE IF NOT EXISTS event_crew (
@@ -14,7 +14,6 @@ export async function POST() {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_event_crew_event  ON event_crew(event_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_event_crew_member ON event_crew(crew_member_id)`;
-    // Backfill: migrate existing crew_id assignments into event_crew
     const migrated = await sql`
       INSERT INTO event_crew (id, event_id, crew_member_id)
       SELECT gen_random_uuid()::text, je.id, je.crew_id
