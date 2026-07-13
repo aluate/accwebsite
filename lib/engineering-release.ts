@@ -181,7 +181,7 @@ export async function runEngineeringReleaseSideEffects(
     const filename = `${jobNumPadded} STN - ${fg.label} Coversheet.pdf`;
 
     // Upload to Supabase Storage
-    const storagePath = `jobs/${jobId}/00_Drawings/${Date.now()}-${filename.replace(/[^A-Za-z0-9._-]+/g, "_")}`;
+    const storagePath = `jobs/${jobId}/05_drawings/${Date.now()}-${filename.replace(/[^A-Za-z0-9._-]+/g, "_")}`;
     const { error: uploadError } = await supabase.storage
       .from(BUCKET)
       .upload(storagePath, buffer, {
@@ -198,7 +198,7 @@ export async function runEngineeringReleaseSideEffects(
         INSERT INTO job_files
           (id, job_id, kind, filename, storage_path, size, uploaded_at, uploaded_by)
         VALUES
-          (${fileId}, ${jobId}, ${"00_drawings"}, ${filename}, ${storagePath},
+          (${fileId}, ${jobId}, ${"05_drawings"}, ${filename}, ${storagePath},
            ${buffer.length}, ${now}, ${"system"})
         ON CONFLICT (id) DO NOTHING
       `;
