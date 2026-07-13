@@ -171,7 +171,7 @@ function ScheduleSkeleton() {
   );
 }
 
-// ── Error banner ──────────────────────────────────────────────────────────────
+// ── Error banner (full-page, no data yet) ────────────────────────────────────
 
 function ScheduleErrorBanner({ onRetry, loading }: { onRetry: () => void; loading: boolean }) {
   return (
@@ -197,6 +197,25 @@ function ScheduleErrorBanner({ onRetry, loading }: { onRetry: () => void; loadin
   );
 }
 
+// ── Stale-data warning bar (TV mode: data loaded but poll is failing) ─────────
+
+function ScheduleStaleBar({ onRetry, loading }: { onRetry: () => void; loading: boolean }) {
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 bg-red-900/90 backdrop-blur-sm border-b border-red-700/50 px-4 py-2 flex items-center justify-between">
+      <p className="text-red-200 text-xs font-condensed uppercase tracking-widest">
+        ⚠ Connection lost — showing cached data
+      </p>
+      <button
+        onClick={onRetry}
+        disabled={loading}
+        className="text-red-200 hover:text-white border border-red-400/40 hover:border-white/40 text-xs font-condensed uppercase tracking-widest px-3 py-1 rounded transition-colors disabled:opacity-40"
+      >
+        {loading ? "Retrying…" : "Retry"}
+      </button>
+    </div>
+  );
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 
 export function ScheduleWallClient({ today: initialToday, isAdmin = false }: ScheduleWallProps) {
@@ -213,16 +232,20 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const fetchData = useCallback(async () => {
     setFetching(true);
     setLoadError(false);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12_000); // 12s hard timeout
     try {
-      const res = await fetch("/api/schedule/data");
+      const res = await fetch("/api/schedule/data", { signal: controller.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json() as ScheduleData;
       setData(json);
       setForwardEvents(json.forwardEvents);
       setOnDeckEvents(json.onDeckEvents);
+      setLoadError(false);
     } catch {
       setLoadError(true);
     } finally {
+      clearTimeout(timeout);
       setFetching(false);
     }
   }, []);
@@ -457,6 +480,10 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <section className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Stale-data warning: data loaded but a subsequent poll failed */}
+      {loadError && data && (
+        <ScheduleStaleBar onRetry={fetchData} loading={fetching} />
+      )}
 
       {/* Header */}
       {!tvMode && (
