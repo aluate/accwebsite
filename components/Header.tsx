@@ -73,7 +73,7 @@ export function Header({ userRole }: { userRole?: string }) {
         </Link>
 
         {isInternal ? (
-          /* Internal nav — Jobs + Schedule only */
+          /* Internal nav */
           <>
             <nav className="hidden md:flex items-center gap-1">
               {INTERNAL_NAV.map((item) => (
@@ -102,7 +102,7 @@ export function Header({ userRole }: { userRole?: string }) {
                       ? "text-[#f08122]"
                       : "text-white/50 hover:text-[#f08122]"
                   )}>
-                    Admin ▾
+                    Admin &#9662;
                   </button>
                   {adminOpen && (
                     <div className="absolute top-full right-0 bg-[#2d2d2d] border border-white/10 rounded shadow-lg min-w-[160px] py-1 z-50">
@@ -215,4 +215,61 @@ export function Header({ userRole }: { userRole?: string }) {
                               pathname === child.href
                                 ? "text-[#f08122]"
                                 : "text-white hover:text-[#f08122]"
-             
+                            )}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href!}
+                    className={cn(
+                      "px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide transition-colors",
+                      pathname === item.href
+                        ? "text-[#f08122]"
+                        : "text-white hover:text-[#f08122]"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              )}
+            </nav>
+
+            {/* Mobile */}
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger
+                render={
+                  <Button variant="ghost" size="icon" className="md:hidden text-white hover:text-[#f08122] hover:bg-white/10">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                }
+              />
+              <SheetContent side="right" className="w-72 bg-[#2d2d2d] border-white/10">
+                <div className="mb-6 mt-2">
+                  <Image src="/logo.png" alt="Advanced Cabinets" width={160} height={36} className="h-8 w-auto" />
+                </div>
+                <nav className="flex flex-col gap-1">
+                  <Link href="/" onClick={() => setOpen(false)} className={cn("px-3 py-2.5 text-sm font-condensed uppercase tracking-wide", pathname === "/" ? "text-[#f08122]" : "text-white")}>Home</Link>
+                  <div className="px-3 py-1 text-xs text-white/40 uppercase tracking-widest mt-2">Our Company</div>
+                  {[{ label: "About", href: "/about" }, { label: "Tour", href: "/tour" }, { label: "Team", href: "/team" }].map((item) => (
+                    <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
+                      className={cn("px-5 py-2 text-sm font-condensed uppercase tracking-wide", pathname === item.href ? "text-[#f08122]" : "text-white/80")}>
+                      {item.label}
+                    </Link>
+                  ))}
+                  <Link href="/contact" onClick={() => setOpen(false)} className={cn("px-3 py-2.5 text-sm font-condensed uppercase tracking-wide mt-1", pathname === "/contact" ? "text-[#f08122]" : "text-white")}>Contact</Link>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </>
+        )}
+      </div>
+    </header>
+  );
+}

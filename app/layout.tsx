@@ -43,4 +43,11 @@ export default async function RootLayout({
   const userRole = builder?.role ?? undefined;
   return (
     <html lang="en" className={`${inter.variable} ${abel.variable} ${barlowCondensed.variable}`}>
-      <body className="min-h-screen flex flex-col bg-[#3d3d3
+      <body className="min-h-screen flex flex-col bg-[#3d3d3d] text-white antialiased">
+        <Header userRole={userRole} />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
