@@ -27,7 +27,7 @@ export async function POST() {
           ${p.default_pull_id     ? String(p.default_pull_id)     : null},
           ${p.default_paint_brand ? String(p.default_paint_brand) : null},
           ${p.notes               ? String(p.notes)               : null},
-          ${!!p.is_residential_default}
+          ${p.is_residential_default ? 1 : 0}
         )
         ON CONFLICT (id) DO UPDATE SET
           builder_name          = EXCLUDED.builder_name,
