@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Crew, CrewPto } from "@/lib/schedule-types";
 import Link from "next/link";
 
@@ -30,22 +30,39 @@ type OnDeckJob = {
 type PtoRow = CrewPto & { crew_name: string };
 
 type Props = {
-  crews: Crew[];
-  pto: PtoRow[];
-  changeRequests: ChangeRequest[];
-  onDeckJobs: OnDeckJob[];
+  crews?: Crew[];
+  pto?: PtoRow[];
+  changeRequests?: ChangeRequest[];
+  onDeckJobs?: OnDeckJob[];
 };
 
 const LABEL  = "block text-xs font-condensed uppercase tracking-widest text-white/50 mb-1.5";
 const INPUT  = "w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors";
 const SELECT = INPUT;
 
-export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, changeRequests: initialCR, onDeckJobs }: Props) {
+export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, changeRequests: initialCR, onDeckJobs: initialOnDeck }: Props = {}) {
+  const [loading, setLoading] = useState(!initialCrews);
   const [tab, setTab] = useState<"queue" | "pto" | "crews" | "requests">("queue");
 
-  const [crews, setCrews]                       = useState<Crew[]>(initialCrews);
-  const [pto, setPto]                           = useState<PtoRow[]>(initialPto);
-  const [changeRequests, setChangeRequests]     = useState<ChangeRequest[]>(initialCR);
+  const [crews, setCrews]                       = useState<Crew[]>(initialCrews ?? []);
+  const [pto, setPto]                           = useState<PtoRow[]>(initialPto ?? []);
+  const [changeRequests, setChangeRequests]     = useState<ChangeRequest[]>(initialCR ?? []);
+  const [onDeckJobs, setOnDeckJobs]             = useState<OnDeckJob[]>(initialOnDeck ?? []);
+
+  useEffect(() => {
+    if (initialCrews) return;
+    fetch("/api/admin/schedule/data")
+      .then((r) => r.json())
+      .then((d) => {
+        setCrews(d.crews ?? []);
+        setPto(d.pto ?? []);
+        setChangeRequests(d.changeRequests ?? []);
+        setOnDeckJobs(d.onDeckJobs ?? []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── PTO form ──────────────────────────────────────────────────────────────
   const [crewId,    setCrewId]    = useState("");
@@ -135,6 +152,16 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
       const updated = await res.json();
       setCrews((prev) => prev.map((c) => c.id === crew.id ? updated : c));
     }
+  }
+
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="h-8 w-48 bg-white/5 rounded animate-pulse mb-4" />
+        <div className="h-4 w-32 bg-white/5 rounded animate-pulse" />
+      </div>
+    );
   }
 
   return (
