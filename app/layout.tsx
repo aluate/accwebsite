@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SITE } from "@/data/site";
+import { getBuilder } from "@/lib/auth";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -35,16 +36,11 @@ export const metadata: Metadata = {
   keywords: ["custom cabinets", "millwork", "cabinetry", "Coeur d'Alene", "Idaho", "commercial millwork", "residential cabinets"],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const builder = await getBuilder().catch(() => null);
+  const userRole = builder?.role ?? undefined;
   return (
     <html lang="en" className={`${inter.variable} ${abel.variable} ${barlowCondensed.variable}`}>
-      <body className="min-h-screen flex flex-col bg-[#3d3d3d] text-white antialiased">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
-    </html>
-  );
-}
+      <body className="min-h-screen flex flex-col bg-[#3d3d3
