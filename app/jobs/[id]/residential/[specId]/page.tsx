@@ -16,6 +16,8 @@ type FGRow      = {
   carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null;
   applied_panels: "slab" | "match_door" | null;
   species: string | null;
+  grade: string | null;
+  grain_orientation: string | null;
   notes: string; sort_order: number;
 };
 
@@ -187,6 +189,8 @@ export default async function SpecEditorPage({
     edgeband_id:   g.edgeband_id   ?? "",
     applied_panels: (g.applied_panels ?? "slab") as "slab" | "match_door",
     species:        g.species        ?? "",
+    grade:          g.grade          ?? "",
+    grain_orientation: g.grain_orientation ?? "",
   }));
 
   // Build pulls keyed by finish_group_id
@@ -261,10 +265,11 @@ export default async function SpecEditorPage({
     moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
     cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
-    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
-    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
     cabDoorPanels:    catalogs.cabDoorPanels(),
+    species:          catalogs.species(),
   };
+
+  const builderProfiles = catalogs.builderProfiles();
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -290,6 +295,7 @@ export default async function SpecEditorPage({
         initialAccessories2={initialAccessories2}
         initialHardware={initialHardware}
         catalogs={catalogData}
+        builderProfiles={builderProfiles}
         lastSaved={spec.updated_at}
       />
     </section>

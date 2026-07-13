@@ -27,7 +27,7 @@ export type CountertopView = { location: string; style_name: string; edge_name: 
 export type MoldingView = { molding_type: string; type_label: string; profile_name: string; size_in: number | null; material_name: string; qty_lf: number | null; where_used: string[]; notes: string };
 
 export type FinishGroupView = {
-  id: string; label: string; finish_type: string; notes: string; species: string;
+  id: string; label: string; finish_type: string; notes: string; species: string; grade: string; grain_orientation: string;
   applied_panels: string | null;
   rollout_box_name: string;
   finish: FinishView;
@@ -223,7 +223,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   const fgPulls = data.finish_group_pulls ?? {};
 
   // Column flex widths
-  const COL = { fg: 0.9, color: 1.6, species: 0.9, carcass: 1.3, drawerBox: 1.3, rolloutBox: 1.3, doorStyle: 1.5, appliedPanels: 0.9, pulls: 2.2, notes: 1.6 };
+  const COL = { fg: 0.9, color: 1.4, species: 0.7, grade: 0.6, grain: 0.6, carcass: 1.1, drawerBox: 1.1, rolloutBox: 1.0, doorStyle: 1.3, appliedPanels: 0.8, pulls: 2.0, notes: 1.4 };
 
   const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
   return (
@@ -242,6 +242,8 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             <Text style={[S.colHdrTx, { flex: COL.fg }]}>Finish Group</Text>
             <Text style={[S.colHdrTx, { flex: COL.color }]}>Color</Text>
             <Text style={[S.colHdrTx, { flex: COL.species }]}>Species</Text>
+            <Text style={[S.colHdrTx, { flex: COL.grade }]}>Grade</Text>
+            <Text style={[S.colHdrTx, { flex: COL.grain }]}>Grain</Text>
             <Text style={[S.colHdrTx, { flex: COL.carcass }]}>Carcass</Text>
             <Text style={[S.colHdrTx, { flex: COL.drawerBox }]}>Drawer Box</Text>
             <Text style={[S.colHdrTx, { flex: COL.rolloutBox }]}>Rollout Box</Text>
@@ -266,6 +268,8 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
                 <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
                 <Text style={[S.cell, { flex: COL.species }]}>{d(fg.species)}</Text>
+                <Text style={[S.cell, { flex: COL.grade }]}>{d(fg.grade)}</Text>
+                <Text style={[S.cell, { flex: COL.grain }]}>{d(fg.grain_orientation)}</Text>
                 <Text style={[S.cell, { flex: COL.carcass }]}>{d(carcass)}</Text>
                 <Text style={[S.cell, { flex: COL.drawerBox }]}>{d(drawerBox)}</Text>
                 <Text style={[S.cell, { flex: COL.rolloutBox }]}>{d(fg.rollout_box_name) === "—" ? d(drawerBox) : d(fg.rollout_box_name)}</Text>
