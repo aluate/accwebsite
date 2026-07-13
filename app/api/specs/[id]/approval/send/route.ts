@@ -58,6 +58,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const sendResult = await sendEnvelope({
     approvalRequestId: approvalId,
     recipientName, recipientEmail, emailSubject, emailMessage,
+    pdfBuffer: env.buffer,
+    pageCount: env.pageCount,
   });
 
   if (!sendResult.ok) {
