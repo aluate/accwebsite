@@ -83,7 +83,25 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function fetchActiveJobs(): Promise<ActiveJob[]> {
+async function fetchActiveJobs(crewId: string | null): Promise<ActiveJob[]> {
+  if (crewId) {
+    return sql<ActiveJob[]>`
+      SELECT DISTINCT
+        j.id, j.job_number, j.client_name, j.site_address, j.city, j.status,
+        COALESCE(p.open_count, 0) AS open_punch_count
+      FROM jobs j
+      JOIN job_events je ON je.job_id = j.id
+      JOIN event_crew ec ON ec.event_id = je.id AND ec.crew_member_id = ${crewId}
+      LEFT JOIN (
+        SELECT job_id, COUNT(*) AS open_count
+        FROM punch_list_items
+        WHERE status = 'open'
+        GROUP BY job_id
+      ) p ON p.job_id = j.id
+      WHERE j.status NOT IN ('complete', 'cancelled', 'bid')
+      ORDER BY j.client_name
+    `;
+  }
   return sql<ActiveJob[]>`
     SELECT
       j.id, j.job_number, j.client_name, j.site_address, j.city, j.status,
@@ -107,40 +125,57 @@ async function fetchActiveJobs(): Promise<ActiveJob[]> {
   `;
 }
 
-async function fetchEvents(): Promise<InstallEvent[]> {
-  const today = todayIso();
+async function fetchEvents(crewId: string | null): Promise<InstallEvent[]> {
   const windowBack  = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
   const windowAhead = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
+  // If we have a crew ID, filter to assigned events only
+  if (crewId) {
+    return sql<InstallEvent[]>`
+      SELECT
+        je.id, je.job_id, je.event_type, je.description,
+        je.date_start, je.date_end, je.status, je.note,
+        c.name AS crew_name, j.client_name, j.site_address, j.city
+      FROM job_events je
+      JOIN event_crew ec ON ec.event_id = je.id AND ec.crew_member_id = ${crewId}
+      JOIN jobs j ON j.id = je.job_id
+      JOIN crews c ON c.id = ec.crew_member_id
+      WHERE je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
+        AND (
+          je.date_start IS NULL
+          OR (
+            COALESCE(je.date_end, je.date_start) >= ${windowBack}
+            AND je.date_start <= ${windowAhead}
+          )
+        )
+      ORDER BY
+        CASE WHEN je.date_start IS NULL THEN 1 ELSE 0 END,
+        je.date_start, je.event_type
+    `;
+  }
+  // Fallback (admin): show all events
+  const windowBack2  = windowBack;
+  const windowAhead2 = windowAhead;
   return sql<InstallEvent[]>`
     SELECT
-      je.id,
-      je.job_id,
-      je.event_type,
-      je.description,
-      je.date_start,
-      je.date_end,
-      je.status,
-      je.note,
-      c.name   AS crew_name,
-      j.client_name,
-      j.site_address,
-      j.city
+      je.id, je.job_id, je.event_type, je.description,
+      je.date_start, je.date_end, je.status, je.note,
+      c.name AS crew_name, j.client_name, j.site_address, j.city
     FROM job_events je
     JOIN jobs j ON j.id = je.job_id
-    LEFT JOIN crews c ON c.id = je.crew_id
+    LEFT JOIN event_crew ec ON ec.event_id = je.id
+    LEFT JOIN crews c ON c.id = ec.crew_member_id
     WHERE je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
       AND (
         je.date_start IS NULL
         OR (
-          COALESCE(je.date_end, je.date_start) >= ${windowBack}
-          AND je.date_start <= ${windowAhead}
+          COALESCE(je.date_end, je.date_start) >= ${windowBack2}
+          AND je.date_start <= ${windowAhead2}
         )
       )
     ORDER BY
       CASE WHEN je.date_start IS NULL THEN 1 ELSE 0 END,
-      je.date_start,
-      je.event_type
+      je.date_start, je.event_type
   `;
 }
 
@@ -247,7 +282,13 @@ export default async function InstallerPage() {
   const session = await getBuilder();
   if (!session) redirect("/login");
 
-  const [events, activeJobs] = await Promise.all([fetchEvents(), fetchActiveJobs()]);
+  // Find this installer's crew record by email
+  const crewRows = session.email
+    ? await sql<{ id: string }[]>`SELECT id FROM crews WHERE contact_email = ${session.email} AND active = 1 LIMIT 1`.catch(() => [])
+    : [];
+  const crewId = crewRows[0]?.id ?? null;
+
+  const [events, activeJobs] = await Promise.all([fetchEvents(crewId), fetchActiveJobs(crewId)]);
   const today  = todayIso();
   const { past, todayEvts, upcoming, undated } = groupEvents(events, today);
 
