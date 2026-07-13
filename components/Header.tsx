@@ -40,6 +40,13 @@ const ADMIN_NAV = [
   { label: "Warranty",        href: "/warranty" },
 ];
 
+const PM_NAV = [
+  { label: "Schedule Admin",  href: "/admin/schedule" },
+  { label: "Search",          href: "/search" },
+  { label: "Punch",           href: "/punch" },
+  { label: "Warranty",        href: "/warranty" },
+];
+
 const INTERNAL_PREFIXES = ["/jobs", "/schedule", "/admin", "/installer", "/engineer", "/login", "/change-password", "/pm-dashboard"];
 
 export function Header({ userRole }: { userRole?: string }) {
@@ -77,6 +84,20 @@ export function Header({ userRole }: { userRole?: string }) {
           <>
             <nav className="hidden md:flex items-center gap-1">
               {INTERNAL_NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "px-3 py-2 text-sm font-condensed font-medium uppercase tracking-wide transition-colors",
+                    pathname === item.href || pathname.startsWith(item.href + "/")
+                      ? "text-[#f08122]"
+                      : "text-white hover:text-[#f08122]"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {userRole === "pm" && PM_NAV.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -160,6 +181,18 @@ export function Header({ userRole }: { userRole?: string }) {
                       {item.label}
                     </Link>
                   ))}
+                  {userRole === "pm" && (
+                    <>
+                      <div className="px-3 py-1 text-xs text-white/30 uppercase tracking-widest mt-2">Tools</div>
+                      {PM_NAV.map((item) => (
+                        <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
+                          className={cn("px-5 py-2 text-sm font-condensed uppercase tracking-wide",
+                            pathname === item.href ? "text-[#f08122]" : "text-white/70")}>
+                          {item.label}
+                        </Link>
+                      ))}
+                    </>
+                  )}
                   {userRole === "admin" && (
                     <>
                       <div className="px-3 py-1 text-xs text-white/30 uppercase tracking-widest mt-2">Admin</div>
