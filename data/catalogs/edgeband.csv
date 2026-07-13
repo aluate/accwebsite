@@ -1,28 +1,283 @@
 id,product_name,supplier,type,color_match,compatible_finish_type,thickness_mm,width_in,notes,placeholder
-EB-001,Stevenswood G86,Stevenswood,melamine,Stevenswood Grigio Notte,melamine,1.0,15/16,Auto-pair for Stevenswood Grigio Notte - placeholder,true
-EB-002,Tafisa T581,Tafisa,melamine,Tafisa Sheer Beauty,melamine,1.0,15/16,Auto-pair for Tafisa Sheer Beauty - placeholder,true
-EB-003,Tafisa T2013,Tafisa,melamine,Tafisa Summertime Blues,melamine,1.0,15/16,Auto-pair for Tafisa Summertime Blues - placeholder,true
-EB-004,Tafisa L582K,Tafisa,melamine,Tafisa Fashionista,melamine,1.0,15/16,Auto-pair for Tafisa Fashionista - placeholder,true
-EB-005,ESI PVC White,ESI,pvc,white,paint,0.4,15/16,Generic white PVC for painted doors,true
-EB-006,ESI PVC Black,ESI,pvc,black,paint,0.4,15/16,Generic black PVC for painted doors,true
-EB-007,Custom Hardwood — Paint to Match,Internal,hardwood,custom,paint;stain,3.0,15/16,Solid hardwood applied edge then painted to match — flags Finishing Dept,false
-EB-008,Custom Hardwood — Stain to Match,Internal,hardwood,custom,stain,3.0,15/16,Solid hardwood applied edge then stained to match — flags Finishing Dept,false
-EB-099,Other (specify in notes),Custom,custom,,all,,,Escape hatch when none of the above fit,false
-EB-ESI-3103,ESI 3103 Dulce Vita,ESI,pvc,warm beige/taupe,stain;paint,1.0,15/16,Used with BELLINI finish on alder (Stancraft Smith Lake),false
-EB-ESI-8726TF,ESI 8726TF Ebony Recon,ESI,pvc,dark ebony,stain,1.0,15/16,Used with Custom Dark Stain (Stancraft Smith Lake),false
-EB-ESI-30421TF,ESI 30421TF Finish Oak,ESI,pvc,natural oak,stain,0.018in,15/16,Pairs with RC White Oak veneer / NATURAL stain (Pritchette),false
-EB-ESI-8677,ESI 8677 Formica Scandi Rift Oak,ESI,pvc,scandi rift oak,stain,1.0,15/16,Pairs with GIMLET stain on RC White Oak (Bush Legacy),false
-EB-ESI-2416KTF,ESI 2416KTF Black Rift,ESI,pvc,black rift,paint,0.018in,15/16,Pairs with painted-black (SW Tricorn Black) veneer cabs (Vulpine),false
-EB-ESI-30320YMTF,ESI 30320YMTF Millenium Oak,ESI,pvc,millenium oak,stain,0.018in,15/16,Pairs with BELLINI stain on PS White Oak veneer (Vulpine Matterhorn),false
-EB-ESI-8306TF,ESI 8306TF Natural Teak,ESI,pvc,natural teak,stain,0.018in,15/16,Pairs with Knotty Alder / Amaretto stain (Bissell),false
-EB-ESI-20229,ESI 20229 Midnight Sun,ESI,pvc,dark charcoal,paint,0.018in,15/16,Pairs with SW Iron Ore painted island (Bissell),false
-EB-ESI-4905,ESI ESI-4905 Maple Melamine,ESI,melamine,maple melamine,melamine,0.018in,15/16,Standard interior edgeband — adjustable shelves and unfinished bottoms. Used in nearly every job.,false
-EB-AGT-P723,AGT P723 Pearl Black,AGT,pvc,AGT Pearl Black 3010,melamine,1.0,15/16,Matches AGT Pearl Black 3010 melamine (Pritchette),false
-EB-AGT-3002,AGT 3002 Dark Grey Soft Touch,AGT,pvc,AGT Dark Grey Matte Soft Touch,melamine,1.0,15/16,Matches AGT Dark Grey Matte Soft Touch 3002 (Kenny Debaene),false
-EB-TAFISA-L583K,Tafisa L583 (K) First Class,Tafisa,melamine,Tafisa First Class,melamine,1.0,15/16,Matches Tafisa First Class L583 (Atlas Plant 6549),false
-EB-TAFISA-L582K,Tafisa L582 (K) Fashionista,Tafisa,melamine,Tafisa Fashionista,melamine,1.0,15/16,"Matches Tafisa Fashionista L582 (Kenny, Woolridge)",false
-EB-UNIBOARD-K15,Uniboard K15 Cannes Riviera Oak,Uniboard,melamine,Uniboard K15 Cannes Riviera Oak,melamine,1.0,15/16,Matches Uniboard K15 Cannes Riviera Oak melamine (Stancraft Smith Lake),false
-EB-SW-G86,Stevenswood G86 Grigio Notte,Stevenswood,melamine,Stevenswood Grigio Notte,melamine,1.0,15/16,Matches Stevenswood G86 Grigio Notte melamine (Spivey),false
-EB-SW-0065-PTM,S.W. SW 0065 Vogue Green (Paint to Match),SW,paint_to_match,SW Vogue Green,paint,0.018in,15/16,Edgeband painted to match door color — Bissell Bar,false
-EB-HMmaple,Hardrock Maple EB (Stock),ESI,melamine,Hardrock Maple Melamine,melamine,0.018in,15/16,Standard interior shelves and unfinished ends — stock. Used in virtually every job for I and U positions.,false
-EB-PFMAPLE-DRAWER,PF Maple (Drawer Box),Stock,melamine,Prefinished Maple,all,0.018in,15/16,Standard B and C positions (drawer box sides and F&B) — stock in every job,false
+EB-007,Custom Hardwood — Paint to Match,Internal,hardwood,custom,"[""paint"", ""stain""]",3.0,15/16,Solid hardwood applied edge then painted to match — flags Finishing Dept,False
+EB-008,Custom Hardwood — Stain to Match,Internal,hardwood,custom,stain,3.0,15/16,Solid hardwood applied edge then stained to match — flags Finishing Dept,False
+EB-099,Other (specify in notes),Custom,custom,,all,,,Escape hatch when none of the above fit,False
+EB-ESI-3103,ESI 3103 Dulce Vita,ESI,pvc,warm beige/taupe,"[""stain"", ""paint""]",1.0,15/16,Used with BELLINI finish on alder (Stancraft Smith Lake),False
+EB-ESI-8726TF,ESI 8726TF Ebony Recon,ESI,pvc,dark ebony,stain,1.0,15/16,Used with Custom Dark Stain (Stancraft Smith Lake),False
+EB-ESI-30421TF,ESI 30421TF Finish Oak,ESI,pvc,natural oak,stain,0.018in,15/16,Pairs with RC White Oak veneer / NATURAL stain (Pritchette),False
+EB-ESI-8677,ESI 8677 Formica Scandi Rift Oak,ESI,pvc,scandi rift oak,stain,1.0,15/16,Pairs with GIMLET stain on RC White Oak (Bush Legacy),False
+EB-ESI-2416KTF,ESI 2416KTF Black Rift,ESI,pvc,black rift,paint,0.018in,15/16,Pairs with painted-black (SW Tricorn Black) veneer cabs (Vulpine),False
+EB-ESI-30320YMTF,ESI 30320YMTF Millenium Oak,ESI,pvc,millenium oak,stain,0.018in,15/16,Pairs with BELLINI stain on PS White Oak veneer (Vulpine Matterhorn),False
+EB-ESI-8306TF,ESI 8306TF Natural Teak,ESI,pvc,natural teak,stain,0.018in,15/16,Pairs with Knotty Alder / Amaretto stain (Bissell),False
+EB-ESI-20229,ESI 20229 Midnight Sun,ESI,pvc,dark charcoal,paint,0.018in,15/16,Pairs with SW Iron Ore painted island (Bissell),False
+EB-ESI-4905,ESI ESI-4905 Maple Melamine,ESI,melamine,maple melamine,melamine,0.018in,15/16,Standard interior edgeband — adjustable shelves and unfinished bottoms. Used in nearly every job.,False
+EB-AGT-P723,AGT P723 Pearl Black,AGT,pvc,AGT Pearl Black 3010,melamine,1.0,15/16,Matches AGT Pearl Black 3010 melamine (Pritchette),False
+EB-AGT-3002,AGT 3002 Dark Grey Soft Touch,AGT,pvc,AGT Dark Grey Matte Soft Touch,melamine,1.0,15/16,Matches AGT Dark Grey Matte Soft Touch 3002 (Kenny Debaene),False
+EB-TAFISA-L583K,Tafisa L583 (K) First Class,Tafisa,melamine,Tafisa First Class,melamine,1.0,15/16,Matches Tafisa First Class L583 (Atlas Plant 6549),False
+EB-TAFISA-L582K,Tafisa L582 (K) Fashionista,Tafisa,melamine,Tafisa Fashionista,melamine,1.0,15/16,"Matches Tafisa Fashionista L582 (Kenny, Woolridge)",False
+EB-UNIBOARD-K15,Uniboard K15 Cannes Riviera Oak,Uniboard,melamine,Uniboard K15 Cannes Riviera Oak,melamine,1.0,15/16,Matches Uniboard K15 Cannes Riviera Oak melamine (Stancraft Smith Lake),False
+EB-SW-G86,Stevenswood G86 Grigio Notte,Stevenswood,melamine,Stevenswood Grigio Notte,melamine,1.0,15/16,Matches Stevenswood G86 Grigio Notte melamine (Spivey),False
+EB-SW-0065-PTM,S.W. SW 0065 Vogue Green (Paint to Match),SW,paint_to_match,SW Vogue Green,paint,0.018in,15/16,Edgeband painted to match door color — Bissell Bar,False
+EB-HMmaple,Hardrock Maple EB (Stock),ESI,melamine,Hardrock Maple Melamine,melamine,0.018in,15/16,Standard interior shelves and unfinished ends — stock. Used in virtually every job for I and U positions.,False
+EB-PFMAPLE-DRAWER,PF Maple (Drawer Box),Stock,melamine,Prefinished Maple,all,0.018in,15/16,Standard B and C positions (drawer box sides and F&B) — stock in every job,False
+EB-TAF-L763,Tafisa L763 Morning Dew,Tafisa,melamine,Morning Dew,melamine,1.0,15/16,Tafisa panel code L763. LEDGEBAND-verified match.,False
+EB-TAF-L115,Tafisa L115 Carte Blanche,Tafisa,melamine,Carte Blanche,melamine,1.0,15/16,Tafisa panel code L115. LEDGEBAND-verified match.,False
+EB-TAF-L767,Tafisa L767 Milky way,Tafisa,melamine,Milky way,melamine,1.0,15/16,Tafisa panel code L767. LEDGEBAND-verified match.,False
+EB-TAF-PM100,Tafisa PM100 Vanilla Orchid,Tafisa,melamine,Vanilla Orchid,melamine,1.0,15/16,Tafisa panel code PM100. LEDGEBAND-verified match.,False
+EB-TAF-PM775,Tafisa PM775 Gardenia,Tafisa,melamine,Gardenia,melamine,1.0,15/16,Tafisa panel code PM775. LEDGEBAND-verified match.,False
+EB-TAF-M2015,Tafisa M2015 Après-Ski,Tafisa,melamine,Après-Ski,melamine,1.0,15/16,Tafisa panel code M2015. LEDGEBAND-verified match.,False
+EB-TAF-M2003,Tafisa M2003 Weekend Getaway,Tafisa,melamine,Weekend Getaway,melamine,1.0,15/16,Tafisa panel code M2003. LEDGEBAND-verified match.,False
+EB-TAF-557,Tafisa 557 Rocky Mountain,Tafisa,melamine,Rocky Mountain,melamine,1.0,15/16,Tafisa panel code 557. LEDGEBAND-verified match.,False
+EB-TAF-493,Tafisa 493 Milk Chocolate,Tafisa,melamine,Milk Chocolate,melamine,1.0,15/16,Tafisa panel code 493. LEDGEBAND-verified match.,False
+EB-TAF-080,Tafisa 080 Froth of Sea,Tafisa,melamine,Froth of Sea,melamine,1.0,15/16,Tafisa panel code 080. LEDGEBAND-verified match.,False
+EB-TAF-2055,Tafisa 2055 Ganache,Tafisa,melamine,Ganache,melamine,1.0,15/16,Tafisa panel code 2055. LEDGEBAND-verified match.,False
+EB-TAF-2053,Tafisa 2053 Brass Band,Tafisa,melamine,Brass Band,melamine,1.0,15/16,Tafisa panel code 2053. LEDGEBAND-verified match.,False
+EB-TAF-2052,Tafisa 2052 Golden Light,Tafisa,melamine,Golden Light,melamine,1.0,15/16,Tafisa panel code 2052. LEDGEBAND-verified match.,False
+EB-TAF-2051,Tafisa 2051 First Dance,Tafisa,melamine,First Dance,melamine,1.0,15/16,Tafisa panel code 2051. LEDGEBAND-verified match.,False
+EB-TAF-2034,Tafisa 2034 Home Sweet Home,Tafisa,melamine,Home Sweet Home,melamine,1.0,15/16,Tafisa panel code 2034. LEDGEBAND-verified match.,False
+EB-TAF-2031,Tafisa 2031 Creme De La Creme,Tafisa,melamine,Creme De La Creme,melamine,1.0,15/16,Tafisa panel code 2031. LEDGEBAND-verified match.,False
+EB-TAF-2021,Tafisa 2021 Apres-Ski,Tafisa,melamine,Apres-Ski,melamine,1.0,15/16,Tafisa panel code 2021. LEDGEBAND-verified match.,False
+EB-TAF-2000,Tafisa 2000 Sunset Cruise,Tafisa,melamine,Sunset Cruise,melamine,1.0,15/16,Tafisa panel code 2000. LEDGEBAND-verified match.,False
+EB-TAF-835,Tafisa 835 Camera Obscura,Tafisa,melamine,Camera Obscura,melamine,1.0,15/16,Tafisa panel code 835. LEDGEBAND-verified match.,False
+EB-TAF-833,Tafisa 833 Steampunk,Tafisa,melamine,Steampunk,melamine,1.0,15/16,Tafisa panel code 833. LEDGEBAND-verified match.,False
+EB-TAF-784,Tafisa 784 Secret Garden,Tafisa,melamine,Secret Garden,melamine,1.0,15/16,Tafisa panel code 784. LEDGEBAND-verified match.,False
+EB-TAF-783,Tafisa 783 Tiramisu,Tafisa,melamine,Tiramisu,melamine,1.0,15/16,Tafisa panel code 783. LEDGEBAND-verified match.,False
+EB-TAF-781,Tafisa 781 Cream Puff,Tafisa,melamine,Cream Puff,melamine,1.0,15/16,Tafisa panel code 781. LEDGEBAND-verified match.,False
+EB-TAF-776,Tafisa 776 Cashmere,Tafisa,melamine,Cashmere,melamine,1.0,15/16,Tafisa panel code 776. LEDGEBAND-verified match.,False
+EB-TAF-775,Tafisa 775 Gardenia,Tafisa,melamine,Gardenia,melamine,1.0,15/16,Tafisa panel code 775. LEDGEBAND-verified match.,False
+EB-TAF-774,Tafisa 774 Sunflower,Tafisa,melamine,Sunflower,melamine,1.0,15/16,Tafisa panel code 774. LEDGEBAND-verified match.,False
+EB-TAF-771,Tafisa 771 North Wind,Tafisa,melamine,North Wind,melamine,1.0,15/16,Tafisa panel code 771. LEDGEBAND-verified match.,False
+EB-TAF-769,Tafisa 769 Sea Fog,Tafisa,melamine,Sea Fog,melamine,1.0,15/16,Tafisa panel code 769. LEDGEBAND-verified match.,False
+EB-TAF-666,Tafisa 666 Very Chic,Tafisa,melamine,Very Chic,melamine,1.0,15/16,Tafisa panel code 666. LEDGEBAND-verified match.,False
+EB-TAF-657,Tafisa 657 Classic Cherry,Tafisa,melamine,Classic Cherry,melamine,1.0,15/16,Tafisa panel code 657. LEDGEBAND-verified match.,False
+EB-TAF-593,Tafisa 593 Mastermind,Tafisa,melamine,Mastermind,melamine,1.0,15/16,Tafisa panel code 593. LEDGEBAND-verified match.,False
+EB-TAF-592,Tafisa 592 Kiss Curl,Tafisa,melamine,Kiss Curl,melamine,1.0,15/16,Tafisa panel code 592. LEDGEBAND-verified match.,False
+EB-TAF-589,Tafisa 589 Salt of the Earth,Tafisa,melamine,Salt of the Earth,melamine,1.0,15/16,Tafisa panel code 589. LEDGEBAND-verified match.,False
+EB-TAF-588,Tafisa 588 Sweet & Savory,Tafisa,melamine,Sweet & Savory,melamine,1.0,15/16,Tafisa panel code 588. LEDGEBAND-verified match.,False
+EB-TAF-587,Tafisa 587 Sugar Rush,Tafisa,melamine,Sugar Rush,melamine,1.0,15/16,Tafisa panel code 587. LEDGEBAND-verified match.,False
+EB-TAF-586,Tafisa 586 Natural Affinity,Tafisa,melamine,Natural Affinity,melamine,1.0,15/16,Tafisa panel code 586. LEDGEBAND-verified match.,False
+EB-TAF-566,Tafisa 566 Ungava Bay,Tafisa,melamine,Ungava Bay,melamine,1.0,15/16,Tafisa panel code 566. LEDGEBAND-verified match.,False
+EB-TAF-565,Tafisa 565 Fogo Harbour,Tafisa,melamine,Fogo Harbour,melamine,1.0,15/16,Tafisa panel code 565. LEDGEBAND-verified match.,False
+EB-TAF-563,Tafisa 563 Megantic,Tafisa,melamine,Megantic,melamine,1.0,15/16,Tafisa panel code 563. LEDGEBAND-verified match.,False
+EB-TAF-561,Tafisa 561 Tanners Lane,Tafisa,melamine,Tanners Lane,melamine,1.0,15/16,Tafisa panel code 561. LEDGEBAND-verified match.,False
+EB-TAF-551,Tafisa 551 Boardwalk,Tafisa,melamine,Boardwalk,melamine,1.0,15/16,Tafisa panel code 551. LEDGEBAND-verified match.,False
+EB-TAF-550,Tafisa 550 Beechwood,Tafisa,melamine,Beechwood,melamine,1.0,15/16,Tafisa panel code 550. LEDGEBAND-verified match.,False
+EB-TAF-545,Tafisa 545 Northern Plain,Tafisa,melamine,Northern Plain,melamine,1.0,15/16,Tafisa panel code 545. LEDGEBAND-verified match.,False
+EB-TAF-533,Tafisa 533 Latitude East,Tafisa,melamine,Latitude East,melamine,1.0,15/16,Tafisa panel code 533. LEDGEBAND-verified match.,False
+EB-TAF-531,Tafisa 531 Rock Solid,Tafisa,melamine,Rock Solid,melamine,1.0,15/16,Tafisa panel code 531. LEDGEBAND-verified match.,False
+EB-TAF-521,Tafisa 521 Rustic Cherry,Tafisa,melamine,Rustic Cherry,melamine,1.0,15/16,Tafisa panel code 521. LEDGEBAND-verified match.,False
+EB-TAF-495,Tafisa 495 Portobello,Tafisa,melamine,Portobello,melamine,1.0,15/16,Tafisa panel code 495. LEDGEBAND-verified match.,False
+EB-TAF-494,Tafisa 494 Dark Chocolate,Tafisa,melamine,Dark Chocolate,melamine,1.0,15/16,Tafisa panel code 494. LEDGEBAND-verified match.,False
+EB-TAF-489,Tafisa 489 Copa Cabana,Tafisa,melamine,Copa Cabana,melamine,1.0,15/16,Tafisa panel code 489. LEDGEBAND-verified match.,False
+EB-TAF-478,Tafisa 478 Ruby Flanked Maple,Tafisa,melamine,Ruby Flanked Maple,melamine,1.0,15/16,Tafisa panel code 478. LEDGEBAND-verified match.,False
+EB-TAF-476,Tafisa 476 Prestige Maple,Tafisa,melamine,Prestige Maple,melamine,1.0,15/16,Tafisa panel code 476. LEDGEBAND-verified match.,False
+EB-TAF-475,Tafisa 475 Antique Whitewash,Tafisa,melamine,Antique Whitewash,melamine,1.0,15/16,Tafisa panel code 475. LEDGEBAND-verified match.,False
+EB-TAF-469,Tafisa 469 Hot Fudge,Tafisa,melamine,Hot Fudge,melamine,1.0,15/16,Tafisa panel code 469. LEDGEBAND-verified match.,False
+EB-TAF-458,Tafisa 458 Cappuccino Cherry,Tafisa,melamine,Cappuccino Cherry,melamine,1.0,15/16,Tafisa panel code 458. LEDGEBAND-verified match.,False
+EB-TAF-456,Tafisa 456 Mojave,Tafisa,melamine,Mojave,melamine,1.0,15/16,Tafisa panel code 456. LEDGEBAND-verified match.,False
+EB-TAF-449,Tafisa 449 Cherry Blossom,Tafisa,melamine,Cherry Blossom,melamine,1.0,15/16,Tafisa panel code 449. LEDGEBAND-verified match.,False
+EB-TAF-445,Tafisa 445 Classic Maple,Tafisa,melamine,Classic Maple,melamine,1.0,15/16,Tafisa panel code 445. LEDGEBAND-verified match.,False
+EB-TAF-258,Tafisa 258 Almondine,Tafisa,melamine,Almondine,melamine,1.0,15/16,Tafisa panel code 258. LEDGEBAND-verified match.,False
+EB-TAF-228,Tafisa 228 Slate,Tafisa,melamine,Slate,melamine,1.0,15/16,Tafisa panel code 228. LEDGEBAND-verified match.,False
+EB-TAF-217,Tafisa 217 Antique White,Tafisa,melamine,Antique White,melamine,1.0,15/16,Tafisa panel code 217. LEDGEBAND-verified match.,False
+EB-TAF-215,Tafisa 215 Willow Grey,Tafisa,melamine,Willow Grey,melamine,1.0,15/16,Tafisa panel code 215. LEDGEBAND-verified match.,False
+EB-TAF-175,Tafisa 175 White,Tafisa,melamine,White,melamine,1.0,15/16,Tafisa panel code 175. LEDGEBAND-verified match.,False
+EB-TAF-120,Tafisa 120 Snowbound,Tafisa,melamine,Snowbound,melamine,1.0,15/16,Tafisa panel code 120. LEDGEBAND-verified match.,False
+EB-TAF-115,Tafisa 115 Carte Blanche,Tafisa,melamine,Carte Blanche,melamine,1.0,15/16,Tafisa panel code 115. LEDGEBAND-verified match.,False
+EB-TAF-100,Tafisa 100 Vanilla Orchid,Tafisa,melamine,Vanilla Orchid,melamine,1.0,15/16,Tafisa panel code 100. LEDGEBAND-verified match.,False
+EB-TAF-L105,Tafisa L105 Snowfall,Tafisa,melamine,Snowfall,melamine,1.0,15/16,Tafisa panel code L105. LEDGEBAND-verified match.,False
+EB-TAF-T4000,Tafisa T4000 Brushed aluminum,Tafisa,melamine,Brushed aluminum,melamine,1.0,15/16,Tafisa panel code T4000. LEDGEBAND-verified match.,False
+EB-TAF-M2031,Tafisa M2031 Crème de la Crème,Tafisa,melamine,Crème de la Crème,melamine,1.0,15/16,Tafisa panel code M2031. LEDGEBAND-verified match.,False
+EB-TAF-M2013,Tafisa M2013 Summertime Blues,Tafisa,melamine,Summertime Blues,melamine,1.0,15/16,Tafisa panel code M2013. LEDGEBAND-verified match.,False
+EB-TAF-M2011,Tafisa M2011 Stargazer,Tafisa,melamine,Stargazer,melamine,1.0,15/16,Tafisa panel code M2011. LEDGEBAND-verified match.,False
+EB-TAF-M2010,Tafisa M2010 After-Hours,Tafisa,melamine,After-Hours,melamine,1.0,15/16,Tafisa panel code M2010. LEDGEBAND-verified match.,False
+EB-TAF-M2007,Tafisa M2007 Casting at First Light,Tafisa,melamine,Casting at First Light,melamine,1.0,15/16,Tafisa panel code M2007. LEDGEBAND-verified match.,False
+EB-TAF-M2006,Tafisa M2006 Tea For Two,Tafisa,melamine,Tea For Two,melamine,1.0,15/16,Tafisa panel code M2006. LEDGEBAND-verified match.,False
+EB-TAF-M2005,Tafisa M2005 Sunday Brunch,Tafisa,melamine,Sunday Brunch,melamine,1.0,15/16,Tafisa panel code M2005. LEDGEBAND-verified match.,False
+EB-TAF-M2004,Tafisa M2004 Winter Fun,Tafisa,melamine,Winter Fun,melamine,1.0,15/16,Tafisa panel code M2004. LEDGEBAND-verified match.,False
+EB-TAF-M2002Y,Tafisa M2002Y Sunset Cruise,Tafisa,melamine,Sunset Cruise,melamine,1.0,15/16,Tafisa panel code M2002Y. LEDGEBAND-verified match.,False
+EB-TAF-M2001,Tafisa M2001 Tête-à-Tête,Tafisa,melamine,Tête-à-Tête,melamine,1.0,15/16,Tafisa panel code M2001. LEDGEBAND-verified match.,False
+EB-TAF-L080,Tafisa L080 Froth of Sea,Tafisa,melamine,Froth of Sea,melamine,1.0,15/16,Tafisa panel code L080. LEDGEBAND-verified match.,False
+EB-TAF-M2034,Tafisa M2034 Home Sweet Home,Tafisa,melamine,Home Sweet Home,melamine,1.0,15/16,Tafisa panel code M2034. LEDGEBAND-verified match.,False
+EB-TAF-L823,Tafisa L823 Frost Flower,Tafisa,melamine,Frost Flower,melamine,1.0,15/16,Tafisa panel code L823. LEDGEBAND-verified match.,False
+EB-TAF-L202,Tafisa L202 Summer Drops,Tafisa,melamine,Summer Drops,melamine,1.0,15/16,Tafisa panel code L202. LEDGEBAND-verified match.,False
+EB-TAF-PM772,Tafisa PM772 Calm Sea,Tafisa,melamine,Calm Sea,melamine,1.0,15/16,Tafisa panel code PM772. LEDGEBAND-verified match.,False
+EB-TAF-L178,"Tafisa L178 Tafisa- Classic White , ABS",Tafisa,melamine,"Tafisa- Classic White , ABS",melamine,1.0,15/16,Tafisa panel code L178. LEDGEBAND-verified match.,False
+EB-EGG-U702,Egger U702 Cashmere Grey,Egger,melamine,Cashmere Grey,melamine,1.0,15/16,Egger panel code U702. LEDGEBAND-verified match.,False
+EB-EGG-H3078,Egger H3078 White Havana Pine,Egger,melamine,White Havana Pine,melamine,1.0,15/16,Egger panel code H3078. LEDGEBAND-verified match.,False
+EB-EGG-H1701,Egger H1701 WHITE TOSSINI ELM,Egger,melamine,WHITE TOSSINI ELM,melamine,1.0,15/16,Egger panel code H1701. LEDGEBAND-verified match.,False
+EB-EGG-H1399,Egger H1399 Truffle Brown Denver Oak,Egger,melamine,Truffle Brown Denver Oak,melamine,1.0,15/16,Egger panel code H1399. LEDGEBAND-verified match.,False
+EB-EGG-H1331,Egger H1331 GREY SANTA FE OAK,Egger,melamine,GREY SANTA FE OAK,melamine,1.0,15/16,Egger panel code H1331. LEDGEBAND-verified match.,False
+EB-EGG-H3325,Egger H3325 Tobacco Gladstone Oak,Egger,melamine,Tobacco Gladstone Oak,melamine,1.0,15/16,Egger panel code H3325. LEDGEBAND-verified match.,False
+EB-EGG-H3197,Egger H3197 Medium Grey Fineline,Egger,melamine,Medium Grey Fineline,melamine,1.0,15/16,Egger panel code H3197. LEDGEBAND-verified match.,False
+EB-EGG-H3157,Egger H3157 Vicenza Oak,Egger,melamine,Vicenza Oak,melamine,1.0,15/16,Egger panel code H3157. LEDGEBAND-verified match.,False
+EB-EGG-H3090,Egger H3090 Shorewood,Egger,melamine,Shorewood,melamine,1.0,15/16,Egger panel code H3090. LEDGEBAND-verified match.,False
+EB-EGG-H3042,Egger H3042 Warm Grey Eucalyptus,Egger,melamine,Warm Grey Eucalyptus,melamine,1.0,15/16,Egger panel code H3042. LEDGEBAND-verified match.,False
+EB-EGG-H1180,Egger H1180 Natural Halifax Oak,Egger,melamine,Natural Halifax Oak,melamine,1.0,15/16,Egger panel code H1180. LEDGEBAND-verified match.,False
+EB-EGG-F638-CHROMIX,Egger  F638 Chromix Silver,Egger,melamine,F638 Chromix Silver,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-F422-WHITE-L,Egger  F422 White Linen,Egger,melamine,F422 White Linen,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-U7081,Egger U7081 Solid Light Grey,Egger,melamine,Solid Light Grey,melamine,1.0,15/16,Egger panel code U7081. LEDGEBAND-verified match.,False
+EB-EGG-U599,Egger U599 PT Indigo Blue,Egger,melamine,PT Indigo Blue,melamine,1.0,15/16,Egger panel code U599. LEDGEBAND-verified match.,False
+EB-EGG-U201,Egger U201 Pebble Grey,Egger,melamine,Pebble Grey,melamine,1.0,15/16,Egger panel code U201. LEDGEBAND-verified match.,False
+EB-EGG-H3790,Egger H3790 Honey Carini Walnut,Egger,melamine,Honey Carini Walnut,melamine,1.0,15/16,Egger panel code H3790. LEDGEBAND-verified match.,False
+EB-EGG-H3702,Egger H3702 Natural Carini Walnut PVC,Egger,melamine,Natural Carini Walnut PVC,melamine,1.0,15/16,Egger panel code H3702. LEDGEBAND-verified match.,False
+EB-EGG-H3702B,Egger H3702 Tobacco Pacific Walnut,Egger,melamine,Tobacco Pacific Walnut,melamine,1.0,15/16,Egger panel code H3702. LEDGEBAND-verified match.,False
+EB-EGG-H3453,Egger H3453 Lava Grey Fleetwood,Egger,melamine,Lava Grey Fleetwood,melamine,1.0,15/16,Egger panel code H3453. LEDGEBAND-verified match.,False
+EB-EGG-H3420,Egger H3420 Thermo Pine,Egger,melamine,Thermo Pine,melamine,1.0,15/16,Egger panel code H3420. LEDGEBAND-verified match.,False
+EB-EGG-H3406,Egger H3406 Anthracite Mountain Larch,Egger,melamine,Anthracite Mountain Larch,melamine,1.0,15/16,Egger panel code H3406. LEDGEBAND-verified match.,False
+EB-EGG-H3403,Egger H3403 White Mountain Larch,Egger,melamine,White Mountain Larch,melamine,1.0,15/16,Egger panel code H3403. LEDGEBAND-verified match.,False
+EB-EGG-H3326,Egger H3326 Grey Beige Gladstone Oak,Egger,melamine,Grey Beige Gladstone Oak,melamine,1.0,15/16,Egger panel code H3326. LEDGEBAND-verified match.,False
+EB-EGG-H3195,Egger H3195 White Fineline,Egger,melamine,White Fineline,melamine,1.0,15/16,Egger panel code H3195. LEDGEBAND-verified match.,False
+EB-EGG-H3180,Egger H3180 Brown Halifax Oak,Egger,melamine,Brown Halifax Oak,melamine,1.0,15/16,Egger panel code H3180. LEDGEBAND-verified match.,False
+EB-EGG-H3176,Egger H3176 Pewter Halifax Oak,Egger,melamine,Pewter Halifax Oak,melamine,1.0,15/16,Egger panel code H3176. LEDGEBAND-verified match.,False
+EB-EGG-H3083,Egger H3083 Espresso,Egger,melamine,Espresso,melamine,1.0,15/16,Egger panel code H3083. LEDGEBAND-verified match.,False
+EB-EGG-H3043,Egger H3043 Dark Brown Eucalyptus,Egger,melamine,Dark Brown Eucalyptus,melamine,1.0,15/16,Egger panel code H3043. LEDGEBAND-verified match.,False
+EB-EGG-H3058,Egger H3058 Mali Wenge,Egger,melamine,Mali Wenge,melamine,1.0,15/16,Egger panel code H3058. LEDGEBAND-verified match.,False
+EB-EGG-H3012,Egger H3012 Coco Bolo,Egger,melamine,Coco Bolo,melamine,1.0,15/16,Egger panel code H3012. LEDGEBAND-verified match.,False
+EB-EGG-H3006,Egger H3006 Sand Zebrano,Egger,melamine,Sand Zebrano,melamine,1.0,15/16,Egger panel code H3006. LEDGEBAND-verified match.,False
+EB-EGG-H1959,Egger H1959 Chocolate Pearwood,Egger,melamine,Chocolate Pearwood,melamine,1.0,15/16,Egger panel code H1959. LEDGEBAND-verified match.,False
+EB-EGG-H1958,Egger H1958 Amber Pearwood,Egger,melamine,Amber Pearwood,melamine,1.0,15/16,Egger panel code H1958. LEDGEBAND-verified match.,False
+EB-EGG-H1815,Egger H1815 Hardrock Maple,Egger,melamine,Hardrock Maple,melamine,1.0,15/16,Egger panel code H1815. LEDGEBAND-verified match.,False
+EB-EGG-H1733,Egger H1733 Mainau Birch,Egger,melamine,Mainau Birch,melamine,1.0,15/16,Egger panel code H1733. LEDGEBAND-verified match.,False
+EB-EGG-H1615,Egger H1615 Verona Cherry,Egger,melamine,Verona Cherry,melamine,1.0,15/16,Egger panel code H1615. LEDGEBAND-verified match.,False
+EB-EGG-H1487,Egger H1487 Bramberg Pine,Egger,melamine,Bramberg Pine,melamine,1.0,15/16,Egger panel code H1487. LEDGEBAND-verified match.,False
+EB-EGG-H1486,Egger H1486 Pasadena Pine,Egger,melamine,Pasadena Pine,melamine,1.0,15/16,Egger panel code H1486. LEDGEBAND-verified match.,False
+EB-EGG-H1424,Egger H1424 Fineline Cream,Egger,melamine,Fineline Cream,melamine,1.0,15/16,Egger panel code H1424. LEDGEBAND-verified match.,False
+EB-EGG-H1379,Egger H1379 Brown Orleans Oak,Egger,melamine,Brown Orleans Oak,melamine,1.0,15/16,Egger panel code H1379. LEDGEBAND-verified match.,False
+EB-EGG-H1292,Egger H1292 Carbon Frozen Wood,Egger,melamine,Carbon Frozen Wood,melamine,1.0,15/16,Egger panel code H1292. LEDGEBAND-verified match.,False
+EB-EGG-H1290,Egger H1290 White Frozen Wood,Egger,melamine,White Frozen Wood,melamine,1.0,15/16,Egger panel code H1290. LEDGEBAND-verified match.,False
+EB-EGG-H1277,Egger H1277 Light Lakeland Acacia,Egger,melamine,Light Lakeland Acacia,melamine,1.0,15/16,Egger panel code H1277. LEDGEBAND-verified match.,False
+EB-EGG-H1210,Egger H1210 Grey Beige Tossini Elm,Egger,melamine,Grey Beige Tossini Elm,melamine,1.0,15/16,Egger panel code H1210. LEDGEBAND-verified match.,False
+EB-EGG-H1176,Egger H1176 White Halifax Oak,Egger,melamine,White Halifax Oak,melamine,1.0,15/16,Egger panel code H1176. LEDGEBAND-verified match.,False
+EB-EGG-H1151,Egger H1151 Brown Arizona Oak Oak,Egger,melamine,Brown Arizona Oak Oak,melamine,1.0,15/16,Egger panel code H1151. LEDGEBAND-verified match.,False
+EB-EGG-H1146,Egger H1146 Grey Bardolino Oak,Egger,melamine,Grey Bardolino Oak,melamine,1.0,15/16,Egger panel code H1146. LEDGEBAND-verified match.,False
+EB-EGG-H1137,Egger H1137 Black-Brown Sorano Oak,Egger,melamine,Black-Brown Sorano Oak,melamine,1.0,15/16,Egger panel code H1137. LEDGEBAND-verified match.,False
+EB-EGG-H1122,Egger H1122 Whitewood,Egger,melamine,Whitewood,melamine,1.0,15/16,Egger panel code H1122. LEDGEBAND-verified match.,False
+EB-EGG-BRUSHED-BRAS,Egger  Brushed Brass F784,Egger,melamine,Brushed Brass F784,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-BRUSHED-ALUM,Egger  Brushed Aluminium F501,Egger,melamine,Brushed Aluminium F501,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-ANTHRACITE-L,Egger  Anthracite Linen F433,Egger,melamine,Anthracite Linen F433,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-F425-BEIGE-L,Egger  F425 Beige Linen,Egger,melamine,F425 Beige Linen,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-BROWN-LINEN-,Egger  Brown Linen F424,Egger,melamine,Brown Linen F424,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-F416-BEIGE-T,Egger  F416 Beige Textile,Egger,melamine,F416 Beige Textile,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-EGG-F275-DARK-CO,Egger  F275 Dark Concrete,Egger,melamine,F275 Dark Concrete,melamine,1.0,15/16,Egger panel code . LEDGEBAND-verified match.,False
+EB-STE-P20200VF24,Stevenswood Pearl White (ESI P-20200VF-24),Stevenswood,melamine,Pearl White,melamine,0.018,15/16,ESI item P-20200VF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P30255UTF24,Stevenswood Alisio (ESI P-30255UTF-24),Stevenswood,melamine,Alisio,melamine,0.018,15/16,ESI item P-30255UTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P30517YF24,Stevenswood Kirsche Mezzo Cherry (ESI P-30517YF-24),Stevenswood,melamine,Kirsche Mezzo Cherry,melamine,0.018,15/16,ESI item P-30517YF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P30614UF24,Stevenswood Sabbia (ESI P-30614UF-24),Stevenswood,melamine,Sabbia,melamine,0.018,15/16,ESI item P-30614UF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8229VF24,Stevenswood Cannella Rustik (ESI P-8229VF-24),Stevenswood,melamine,Cannella Rustik,melamine,0.018,15/16,ESI item P-8229VF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8231L24,Stevenswood Carmelo Mist (ESI P-8231L-24),Stevenswood,melamine,Carmelo Mist,melamine,0.018,15/16,ESI item P-8231L-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8232F24,Stevenswood Grigio Notte (ESI P-8232F-24),Stevenswood,melamine,Grigio Notte,melamine,0.018,15/16,ESI item P-8232F-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8232VF24,Stevenswood Gregio Notte (ESI P-8232VF-24),Stevenswood,melamine,Gregio Notte,melamine,0.018,15/16,ESI item P-8232VF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8351VTF24,Stevenswood Black - Artika Finish (ESI P-8351VTF-24),Stevenswood,melamine,Black - Artika Finish,melamine,0.018,15/16,ESI item P-8351VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P859524,Stevenswood Valcor (ESI P-8595-24),Stevenswood,melamine,Valcor,melamine,0.018,15/16,ESI item P-8595-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8843L24,Stevenswood Drift Loud (ESI P-8843L-24),Stevenswood,melamine,Drift Loud,melamine,0.018,15/16,ESI item P-8843L-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P8854AAMF24,Stevenswood Morning Fog (ESI P-8854AAMF-24),Stevenswood,melamine,Morning Fog,melamine,0.018,15/16,ESI item P-8854AAMF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-PSTE574VF24,Stevenswood Natural Elm (ESI P-STE574VF-24),Stevenswood,melamine,Natural Elm,melamine,0.018,15/16,ESI item P-STE574VF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-PSTEVENS589V24,Stevenswood Grey Echo (ESI P-STEVENS589V-24),Stevenswood,melamine,Grey Echo,melamine,0.018,15/16,ESI item P-STEVENS589V-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-PSW7008TF24,Stevenswood Alabaster (ESI P-SW7008TF-24),Stevenswood,melamine,Alabaster,melamine,0.018,15/16,ESI item P-SW7008TF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P12410CP010824,Stevenswood Alabaster Primed (ESI P1-2410CP0108-24),Stevenswood,melamine,Alabaster Primed,melamine,0.018,15/16,ESI item P1-2410CP0108-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130135AA24,Stevenswood Cannelle Rustik (ESI P1-30135AA-24),Stevenswood,melamine,Cannelle Rustik,melamine,0.018,15/16,ESI item P1-30135AA-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130255UTF24,Stevenswood Aliso (ESI P1-30255UTF-24),Stevenswood,melamine,Aliso,melamine,0.018,15/16,ESI item P1-30255UTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130256U24,Stevenswood Formosa (ESI P1-30256U-24),Stevenswood,melamine,Formosa,melamine,0.018,15/16,ESI item P1-30256U-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130257U24,Stevenswood Alno (ESI P1-30257U-24),Stevenswood,melamine,Alno,melamine,0.018,15/16,ESI item P1-30257U-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130258U24,Stevenswood Siberian (ESI P1-30258U-24),Stevenswood,melamine,Siberian,melamine,0.018,15/16,ESI item P1-30258U-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130259UTF24,Stevenswood Ontano / Grayed Oak (ESI P1-30259UTF-24),Stevenswood,melamine,Ontano / Grayed Oak,melamine,0.018,15/16,ESI item P1-30259UTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130329YTF24,Stevenswood Natural Marrone (ESI P1-30329YTF-24),Stevenswood,melamine,Natural Marrone,melamine,0.018,15/16,ESI item P1-30329YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130330YF41,Stevenswood Evening Notte (ESI P1-30330YF-41),Stevenswood,melamine,Evening Notte,melamine,0.018,15/16,ESI item P1-30330YF-41. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130331YTF24,Stevenswood White Nebbia (ESI P1-30331YTF-24),Stevenswood,melamine,White Nebbia,melamine,0.018,15/16,ESI item P1-30331YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130333YTF24,Stevenswood Serotina (ESI P1-30333YTF-24),Stevenswood,melamine,Serotina,melamine,0.018,15/16,ESI item P1-30333YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130336YTF24,Stevenswood Allaria (ESI P1-30336YTF-24),Stevenswood,melamine,Allaria,melamine,0.018,15/16,ESI item P1-30336YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130337Y24,Stevenswood Tula Oak (ESI P1-30337Y-24),Stevenswood,melamine,Tula Oak,melamine,0.018,15/16,ESI item P1-30337Y-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130337YTF24,Stevenswood Laruel (ESI P1-30337YTF-24),Stevenswood,melamine,Laruel,melamine,0.018,15/16,ESI item P1-30337YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130451YMTF24,Stevenswood Coastal (ESI P1-30451YMTF-24),Stevenswood,melamine,Coastal,melamine,0.018,15/16,ESI item P1-30451YMTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130452YM24,Stevenswood Jasper (ESI P1-30452YM-24),Stevenswood,melamine,Jasper,melamine,0.018,15/16,ESI item P1-30452YM-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130616U24,Stevenswood Kyushu (ESI P1-30616U-24),Stevenswood,melamine,Kyushu,melamine,0.018,15/16,ESI item P1-30616U-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130782S24,Stevenswood Frosty Chestnut (ESI P1-30782S-24),Stevenswood,melamine,Frosty Chestnut,melamine,0.018,15/16,ESI item P1-30782S-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130922VTF24,Stevenswood Shadow Teak (ESI P1-30922VTF-24),Stevenswood,melamine,Shadow Teak,melamine,0.018,15/16,ESI item P1-30922VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130923VTF24,Stevenswood Natural Teak (ESI P1-30923VTF-24),Stevenswood,melamine,Natural Teak,melamine,0.018,15/16,ESI item P1-30923VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130924VTF24,Stevenswood Weathered Teak (ESI P1-30924VTF-24),Stevenswood,melamine,Weathered Teak,melamine,0.018,15/16,ESI item P1-30924VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P130925VTF24,Stevenswood Caramel Cherry (ESI P1-30925VTF-24),Stevenswood,melamine,Caramel Cherry,melamine,0.018,15/16,ESI item P1-30925VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131170UMTF24,Stevenswood Timeless (ESI P1-31170UMTF-24),Stevenswood,melamine,Timeless,melamine,0.018,15/16,ESI item P1-31170UMTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131301EVMTF24,Stevenswood Bleached Walnut (ESI P1-31301EVMTF-24),Stevenswood,melamine,Bleached Walnut,melamine,0.018,15/16,ESI item P1-31301EVMTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131302EVMF24,Stevenswood Dark Walnut (ESI P1-31302EVMF-24),Stevenswood,melamine,Dark Walnut,melamine,0.018,15/16,ESI item P1-31302EVMF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131306EVMTF24,Stevenswood Farmhouse (ESI P1-31306EVMTF-24),Stevenswood,melamine,Farmhouse,melamine,0.018,15/16,ESI item P1-31306EVMTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131308EVMF24,Stevenswood Straight Noce (ESI P1-31308EVMF-24),Stevenswood,melamine,Straight Noce,melamine,0.018,15/16,ESI item P1-31308EVMF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131499YMF41,Stevenswood Midnight Run (ESI P1-31499YMF-41),Stevenswood,melamine,Midnight Run,melamine,0.018,15/16,ESI item P1-31499YMF-41. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P131519EBMF24,Stevenswood Battle Creek Oak (ESI P1-31519EBMF-24),Stevenswood,melamine,Battle Creek Oak,melamine,0.018,15/16,ESI item P1-31519EBMF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18196VTF24,Stevenswood Dahat Teak (ESI P1-8196VTF-24),Stevenswood,melamine,Dahat Teak,melamine,0.018,15/16,ESI item P1-8196VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18198AA24,Stevenswood Gregio Pine (ESI P1-8198AA-24),Stevenswood,melamine,Gregio Pine,melamine,0.018,15/16,ESI item P1-8198AA-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18212LTF24,Stevenswood Ebony (ESI P1-8212LTF-24),Stevenswood,melamine,Ebony,melamine,0.018,15/16,ESI item P1-8212LTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18213F41,Stevenswood Arizona Cypress (ESI P1-8213F-41),Stevenswood,melamine,Arizona Cypress,melamine,0.018,15/16,ESI item P1-8213F-41. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18233VTF24,Stevenswood White Zebrine (ESI P1-8233VTF-24),Stevenswood,melamine,White Zebrine,melamine,0.018,15/16,ESI item P1-8233VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18234FT24,Stevenswood Natural Rustik (ESI P1-8234FT-24),Stevenswood,melamine,Natural Rustik,melamine,0.018,15/16,ESI item P1-8234FT-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18236VTF24,Stevenswood Dark Noce (ESI P1-8236VTF-24),Stevenswood,melamine,Dark Noce,melamine,0.018,15/16,ESI item P1-8236VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18239VTF24,Stevenswood Midnight Echo (ESI P1-8239VTF-24),Stevenswood,melamine,Midnight Echo,melamine,0.018,15/16,ESI item P1-8239VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18253VTF24,Stevenswood Richmond Cherry (ESI P1-8253VTF-24),Stevenswood,melamine,Richmond Cherry,melamine,0.018,15/16,ESI item P1-8253VTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18351LF24,Stevenswood Black Rain (ESI P1-8351LF-24),Stevenswood,melamine,Black Rain,melamine,0.018,15/16,ESI item P1-8351LF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18351TF24,Stevenswood Black - Rain Finish (ESI P1-8351TF-24),Stevenswood,melamine,Black - Rain Finish,melamine,0.018,15/16,ESI item P1-8351TF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18351VF38,Stevenswood Black (ESI P1-8351VF-38),Stevenswood,melamine,Black,melamine,0.018,15/16,ESI item P1-8351VF-38. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18434V24,Stevenswood Takase Teak (ESI P1-8434V-24),Stevenswood,melamine,Takase Teak,melamine,0.018,15/16,ESI item P1-8434V-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18589YTF24,Stevenswood Parisienne (ESI P1-8589YTF-24),Stevenswood,melamine,Parisienne,melamine,0.018,15/16,ESI item P1-8589YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18596Y24,Stevenswood Vina (ESI P1-8596Y-24),Stevenswood,melamine,Vina,melamine,0.018,15/16,ESI item P1-8596Y-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18597Y24,Stevenswood Ashley (ESI P1-8597Y-24),Stevenswood,melamine,Ashley,melamine,0.018,15/16,ESI item P1-8597Y-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18830AA24,Stevenswood Marseille/White Oak (ESI P1-8830AA-24),Stevenswood,melamine,Marseille/White Oak,melamine,0.018,15/16,ESI item P1-8830AA-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P18871AAMF24,Stevenswood Dark Elm (ESI P1-8871AAMF-24),Stevenswood,melamine,Dark Elm,melamine,0.018,15/16,ESI item P1-8871AAMF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P1STE388TF24,Stevenswood Pure White (ESI P1-STE388TF-24),Stevenswood,melamine,Pure White,melamine,0.018,15/16,ESI item P1-STE388TF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P1STEL14TF24,Stevenswood Lara (ESI P1-STEL14TF-24),Stevenswood,melamine,Lara,melamine,0.018,15/16,ESI item P1-STEL14TF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P1STEL40YTF24,Stevenswood Seppia Walnut (ESI P1-STEL40YTF-24),Stevenswood,melamine,Seppia Walnut,melamine,0.018,15/16,ESI item P1-STEL40YTF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P1STEWB4TF24,Stevenswood Modern Elm (ESI P1-STEWB4TF-24),Stevenswood,melamine,Modern Elm,melamine,0.018,15/16,ESI item P1-STEWB4TF-24. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P28196VTF32,Stevenswood Dahat Teak II (ESI P2-8196VTF-32),Stevenswood,melamine,Dahat Teak II,melamine,0.018,15/16,ESI item P2-8196VTF-32. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P2EGGH1210TF44,Stevenswood Grey Beige Tossini Elm (ESI P2-EGGH1210TF-44),Stevenswood,melamine,Grey Beige Tossini Elm,melamine,0.018,15/16,ESI item P2-EGGH1210TF-44. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P2EGGH1221TF44,Stevenswood Espresso Tossini Elm (ESI P2-EGGH1221TF-44),Stevenswood,melamine,Espresso Tossini Elm,melamine,0.018,15/16,ESI item P2-EGGH1221TF-44. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P2EGGH3309TF44,Stevenswood Sand Gladstone Oak (ESI P2-EGGH3309TF-44),Stevenswood,melamine,Sand Gladstone Oak,melamine,0.018,15/16,ESI item P2-EGGH3309TF-44. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P2EGGH3325TF44,Stevenswood Tobacco Gladstone Oak (ESI P2-EGGH3325TF-44),Stevenswood,melamine,Tobacco Gladstone Oak,melamine,0.018,15/16,ESI item P2-EGGH3325TF-44. Panel code TBD — cross-ref colors_melamine.,False
+EB-STE-P2EGGH3794TF44,Stevenswood Chocolate Carini Walnut (ESI P2-EGGH3794TF-44),Stevenswood,melamine,Chocolate Carini Walnut,melamine,0.018,15/16,ESI item P2-EGGH3794TF-44. Panel code TBD — cross-ref colors_melamine.,False
+EB-ESI-S-P200113,ESI Frosty White (P-2001-13),ESI,pvc,Frosty White,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 1/2"" x 600'",False
+EB-ESI-S-P20212MM24,ESI Cream Velvet (P-20212MM-24),ESI,pvc,Cream Velvet,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P30149F24,ESI Pralines & Cream (P-30149F-24),ESI,pvc,Pralines & Cream,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P575124,ESI Antique Cream (P-5751-24),ESI,pvc,Antique Cream,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P60103MTF24,ESI Cookies & Cream (P-60103MTF-24),ESI,pvc,Cookies & Cream,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PFOR4923YF32,ESI Cream Softwood (P-FOR4923YF-32),ESI,pvc,Cream Softwood,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 1-1/4"" x 600'",False
+EB-ESI-S-PFOR9477F24,ESI Marfil Cream (P-FOR9477F-24),ESI,pvc,Marfil Cream,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PLABWX400F24,ESI Cream Satinwood (P-LABWX400F-24),ESI,pvc,Cream Satinwood,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PLABWXC07F24,ESI Cream Satinwood Comet (P-LABWXC07F-24),ESI,pvc,Cream Satinwood Comet,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PUNI763TF24,ESI Maple Cream (P-UNI763TF-24),ESI,pvc,Maple Cream,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P20112MMF24,ESI Willow Grey (P-20112MMF-24),ESI,pvc,Willow Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P20113M24,ESI Canadian Grey (P-20113M-24),ESI,pvc,Canadian Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P20519MTF24,ESI Oxford Grey (P-20519MTF-24),ESI,pvc,Oxford Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2406F41,ESI Ingot Grey (P-2406F-41),ESI,pvc,Ingot Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-5/8"" x 600'",False
+EB-ESI-S-P242224,ESI Grey - Pumice (P-2422-24),ESI,pvc,Grey - Pumice,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2422335,ESI Grey (P-2422-335),ESI,pvc,Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-5/16"" x 600'",False
+EB-ESI-S-P2425AA24,ESI Opti Grey (P-2425AA-24),ESI,pvc,Opti Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2425TF24,ESI London Grey (P-2425TF-24),ESI,pvc,London Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P242624,ESI Dove Grey (P-2426-24),ESI,pvc,Dove Grey,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2145VF24,ESI Ash Gray (P-2145VF-24),ESI,pvc,Ash Gray,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2368F41,ESI Graystone (P-2368F-41),ESI,pvc,Graystone,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-5/8"" x 600'",False
+EB-ESI-S-P2406F24,ESI Ingot Gray (P-2406F-24),ESI,pvc,Ingot Gray,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2425335,ESI Fog Gray (P-2425-335),ESI,pvc,Fog Gray,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-5/16"" x 600'",False
+EB-ESI-S-P30259F24,ESI Grayed Oak (P-30259F-24),ESI,pvc,Grayed Oak,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P31387E5MTF24,ESI Ceruse Gray Walnut (P-31387E5MTF-24),ESI,pvc,Ceruse Gray Walnut,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P1430TF24,ESI Black Paintable (P-1430TF-24),ESI,pvc,Black Paintable,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P1916F32,ESI Black (P-1916F-32),ESI,pvc,Black,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-1/4"" x 600'",False
+EB-ESI-S-P20144T24,ESI Blacken Bronze (P-20144T-24),ESI,pvc,Blacken Bronze,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P20215M24,ESI Black Velvet (P-20215M-24),ESI,pvc,Black Velvet,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P211416,ESI Almond (P-2114-16),ESI,pvc,Almond,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 5/8"" x 600'",False
+EB-ESI-S-P30144TF24,ESI Mocha Almond Fudge (P-30144TF-24),ESI,pvc,Mocha Almond Fudge,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P412124,ESI Almond Cherry (P-4121-24),ESI,pvc,Almond Cherry,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P640124,ESI Almond Leather (P-6401-24),ESI,pvc,Almond Leather,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PFOR726F24,ESI Almond Papyrus (P-FOR726F-24),ESI,pvc,Almond Papyrus,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2147335,ESI Ivory Rose (P-2147-335),ESI,pvc,Ivory Rose,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-5/16"" x 600'",False
+EB-ESI-S-P31148M24,ESI Ivory Velvet Elm (P-31148M-24),ESI,pvc,Ivory Velvet Elm,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P31374F24,ESI Ivory Birch (P-31374F-24),ESI,pvc,Ivory Birch,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P6662F24,ESI Ivory Essence (P-6662F-24),ESI,pvc,Ivory Essence,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P727124,ESI Ivory (P-7271-24),ESI,pvc,Ivory,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PFOR6226F24,ESI Ivory Kashmire (P-FOR6226F-24),ESI,pvc,Ivory Kashmire,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PLABPW035F24,ESI Ivory Trilio (P-LABPW035F-24),ESI,pvc,Ivory Trilio,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PSHINIVINWOF24,ESI Ivory Infinite Oak (P-SHINIVINWOF-24),ESI,pvc,Ivory Infinite Oak,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-PSHINIVOAKF24,ESI Ivory Oak (P-SHINIVOAKF-24),ESI,pvc,Ivory Oak,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P20435MF24,ESI Beige Arizona (P-20435MF-24),ESI,pvc,Beige Arizona,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P20609MTF24,ESI Beige Luxor (P-20609MTF-24),ESI,pvc,Beige Luxor,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2116F335,ESI Light Beige (P-2116F-335),ESI,pvc,Light Beige,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .020"" x 1-5/16"" x 600'",False
+EB-ESI-S-P213324,ESI Desert Beige (P-2133-24),ESI,pvc,Desert Beige,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P220924,ESI Beige (P-2209-24),ESI,pvc,Beige,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
+EB-ESI-S-P2257F24,ESI Natural Beige (P-2257F-24),ESI,pvc,Natural Beige,paint,0.018,15/16,"ESI solid color PVC for painted cabinets. .018"" x 15/16"" x 600'",False
