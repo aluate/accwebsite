@@ -367,6 +367,9 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
 
   const [draggingId,    setDraggingId]    = useState<string | null>(null);
   const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
+  const [priorityDragId,  setPriorityDragId]  = useState<string | null>(null);
+  const [priorityDropIdx, setPriorityDropIdx] = useState<number | null>(null);
+  const priorityDragModeRef = useRef(false);
 
   const [conflictPrompt, setConflictPrompt] = useState<{
     eventId: string; conflicts: JobEventWithJoins[];
@@ -557,6 +560,29 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     }
   }
 
+  // ── Priority reorder within ON DECK ─────────────────────────────────────
+  async function handlePriorityDrop(dragId: string, dropIdx: number | null) {
+    setPriorityDragId(null);
+    setPriorityDropIdx(null);
+    if (dropIdx === null) return;
+    const fromIdx = onDeckEvents.findIndex((e) => e.id === dragId);
+    if (fromIdx === -1 || fromIdx === dropIdx) return;
+    const next = [...onDeckEvents];
+    const [item] = next.splice(fromIdx, 1);
+    next.splice(dropIdx, 0, item);
+    setOnDeckEvents(next);
+    // Persist new sort_order values
+    await Promise.all(
+      next.map((ev, i) =>
+        fetch(`/api/schedule/events/${ev.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sort_order: i * 10 }),
+        })
+      )
+    );
+  }
+
   // ── Render guards ─────────────────────────────────────────────────────────
 
   if (!data && fetching) return <ScheduleSkeleton />;
@@ -734,29 +760,79 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
 
           {onDeckEvents.length === 0 ? (
             <p className="text-white/15 text-xs italic">Nothing on deck.</p>
-          ) : onDeckEvents.map((ev) => {
+          ) : onDeckEvents.map((ev, idx) => {
             const col = eventTypeColor(ev.event_type);
             const job = jobs.find((j) => j.id === ev.job_id);
+            const isPriDragging = priorityDragId === ev.id;
+            const isDropBefore  = priorityDragId && priorityDropIdx === idx && priorityDragId !== ev.id;
             return (
-              <div
-                key={ev.id}
-                draggable={isAdmin && !tvMode}
-                onDragStart={() => isAdmin && !tvMode && setDraggingId(ev.id)}
-                onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
-                className={`mb-1.5 rounded px-2 py-1.5 select-none ${isAdmin && !tvMode ? "cursor-grab" : "cursor-default"}`}
-                style={{
-                  background: col.bg,
-                  borderLeft: `3px solid ${col.bar}`,
-                }}
-              >
-                <p className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
-                  {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
-
-                </p>
-                <p className="text-xs text-white/70 truncate">{job?.client_name ?? ev.job_id}</p>
-                {ev.blocked_on && (
-                  <p className="text-[9px] text-white/30 truncate mt-0.5">⏸ {ev.blocked_on}</p>
+              <div key={ev.id}>
+                {/* Drop-position indicator */}
+                {isDropBefore && (
+                  <div className="h-0.5 rounded bg-[#f08122] mb-1 mx-1" />
                 )}
+                <div
+                  draggable={isAdmin && !tvMode}
+                  onDragStart={(e) => {
+                    if (!isAdmin || tvMode) { e.preventDefault(); return; }
+                    if (priorityDragModeRef.current) {
+                      // Priority reorder drag
+                      setPriorityDragId(ev.id);
+                    } else {
+                      // Calendar placement drag
+                      setDraggingId(ev.id);
+                    }
+                  }}
+                  onDragEnd={() => {
+                    if (priorityDragId) {
+                      handlePriorityDrop(priorityDragId, priorityDropIdx);
+                    }
+                    setDraggingId(null);
+                    setDropTargetKey(null);
+                    setPriorityDragId(null);
+                    setPriorityDropIdx(null);
+                    priorityDragModeRef.current = false;
+                  }}
+                  onDragOver={(e) => {
+                    if (!priorityDragId || priorityDragId === ev.id) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setPriorityDropIdx(idx);
+                  }}
+                  className={`mb-1.5 rounded select-none transition-opacity ${
+                    isPriDragging ? "opacity-30" : "opacity-100"
+                  } ${isAdmin && !tvMode ? "" : "cursor-default"}`}
+                  style={{
+                    background: col.bg,
+                    borderLeft: `3px solid ${col.bar}`,
+                  }}
+                >
+                  <div className="flex items-start gap-1">
+                    {/* Priority drag handle */}
+                    {isAdmin && !tvMode && (
+                      <span
+                        className="pt-1.5 pl-1.5 text-white/20 hover:text-white/60 cursor-ns-resize text-xs leading-none select-none flex-shrink-0"
+                        title="Drag to reorder priority"
+                        onMouseDown={() => { priorityDragModeRef.current = true; }}
+                        onMouseUp={() => { priorityDragModeRef.current = false; }}
+                      >
+                        ⠿
+                      </span>
+                    )}
+                    <div className="flex-1 min-w-0 px-1.5 py-1.5 cursor-grab">
+                      <p className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                        {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+                      </p>
+                      <p className="text-xs text-white/70 truncate">{job?.client_name ?? ev.job_id}</p>
+                      {ev.duration_days && ev.duration_days > 1 && (
+                        <p className="text-[9px] mt-0.5" style={{ color: col.text }}>⏱ {ev.duration_days}d install</p>
+                      )}
+                      {ev.blocked_on && (
+                        <p className="text-[9px] text-white/30 truncate mt-0.5">⏸ {ev.blocked_on}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             );
           })}
