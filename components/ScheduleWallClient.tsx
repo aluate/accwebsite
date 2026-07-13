@@ -199,11 +199,27 @@ function ScheduleErrorBanner({ onRetry, loading }: { onRetry: () => void; loadin
 
 // ── Stale-data warning bar (TV mode: data loaded but poll is failing) ─────────
 
-function ScheduleStaleBar({ onRetry, loading }: { onRetry: () => void; loading: boolean }) {
+const CACHE_KEY = "acc-schedule-cache";
+
+function formatAgo(ts: number): string {
+  const mins = Math.round((Date.now() - ts) / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function ScheduleStaleBar({ onRetry, loading, lastUpdated }: { onRetry: () => void; loading: boolean; lastUpdated: number | null }) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => tick(n => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-red-900/90 backdrop-blur-sm border-b border-red-700/50 px-4 py-2 flex items-center justify-between">
       <p className="text-red-200 text-xs font-condensed uppercase tracking-widest">
-        ⚠ Connection lost — showing cached data
+        ⚠ Connection lost — showing cached data{lastUpdated ? ` · last updated ${formatAgo(lastUpdated)}` : ""}
       </p>
       <button
         onClick={onRetry}
@@ -223,6 +239,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const [data, setData] = useState<ScheduleData | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [fetching, setFetching]   = useState(false);
+  const [cacheTs, setCacheTs]     = useState<number | null>(null);
 
   // TV mode: /schedule?tv=1 — read once on mount
   const [tvMode] = useState(() =>
@@ -238,17 +255,36 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
       const res = await fetch("/api/schedule/data", { signal: controller.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json() as ScheduleData;
+      // Persist to localStorage so TV survives Supabase outages
+      try {
+        const ts = Date.now();
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data: json, ts }));
+        setCacheTs(ts);
+      } catch { /* storage quota / private mode — ignore */ }
       setData(json);
       setForwardEvents(json.forwardEvents);
       setOnDeckEvents(json.onDeckEvents);
       setLoadError(false);
     } catch {
+      // Load from localStorage cache if we have no live data yet
+      if (!data) {
+        try {
+          const raw = localStorage.getItem(CACHE_KEY);
+          if (raw) {
+            const { data: cached, ts } = JSON.parse(raw) as { data: ScheduleData; ts: number };
+            setData(cached);
+            setForwardEvents(cached.forwardEvents);
+            setOnDeckEvents(cached.onDeckEvents);
+            setCacheTs(ts);
+          }
+        } catch { /* ignore */ }
+      }
       setLoadError(true);
     } finally {
       clearTimeout(timeout);
       setFetching(false);
     }
-  }, []);
+  }, [data]);
 
   // Initial fetch + 60-second poll for TV mode
   useEffect(() => {
@@ -482,7 +518,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     <section className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Stale-data warning: data loaded but a subsequent poll failed */}
       {loadError && data && (
-        <ScheduleStaleBar onRetry={fetchData} loading={fetching} />
+        <ScheduleStaleBar onRetry={fetchData} loading={fetching} lastUpdated={cacheTs} />
       )}
 
       {/* Header */}
