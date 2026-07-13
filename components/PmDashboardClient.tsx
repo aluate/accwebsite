@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import type { PmJob } from "@/app/pm-dashboard/page";
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────────────────
 
 const STATUS_COLOR: Record<string, string> = {
   intake:      "text-white/40 bg-white/10",
@@ -41,7 +41,7 @@ const ACTIVE_STATUSES = [
 type SortKey = "delivery_asc" | "delivery_desc" | "install_asc" | "install_desc" | "client_az" | "client_za";
 type DatePreset = "2w" | "1m" | "3m" | "all";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────────────────
 
 function fmtDate(d: string | null): string {
   if (!d) return "—";
@@ -107,7 +107,7 @@ function presetCutoff(preset: DatePreset): string | null {
   return cutoff.toISOString().slice(0, 10);
 }
 
-// ── Inline date editor ─────────────────────────────────────────────────────────
+// ── Inline date editor ─────────────────────────────────────────────────────────────────────────────
 
 function InlineDateCell({
   jobId,
@@ -187,7 +187,7 @@ function InlineDateCell({
   );
 }
 
-// ── Install type select ────────────────────────────────────────────────────────
+// ── Install type select ────────────────────────────────────────────────────────────────────────────
 
 function InlineInstallTypeCell({
   jobId,
@@ -232,7 +232,150 @@ function InlineInstallTypeCell({
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Inline status select ───────────────────────────────────────────────────────────────────────────
+
+function InlineStatusCell({
+  jobId,
+  value,
+  onSaved,
+}: {
+  jobId: string;
+  value: string;
+  onSaved: (jobId: string, field: string, newValue: string | null) => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const statusCls = STATUS_COLOR[value] ?? "text-white/40 bg-white/10";
+
+  async function change(newVal: string) {
+    if (!newVal || newVal === value) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newVal, _actor: "pm", _actorRole: "pm" }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      onSaved(jobId, "status", newVal);
+    } catch {
+      alert("Failed to save status.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
+      <select
+        value={value}
+        onChange={(e) => change(e.target.value)}
+        disabled={saving}
+        className={
+          "appearance-none text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 border-0 focus:outline-none cursor-pointer disabled:opacity-50 " +
+          statusCls
+        }
+        style={{ background: "transparent" }}
+      >
+        {ALL_STATUSES.map((s) => (
+          <option key={s} value={s} className="bg-[#1c1c1c] text-white normal-case tracking-normal">
+            {STATUS_LABEL[s] ?? s}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+// ── Inline text cell ────────────────────────────────────────────────────────────────────────────────
+
+function InlineTextCell({
+  jobId,
+  field,
+  value,
+  placeholder,
+  onSaved,
+}: {
+  jobId: string;
+  field: string;
+  value: string | null;
+  placeholder?: string;
+  onSaved: (jobId: string, field: string, newValue: string | null) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: draft.trim() || null }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      onSaved(jobId, field, draft.trim() || null);
+      setEditing(false);
+    } catch {
+      alert("Failed to save. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function cancel() {
+    setDraft(value ?? "");
+    setEditing(false);
+  }
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={placeholder}
+          autoFocus
+          className="bg-[#1c1c1c] border border-[#f08122]/60 rounded px-2 py-0.5 text-white text-xs focus:outline-none w-32"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") save();
+            if (e.key === "Escape") cancel();
+          }}
+        />
+        <button
+          onClick={save}
+          disabled={saving}
+          className="text-[#f08122] hover:text-[#d9711e] text-xs font-condensed uppercase tracking-wide px-1 disabled:opacity-50"
+        >
+          {saving ? "…" : "Save"}
+        </button>
+        <button
+          onClick={cancel}
+          className="text-white/30 hover:text-white/60 text-xs font-condensed uppercase tracking-wide px-1"
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); setEditing(true); setDraft(value ?? ""); }}
+      className="text-left text-white/70 hover:text-[#f08122] text-xs transition-colors group max-w-[10rem] truncate block"
+      title={value ?? placeholder}
+    >
+      {value ? (
+        <span>{value}</span>
+      ) : (
+        <span className="text-white/20 italic group-hover:text-[#f08122]/60">{placeholder ?? "Edit"}</span>
+      )}
+    </button>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────────────────────
 
 type JobState = PmJob & { _conflicts?: string[] };
 
@@ -351,12 +494,6 @@ export function PmDashboardClient({
     );
   }
 
-  const installTypeLabel = (t: string | null) => {
-    if (t === "acc") return "ACC";
-    if (t === "sub") return "Sub";
-    return null;
-  };
-
   return (
     <>
       {/* ── Filter bar ── */}
@@ -459,7 +596,8 @@ export function PmDashboardClient({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 w-28">Job #</th>
+                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 w-24">Job #</th>
+                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 w-20">Bid #</th>
                 <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40">
                   <button
                     onClick={() => setSortKey(sortKey === "client_az" ? "client_za" : "client_az")}
@@ -472,6 +610,7 @@ export function PmDashboardClient({
                     </span>
                   </button>
                 </th>
+                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 hidden sm:table-cell w-28">PM</th>
                 <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 hidden md:table-cell">Builder</th>
                 <th className="pb-3 pr-4">
                   {sortHeader("Delivery", "delivery_asc", "delivery_desc")}
@@ -480,15 +619,14 @@ export function PmDashboardClient({
                 <th className="pb-3 pr-4">
                   {sortHeader("Install Start", "install_asc", "install_desc")}
                 </th>
-                <th className="pb-3 font-condensed uppercase tracking-widest text-[10px] text-white/40">Status</th>
+                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40">Status</th>
+                <th className="pb-3 font-condensed uppercase tracking-widest text-[10px] text-white/40 hidden xl:table-cell">Notes</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((job) => {
                 const conflicts = conflictMap.get(job.id) ?? [];
                 const hasConflict = conflicts.length > 0;
-                const statusCls = STATUS_COLOR[job.status] ?? "text-white/40 bg-white/10";
-                const statusTxt = STATUS_LABEL[job.status] ?? job.status.replace(/_/g, " ");
                 const jobRef = job.job_number ?? job.id;
 
                 return (
@@ -512,6 +650,17 @@ export function PmDashboardClient({
                       </Link>
                     </td>
 
+                    {/* Bid # */}
+                    <td className="py-3 pr-4">
+                      <InlineTextCell
+                        jobId={job.id}
+                        field="bid_number"
+                        value={job.bid_number}
+                        placeholder="Bid #"
+                        onSaved={handleSaved}
+                      />
+                    </td>
+
                     {/* Client / Job name */}
                     <td className="py-3 pr-4">
                       <div>
@@ -529,11 +678,26 @@ export function PmDashboardClient({
                       </div>
                     </td>
 
+                    {/* PM */}
+                    <td className="py-3 pr-4 hidden sm:table-cell">
+                      <InlineTextCell
+                        jobId={job.id}
+                        field="pm"
+                        value={job.pm}
+                        placeholder="PM"
+                        onSaved={handleSaved}
+                      />
+                    </td>
+
                     {/* Builder */}
                     <td className="py-3 pr-4 hidden md:table-cell">
-                      <span className="text-white/50 text-xs">
-                        {job.builder_name ?? "—"}
-                      </span>
+                      <InlineTextCell
+                        jobId={job.id}
+                        field="builder_name"
+                        value={job.builder_name}
+                        placeholder="Builder"
+                        onSaved={handleSaved}
+                      />
                     </td>
 
                     {/* Delivery date (inline edit) */}
@@ -565,11 +729,24 @@ export function PmDashboardClient({
                       />
                     </td>
 
-                    {/* Status */}
-                    <td className="py-3">
-                      <span className={"text-[10px] font-condensed uppercase tracking-widest rounded px-2 py-0.5 " + statusCls}>
-                        {statusTxt}
-                      </span>
+                    {/* Status (inline select) */}
+                    <td className="py-3 pr-4">
+                      <InlineStatusCell
+                        jobId={job.id}
+                        value={job.status}
+                        onSaved={handleSaved}
+                      />
+                    </td>
+
+                    {/* Notes */}
+                    <td className="py-3 hidden xl:table-cell">
+                      <InlineTextCell
+                        jobId={job.id}
+                        field="notes"
+                        value={job.notes}
+                        placeholder="Notes…"
+                        onSaved={handleSaved}
+                      />
                     </td>
                   </tr>
                 );

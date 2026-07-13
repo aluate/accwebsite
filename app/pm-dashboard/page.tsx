@@ -17,6 +17,8 @@ export type PmJob = {
   install_type: string | null;
   install_start_date: string | null;
   status: string;
+  bid_number: string | null;
+  notes: string | null;
 };
 
 export default async function PmDashboardPage() {
@@ -37,7 +39,9 @@ export default async function PmDashboardPage() {
       delivery_date,
       install_type,
       install_start_date,
-      status
+      status,
+      bid_number,
+      notes
     FROM jobs
     WHERE status NOT IN ('complete')
     ORDER BY
