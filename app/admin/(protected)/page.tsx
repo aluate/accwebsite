@@ -7,6 +7,7 @@ const ADMIN_LINKS = [
   { href: "/admin/libraries", label: "Libraries", desc: "Edit catalog CSVs — door styles, hardware, materials" },
   { href: "/admin/portal-accounts", label: "Portal Accounts", desc: "Builder portal access and credentials" },
   { href: "/admin/builder-companies", label: "Builder Companies", desc: "Manage builder company records" },
+  { href: "/admin/builder-profiles", label: "Builder Defaults", desc: "Per-builder carcass, drawer box, pull, finish type defaults for new specs" },
   { href: "/admin/schedule", label: "Schedule Admin", desc: "Crew management, change requests, on-deck queue" },
 ];
 

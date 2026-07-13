@@ -28,8 +28,15 @@ export async function POST(req: NextRequest) {
 
   const profileId: string | undefined = body.builder_profile_id;
   if (profileId) {
-    const profiles = catalogs.builderProfiles();
-    const profile = profiles.find((p) => p.id === profileId);
+    const [profile] = await sql<{
+      id: string; builder_name: string; default_finish_type: string;
+      default_carcass_id: string | null; default_drawer_box_id: string | null;
+      default_pull_id: string | null;
+    }[]>`
+      SELECT id, builder_name, default_finish_type, default_carcass_id,
+             default_drawer_box_id, default_pull_id
+      FROM catalog_builder_profiles WHERE id = ${profileId}
+    `;
     if (profile) {
       const fgId = uid();
       const finishType = profile.default_finish_type ?? "paint";
@@ -56,8 +63,6 @@ export async function POST(req: NextRequest) {
           NULL
         )
       `;
-
-      void asArray;
     }
   }
 

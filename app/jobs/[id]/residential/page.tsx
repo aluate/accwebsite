@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { NewSpecButton } from "@/components/NewSpecButton";
-import { catalogs } from "@/lib/catalogs";
 
 type Job  = {
   id: string;
@@ -15,23 +14,7 @@ type Job  = {
 };
 type Spec = { id: string; name: string; status: string; created_at: string; updated_at: string };
 
-// Walk-in residential customers: any job without a builder_company falls
-// through to the BPROF-RESIDENTIAL profile (Karl's "residential pop tier"
-// default — PF maple ply box, dovetail drawers, 3in bar pull, SW paint, etc.).
-//
-// Otherwise we match on builder_company exactly. If the company doesn't match
-// any known profile, no auto-populate happens (safer than guessing wrong).
-function resolveBuilderProfileId(job: Job): string | null {
-  const profiles = catalogs.builderProfiles();
-  if (!job.builder_company || job.builder_company.trim() === "") {
-    return profiles.find((p) => p.is_residential_default)?.id ?? null;
-  }
-  const wanted = job.builder_company.trim().toLowerCase();
-  const match = profiles.find(
-    (p) => (p.builder_company ?? "").trim().toLowerCase() === wanted
-  );
-  return match?.id ?? null;
-}
+
 
 export default async function ResidentialIndexPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -44,10 +27,26 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
   // Always use the canonical internal id for subsequent queries
   const jobId = job.id;
 
-  const builderProfileId = resolveBuilderProfileId(job);
-  const builderProfile = builderProfileId
-    ? catalogs.builderProfiles().find((p) => p.id === builderProfileId)
-    : null;
+  // Look up builder profile from DB — match by builder_company or fall back to walk-in default
+  type BPRow = { id: string; builder_name: string; is_residential_default: boolean };
+  let builderProfile: BPRow | null = null;
+  if (job.builder_company?.trim()) {
+    const wanted = job.builder_company.trim().toLowerCase();
+    const [match] = await sql<BPRow[]>`
+      SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
+      WHERE LOWER(COALESCE(builder_company, '')) = ${wanted}
+      LIMIT 1
+    `;
+    builderProfile = match ?? null;
+  }
+  if (!builderProfile) {
+    const [def] = await sql<BPRow[]>`
+      SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
+      WHERE is_residential_default = true LIMIT 1
+    `;
+    builderProfile = def ?? null;
+  }
+  const builderProfileId = builderProfile?.id ?? null;
 
   const specs = await sql`
     SELECT * FROM residential_specs WHERE job_id = ${jobId} ORDER BY created_at
