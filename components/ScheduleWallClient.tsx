@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Crew, CrewPto, JobEventWithJoins, EventType } from "@/lib/schedule-types";
 import { EVENT_TYPE_LABELS, isoDateOffset, isoWeekStart } from "@/lib/schedule-types";
 import { getHolidaysForYear, type Holiday } from "@/lib/schedule-holidays";
@@ -84,24 +84,6 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   complete:  { label: "DONE",  cls: "bg-green-500/20 text-green-300" },
   on_hold:   { label: "HOLD",  cls: "bg-yellow-500/20 text-yellow-300" },
 };
-
-// ── Month navigation helpers ──────────────────────────────────────────────────
-
-function monthKey(iso: string) { return iso.slice(0, 7); } // "YYYY-MM"
-function isoFirstOfMonth(ym: string) { return `${ym}-01`; }
-function isoLastOfMonth(ym: string) {
-  const [y, m] = ym.split("-").map(Number);
-  return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
-}
-function advanceMonth(ym: string, delta: number) {
-  let [y, m] = ym.split("-").map(Number);
-  m += delta;
-  while (m > 12) { m -= 12; y++; }
-  while (m < 1)  { m += 12; y--; }
-  return `${y}-${String(m).padStart(2, "0")}`;
-}
-const MONTH_NAMES = ["January","February","March","April","May","June",
-                     "July","August","September","October","November","December"];
 
 // ── Lane assignment (global, not per-row) ─────────────────────────────────────
 /**
@@ -236,6 +218,8 @@ function ScheduleStaleBar({ onRetry, loading, lastUpdated }: { onRetry: () => vo
 
 export function ScheduleWallClient({ today: initialToday, isAdmin = false }: ScheduleWallProps) {
   // ── Data-fetch state ──────────────────────────────────────────────────────
+  // Use a ref so fetchData stays stable (no [data] dep — prevents poll restart on every fetch)
+  const dataRef = useRef<ScheduleData | null>(null);
   const [data, setData] = useState<ScheduleData | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [fetching, setFetching]   = useState(false);
@@ -245,6 +229,10 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const [tvMode] = useState(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
   );
+
+  // TV rotation: alternates between deliveries / installs every 60 s
+  const [tvPhase, setTvPhase]       = useState<"deliveries" | "installs">("deliveries");
+  const [tvCountdown, setTvCountdown] = useState(60);
 
   const fetchData = useCallback(async () => {
     setFetching(true);
@@ -261,17 +249,24 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         localStorage.setItem(CACHE_KEY, JSON.stringify({ data: json, ts }));
         setCacheTs(ts);
       } catch { /* storage quota / private mode — ignore */ }
+      dataRef.current = json;
       setData(json);
       setForwardEvents(json.forwardEvents);
-      setOnDeckEvents(json.onDeckEvents);
+      // Only swap ON DECK if IDs changed — prevents visual flash during poll
+      setOnDeckEvents(prev => {
+        const newIds  = json.onDeckEvents.map(e => e.id).join(",");
+        const prevIds = prev.map(e => e.id).join(",");
+        return newIds === prevIds ? prev : json.onDeckEvents;
+      });
       setLoadError(false);
     } catch {
       // Load from localStorage cache if we have no live data yet
-      if (!data) {
+      if (!dataRef.current) {
         try {
           const raw = localStorage.getItem(CACHE_KEY);
           if (raw) {
             const { data: cached, ts } = JSON.parse(raw) as { data: ScheduleData; ts: number };
+            dataRef.current = cached;
             setData(cached);
             setForwardEvents(cached.forwardEvents);
             setOnDeckEvents(cached.onDeckEvents);
@@ -284,7 +279,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
       clearTimeout(timeout);
       setFetching(false);
     }
-  }, [data]);
+  }, []); // stable — no data dependency; dataRef handles error-path check
 
   // Initial fetch + 60-second poll for TV mode
   useEffect(() => {
@@ -295,21 +290,46 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     }
   }, [fetchData, tvMode]);
 
+  // TV rotation timer: count down 60 → 0, then flip phase
+  useEffect(() => {
+    if (!tvMode) return;
+    const id = setInterval(() => {
+      setTvCountdown(n => {
+        if (n <= 1) {
+          setTvPhase(p => p === "deliveries" ? "installs" : "deliveries");
+          return 60;
+        }
+        return n - 1;
+      });
+    }, 1_000);
+    return () => clearInterval(id);
+  }, [tvMode]);
+
   // ── Local mutable event state (optimistic updates for drag/drop) ──────────
   const [forwardEvents, setForwardEvents] = useState<JobEventWithJoins[]>([]);
   const [onDeckEvents,  setOnDeckEvents]  = useState<JobEventWithJoins[]>([]);
-
-  // Keep local state in sync whenever a fresh fetch lands
-  // (handled inside fetchData above)
 
   const today   = data?.today ?? initialToday;
   const crews   = data?.crews ?? [];
   const jobs    = data?.jobs  ?? [];
   const ptoRows = data?.ptoRows ?? [];
 
-  // ── Month navigation: default to the month containing today ───────────────
-  const [viewMonth, setViewMonth] = useState(() => monthKey(initialToday));
-  const [jumpValue, setJumpValue] = useState("");
+  // ── Week navigation: 6-week rolling window ────────────────────────────────
+  // weekOffset 0 = today's week as first row; positive = scroll forward
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  const weeks = useMemo<string[][]>(() => {
+    const base = isoWeekStart(today);          // Monday of today's week
+    const windowStart = isoDateOffset(base, weekOffset * 7);
+    const out: string[][] = [];
+    for (let w = 0; w < 6; w++) {
+      const weekMon = isoDateOffset(windowStart, w * 7);
+      const week: string[] = [];
+      for (let d = 0; d < 5; d++) week.push(isoDateOffset(weekMon, d));
+      out.push(week);
+    }
+    return out;
+  }, [today, weekOffset]);
 
   const [showAddForm, setShowAddForm]   = useState(false);
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
@@ -325,26 +345,19 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
 
-  // ── Weeks visible for the current view month ──────────────────────────────
-  const weeks: string[][] = useMemo(() => {
-    const firstDay  = isoFirstOfMonth(viewMonth);
-    const lastDay   = isoLastOfMonth(viewMonth);
-    const startMon  = isoWeekStart(firstDay);
-    const endMon    = isoWeekStart(lastDay);
-    const out: string[][] = [];
-    let cur = startMon;
-    let safety = 8;
-    while (cur <= endMon && safety-- > 0) {
-      const week: string[] = [];
-      for (let i = 0; i < 5; i++) week.push(isoDateOffset(cur, i));
-      out.push(week);
-      cur = isoDateOffset(cur, 7);
-    }
-    return out;
-  }, [viewMonth]);
+  // ── Visible window ────────────────────────────────────────────────────────
+  const visibleStart = weeks[0]?.[0] ?? today;
+  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? today;
 
-  const visibleStart = weeks[0]?.[0] ?? isoFirstOfMonth(viewMonth);
-  const visibleEnd   = weeks[weeks.length - 1]?.[4] ?? isoLastOfMonth(viewMonth);
+  // ── Window label for header ───────────────────────────────────────────────
+  const windowLabel = (() => {
+    const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const [sy, sm, sd] = visibleStart.split("-").map(Number);
+    const [ey, em, ed] = visibleEnd.split("-").map(Number);
+    const startStr = `${MON[sm-1]} ${sd}`;
+    const endStr   = `${MON[em-1]} ${ed}`;
+    return sy === ey ? `${startStr} – ${endStr} ${ey}` : `${startStr} ${sy} – ${endStr} ${ey}`;
+  })();
 
   // ── Holiday map for visible range ─────────────────────────────────────────
   const holidayMap = useMemo<Map<string, string>>(() => {
@@ -375,7 +388,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     return m;
   }, [ptoRows]);
 
-  // ── Lane assignment (global, computed once per event list change) ─────────
+  // ── Lane assignment ───────────────────────────────────────────────────────
   const filteredForward = useMemo(() =>
     filterCrewId ? forwardEvents.filter((e) => e.crew_id === filterCrewId) : forwardEvents,
     [forwardEvents, filterCrewId]
@@ -391,7 +404,15 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     [filteredForward, visibleStart, visibleEnd]
   );
 
-  const laneMap = useMemo(() => assignLanes(visibleEvents), [visibleEvents]);
+  // In TV mode, filter to only the active phase's event type
+  const displayEvents = useMemo(() => {
+    if (!tvMode) return visibleEvents;
+    return visibleEvents.filter(e =>
+      tvPhase === "deliveries" ? e.event_type === "cab_delivery" : e.event_type === "install"
+    );
+  }, [tvMode, tvPhase, visibleEvents]);
+
+  const laneMap = useMemo(() => assignLanes(displayEvents), [displayEvents]);
 
   // Mobile agenda: week days Mon-Fri for the selected week
   const mobileWeekDays = useMemo(() => {
@@ -513,6 +534,10 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   // Still loading on first mount and not yet errored — show skeleton
   if (!data) return <ScheduleSkeleton />;
 
+  // ── TV phase colors ───────────────────────────────────────────────────────
+  const tvPhaseColor = tvPhase === "deliveries" ? "#60a5fa" : "#f97316";
+  const tvPhaseBg    = tvPhase === "deliveries" ? "rgba(96,165,250,0.12)" : "rgba(249,115,22,0.12)";
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <section className="min-h-screen bg-[#0a0a0a] text-white">
@@ -521,7 +546,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         <ScheduleStaleBar onRetry={fetchData} loading={fetching} lastUpdated={cacheTs} />
       )}
 
-      {/* Header */}
+      {/* ── Normal header (hidden in TV mode) ─────────────────────────── */}
       {!tvMode && (
         <header className="px-6 py-3 border-b border-white/5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4">
@@ -532,44 +557,38 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
               </p>
             </div>
 
-            {/* Month navigation */}
+            {/* 6-week window navigation */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setViewMonth((m) => advanceMonth(m, -1))}
+                onClick={() => setWeekOffset(w => w - 1)}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Previous month"
+                title="Previous week"
               >
                 ‹
               </button>
-              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[7rem] text-center">
-                {MONTH_NAMES[parseInt(viewMonth.slice(5)) - 1]} {viewMonth.slice(0, 4)}
+              <span className="font-condensed uppercase tracking-widest text-xs text-white/80 min-w-[12rem] text-center">
+                {windowLabel}
               </span>
               <button
-                onClick={() => setViewMonth((m) => advanceMonth(m, 1))}
+                onClick={() => setWeekOffset(w => w + 1)}
                 className="px-2 py-1 rounded text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                title="Next month"
+                title="Next week"
               >
                 ›
               </button>
               <button
-                onClick={() => setViewMonth(monthKey(today))}
-                className="px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-white/70 transition-colors"
+                onClick={() => setWeekOffset(0)}
+                className={`px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest transition-colors ${
+                  weekOffset === 0 ? "text-white/20" : "text-white/30 hover:text-white/70"
+                }`}
               >
                 Today
               </button>
-              {/* Jump to date */}
-              <input
-                type="month"
-                value={viewMonth}
-                onChange={(e) => { if (e.target.value) setViewMonth(e.target.value); }}
-                className="bg-transparent border border-white/10 rounded px-2 py-0.5 text-[10px] text-white/50 focus:outline-none focus:border-[#f08122]/50 w-28"
-                title="Jump to month"
-              />
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Crew filter */}
+            {/* Crew filter chips */}
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setFilterCrewId(null)}
@@ -607,21 +626,49 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
                 + Add Event
               </button>
             )}
+
+            {/* TV Mode button */}
+            <a
+              href="/schedule?tv=1"
+              className="flex items-center gap-1.5 border border-white/15 hover:border-white/30 text-white/40 hover:text-white/80 font-condensed uppercase tracking-widest text-[10px] px-3 py-1.5 rounded transition-colors"
+              title="Open full-screen TV view"
+            >
+              ⬛ TV Mode
+            </a>
           </div>
         </header>
       )}
 
       {/* Body */}
-      <div className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`} style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}>
-
+      <div
+        className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`}
+        style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}
+      >
         {/* Calendar */}
-        <div className="flex-1 p-3 overflow-auto">
+        <div className={`flex-1 p-3 overflow-auto ${tvMode ? "pb-12" : ""}`}>
+          {/* TV phase banner */}
+          {tvMode && (
+            <div
+              className="mb-3 px-4 py-2 rounded flex items-center gap-3"
+              style={{ background: tvPhaseBg, borderLeft: `3px solid ${tvPhaseColor}` }}
+            >
+              <span
+                className="text-sm font-condensed uppercase tracking-widest font-bold"
+                style={{ color: tvPhaseColor }}
+              >
+                {tvPhase === "deliveries" ? "📦 Deliveries" : "🔨 Installs"}
+              </span>
+              <span className="text-white/30 text-[10px] font-condensed uppercase tracking-widest ml-auto">
+                {displayEvents.length} event{displayEvents.length !== 1 ? "s" : ""} in window
+              </span>
+            </div>
+          )}
           <SpanningCalendar
             weeks={weeks}
             today={today}
             visibleStart={visibleStart}
             visibleEnd={visibleEnd}
-            events={visibleEvents}
+            events={displayEvents}
             laneMap={laneMap}
             crews={crews}
             splitLabels={splitLabels}
@@ -638,52 +685,52 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
           />
         </div>
 
-        {/* On Deck */}
-        {!tvMode && (
-          <aside
-            className={`w-72 border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
-              dropTargetKey === "ondeck"
-                ? "border-[#f08122]/60 bg-[#1a1410]"
-                : "border-white/5"
-            }`}
-            onDragOver={(e) => { if (!draggingId) return; e.preventDefault(); setDropTargetKey("ondeck"); }}
-            onDragLeave={() => { if (dropTargetKey === "ondeck") setDropTargetKey(null); }}
-            onDrop={(e) => { e.preventDefault(); if (draggingId) handleDrop(draggingId, null); }}
-          >
-            <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-2">
-              On Deck — {onDeckEvents.length}
-            </p>
+        {/* On Deck — visible in both normal and TV mode */}
+        <aside
+          className={`border-l p-3 bg-[#0d0d0d] overflow-auto transition-colors ${
+            tvMode ? "w-56 pb-12" : "w-72"
+          } ${
+            dropTargetKey === "ondeck"
+              ? "border-[#f08122]/60 bg-[#1a1410]"
+              : "border-white/5"
+          }`}
+          onDragOver={(e) => { if (!draggingId || tvMode) return; e.preventDefault(); setDropTargetKey("ondeck"); }}
+          onDragLeave={() => { if (dropTargetKey === "ondeck") setDropTargetKey(null); }}
+          onDrop={(e) => { e.preventDefault(); if (draggingId && !tvMode) handleDrop(draggingId, null); }}
+        >
+          <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-2">
+            On Deck — {onDeckEvents.length}
+          </p>
 
-            {onDeckEvents.length === 0 ? (
-              <p className="text-white/15 text-xs italic">Nothing on deck.</p>
-            ) : onDeckEvents.map((ev) => {
-              const col = eventTypeColor(ev.event_type);
-              const job = jobs.find((j) => j.id === ev.job_id);
-              return (
-                <div
-                  key={ev.id}
-                  draggable={isAdmin}
-                  onDragStart={() => isAdmin && setDraggingId(ev.id)}
-                  onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
-                  className={`mb-1.5 rounded px-2 py-1.5 select-none ${isAdmin ? "cursor-grab" : "cursor-default"}`}
-                  style={{
-                    background: col.bg,
-                    borderLeft: `3px solid ${col.bar}`,
-                  }}
-                >
-                  <p className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
-                    {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
+          {onDeckEvents.length === 0 ? (
+            <p className="text-white/15 text-xs italic">Nothing on deck.</p>
+          ) : onDeckEvents.map((ev) => {
+            const col = eventTypeColor(ev.event_type);
+            const job = jobs.find((j) => j.id === ev.job_id);
+            return (
+              <div
+                key={ev.id}
+                draggable={isAdmin && !tvMode}
+                onDragStart={() => isAdmin && !tvMode && setDraggingId(ev.id)}
+                onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
+                className={`mb-1.5 rounded px-2 py-1.5 select-none ${isAdmin && !tvMode ? "cursor-grab" : "cursor-default"}`}
+                style={{
+                  background: col.bg,
+                  borderLeft: `3px solid ${col.bar}`,
+                }}
+              >
+                <p className="text-[10px] font-condensed uppercase tracking-widest" style={{ color: col.text }}>
+                  {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
 
-                  </p>
-                  <p className="text-xs text-white/70 truncate">{job?.client_name ?? ev.job_id}</p>
-                  {ev.blocked_on && (
-                    <p className="text-[9px] text-white/30 truncate mt-0.5">⏸ {ev.blocked_on}</p>
-                  )}
-                </div>
-              );
-            })}
-          </aside>
-        )}
+                </p>
+                <p className="text-xs text-white/70 truncate">{job?.client_name ?? ev.job_id}</p>
+                {ev.blocked_on && (
+                  <p className="text-[9px] text-white/30 truncate mt-0.5">⏸ {ev.blocked_on}</p>
+                )}
+              </div>
+            );
+          })}
+        </aside>
       </div>
 
       {/* ── Mobile agenda (phones only, hidden md+) — week view ─────────── */}
@@ -847,6 +894,56 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
           )}
         </div>
       </div>
+
+      {/* ── TV indicator bar (fixed bottom, TV mode only) ─────────────── */}
+      {tvMode && (
+        <div className="fixed bottom-0 left-0 right-0 h-11 bg-[#0d0d0d] border-t border-white/10 flex items-center px-4 z-40">
+          <div className="flex items-center gap-3 flex-1">
+            <button
+              onClick={() => { setTvPhase("deliveries"); setTvCountdown(60); }}
+              className="text-[10px] font-condensed uppercase tracking-widest px-2.5 py-1 rounded transition-colors"
+              style={{
+                background: tvPhase === "deliveries" ? "rgba(96,165,250,0.15)" : "transparent",
+                color: tvPhase === "deliveries" ? "#93c5fd" : "rgba(255,255,255,0.25)",
+                border: `1px solid ${tvPhase === "deliveries" ? "rgba(96,165,250,0.4)" : "transparent"}`,
+              }}
+            >
+              ● Deliveries
+            </button>
+            <button
+              onClick={() => { setTvPhase("installs"); setTvCountdown(60); }}
+              className="text-[10px] font-condensed uppercase tracking-widest px-2.5 py-1 rounded transition-colors"
+              style={{
+                background: tvPhase === "installs" ? "rgba(249,115,22,0.15)" : "transparent",
+                color: tvPhase === "installs" ? "#fb923c" : "rgba(255,255,255,0.25)",
+                border: `1px solid ${tvPhase === "installs" ? "rgba(249,115,22,0.4)" : "transparent"}`,
+              }}
+            >
+              ● Installs
+            </button>
+            {/* Progress bar */}
+            <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden mx-1">
+              <div
+                className="h-full rounded-full transition-all duration-1000 ease-linear"
+                style={{
+                  width: `${((60 - tvCountdown) / 60) * 100}%`,
+                  background: tvPhaseColor,
+                }}
+              />
+            </div>
+            <span className="text-[10px] text-white/25 font-condensed tabular-nums w-7 text-right">
+              {tvCountdown}s
+            </span>
+          </div>
+          <button
+            onClick={() => { window.location.href = "/schedule"; }}
+            className="ml-4 text-white/25 hover:text-white/70 text-base leading-none transition-colors"
+            title="Exit TV mode"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Conflict modal */}
       {conflictPrompt && (
@@ -1057,6 +1154,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     </section>
   );
 }
+
 
 // ── SpanningCalendar ──────────────────────────────────────────────────────────
 
