@@ -13,6 +13,7 @@ import { GateCheckinButton } from "@/components/GateCheckinButton";
 import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { JobInlineEditClient } from "@/components/JobInlineEditClient";
+import { WorkOrdersPanel } from "@/components/WorkOrdersPanel";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -384,6 +385,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           {(session.role === "admin" || session.role === "pm") && (
             <EngineeringReleasePanel jobId={internalId} />
+          )}
+
+          {(session.role === "admin" || session.role === "pm") && (
+            <div className="mt-6 pt-4 border-t border-white/5">
+              <WorkOrdersPanel jobId={internalId} />
+            </div>
           )}
 
           <div className="mt-6">
