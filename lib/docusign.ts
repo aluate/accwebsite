@@ -135,7 +135,7 @@ async function getDocuSignToken(): Promise<string> {
   const userId = process.env.DOCUSIGN_USER_ID!;
   // Support both literal \n (env var escaping) and real newlines
   const privateKey = (process.env.DOCUSIGN_PRIVATE_KEY || "").replace(/\\n/g, "\n");
-  const basePath = process.env.DOCUSIGN_BASE_PATH || "https://demo.docusign.net";
+  const basePath = process.env.DOCUSIGN_BASE_URL || "https://demo.docusign.net";
   const isProd = !basePath.includes("demo");
   const authHost = isProd ? "account.docusign.com" : "account-d.docusign.com";
 
@@ -205,7 +205,7 @@ export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelo
   }
 
   const accountId = process.env.DOCUSIGN_ACCOUNT_ID!;
-  const basePath  = process.env.DOCUSIGN_BASE_PATH || "https://demo.docusign.net";
+  const basePath  = process.env.DOCUSIGN_BASE_URL || "https://demo.docusign.net";
   const apiBase   = `${basePath}/restapi/v2.1/accounts/${accountId}`;
 
   let token: string;
