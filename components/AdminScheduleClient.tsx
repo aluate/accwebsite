@@ -49,18 +49,23 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
   const [changeRequests, setChangeRequests]     = useState<ChangeRequest[]>(initialCR ?? []);
   const [onDeckJobs, setOnDeckJobs]             = useState<OnDeckJob[]>(initialOnDeck ?? []);
 
+  const [fetchError, setFetchError] = useState(false);
+
   useEffect(() => {
     if (initialCrews) return;
-    fetch("/api/admin/schedule/data")
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 9000);
+    fetch("/api/admin/schedule/data", { signal: ctrl.signal })
       .then((r) => r.json())
       .then((d) => {
         setCrews(d.crews ?? []);
         setPto(d.pto ?? []);
         setChangeRequests(d.changeRequests ?? []);
         setOnDeckJobs(d.onDeckJobs ?? []);
-        setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => setFetchError(true))
+      .finally(() => { clearTimeout(timer); setLoading(false); });
+    return () => { ctrl.abort(); clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -160,6 +165,14 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
       <div className="p-8">
         <div className="h-8 w-48 bg-white/5 rounded animate-pulse mb-4" />
         <div className="h-4 w-32 bg-white/5 rounded animate-pulse" />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="p-8 text-white/40 text-sm font-condensed uppercase tracking-widest">
+        Could not load schedule data — try refreshing.
       </div>
     );
   }
