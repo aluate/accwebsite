@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Crew, CrewPto } from "@/lib/schedule-types";
+import { CREW_KINDS } from "@/lib/schedule-types";
 import Link from "next/link";
 
 type ChangeRequest = {
@@ -110,7 +111,7 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
     setChangeRequests((prev) => prev.filter((r) => r.id !== id));
   }
 
-  // ── Crews form ────────────────────────────────────────────────────────────
+  // ── Crews add form ────────────────────────────────────────────────────────
   const [crewName,    setCrewName]    = useState("");
   const [crewKind,    setCrewKind]    = useState<"inhouse"|"sub">("inhouse");
   const [crewPhone,   setCrewPhone]   = useState("");
@@ -159,6 +160,50 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
     }
   }
 
+  // ── Crew inline edit ──────────────────────────────────────────────────────
+  const [editingCrewId, setEditingCrewId] = useState<string | null>(null);
+  const [editDraft, setEditDraft]         = useState<Partial<Crew>>({});
+  const [editSaving, setEditSaving]       = useState(false);
+  const [editErr, setEditErr]             = useState("");
+
+  function startEdit(crew: Crew) {
+    setEditingCrewId(crew.id);
+    setEditDraft({
+      name:          crew.name,
+      kind:          crew.kind,
+      contact_phone: crew.contact_phone,
+      contact_email: crew.contact_email,
+      notes:         crew.notes,
+    });
+    setEditErr("");
+  }
+
+  function cancelEdit() {
+    setEditingCrewId(null);
+    setEditDraft({});
+    setEditErr("");
+  }
+
+  async function saveEdit(crewId: string) {
+    if (!editDraft.name?.trim()) { setEditErr("Name is required."); return; }
+    setEditSaving(true);
+    setEditErr("");
+    const res = await fetch("/api/schedule/crews", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: crewId, ...editDraft }),
+    });
+    setEditSaving(false);
+    if (res.ok) {
+      const updated = await res.json();
+      setCrews((prev) => prev.map((c) => c.id === crewId ? updated : c));
+      setEditingCrewId(null);
+      setEditDraft({});
+    } else {
+      const body = await res.json().catch(() => ({}));
+      setEditErr(body.error ?? "Save failed.");
+    }
+  }
 
   if (loading) {
     return (
@@ -289,30 +334,114 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
             ) : (
               <>
                 {/* Active */}
-                {crews.filter(c => c.active).map((c) => (
-                  <div key={c.id} className="bg-[#1a1a1a] border border-white/10 rounded px-4 py-3 flex items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-white text-sm font-medium">{c.name}</p>
-                        <span className="text-[10px] font-condensed uppercase tracking-wider text-white/40 bg-white/10 rounded px-1.5 py-0.5">
-                          {c.kind === "inhouse" ? "In-House" : "Sub"}
-                        </span>
-                      </div>
-                      {(c.contact_phone || c.contact_email) && (
-                        <p className="text-white/40 text-xs mt-0.5">
-                          {[c.contact_phone, c.contact_email].filter(Boolean).join(" · ")}
-                        </p>
+                {crews.filter(c => c.active).map((c) => {
+                  const isEditing = editingCrewId === c.id;
+                  return (
+                    <div key={c.id} className="bg-[#1a1a1a] border border-white/10 rounded overflow-hidden">
+                      {isEditing ? (
+                        <div className="p-4 space-y-3">
+                          <div className="grid sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className={LABEL}>Name *</label>
+                              <input
+                                value={editDraft.name ?? ""}
+                                onChange={(e) => setEditDraft((d) => ({ ...d, name: e.target.value }))}
+                                className={INPUT}
+                                autoFocus
+                              />
+                            </div>
+                            <div>
+                              <label className={LABEL}>Type</label>
+                              <select
+                                value={editDraft.kind ?? "inhouse"}
+                                onChange={(e) => setEditDraft((d) => ({ ...d, kind: e.target.value as "inhouse"|"sub" }))}
+                                className={SELECT}
+                              >
+                                {CREW_KINDS.map((k) => (
+                                  <option key={k} value={k}>{k === "inhouse" ? "In-House" : "Subcontractor"}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className={LABEL}>Phone</label>
+                              <input
+                                value={editDraft.contact_phone ?? ""}
+                                onChange={(e) => setEditDraft((d) => ({ ...d, contact_phone: e.target.value || null }))}
+                                placeholder="Optional"
+                                className={INPUT}
+                              />
+                            </div>
+                            <div>
+                              <label className={LABEL}>Email</label>
+                              <input
+                                value={editDraft.contact_email ?? ""}
+                                onChange={(e) => setEditDraft((d) => ({ ...d, contact_email: e.target.value || null }))}
+                                placeholder="Optional"
+                                className={INPUT}
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={LABEL}>Notes</label>
+                              <input
+                                value={editDraft.notes ?? ""}
+                                onChange={(e) => setEditDraft((d) => ({ ...d, notes: e.target.value || null }))}
+                                placeholder="Optional"
+                                className={INPUT}
+                              />
+                            </div>
+                          </div>
+                          {editErr && <p className="text-red-400 text-xs font-condensed">{editErr}</p>}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => saveEdit(c.id)}
+                              disabled={editSaving}
+                              className="bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+                            >
+                              {editSaving ? "Saving…" : "Save"}
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="text-white/40 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="px-4 py-3 flex items-center justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-white text-sm font-medium">{c.name}</p>
+                              <span className="text-[10px] font-condensed uppercase tracking-wider text-white/40 bg-white/10 rounded px-1.5 py-0.5">
+                                {c.kind === "inhouse" ? "In-House" : "Sub"}
+                              </span>
+                            </div>
+                            {(c.contact_phone || c.contact_email) && (
+                              <p className="text-white/40 text-xs mt-0.5">
+                                {[c.contact_phone, c.contact_email].filter(Boolean).join(" · ")}
+                              </p>
+                            )}
+                            {c.notes && <p className="text-white/30 text-xs italic mt-0.5">{c.notes}</p>}
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <button
+                              onClick={() => startEdit(c)}
+                              className="text-xs font-condensed uppercase tracking-widest text-white/30 hover:text-[#f08122] transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => toggleCrewActive(c)}
+                              className="text-xs font-condensed uppercase tracking-widest text-white/30 hover:text-red-400 transition-colors"
+                            >
+                              Deactivate
+                            </button>
+                          </div>
+                        </div>
                       )}
-                      {c.notes && <p className="text-white/30 text-xs italic mt-0.5">{c.notes}</p>}
                     </div>
-                    <button
-                      onClick={() => toggleCrewActive(c)}
-                      className="shrink-0 text-xs font-condensed uppercase tracking-widest text-white/30 hover:text-red-400 transition-colors"
-                    >
-                      Deactivate
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
                 {/* Inactive */}
                 {crews.filter(c => !c.active).length > 0 && (
                   <>

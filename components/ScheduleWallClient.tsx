@@ -419,9 +419,41 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     return m;
   }, [ptoRows]);
 
+  // ── Conflict detection (client-side) ─────────────────────────────────────
+  const crewConflicts = useMemo(() => {
+    const conflicts = new Set<string>();
+    const scheduled = forwardEvents.filter((e) => e.date_start && e.crew_ids?.length);
+    for (let i = 0; i < scheduled.length; i++) {
+      for (let j = i + 1; j < scheduled.length; j++) {
+        const a = scheduled[i], b = scheduled[j];
+        const aEnd = a.date_end ?? a.date_start!;
+        const bEnd = b.date_end ?? b.date_start!;
+        if (a.date_start! <= bEnd && b.date_start! <= aEnd) {
+          const shared = a.crew_ids.some((id) => b.crew_ids.includes(id));
+          if (shared) { conflicts.add(a.id); conflicts.add(b.id); }
+        }
+      }
+    }
+    // Same-day delivery dupes
+    const byDate = new Map<string, typeof forwardEvents>();
+    for (const e of forwardEvents) {
+      if ((e.event_type === "cab_delivery" || e.event_type === "top_delivery") && e.date_start) {
+        const arr = byDate.get(e.date_start) ?? [];
+        arr.push(e);
+        byDate.set(e.date_start, arr);
+      }
+    }
+    for (const [, evs] of byDate) {
+      if (evs.length >= 2) evs.forEach((e) => conflicts.add(e.id));
+    }
+    return conflicts;
+  }, [forwardEvents]);
+
   // ── Lane assignment ───────────────────────────────────────────────────────
   const filteredForward = useMemo(() =>
-    filterCrewId ? forwardEvents.filter((e) => e.crew_id === filterCrewId) : forwardEvents,
+    filterCrewId
+      ? forwardEvents.filter((e) => e.crew_ids?.includes(filterCrewId) || e.crew_id === filterCrewId)
+      : forwardEvents,
     [forwardEvents, filterCrewId]
   );
 
@@ -736,6 +768,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             onDragStart={setDraggingId}
             onDragEnd={() => { setDraggingId(null); setDropTargetKey(null); }}
             onDragOverCell={(iso) => setDropTargetKey(iso)}
+            crewConflicts={crewConflicts}
             onDrop={(id, iso) => handleDrop(id, iso)}
             onEventClick={setSelectedEvent}
           />
@@ -950,8 +983,8 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
                             {address && (
                               <p className="text-white/40 text-xs mt-1 truncate">📍 {address}</p>
                             )}
-                            {ev.crew_name && (
-                              <p className="text-xs mt-0.5" style={{ color: col.text }}>👷 {ev.crew_name}</p>
+                            {(ev.crew_names?.length > 0 || ev.crew_name) && (
+                              <p className="text-xs mt-0.5" style={{ color: col.text }}>👷 {ev.crew_names?.join(" + ") || ev.crew_name}</p>
                             )}
                           </div>
                         </button>
@@ -1061,7 +1094,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             </p>
             {conflictPrompt.conflicts.slice(0, 4).map((c) => (
               <p key={c.id} className="text-yellow-300/70 text-xs mb-1">
-                {c.crew_name} on {c.job_client_name ?? c.job_id} ({c.date_start}{c.date_end ? `–${c.date_end}` : ""})
+                {c.crew_names?.join(" + ") || c.crew_name} on {c.job_client_name ?? c.job_id} ({c.date_start}{c.date_end ? `–${c.date_end}` : ""})
               </p>
             ))}
             <button onClick={() => setConflictPrompt(null)} className="mt-4 bg-[#f08122] text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded">
@@ -1159,10 +1192,10 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
                 {EVENT_TYPE_ICON[ev.event_type]} {EVENT_TYPE_LABELS[ev.event_type]}
               </span>
             </div>
-            {ev.crew_name && (
+            {(ev.crew_names?.length > 0 || ev.crew_name) && (
               <div className="flex items-center justify-between">
                 <span className="text-white/40 text-xs font-condensed uppercase tracking-widest">Crew</span>
-                <span className="text-xs font-condensed" style={{ color: col.text }}>{ev.crew_name}</span>
+                <span className="text-xs font-condensed" style={{ color: col.text }}>{ev.crew_names?.join(" + ") || ev.crew_name}</span>
               </div>
             )}
             <div className="flex items-center justify-between">
@@ -1283,6 +1316,7 @@ type SpanningCalendarProps = {
   splitLabels: Map<string, string>;
   holidayMap: Map<string, string>;
   ptoMap: Map<string, (CrewPto & { crew_name: string })[]>;
+  crewConflicts: Set<string>;
   draggingId: string | null;
   dropTargetKey: string | null;
   isAdmin: boolean;
@@ -1295,6 +1329,7 @@ type SpanningCalendarProps = {
 
 function SpanningCalendar({
   weeks, today, events, laneMap, crews, splitLabels, holidayMap, ptoMap,
+  crewConflicts,
   draggingId, dropTargetKey, isAdmin,
   onDragStart, onDragEnd, onDragOverCell, onDrop, onEventClick,
 }: SpanningCalendarProps) {
@@ -1456,16 +1491,19 @@ function SpanningCalendar({
                     fontWeight:   600,
                     zIndex:       10 + lane,
                   }}
-                  title={`${displayLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
+                  title={`${crewConflicts.has(ev.id) ? "⚠ CONFLICT — " : ""}${displayLabel}: ${EVENT_TYPE_LABELS[ev.event_type]}${ev.description ? ` - ${ev.description}` : ""}${split ? ` [${split}]` : ""}`}
                 >
+                  {crewConflicts.has(ev.id) && (
+                    <span className="mr-1 shrink-0 text-red-400 text-[10px] font-bold" title="Double-booking conflict">⚠</span>
+                  )}
                   {seg.isContinuation && (
                     <span className="mr-0.5 shrink-0 opacity-50 text-[10px]">&#8249;</span>
                   )}
                   <span className="truncate">
                     {EVENT_TYPE_ICON[ev.event_type]}{" "}
                     {displayLabel}
-                    {ev.crew_name && (
-                      <span style={{ fontWeight: 400, opacity: 0.75 }}> &middot; {ev.crew_name}</span>
+                    {(ev.crew_names?.length > 0 || ev.crew_name) && (
+                      <span style={{ fontWeight: 400, opacity: 0.75 }}> &middot; {ev.crew_names?.join(" + ") || ev.crew_name}</span>
                     )}
                     {ev.description && (
                       <span style={{ fontWeight: 400, opacity: 0.6 }}> &mdash; {ev.description}</span>

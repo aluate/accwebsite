@@ -83,6 +83,10 @@ export type JobEvent = {
 export type JobEventWithJoins = JobEvent & {
   crew_name: string | null;
   crew_kind: CrewKind | null;
+  /** Multi-crew: IDs of all assigned crews (from event_crew table) */
+  crew_ids: string[];
+  /** Multi-crew: Names of all assigned crews (from event_crew table) */
+  crew_names: string[];
   job_client_name: string | null;
   job_site_address: string | null;
   job_job_number: string | null;

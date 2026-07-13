@@ -3,17 +3,8 @@ export const dynamic = "force-dynamic";
 /**
  * Single-event endpoints.
  *
- *   PATCH  /api/schedule/events/[id]  — partial update (drag-to-reschedule, edit modal)
+ *   PATCH  /api/schedule/events/[id]  — partial update
  *   DELETE /api/schedule/events/[id]
- *
- * Wraps lib/schedule.updateEvent and deleteEvent. Both write to the audit
- * log automatically. PATCH returns conflicts[] for warn-but-allow when the
- * new shape collides with another crew booking.
- *
- * Common drag-to-reschedule payloads:
- *   PATCH /api/schedule/events/abc123 { date_start: "2026-05-12" }
- *   PATCH /api/schedule/events/abc123 { date_start: null }            // → on deck
- *   PATCH /api/schedule/events/abc123 { crew_id: "kxz123" }           // reassign
  */
 import { NextRequest, NextResponse } from "next/server";
 import { requireBuilder } from "@/lib/auth";
@@ -33,6 +24,7 @@ type PatchPayload = {
   date_start?: string | null;
   date_end?:   string | null;
   crew_id?:    string | null;
+  crew_ids?:   string[];
   status?:     string;
   note?:       string | null;
   blocked_on?: string | null;
@@ -46,7 +38,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = (await req.json()) as PatchPayload;
 
-  // Validate enum-typed fields up front.
   if (body.event_type !== undefined && !isEventType(body.event_type)) {
     return NextResponse.json({ ok: false, error: `Invalid event_type: ${body.event_type}` }, { status: 400 });
   }
@@ -54,14 +45,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ ok: false, error: `Invalid status: ${body.status}` }, { status: 400 });
   }
 
-  // Build the patch — only include fields the client actually sent so we
-  // don't overwrite untouched columns with undefined.
   const patch: UpdateEventPatch = {};
   if (body.event_type !== undefined)      patch.event_type      = body.event_type as EventType;
   if (body.description !== undefined)     patch.description     = body.description;
   if (body.date_start !== undefined)      patch.date_start      = body.date_start;
   if (body.date_end !== undefined)        patch.date_end        = body.date_end;
   if (body.crew_id !== undefined)         patch.crew_id         = body.crew_id;
+  if (body.crew_ids !== undefined)        patch.crew_ids        = body.crew_ids;
   if (body.status !== undefined)          patch.status          = body.status as EventStatus;
   if (body.note !== undefined)            patch.note            = body.note;
   if (body.blocked_on !== undefined)      patch.blocked_on      = body.blocked_on;

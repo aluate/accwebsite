@@ -379,6 +379,14 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_job_events_status          ON job_events(status);
     CREATE INDEX IF NOT EXISTS idx_crew_pto_crew              ON crew_pto(crew_id);
     CREATE INDEX IF NOT EXISTS idx_crew_pto_dates             ON crew_pto(date_start, date_end);
+    CREATE TABLE IF NOT EXISTS event_crew (
+      id             TEXT PRIMARY KEY,
+      event_id       TEXT NOT NULL REFERENCES job_events(id) ON DELETE CASCADE,
+      crew_member_id TEXT NOT NULL REFERENCES crews(id) ON DELETE CASCADE,
+      UNIQUE (event_id, crew_member_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_event_crew_event  ON event_crew(event_id);
+    CREATE INDEX IF NOT EXISTS idx_event_crew_member ON event_crew(crew_member_id);
     CREATE INDEX IF NOT EXISTS idx_scr_event                  ON schedule_change_requests(job_event_id);
     CREATE INDEX IF NOT EXISTS idx_scr_status                 ON schedule_change_requests(status);
     CREATE INDEX IF NOT EXISTS idx_job_event_audit_event      ON job_event_audit(event_id);

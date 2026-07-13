@@ -41,7 +41,6 @@ export function AddEventForm({
 }: AddEventFormProps) {
   const today = new Date().toISOString().slice(0, 10);
 
-  // Detect if the stored event_type is a known type; if not, treat as "other"
   const initType = (initialEvent?.event_type && (EVENT_TYPES as readonly string[]).includes(initialEvent.event_type))
     ? initialEvent.event_type as EventType
     : initialEvent ? "other" as EventType : "install" as EventType;
@@ -61,7 +60,10 @@ export function AddEventForm({
       ? String(calculateDuration(initialEvent.date_start, initialEvent.date_end))
       : String(DEFAULT_DURATION["install"] ?? 1)
   );
-  const [crewId,      setCrewId]      = useState<string>(initialEvent?.crew_id ?? "");
+  // Multi-crew state
+  const [crewIds,     setCrewIds]     = useState<string[]>(
+    initialEvent?.crew_ids?.length ? initialEvent.crew_ids : (initialEvent?.crew_id ? [initialEvent.crew_id] : [])
+  );
   const [status,      setStatus]      = useState<EventStatus>((initialEvent?.status ?? "scheduled") as EventStatus);
   const [blockedOn,   setBlockedOn]   = useState(initialEvent?.blocked_on ?? "");
   const [note,        setNote]        = useState(initialEvent?.note ?? "");
@@ -72,7 +74,6 @@ export function AddEventForm({
   const [errorMsg,     setErrorMsg]     = useState("");
   const [conflicts,    setConflicts]    = useState<JobEventWithJoins[]>([]);
 
-  // When event type changes (add mode only), reset duration to default
   useEffect(() => {
     if (mode === "add") {
       const dur = DEFAULT_DURATION[eventType] ?? 1;
@@ -107,6 +108,12 @@ export function AddEventForm({
     }
   }
 
+  function toggleCrew(id: string) {
+    setCrewIds((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  }
+
   async function submit() {
     setErrorMsg("");
     setConflicts([]);
@@ -126,15 +133,15 @@ export function AddEventForm({
     setSubmitState("submitting");
 
     const payload = {
-      job_id:      jobId,
-      event_type:  eventType,
-      description: eventType === "other" ? customLabel.trim() : (description || null),
-      date_start:  onDeck ? null : dateStart,
-      date_end:    onDeck ? null : (dateEnd || null),
-      crew_id:     crewId || null,
+      job_id:        jobId,
+      event_type:    eventType,
+      description:   eventType === "other" ? customLabel.trim() : (description || null),
+      date_start:    onDeck ? null : dateStart,
+      date_end:      onDeck ? null : (dateEnd || null),
+      crew_ids:      crewIds,
       status,
-      note:         note || null,
-      blocked_on:   blockedOn || null,
+      note:          note || null,
+      blocked_on:    blockedOn || null,
       duration_days: parseInt(duration, 10) || 1,
     };
 
@@ -190,6 +197,7 @@ export function AddEventForm({
   }
 
   const isEdit = mode === "edit";
+  const activeCrews = crews.filter((c) => c.active);
 
   return (
     <div
@@ -275,7 +283,6 @@ export function AddEventForm({
             </p>
             {onDeck && (
               <div className="mt-3 space-y-3">
-                {/* Duration stored so drag-to-calendar auto-sizes the install */}
                 <div className="flex items-center gap-3 bg-[#111] border border-white/10 rounded px-3 py-2">
                   <label className="text-[#f08122]/80 text-[10px] font-condensed uppercase tracking-widest whitespace-nowrap">
                     Duration when scheduled (working days)
@@ -355,14 +362,41 @@ export function AddEventForm({
             </div>
           )}
 
-          {/* Crew + Status */}
+          {/* Crew multi-select + Status */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>Crew</label>
-              <select value={crewId} onChange={(e) => setCrewId(e.target.value)} className={SELECT}>
-                <option value="">— Unassigned —</option>
-                {crews.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.kind})</option>)}
-              </select>
+              <label className={LABEL}>
+                Crew
+                {crewIds.length > 0 && (
+                  <span className="ml-2 text-[#f08122] normal-case">{crewIds.length} selected</span>
+                )}
+              </label>
+              {activeCrews.length === 0 ? (
+                <p className="text-white/30 text-xs italic px-2 py-2">No active crews</p>
+              ) : (
+                <div className="bg-[#1a1a1a] border border-white/15 rounded max-h-36 overflow-y-auto divide-y divide-white/5">
+                  {activeCrews.map((c) => {
+                    const checked = crewIds.includes(c.id);
+                    return (
+                      <label
+                        key={c.id}
+                        className={`flex items-center gap-2.5 px-3 py-2 cursor-pointer transition-colors hover:bg-white/5 ${checked ? "bg-[#f08122]/10" : ""}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleCrew(c.id)}
+                          className="accent-[#f08122] shrink-0"
+                        />
+                        <span className="text-sm text-white flex-1 truncate">{c.name}</span>
+                        <span className="text-[10px] font-condensed uppercase text-white/40 shrink-0">
+                          {c.kind === "inhouse" ? "IH" : "Sub"}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <div>
               <label className={LABEL}>Status</label>
@@ -394,7 +428,7 @@ export function AddEventForm({
               <ul className="space-y-1 text-yellow-200/80 text-xs">
                 {conflicts.map((c) => (
                   <li key={c.id}>
-                    {c.crew_name} on <strong>{c.job_client_name ?? c.job_id}</strong>{" "}
+                    {c.crew_names?.join(" + ") || c.crew_name || "Crew"} on <strong>{c.job_client_name ?? c.job_id}</strong>{" "}
                     ({c.description ?? c.event_type}) {c.date_start}{c.date_end ? `–${c.date_end}` : ""}
                   </li>
                 ))}
@@ -410,7 +444,6 @@ export function AddEventForm({
 
           {/* Footer */}
           <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/5">
-            {/* Delete (edit mode only) */}
             {isEdit && (
               <button
                 onClick={handleDelete}
