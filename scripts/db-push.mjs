@@ -873,7 +873,24 @@ async function main() {
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
     // Bug reports
     `CREATE TABLE IF NOT EXISTS bug_reports (
-      id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
-      page_url     TEXT NOT NULL,
-      user_name    TEXT NOT NULL,
-      user_role  
+      id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+      page_url      TEXT NOT NULL,
+      user_name     TEXT NOT NULL,
+      user_role     TEXT NOT NULL,
+      what_trying   TEXT NOT NULL,
+      what_happened TEXT NOT NULL,
+      severity      TEXT NOT NULL DEFAULT 'annoying',
+      status        TEXT NOT NULL DEFAULT 'open',
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_bug_reports_status  ON bug_reports(status)`,
+    `CREATE INDEX IF NOT EXISTS idx_bug_reports_created ON bug_reports(created_at DESC)`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
+  }
+
+  console.log("Schema push complete.");
+  await sql.end();
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
