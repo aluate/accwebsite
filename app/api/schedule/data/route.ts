@@ -69,4 +69,12 @@ export async function GET() {
 
   return NextResponse.json({
     today,
-    crews
+    crews,
+    forwardEvents: fwdEvents,
+    onDeckEvents:  deckEvents,
+    jobs,
+    ptoRows,
+    windowStartIso,
+    windowEndIso,
+  });
+}
