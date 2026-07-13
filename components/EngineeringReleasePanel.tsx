@@ -37,6 +37,8 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   const [sendSuccess, setSendSuccess]   = useState(false);
   const [open, setOpen]                 = useState(false);
   const [saving, setSaving]             = useState(false);
+  const [installDate, setInstallDate]   = useState("");
+  const [installDays, setInstallDays]   = useState(1);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileRef   = useRef<HTMLInputElement | null>(null);
 
@@ -177,7 +179,11 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     const res = await fetch(`/api/jobs/${jobId}/engineering-release`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notes }),
+      body: JSON.stringify({
+        notes,
+        install_start_date: installDate || null,
+        install_duration_days: installDays || 1,
+      }),
     });
     const data = await res.json() as {
       ok?: boolean; error?: string; releasedAt?: string; released_by?: string;
@@ -470,6 +476,44 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
               rows={4}
               className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/30 resize-none"
             />
+          </div>
+
+          {/* Install scheduling */}
+          <div className="bg-white/[0.03] border border-white/10 rounded p-4">
+            <p className="text-[10px] font-condensed uppercase tracking-widest text-white/40 mb-3">
+              📅 Install Scheduling
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-white/50 mb-1">
+                  Install start date <span className="text-white/25 font-normal">(leave blank to place ON DECK)</span>
+                </label>
+                <input
+                  type="date"
+                  value={installDate}
+                  onChange={(e) => setInstallDate(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white/80 focus:outline-none focus:border-white/30"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/50 mb-1">
+                  Duration (working days)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={installDays}
+                  onChange={(e) => setInstallDays(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-32 bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white/80 focus:outline-none focus:border-white/30"
+                />
+              </div>
+              <p className="text-[10px] text-white/25">
+                {installDate
+                  ? `Will create a ${installDays}-day install event starting ${installDate} on the schedule.`
+                  : "Will create an install event in ON DECK — drag to the calendar when ready."}
+              </p>
+            </div>
           </div>
 
           {/* Send button */}

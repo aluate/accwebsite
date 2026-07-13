@@ -3,6 +3,7 @@ import { sql, uid } from "@/lib/db";
 import { getBuilder } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { isComplete } from "@/lib/engineering-release-checklist";
+import { addWorkingDays } from "@/lib/schedule-utils";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -103,8 +104,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   // ── 5. Parse request body ────────────────────────────────────────────────
-  const body = await req.json() as { notes?: string };
+  const body = await req.json() as {
+    notes?: string;
+    install_start_date?: string | null;
+    install_duration_days?: number | null;
+  };
   const notes = (body.notes ?? "").trim();
+  const installStartDate  = body.install_start_date  ?? null;
+  const installDurationDays = Math.max(1, body.install_duration_days ?? 1);
 
   // ── 6. Compose email ─────────────────────────────────────────────────────
   const jobRef  = job.job_number ? `JOB#${job.job_number}` : `JOB ${job.id}`;
@@ -163,6 +170,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       ${ENG_EMAIL}, ${ccString}
     )
   `;
+
+  // ── 9. Create install event on schedule ────────────────────────────────
+  try {
+    const eventId = uid();
+    const endDate = installStartDate && installDurationDays > 1
+      ? addWorkingDays(installStartDate, installDurationDays - 1)
+      : null;
+    await sql`
+      INSERT INTO job_events
+        (id, job_id, event_type, date_start, date_end, duration_days,
+         status, created_at, created_by, updated_at, updated_by, sort_order)
+      VALUES (
+        ${eventId}, ${id}, 'install',
+        ${installStartDate}, ${endDate}, ${installDurationDays},
+        'scheduled', ${now}, ${actor}, ${now}, ${actor}, 0
+      )
+    `;
+  } catch (err) {
+    console.error("[eng-release] Could not create install event:", err);
+    // Non-fatal — release already logged
+  }
 
   return NextResponse.json({
     ok:         true,
