@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
-import { getActiveAccessories } from "@/lib/accessories-db";
 import { catalogs } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
 
@@ -251,7 +250,18 @@ export default async function SpecEditorPage({
     melamineColors:   catalogs.melamineColors(),
     doorStyles:       catalogs.doorStyles(),
     hardwarePulls:    catalogs.hardwarePulls(),
-    revaAccessories:  await getActiveAccessories(),
+    revaAccessories:  await (async () => {
+      const rows = await sql<{id:string;name:string;brand:string;series:string|null;category:string;width_options:string|null;finish_opts:string|null;hand:string|null;image_url:string|null;price_slp:number|null;price_date:string|null;notes:string|null;active:boolean}[]>`
+        SELECT * FROM accessories_catalog WHERE active = true ORDER BY category, name
+      `;
+      return rows.map(r => ({
+        id: r.id, name: r.name, brand: r.brand, series: r.series ?? "",
+        category: r.category, width_options_in: r.width_options,
+        finish_options: r.finish_opts, hand: r.hand,
+        image_url: r.image_url ?? "", price_slp: r.price_slp != null ? String(r.price_slp) : "",
+        price_date: r.price_date ?? "", notes: r.notes ?? "",
+      }));
+    })(),
     cabinetFamilies:  catalogs.cabinetFamilies(),
     carcassMaterials: catalogs.carcassMaterials(),
     drawerBoxes:      catalogs.drawerBoxes(),

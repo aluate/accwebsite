@@ -1,14 +1,23 @@
 export const dynamic = "force-dynamic";
 
 import { requireRole } from "@/lib/auth";
-import { getAllAccessories } from "@/lib/accessories-db";
+import { sql } from "@/lib/db";
 import Link from "next/link";
 import { AccessoryCatalogAdmin, type CatalogItem } from "@/components/AccessoryCatalogAdmin";
+
+type DBRow = {
+  id: string; name: string; brand: string; series: string | null;
+  category: string; width_options: string | null; finish_opts: string | null;
+  hand: string | null; image_url: string | null; price_slp: number | null;
+  price_date: string | null; notes: string | null; active: boolean;
+};
 
 export default async function AccessoriesAdminPage() {
   await requireRole("admin");
 
-  const rows = await getAllAccessories();
+  const rows = await sql<DBRow[]>`
+    SELECT * FROM accessories_catalog ORDER BY category, name
+  `;
 
   const items: CatalogItem[] = rows.map((r) => ({
     id: r.id,
