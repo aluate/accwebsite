@@ -29,6 +29,14 @@ type StorageFile = {
   url: string;
 };
 
+type JobFile = {
+  id: string;
+  file_name: string;
+  storage_path: string;
+  kind: string;
+  uploaded_at: string;
+};
+
 const TYPE_LABELS: Record<string, string> = {
   cab_delivery: "Cab Delivery", top_delivery: "Top Delivery",
   install: "Install", punch: "Punch", final_walkthrough: "Final Walkthrough", service: "Service",
@@ -56,7 +64,7 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
   `.catch(() => []);
   const crewId = crewRows[0]?.id ?? null;
 
-  const [jobRows, eventsRaw] = await Promise.all([
+  const [jobRows, eventsRaw, installDrawings] = await Promise.all([
     sql<JobDetail[]>`SELECT id, job_number, client_name, site_address, city, status FROM jobs WHERE id = ${jobId}`,
     sql<InstallEvent[]>`
       SELECT je.id, je.event_type, je.description, je.date_start, je.date_end, je.status, je.note
@@ -67,6 +75,12 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
         CASE WHEN je.date_start IS NULL THEN 1 ELSE 0 END,
         je.date_start, je.event_type
     `,
+    sql<JobFile[]>`
+      SELECT id, file_name, storage_path, kind, uploaded_at
+      FROM job_files
+      WHERE job_id = ${jobId} AND kind = '14_install_drawings'
+      ORDER BY uploaded_at DESC
+    `.catch(() => [] as JobFile[]),
   ]);
 
   const job = jobRows[0];
@@ -95,7 +109,16 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
           {job.job_number ? `#${job.job_number}` : job.id}
         </p>
         <h1 className="text-white text-2xl font-heading uppercase leading-tight">{job.client_name}</h1>
-        {location && <p className="text-white/50 text-sm mt-1">{location}</p>}
+        {location && (
+          <a
+            href={"https://maps.google.com/?q=" + encodeURIComponent(location)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-[#f08122] text-sm mt-1 underline underline-offset-2"
+          >
+            📍 {location}
+          </a>
+        )}
         <span className="inline-block mt-2 text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded bg-white/10 text-white/50">
           {job.status}
         </span>
@@ -128,6 +151,37 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
         </section>
       )}
 
+      {/* Install Drawings */}
+      <section>
+        <h2 className="text-white/30 font-condensed uppercase tracking-[0.2em] text-xs mb-3">
+          Install Drawings {installDrawings.length > 0 && `(${installDrawings.length})`}
+        </h2>
+        {installDrawings.length === 0 ? (
+          <p className="text-white/20 text-sm italic">No install drawings uploaded yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {installDrawings.map((f) => (
+              <a
+                key={f.id}
+                href={`/api/jobs/${jobId}/files?file_id=${f.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-4 hover:border-[#f08122]/40 transition-colors"
+              >
+                <span className="text-2xl">📄</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium truncate">{f.file_name}</p>
+                  <p className="text-white/30 text-xs mt-0.5">
+                    {new Date(f.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </p>
+                </div>
+                <span className="text-[#f08122] text-xs font-condensed uppercase tracking-wider shrink-0">Open →</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Punch items */}
       <section>
         <h2 className="text-white/30 font-condensed uppercase tracking-[0.2em] text-xs mb-3">
@@ -157,15 +211,7 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
         )}
       </section>
 
-      {/* Footer */}
-      <div className="pt-4 border-t border-white/10">
-        <Link
-          href={`/jobs/${jobId}`}
-          className="block text-center text-[#f08122] text-xs font-condensed uppercase tracking-wider py-2"
-        >
-          Full Job Detail →
-        </Link>
-      </div>
+
     </div>
   );
 }

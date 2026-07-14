@@ -201,10 +201,11 @@ function EventCard({ ev }: { ev: InstallEvent }) {
   const typeCls    = TYPE_COLORS[ev.event_type]  ?? "bg-white/10 text-white/60";
   const statusCls  = STATUS_COLORS[ev.status]    ?? "text-white/40";
   const location   = [ev.site_address, ev.city].filter(Boolean).join(", ");
+  const mapsUrl    = location ? "https://maps.google.com/?q=" + encodeURIComponent(location) : null;
 
   return (
     <Link
-      href={`/jobs/${ev.job_id}`}
+      href={`/installer/jobs/${ev.job_id}`}
       className="block bg-white/5 border border-white/10 rounded-xl p-4 active:bg-white/10 transition-colors"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -219,8 +220,16 @@ function EventCard({ ev }: { ev: InstallEvent }) {
       <p className="text-white font-medium text-base leading-tight">
         {ev.client_name}
       </p>
-      {location && (
-        <p className="text-white/50 text-sm mt-0.5">{location}</p>
+      {location && mapsUrl && (
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block text-[#f08122] text-sm mt-0.5 underline underline-offset-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          📍 {location}
+        </a>
       )}
       {ev.description && (
         <p className="text-white/40 text-xs mt-1">{ev.description}</p>
@@ -244,7 +253,7 @@ function EventCard({ ev }: { ev: InstallEvent }) {
       )}
 
       <p className="mt-3 text-[#f08122] text-xs font-condensed uppercase tracking-wider">
-        View job + upload photos →
+        View drawings →
       </p>
     </Link>
   );
@@ -294,24 +303,6 @@ export default async function InstallerPage() {
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#111]/95 backdrop-blur border-b border-white/10 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[#f08122] font-condensed uppercase tracking-[0.2em] text-xs">
-              Advanced Custom Cabinets
-            </p>
-            <p className="text-white text-sm font-medium">{session.name}</p>
-          </div>
-          <Link
-            href="/schedule"
-            className="text-white/40 text-xs font-condensed uppercase tracking-wider border border-white/15 rounded px-3 py-1.5 hover:border-white/30 transition-colors"
-          >
-            Full Calendar
-          </Link>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="px-4 py-5 space-y-7 max-w-lg mx-auto">
         {/* ── Active jobs board — all on-floor jobs ── */}
@@ -328,7 +319,7 @@ export default async function InstallerPage() {
                 return (
                   <Link
                     key={job.id}
-                    href={`/jobs/${job.id}`}
+                    href={`/installer/jobs/${job.id}`}
                     className="block bg-white/5 border border-white/10 rounded-xl p-4 active:bg-white/10 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
@@ -342,12 +333,22 @@ export default async function InstallerPage() {
                       )}
                     </div>
                     <p className="text-white font-medium text-base leading-tight">{job.client_name}</p>
-                    {location && <p className="text-white/50 text-sm mt-0.5">{location}</p>}
+                    {location && (
+                      <a
+                        href={"https://maps.google.com/?q=" + encodeURIComponent(location)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-[#f08122] text-sm mt-0.5 underline underline-offset-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        📍 {location}
+                      </a>
+                    )}
                     {job.job_number && (
                       <p className="text-white/25 text-xs mt-1 font-condensed">#{job.job_number}</p>
                     )}
                     <p className="mt-2 text-[#f08122] text-xs font-condensed uppercase tracking-wider">
-                      Open job →
+                      View drawings →
                     </p>
                   </Link>
                 );
@@ -375,23 +376,7 @@ export default async function InstallerPage() {
           </>
         )}
 
-        {/* Footer links */}
-        <div className="pt-4 border-t border-white/10 space-y-2">
-          <Link
-            href="/jobs"
-            className="block text-center text-white/30 text-xs font-condensed uppercase tracking-wider py-2"
-          >
-            All Jobs
-          </Link>
-          <form action="/api/auth/logout" method="POST">
-            <button
-              type="submit"
-              className="w-full text-center text-white/20 text-xs font-condensed uppercase tracking-wider py-2"
-            >
-              Sign Out
-            </button>
-          </form>
-        </div>
+
       </div>
     </div>
   );
