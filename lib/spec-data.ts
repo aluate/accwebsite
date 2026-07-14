@@ -62,7 +62,10 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const drawerBoxIdx=new Map(catalogs.drawerBoxes().map(d=>[d.id,d.name]));
   const edgebandIdx=new Map(catalogs.edgebands().map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));
   const doorStyleIdx=new Map(catalogs.doorStyles().map(d=>[d.id,d.name]));
-  const accIdx=new Map(catalogs.revaAccessories().map(a=>[a.id,{name:a.name,brand:a.brand,series:a.series,category:a.category}]));
+  const accRows = await sql<{id:string;name:string;brand:string;series:string|null;category:string}[]>`
+    SELECT id, name, brand, series, category FROM accessories_catalog
+  `;
+  const accIdx=new Map(accRows.map(a=>[a.id,{name:a.name,brand:a.brand,series:a.series??"",category:a.category}]));
   const moldingProfIdx=new Map(catalogs.moldingProfiles().map(p=>[p.id,p.name]));
   const moldingMatIdx=new Map(catalogs.moldingMaterials().map(m=>[m.id,m.name]));
   const sheenIdx=new Map(catalogs.sheens().map(s=>[s.id,s.name]));

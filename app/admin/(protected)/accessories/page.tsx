@@ -1,42 +1,29 @@
 export const dynamic = "force-dynamic";
 
 import { requireRole } from "@/lib/auth";
-import { sql } from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
+import { getAllAccessories } from "@/lib/accessories-db";
 import Link from "next/link";
 import { AccessoryCatalogAdmin, type CatalogItem } from "@/components/AccessoryCatalogAdmin";
-
-const CATALOG = "accessories_reva";
 
 export default async function AccessoriesAdminPage() {
   await requireRole("admin");
 
-  const allItems = catalogs.revaAccessories();
+  const rows = await getAllAccessories();
 
-  const states = await sql<{ item_id: string; active: boolean }[]>`
-    SELECT item_id, active FROM catalog_active_states WHERE catalog = ${CATALOG}
-  `.catch(() => [] as { item_id: string; active: boolean }[]);
-
-  const stateMap = new Map(states.map((s) => [s.item_id, s.active]));
-
-  const items: CatalogItem[] = allItems.map((r) => ({
+  const items: CatalogItem[] = rows.map((r) => ({
     id: r.id,
     name: r.name,
     brand: r.brand,
-    series: r.series,
+    series: r.series ?? "",
     category: r.category,
-    width_options_in: Array.isArray(r.width_options_in)
-      ? r.width_options_in.join(";")
-      : String(r.width_options_in ?? ""),
-    finish_options: Array.isArray(r.finish_options)
-      ? r.finish_options.join(";")
-      : String(r.finish_options ?? ""),
+    width_options_in: r.width_options ?? "",
+    finish_options: r.finish_opts ?? "",
     hand: r.hand ?? "",
     image_url: r.image_url ?? "",
-    price_slp: r.price_slp ?? "",
+    price_slp: r.price_slp != null ? String(r.price_slp) : "",
     price_date: r.price_date ?? "",
     notes: r.notes ?? "",
-    active: stateMap.has(r.id) ? (stateMap.get(r.id) ?? true) : true,
+    active: r.active,
   }));
 
   return (
@@ -51,10 +38,7 @@ export default async function AccessoriesAdminPage() {
         Accessory catalog
       </h1>
       <p className="text-white/30 text-sm mb-8 max-w-2xl">
-        Toggle items active or inactive. Inactive items are hidden from the PM spec picker but stay in the catalog.
-        Add or edit items by updating{" "}
-        <code className="text-white/50">data/catalogs/accessories_reva.csv</code>{" "}
-        then running <code className="text-white/50">node scripts/sync-catalogs.mjs</code>.
+        Toggle active/inactive or click the pencil icon to edit series codes, prices, and notes — no CSV or deploy needed.
       </p>
       <AccessoryCatalogAdmin initialItems={items} />
     </section>

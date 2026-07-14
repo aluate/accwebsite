@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
+import { getActiveAccessories } from "@/lib/accessories-db";
 import { catalogs } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
 
@@ -250,14 +251,7 @@ export default async function SpecEditorPage({
     melamineColors:   catalogs.melamineColors(),
     doorStyles:       catalogs.doorStyles(),
     hardwarePulls:    catalogs.hardwarePulls(),
-    revaAccessories:  await (async () => {
-      const inactiveRows = await sql<{ item_id: string }[]>`
-        SELECT item_id FROM catalog_active_states
-        WHERE catalog = 'accessories_reva' AND active = false
-      `.catch(() => []);
-      const inactiveIds = new Set(inactiveRows.map((r) => r.item_id));
-      return catalogs.revaAccessories().filter((a) => !inactiveIds.has(a.id));
-    })(),
+    revaAccessories:  await getActiveAccessories(),
     cabinetFamilies:  catalogs.cabinetFamilies(),
     carcassMaterials: catalogs.carcassMaterials(),
     drawerBoxes:      catalogs.drawerBoxes(),

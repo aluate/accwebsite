@@ -950,6 +950,54 @@ async function main() {
     )
   `;
 
+
+  // accessories_catalog — DB-backed editable catalog (replaces JSON file reads)
+  await sql`
+    CREATE TABLE IF NOT EXISTS accessories_catalog (
+      id            TEXT PRIMARY KEY,
+      name          TEXT NOT NULL,
+      brand         TEXT NOT NULL DEFAULT 'Rev-A-Shelf',
+      series        TEXT,
+      category      TEXT NOT NULL,
+      width_options TEXT,
+      finish_opts   TEXT,
+      hand          TEXT,
+      image_url     TEXT,
+      price_slp     NUMERIC,
+      price_date    DATE,
+      notes         TEXT,
+      active        BOOLEAN NOT NULL DEFAULT TRUE,
+      updated_at    TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  // Seed from JSON on first deploy (idempotent)
+  const [{ count: accCount }] = await sql`SELECT COUNT(*)::int AS count FROM accessories_catalog`;
+  if (accCount === 0) {
+    const catalogPath = resolve(__dirname, '../data/catalogs/accessories_reva.json');
+    const items = JSON.parse(readFileSync(catalogPath, 'utf8'));
+    const toStr = (v) => {
+      if (v == null) return null;
+      if (Array.isArray(v)) return v.map(String).join(';');
+      const s = String(v);
+      return (s === '' || s === '\u2014') ? null : s;
+    };
+    for (const item of items) {
+      await sql`
+        INSERT INTO accessories_catalog
+          (id, name, brand, series, category, width_options, finish_opts, hand,
+           image_url, price_slp, price_date, notes, active)
+        VALUES (
+          ${item.id}, ${item.name}, ${item.brand ?? 'Rev-A-Shelf'}, ${item.series ?? null},
+          ${item.category}, ${toStr(item.width_options_in)}, ${toStr(item.finish_options)},
+          ${toStr(item.hand)}, ${item.image_url || null},
+          ${item.price_slp ? parseFloat(item.price_slp) : null},
+          ${item.price_date || null}, ${item.notes || null}, true
+        )
+      `;
+    }
+    console.log(\`Seeded \${items.length} accessories into accessories_catalog\`);
+  }
+
   console.log("Schema push complete.");
   await sql.end();
 }
