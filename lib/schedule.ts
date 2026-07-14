@@ -10,6 +10,12 @@ import {
 export { EVENT_TYPES, EVENT_TYPE_LABELS, EVENT_STATUSES, CREW_KINDS, isEventType, isEventStatus, isCrewKind, isoDateOffset, isoWeekStart };
 export type { EventType, EventStatus, CrewKind, Crew, JobEvent, JobEventWithJoins, JobEventAuditRow };
 
+// Static SQL fragment shared by all event queries.
+// Used via sql.unsafe(EVENT_SELECT) — a *no-arg* call — embedded inside
+// tagged-template queries so that the outer query uses postgres.js's simple
+// query protocol.  Never pass EVENT_SELECT as the string arg to sql.unsafe()
+// WITH a params array: that would set simple:false (extended protocol) which
+// hangs on PgBouncer in transaction mode.
 const EVENT_SELECT = `
   SELECT sub.*,
     COALESCE(agg.crew_ids, '{}') AS crew_ids,
@@ -30,6 +36,9 @@ const EVENT_SELECT = `
   ) agg ON agg.event_id = sub.id
   LEFT JOIN jobs j ON j.id = sub.job_id
 `;
+
+// Shorthand so callers can write ${ES} in tagged templates.
+const ES = sql.unsafe(EVENT_SELECT);
 
 export async function listCrews(opts: { activeOnly?: boolean } = {}): Promise<Crew[]> {
   if (opts.activeOnly) return await sql<Crew[]>`SELECT * FROM crews WHERE active = 1 ORDER BY active DESC, name`;
@@ -59,7 +68,7 @@ export async function updateCrew(id: string, patch: Partial<Pick<Crew, "name"|"k
 }
 
 export async function getEvent(id: string): Promise<JobEventWithJoins | null> {
-  const rows = await sql.unsafe<JobEventWithJoins[]>(`${EVENT_SELECT} WHERE sub.id = $1`, [id]);
+  const rows = await sql<JobEventWithJoins[]>`${ES} WHERE sub.id = ${id}`;
   return rows[0] ?? null;
 }
 
@@ -67,50 +76,66 @@ export async function forwardEvents(opts: { todayIso?: string; windowDaysBack?: 
   const today = opts.todayIso ?? new Date().toISOString().slice(0, 10);
   const lo = isoDateOffset(today, -(opts.windowDaysBack ?? 7));
   const hi = isoDateOffset(today, +(opts.windowDaysForward ?? 90));
-  const params: (string | number | boolean | null)[] = [lo, hi];
-  let where = `sub.date_start IS NOT NULL AND sub.date_start >= $1 AND sub.date_start <= $2`;
-  if (opts.crewId) {
-    params.push(opts.crewId);
-    where += ` AND EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = $${params.length})`;
-  }
-  if (opts.eventType) { params.push(opts.eventType); where += ` AND sub.event_type = $${params.length}`; }
-  return await sql.unsafe<JobEventWithJoins[]>(`${EVENT_SELECT} WHERE ${where} ORDER BY sub.date_start, sub.sort_order, sub.created_at`, params);
+  return await sql<JobEventWithJoins[]>`
+    ${ES}
+    WHERE sub.date_start IS NOT NULL
+      AND sub.date_start >= ${lo}
+      AND sub.date_start <= ${hi}
+      ${opts.crewId ? sql`AND EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = ${opts.crewId})` : sql``}
+      ${opts.eventType ? sql`AND sub.event_type = ${opts.eventType}` : sql``}
+    ORDER BY sub.date_start, sub.sort_order, sub.created_at
+  `;
 }
 
 export async function onDeckEvents(opts: { jobId?: string; eventType?: EventType } = {}): Promise<JobEventWithJoins[]> {
-  const params: (string | number | boolean | null)[] = [];
-  let where = `sub.date_start IS NULL`;
-  if (opts.jobId)     { params.push(opts.jobId);     where += ` AND sub.job_id = $${params.length}`; }
-  if (opts.eventType) { params.push(opts.eventType); where += ` AND sub.event_type = $${params.length}`; }
-  return await sql.unsafe<JobEventWithJoins[]>(`${EVENT_SELECT} WHERE ${where} ORDER BY sub.created_at DESC`, params);
+  return await sql<JobEventWithJoins[]>`
+    ${ES}
+    WHERE sub.date_start IS NULL
+      ${opts.jobId ? sql`AND sub.job_id = ${opts.jobId}` : sql``}
+      ${opts.eventType ? sql`AND sub.event_type = ${opts.eventType}` : sql``}
+    ORDER BY sub.created_at DESC
+  `;
 }
 
 export async function jobEvents(jobId: string): Promise<JobEventWithJoins[]> {
-  return await sql.unsafe<JobEventWithJoins[]>(`${EVENT_SELECT} WHERE sub.job_id = $1 ORDER BY sub.date_start IS NULL, sub.date_start, sub.sort_order, sub.created_at`, [jobId]);
+  return await sql<JobEventWithJoins[]>`
+    ${ES}
+    WHERE sub.job_id = ${jobId}
+    ORDER BY sub.date_start IS NULL, sub.date_start, sub.sort_order, sub.created_at
+  `;
 }
 
 export async function findCrewConflicts(input: { crewId: string; dateStart: string; dateEnd?: string | null; excludeEventId?: string }): Promise<JobEventWithJoins[]> {
   const end = input.dateEnd ?? input.dateStart;
-  const params: (string | number | boolean | null)[] = [input.crewId, end, input.dateStart];
-  let excl = "";
-  if (input.excludeEventId) { params.push(input.excludeEventId); excl = ` AND sub.id <> $${params.length}`; }
-  const where = `EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = $1) AND sub.date_start IS NOT NULL AND sub.date_start <= $2 AND COALESCE(sub.date_end, sub.date_start) >= $3${excl}`;
-  return await sql.unsafe<JobEventWithJoins[]>(`${EVENT_SELECT} WHERE ${where} ORDER BY sub.date_start`, params);
+  return await sql<JobEventWithJoins[]>`
+    ${ES}
+    WHERE EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = ${input.crewId})
+      AND sub.date_start IS NOT NULL
+      AND sub.date_start <= ${end}
+      AND COALESCE(sub.date_end, sub.date_start) >= ${input.dateStart}
+      ${input.excludeEventId ? sql`AND sub.id <> ${input.excludeEventId}` : sql``}
+    ORDER BY sub.date_start
+  `;
 }
 
 export async function findDeliveryConflicts(dateStart: string, excludeEventId?: string): Promise<JobEventWithJoins[]> {
-  const params: (string | number | boolean | null)[] = [dateStart];
-  let excl = "";
-  if (excludeEventId) { params.push(excludeEventId); excl = ` AND sub.id <> $${params.length}`; }
-  const where = `sub.event_type IN ('cab_delivery','top_delivery') AND sub.date_start = $1${excl}`;
-  return await sql.unsafe<JobEventWithJoins[]>(`${EVENT_SELECT} WHERE ${where} ORDER BY sub.created_at`, params);
+  return await sql<JobEventWithJoins[]>`
+    ${ES}
+    WHERE sub.event_type IN ('cab_delivery', 'top_delivery')
+      AND sub.date_start = ${dateStart}
+      ${excludeEventId ? sql`AND sub.id <> ${excludeEventId}` : sql``}
+    ORDER BY sub.created_at
+  `;
 }
 
 export async function findSiblingEvent(input: { jobId: string; eventType: EventType; excludeEventId?: string }): Promise<JobEvent | null> {
-  const params: (string | number | boolean | null)[] = [input.jobId, input.eventType];
-  let excl = "";
-  if (input.excludeEventId) { params.push(input.excludeEventId); excl = ` AND id <> $${params.length}`; }
-  const rows = await sql.unsafe<JobEvent[]>(`SELECT * FROM job_events WHERE job_id = $1 AND event_type = $2${excl} ORDER BY created_at DESC LIMIT 1`, params);
+  const rows = await sql<JobEvent[]>`
+    SELECT * FROM job_events
+    WHERE job_id = ${input.jobId}
+      AND event_type = ${input.eventType}
+      ${input.excludeEventId ? sql`AND id <> ${input.excludeEventId}` : sql``}
+    ORDER BY created_at DESC LIMIT 1
+  `;
   return rows[0] ?? null;
 }
 
