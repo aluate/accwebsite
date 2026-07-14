@@ -42,7 +42,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const job = jobRows[0]; if (!job) throw new SpecDataError("Job not found", 404);
 
   const fgs = await sql<FGRow[]>`
-    SELECT fg.*, pc.hex_value AS color_hex
+    SELECT fg.*, pc.hex AS color_hex
     FROM finish_groups fg
     LEFT JOIN paint_colors pc ON pc.code = fg.color_id
     WHERE fg.spec_id = ${specId}
