@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Role = "admin" | "pm" | "engineer" | "shop" | "installer";
+type Role = "karl" | "admin" | "pm" | "engineer" | "shop" | "installer";
 
 type BuilderAccount = {
   id: string;
@@ -16,7 +16,7 @@ type BuilderAccount = {
   role: Role;
 };
 
-const ROLES: Role[] = ["admin", "pm", "engineer", "shop", "installer"];
+const ROLES: Role[] = ["karl", "admin", "pm", "engineer", "shop", "installer"];
 
 const ROLE_LABELS: Record<Role, string> = {
   admin:     "Admin",
@@ -130,8 +130,8 @@ export default function BuildersAdminPage() {
   }
 
   async function setRole(account: BuilderAccount, newRole: string) {
-    if (account.role === "admin" && newRole !== "admin") {
-      const adminCount = accounts.filter((a) => a.role === "admin" && a.active === 1).length;
+    if ((account.role === "admin" || account.role === "karl") && newRole !== "admin" && newRole !== "karl") {
+      const adminCount = accounts.filter((a) => (a.role === "admin" || a.role === "karl") && a.active === 1).length;
       if (adminCount <= 1) {
         alert("Cannot change the last admin's role. Promote another user to admin first.");
         return;
@@ -148,8 +148,8 @@ export default function BuildersAdminPage() {
   }
 
   async function handleDelete(id: string, name: string, role: string) {
-    if (role === "admin") {
-      const adminCount = accounts.filter((a) => a.role === "admin" && a.active === 1).length;
+    if (role === "admin" || role === "karl") {
+      const adminCount = accounts.filter((a) => (a.role === "admin" || a.role === "karl") && a.active === 1).length;
       if (adminCount <= 1) {
         alert("Cannot delete the last admin.");
         return;

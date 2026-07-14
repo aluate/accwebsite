@@ -6,12 +6,12 @@ import sql from "@/lib/db";
 export const COOKIE_NAME = "acc_builder_session";
 const SESSION_DAYS = 30;
 
-export type Role = "admin" | "pm" | "engineer" | "shop" | "installer";
+export type Role = "karl" | "admin" | "pm" | "engineer" | "shop" | "installer";
 export type BuilderSession = {
   id: string; username: string; name: string;
   company: string | null; email: string | null; role: Role;
 };
-export const ROLES: readonly Role[] = ["admin", "pm", "engineer", "shop", "installer"] as const;
+export const ROLES: readonly Role[] = ["karl", "admin", "pm", "engineer", "shop", "installer"] as const;
 
 export function hashPassword(pw: string): Promise<string> { return bcrypt.hash(pw, 12); }
 export function verifyPassword(pw: string, hash: string): Promise<boolean> { return bcrypt.compare(pw, hash); }
@@ -60,8 +60,19 @@ export async function requireBuilder(): Promise<BuilderSession> {
 export async function requireRole(role: Role | Role[]): Promise<BuilderSession> {
   const builder = await requireBuilder();
   const wanted = Array.isArray(role) ? role : [role];
-  if (builder.role === "admin") return builder;
+  if (builder.role === "karl" || builder.role === "admin") return builder;
   if (!wanted.includes(builder.role)) redirect("/jobs");
+  return builder;
+}
+
+/**
+ * requireKarl — strict gate for the Admin section.
+ * Only the "karl" role passes. Does NOT apply the admin bypass —
+ * this is intentional so that "admin" accounts cannot reach /admin/* pages.
+ */
+export async function requireKarl(): Promise<BuilderSession> {
+  const builder = await requireBuilder();
+  if (builder.role !== "karl") redirect("/jobs");
   return builder;
 }
 

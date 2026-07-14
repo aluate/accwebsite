@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireKarl } from "@/lib/auth";
 
 // Phase 1B+ (2026-05): admin pages (e.g. /admin/builders) require role='admin'
 // from the unified builder_accounts table. The legacy admin password gate is
@@ -8,6 +8,6 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireRole("admin");
+  await requireKarl();
   return <>{children}</>;
 }

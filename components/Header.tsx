@@ -115,7 +115,7 @@ export function Header({ userRole }: { userRole?: string }) {
                   {item.label}
                 </Link>
               ))}
-              {userRole === "admin" && (
+              {userRole === "karl" && (
                 <div
                   className="relative"
                   onMouseEnter={() => setAdminOpen(true)}
@@ -197,7 +197,7 @@ export function Header({ userRole }: { userRole?: string }) {
                       ))}
                     </>
                   )}
-                  {userRole === "admin" && (
+                  {userRole === "karl" && (
                     <>
                       <div className="px-3 py-1 text-xs text-white/30 uppercase tracking-widest mt-2">Admin</div>
                       {ADMIN_NAV.map((item) => (
