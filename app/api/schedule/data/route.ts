@@ -23,6 +23,7 @@ type JobMini = {
   id: string;
   client_name: string;
   site_address: string;
+  install_labor_hrs_snapshot?: number | null;
   city: string | null;
   client_phone: string | null;
   client_email: string | null;
@@ -58,11 +59,19 @@ export async function GET() {
     checkTime("onDeckEvents");
 
     const jobs = await sql<JobMini[]>`
-      SELECT id, client_name, site_address, city, client_phone, client_email
-      FROM jobs
-      WHERE status <> 'complete'
-         OR created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
-      ORDER BY created_at DESC
+      SELECT j.id, j.client_name, j.site_address, j.city, j.client_phone, j.client_email,
+             e.install_labor_hrs_snapshot
+      FROM jobs j
+      LEFT JOIN LATERAL (
+        SELECT install_labor_hrs_snapshot
+        FROM estimates
+        WHERE job_id = j.id
+        ORDER BY updated_at DESC
+        LIMIT 1
+      ) e ON true
+      WHERE j.status <> 'complete'
+         OR j.created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
+      ORDER BY j.created_at DESC
       LIMIT 300
     `;
     checkTime("jobs");

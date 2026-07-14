@@ -12,7 +12,7 @@ import {
 } from "@/lib/schedule-types";
 import { calculateEndDate, calculateDuration, DEFAULT_DURATION } from "@/lib/schedule-utils";
 
-type JobMini = { id: string; client_name: string; site_address: string };
+type JobMini = { id: string; client_name: string; site_address: string; install_labor_hrs_snapshot?: number | null };
 
 export type AddEventFormProps = {
   crews: Crew[];
@@ -74,16 +74,28 @@ export function AddEventForm({
   const [errorMsg,     setErrorMsg]     = useState("");
   const [conflicts,    setConflicts]    = useState<JobEventWithJoins[]>([]);
 
+  // When event type changes in add mode, suggest a duration.
+  // For installs: if the selected job has an estimate snapshot, derive duration
+  // from install_labor_hrs ÷ (crew count × 6.8 effective hrs/day).
+  // 6.8 = 8 hrs × 0.85 efficiency (travel + setup buffer).
   useEffect(() => {
-    if (mode === "add") {
-      const dur = DEFAULT_DURATION[eventType] ?? 1;
-      setDuration(String(dur));
-      if (dateStart) {
-        setDateEnd(dur > 1 ? calculateEndDate(dateStart, dur) : "");
+    if (mode !== "add") return;
+    let dur = DEFAULT_DURATION[eventType] ?? 1;
+    if (eventType === "install" && jobId) {
+      const job = jobs.find(j => j.id === jobId);
+      const installHrs = job?.install_labor_hrs_snapshot;
+      if (installHrs && installHrs > 0) {
+        const crewCount = Math.max(crewIds.length, 1);
+        const suggested = Math.ceil(installHrs / (crewCount * 6.8));
+        dur = Math.max(1, suggested);
       }
     }
+    setDuration(String(dur));
+    if (dateStart) {
+      setDateEnd(dur > 1 ? calculateEndDate(dateStart, dur) : "");
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventType]);
+  }, [eventType, jobId]);
 
   function handleStartChange(val: string) {
     setDateStart(val);
@@ -353,6 +365,17 @@ export function AddEventForm({
                 <p className="text-white/25 text-[10px] font-condensed uppercase tracking-widest">
                   Skips weekends &amp; holidays
                 </p>
+                {eventType === "install" && jobId && (() => {
+                  const job = jobs.find(j => j.id === jobId);
+                  const hrs = job?.install_labor_hrs_snapshot;
+                  if (!hrs) return null;
+                  const crewCount = Math.max(crewIds.length, 1);
+                  return (
+                    <p className="text-blue-300/60 text-[10px] font-condensed uppercase tracking-widest">
+                      ≈ {hrs.toFixed(0)} est. install hrs ÷ {crewCount} crew
+                    </p>
+                  );
+                })()}
                 {dateEnd && (
                   <p className="text-[#f08122]/70 text-[10px] font-condensed uppercase tracking-widest ml-auto">
                     → ends {dateEnd}
