@@ -904,6 +904,20 @@ async function main() {
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS crown         INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
+    // Builder profiles (spec auto-seed defaults)
+        `CREATE TABLE IF NOT EXISTS catalog_builder_profiles (
+              id                      TEXT PRIMARY KEY,
+                    builder_name            TEXT NOT NULL,
+                          builder_company         TEXT,
+                                default_finish_type     TEXT NOT NULL DEFAULT 'paint',
+                                      default_carcass_id      TEXT,
+                                            default_drawer_box_id   TEXT,
+                                                  default_pull_id         TEXT,
+                                                        default_paint_brand     TEXT,
+                                                              notes                   TEXT,
+                                                                    is_residential_default  BOOLEAN NOT NULL DEFAULT false
+                                                                        )`,
+        `CREATE INDEX IF NOT EXISTS idx_cbp_company ON catalog_builder_profiles(LOWER(builder_company))`,
     // Bug reports
     `CREATE TABLE IF NOT EXISTS bug_reports (
       id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
