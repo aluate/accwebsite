@@ -21,12 +21,10 @@ type PipelineJob = {
   id: string; client_name: string; site_address: string; city: string;
   status: string; job_number: string; pm: string | null;
   delivery_date: string | null; seq: number;
-  estimate_id: string | null; estimate_title: string | null;
-  scope: string | null; estimate_status: string | null;
+  estimate_id: string | null;
   sell_price_snapshot: number | null;
   shop_labor_hrs_snapshot: number | null;
   install_labor_hrs_snapshot: number | null;
-  estimate_updated_at: string | null;
   box_count: number | null;
 };
 type Capacity = { shop_capacity_hrs_per_week: number; install_capacity_hrs_per_week: number };
@@ -38,6 +36,98 @@ function fmt$(n: number | null) {
 function fmtHrs(n: number | null) {
   if (n == null || n === 0) return "—";
   return n.toFixed(1) + " hrs";
+}
+
+// ── Inline editable cell ──────────────────────────────────────────────────────
+function EditableText({ value, onSave, placeholder = "—" }: {
+  value: string | null; onSave: (v: string) => Promise<void>; placeholder?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function commit() {
+    setSaving(true);
+    await onSave(draft);
+    setSaving(false);
+    setEditing(false);
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+        disabled={saving}
+        className="w-full bg-white/10 border border-[#f08122]/60 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none"
+      />
+    );
+  }
+  return (
+    <button onClick={() => { setDraft(value ?? ""); setEditing(true); }}
+      className="text-left text-xs text-white/60 hover:text-white w-full group">
+      {value || <span className="text-white/20 group-hover:text-white/40">{placeholder}</span>}
+      <span className="ml-1 opacity-0 group-hover:opacity-40 text-[9px]">✎</span>
+    </button>
+  );
+}
+
+function EditableDate({ value, onSave }: { value: string | null; onSave: (v: string) => Promise<void> }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function commit(v: string) {
+    setSaving(true);
+    await onSave(v);
+    setSaving(false);
+    setEditing(false);
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus type="date" value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={() => commit(draft)}
+        onKeyDown={e => { if (e.key === "Enter") commit(draft); if (e.key === "Escape") setEditing(false); }}
+        disabled={saving}
+        className="bg-white/10 border border-[#f08122]/60 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none"
+      />
+    );
+  }
+  return (
+    <button onClick={() => { setDraft(value ?? ""); setEditing(true); }}
+      className="text-left text-xs text-white/60 hover:text-white group">
+      {value || <span className="text-white/20 group-hover:text-white/40">Set date</span>}
+      <span className="ml-1 opacity-0 group-hover:opacity-40 text-[9px]">✎</span>
+    </button>
+  );
+}
+
+function EditableStatus({ value, onSave }: { value: string; onSave: (v: string) => Promise<void> }) {
+  const [saving, setSaving] = useState(false);
+  async function onChange(v: string) {
+    setSaving(true);
+    await onSave(v);
+    setSaving(false);
+  }
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      disabled={saving}
+      className={`text-[10px] font-condensed uppercase tracking-widest rounded-full px-2 py-0.5 border-0 focus:outline-none cursor-pointer ${STATUS_COLOR[value] ?? "bg-white/10 text-white/40"} ${saving ? "opacity-50" : ""}`}
+      style={{ background: "transparent" }}
+    >
+      {STATUS_ORDER.map(s => (
+        <option key={s} value={s} className="bg-[#2d2d2d] text-white normal-case">{STATUS_LABEL[s]}</option>
+      ))}
+    </select>
+  );
 }
 
 export default function PipelineClient() {
@@ -61,6 +151,15 @@ export default function PipelineClient() {
 
   useEffect(() => { load(); }, [load]);
 
+  async function patchJob(jobId: string, updates: Record<string, string | null>) {
+    await fetch(`/api/jobs/${jobId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...updates, _actor: "admin", _actorRole: "admin" }),
+    });
+    setJobs(prev => prev.map(j => j.id === jobId ? { ...j, ...updates } : j));
+  }
+
   const saveCapacity = async () => {
     await fetch("/api/admin/pipeline", {
       method: "PATCH",
@@ -73,7 +172,6 @@ export default function PipelineClient() {
 
   const visible = filterStatus === "all" ? jobs : jobs.filter(j => j.status === filterStatus);
 
-  // Totals for visible jobs with snapshots
   const totalShop    = visible.reduce((s, j) => s + (j.shop_labor_hrs_snapshot ?? 0), 0);
   const totalInstall = visible.reduce((s, j) => s + (j.install_labor_hrs_snapshot ?? 0), 0);
   const totalValue   = visible.reduce((s, j) => s + (j.sell_price_snapshot ?? 0), 0);
@@ -91,7 +189,6 @@ export default function PipelineClient() {
 
   return (
     <div className="min-h-screen bg-[#0d0e0f] text-white px-4 py-8 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="text-white/40 text-xs font-condensed uppercase tracking-widest mb-1">Admin</div>
@@ -100,7 +197,7 @@ export default function PipelineClient() {
         <Link href="/admin" className="text-white/40 hover:text-white text-sm transition-colors">← Admin</Link>
       </div>
 
-      {/* Capacity + Totals cards */}
+      {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <div className="bg-[#1a1b1c] border border-white/10 rounded-xl p-4">
           <div className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">Pipeline Value</div>
@@ -154,7 +251,7 @@ export default function PipelineClient() {
         </div>
       </div>
 
-      {/* Status filter tabs */}
+      {/* Status filter */}
       <div className="flex flex-wrap gap-2 mb-4">
         <button onClick={() => setFilterStatus("all")}
           className={`px-3 py-1 rounded-full text-[10px] font-condensed uppercase tracking-widest transition-colors ${filterStatus === "all" ? "bg-[#f08122] text-white" : "bg-white/5 text-white/40 hover:text-white"}`}>
@@ -179,45 +276,55 @@ export default function PipelineClient() {
             <thead>
               <tr className="border-b border-white/10 text-white/40 text-[10px] font-condensed uppercase tracking-widest">
                 <th className="text-left px-4 py-3">Job</th>
-                <th className="text-left px-4 py-3">Status</th>
+                <th className="text-left px-4 py-3">Status <span className="text-white/20 normal-case font-normal">✎</span></th>
                 <th className="text-right px-4 py-3">Value</th>
                 <th className="text-right px-4 py-3">Boxes</th>
                 <th className="text-right px-4 py-3">Shop hrs</th>
                 <th className="text-right px-4 py-3">Install hrs</th>
-                <th className="text-left px-4 py-3">PM</th>
-                <th className="text-left px-4 py-3">Target delivery</th>
+                <th className="text-left px-4 py-3">PM <span className="text-white/20 normal-case font-normal">✎</span></th>
+                <th className="text-left px-4 py-3">Target delivery <span className="text-white/20 normal-case font-normal">✎</span></th>
               </tr>
             </thead>
             <tbody>
-              {visible.map((job) => {
-                const hasSnapshot = job.sell_price_snapshot != null;
-                return (
-                  <tr key={job.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-3">
-                      <Link href={`/jobs/${job.id}`} className="hover:text-[#f08122] transition-colors">
-                        <div className="font-medium text-white">{job.client_name}</div>
-                        <div className="text-white/40 text-xs">{job.job_number} · {[job.site_address, job.city].filter(Boolean).join(", ")}</div>
-                        {job.estimate_id && (
-                          <Link href={`/admin/estimating/${job.estimate_id}`} className="text-[10px] text-white/25 hover:text-[#f08122] transition-colors font-condensed">
-                            {hasSnapshot ? "Est ↗" : "Est (no snapshot) ↗"}
-                          </Link>
-                        )}
+              {visible.map((job) => (
+                <tr key={job.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <td className="px-4 py-3">
+                    <Link href={`/jobs/${job.id}`} className="hover:text-[#f08122] transition-colors">
+                      <div className="font-medium text-white">{job.client_name}</div>
+                      <div className="text-white/40 text-xs">{job.job_number} · {[job.site_address, job.city].filter(Boolean).join(", ")}</div>
+                    </Link>
+                    {job.estimate_id && (
+                      <Link href={`/admin/estimating/${job.estimate_id}`}
+                        className="text-[10px] text-white/25 hover:text-[#f08122] transition-colors font-condensed">
+                        {job.sell_price_snapshot ? "Est ↗" : "Est (no snapshot yet) ↗"}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-condensed uppercase tracking-widest ${STATUS_COLOR[job.status] ?? "bg-white/10 text-white/40"}`}>
-                        {STATUS_LABEL[job.status] ?? job.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums font-medium">{fmt$(job.sell_price_snapshot)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{job.box_count ? job.box_count : "—"}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{fmtHrs(job.shop_labor_hrs_snapshot)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{fmtHrs(job.install_labor_hrs_snapshot)}</td>
-                    <td className="px-4 py-3 text-white/60 text-xs">{job.pm ?? "—"}</td>
-                    <td className="px-4 py-3 text-white/60 text-xs">{job.delivery_date ?? "—"}</td>
-                  </tr>
-                );
-              })}
+                    )}
+                  </td>
+                  <td className="px-4 py-2">
+                    <EditableStatus
+                      value={job.status}
+                      onSave={v => patchJob(job.id, { status: v })}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right tabular-nums font-medium">{fmt$(job.sell_price_snapshot)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{job.box_count ? job.box_count : "—"}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{fmtHrs(job.shop_labor_hrs_snapshot)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{fmtHrs(job.install_labor_hrs_snapshot)}</td>
+                  <td className="px-4 py-2 min-w-[80px]">
+                    <EditableText
+                      value={job.pm}
+                      placeholder="Assign PM"
+                      onSave={v => patchJob(job.id, { pm: v || null })}
+                    />
+                  </td>
+                  <td className="px-4 py-2 min-w-[110px]">
+                    <EditableDate
+                      value={job.delivery_date}
+                      onSave={v => patchJob(job.id, { delivery_date: v || null })}
+                    />
+                  </td>
+                </tr>
+              ))}
               {visible.length === 0 && (
                 <tr><td colSpan={8} className="text-center text-white/20 py-12 text-sm">No active jobs</td></tr>
               )}
@@ -239,7 +346,7 @@ export default function PipelineClient() {
       )}
 
       <p className="text-white/20 text-[10px] font-condensed mt-4">
-        Values update automatically when an estimate is open and recalculated. "—" means no estimate has been saved for this job yet.
+        Value / hours / boxes update when an estimate is open. Status, PM, and delivery date are editable — click any cell to change it.
       </p>
     </div>
   );
