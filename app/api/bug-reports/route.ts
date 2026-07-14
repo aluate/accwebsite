@@ -6,12 +6,14 @@ import { sendEmail } from "@/lib/mailer";
 export const runtime = "nodejs";
 
 async function ensureTable() {
+  // Table is created by db-push.mjs; this is a no-op safety net only.
+  // Schema uses user_name / user_role to match db-push definition.
   await sql`
     CREATE TABLE IF NOT EXISTS bug_reports (
-      id            TEXT        PRIMARY KEY,
-      reporter      TEXT,
-      role          TEXT,
+      id            TEXT        PRIMARY KEY DEFAULT gen_random_uuid()::text,
       page_url      TEXT,
+      user_name     TEXT,
+      user_role     TEXT,
       what_trying   TEXT        NOT NULL,
       what_happened TEXT        NOT NULL,
       severity      TEXT        NOT NULL DEFAULT 'annoying',
@@ -47,15 +49,15 @@ export async function POST(req: NextRequest) {
 
   const id  = uid();
   const now = new Date().toISOString();
-  const reporter = session?.name ?? "Unknown";
-  const role     = session?.role ?? "unknown";
+  const user_name = session?.name ?? "Unknown";
+  const user_role = session?.role ?? "unknown";
 
   await sql`
-    INSERT INTO bug_reports (id, reporter, role, page_url, what_trying, what_happened, severity, status, created_at)
+    INSERT INTO bug_reports (id, user_name, user_role, page_url, what_trying, what_happened, severity, status, created_at)
     VALUES (
       ${id},
-      ${reporter},
-      ${role},
+      ${user_name},
+      ${user_role},
       ${page_url ?? null},
       ${what_trying.trim()},
       ${what_happened.trim()},
@@ -71,9 +73,9 @@ export async function POST(req: NextRequest) {
   try {
     await sendEmail({
       to: "karlv@advancedcabinets.net",
-      subject: `${sevIcon} [${sevLabel}] Bug report from ${reporter} — ${page_url ?? "unknown page"}`,
+      subject: `${sevIcon} [${sevLabel}] Bug report from ${user_name} — ${page_url ?? "unknown page"}`,
       text: [
-        `Reporter: ${reporter} (${role})`,
+        `Reporter: ${user_name} (${user_role})`,
         `Page: ${page_url ?? "unknown"}`,
         `Severity: ${sevLabel}`,
         ``,
