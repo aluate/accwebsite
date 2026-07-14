@@ -903,7 +903,15 @@ async function main() {
     )`,
     `CREATE INDEX IF NOT EXISTS idx_efg_estimate ON estimate_finish_groups(estimate_id)`,
     // rooms FK to finish group
-    `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS fg_id TEXT`,
+    // Pipeline snapshot — written by the estimate editor on every recalc (debounced).
+    // Used by /admin/pipeline to show project value + labor hours without re-running the engine.
+    \`ALTER TABLE estimates ADD COLUMN IF NOT EXISTS sell_price_snapshot NUMERIC\`,
+    \`ALTER TABLE estimates ADD COLUMN IF NOT EXISTS shop_labor_hrs_snapshot NUMERIC\`,
+    \`ALTER TABLE estimates ADD COLUMN IF NOT EXISTS install_labor_hrs_snapshot NUMERIC\`,
+    // Capacity model — configurable weekly hours for shop and install crews.
+    \`ALTER TABLE estimate_settings ADD COLUMN IF NOT EXISTS shop_capacity_hrs_per_week NUMERIC NOT NULL DEFAULT 40\`,
+    \`ALTER TABLE estimate_settings ADD COLUMN IF NOT EXISTS install_capacity_hrs_per_week NUMERIC NOT NULL DEFAULT 32\`,
+    \`ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS fg_id TEXT\`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS crown         INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,

@@ -490,6 +490,7 @@ function CostSummaryPanel({
   onMarginChange,
   profileId,
   doorPresetId,
+  estimateId,
 }: {
   rooms: EstimateRoom[];
   settings: EstimateSettings;
@@ -502,6 +503,7 @@ function CostSummaryPanel({
   onMarginChange: (v: number) => void;
   profileId?: string | null;
   doorPresetId?: string | null;
+  estimateId: string;
 }) {
   const cost = useMemo(
     () =>
@@ -518,6 +520,27 @@ function CostSummaryPanel({
       }),
     [rooms, settings, scope, finishGroupCount, deliveryCost, taxAmount, marginPct, profileId, doorPresetId]
   );
+
+  // Debounced snapshot write — keeps pipeline report in sync without hammering the API
+  const snapshotTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  React.useEffect(() => {
+    if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current);
+    snapshotTimerRef.current = setTimeout(() => {
+      const shopHrs    = cost.rooms.flatMap(r => r.line_items).reduce((s, li) => s + li.estimated_shop_labor_hrs,    0);
+      const installHrs = cost.rooms.flatMap(r => r.line_items).reduce((s, li) => s + li.estimated_install_labor_hrs, 0);
+      fetch(`/api/estimates/${estimateId}/snapshot`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sell_price_snapshot:        cost.sell_price,
+          shop_labor_hrs_snapshot:    shopHrs,
+          install_labor_hrs_snapshot: installHrs,
+        }),
+      }).catch(() => { /* silent — snapshot is best-effort */ });
+    }, 2000);
+    return () => { if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cost.sell_price, cost.total_shop_labor, cost.total_install_labor]);
 
   const Row = ({ label, val, muted = false, bold = false }: { label: string; val: string; muted?: boolean; bold?: boolean }) => (
     <div className={`flex justify-between py-1 text-sm ${bold ? "font-semibold text-white border-t border-white/10 mt-1 pt-2" : muted ? "text-white/40" : "text-white/70"}`}>
@@ -1020,6 +1043,7 @@ export function EstimateEditorClient({
             onMarginChange={(v) => updateEstimate({ target_margin_pct: v })}
             profileId={estimate.profile_id}
             doorPresetId={(estimate as unknown as Record<string,unknown>).door_preset_id as string | null}
+            estimateId={estimate.id}
           />
         </div>
       </div>

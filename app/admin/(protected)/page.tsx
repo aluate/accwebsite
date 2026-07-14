@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 
 const ADMIN_LINKS = [
+  { href: "/admin/pipeline",   label: "Pipeline",   desc: "Active jobs — value, box count, shop hours, install hours, capacity" },
   { href: "/admin/estimating", label: "Estimating", desc: "Build bids, room-by-room cabinet entry, cost summary" },
   { href: "/admin/builders", label: "User Accounts", desc: "Manage internal builder accounts and roles" },
   { href: "/admin/libraries", label: "Libraries", desc: "Edit catalog CSVs — door styles, hardware, materials" },
