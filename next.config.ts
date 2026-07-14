@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "path";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
@@ -14,4 +15,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Sentry org/project — set SENTRY_ORG and SENTRY_PROJECT env vars in Vercel
+  // to enable source map uploads. Without them, Sentry still captures errors,
+  // just without pretty stack traces.
+  silent: true,          // suppress CLI output during build
+  disableLogger: true,   // remove Sentry logger from bundle
+  // Only upload source maps if SENTRY_AUTH_TOKEN is set
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+});

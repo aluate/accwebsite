@@ -27,7 +27,6 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
-import { runEngineeringReleaseSideEffects } from "@/lib/engineering-release";
 
 type JobRow = JobMeta & {
   status: string;
@@ -109,7 +108,23 @@ export async function POST(
     );
   }
 
-  if (toStatus === "complete") {
+  if (toStatus === "production") {
+    const openCOs = await sql<Array<{ id: string; co_number: number; title: string }>>`
+      SELECT id, co_number, title FROM change_orders
+      WHERE job_id = ${internalId}
+        AND voided_at IS NULL
+        AND signed_at IS NULL
+    `;
+    if (openCOs.length > 0) {
+      const list = openCOs.map((c) => `CO-${c.co_number} "${c.title}"`).join(", ");
+      return NextResponse.json(
+        { error: `Cannot release to Production — ${openCOs.length} unsigned change order${openCOs.length !== 1 ? "s" : ""} must be signed first: ${list}.` },
+        { status: 422 }
+      );
+    }
+  }
+
+    if (toStatus === "complete") {
     const [punchCheck] = await sql<Array<{ open_count: number }>>`
       SELECT COUNT(*) AS open_count FROM punch_list_items
       WHERE job_id = ${internalId} AND status = 'open'
@@ -163,38 +178,8 @@ export async function POST(
       let emailOpts: Parameters<typeof sendEmail>[0];
 
       if (toStatus === "engineering") {
-        // Find latest spec
-        const [latestSpec] = await sql<{ id: string }[]>`
-          SELECT id FROM residential_specs WHERE job_id = ${internalId}
-          ORDER BY created_at DESC LIMIT 1
-        `;
-
-        let attachments: { filename: string; content: Buffer }[] = [];
-
-        if (latestSpec) {
-          try {
-            const releaseResult = await runEngineeringReleaseSideEffects(
-              internalId, latestSpec.id, job
-            );
-            // Build attachments: spec PDF first, then cover sheets
-            attachments = [
-              {
-                filename: `${job.job_number ?? internalId} Spec.pdf`,
-                content: releaseResult.specPdfBuffer,
-              },
-              ...releaseResult.coversheets.map((cs) => ({
-                filename: cs.filename,
-                content: cs.buffer,
-              })),
-            ];
-          } catch (err) {
-            // Don't block the release if PDF generation fails
-            console.error("Engineering release PDF generation failed:", err);
-          }
-        }
-
         const { subject, text, html } = await buildEngineeringEmail(job, internalId, note);
-        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html, attachments };
+        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html };
       } else {
         const subject = gate.subject(job);
         const text    = gate.body(job, note);
