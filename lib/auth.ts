@@ -64,3 +64,13 @@ export async function requireRole(role: Role | Role[]): Promise<BuilderSession> 
   if (!wanted.includes(builder.role)) redirect("/jobs");
   return builder;
 }
+
+/**
+ * API-route-safe variant of requireBuilder.
+ * Returns null instead of calling redirect() so the caller can return
+ * NextResponse.json({ error: "Unauthorized" }, { status: 401 }).
+ * Use this in every API route — never requireBuilder() in API routes.
+ */
+export async function requireBuilderApi(): Promise<BuilderSession | null> {
+  return getBuilder();
+}

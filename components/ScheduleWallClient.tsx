@@ -266,6 +266,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     const timeout = setTimeout(() => controller.abort(), 12_000); // 12s hard timeout
     try {
       const res = await fetch("/api/schedule/data", { signal: controller.signal });
+      if (res.status === 401) { window.location.href = "/login"; return; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json() as ScheduleData;
       // Persist to localStorage so TV survives Supabase outages

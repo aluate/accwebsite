@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { requireBuilder } from "@/lib/auth";
+import { requireBuilderApi } from "@/lib/auth";
 import { listCrews, forwardEvents, onDeckEvents, isoDateOffset } from "@/lib/schedule";
 import type { CrewPto } from "@/lib/schedule-types";
 
@@ -38,7 +38,9 @@ type JobMini = {
 type PtoWithCrew = CrewPto & { crew_name: string };
 
 export async function GET() {
-  await requireBuilder();
+  const builder = await requireBuilderApi();
+  if (!builder) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
 
   const today = new Date().toISOString().slice(0, 10);
   const windowStartIso = isoDateOffset(today, -30);
