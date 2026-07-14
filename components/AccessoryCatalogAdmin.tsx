@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export type CatalogItem = {
   id: string;
@@ -38,9 +38,17 @@ const INP =
 
 type Draft = { name: string; series: string; price_slp: string; notes: string };
 
-export function AccessoryCatalogAdmin({ initialItems }: { initialItems: CatalogItem[] }) {
-  const [items, setItems] = useState<CatalogItem[]>(initialItems);
+export function AccessoryCatalogAdmin() {
+  const [items, setItems] = useState<CatalogItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/accessories")
+      .then((r) => r.json())
+      .then((d) => { setItems(d.items ?? []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
   const [saving, setSaving] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Map<string, string>>(new Map());
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -134,6 +142,12 @@ export function AccessoryCatalogAdmin({ initialItems }: { initialItems: CatalogI
   }, [filtered]);
 
   const totalActive = items.filter((i) => i.active).length;
+
+  if (loading) {
+    return (
+      <div className="text-white/30 text-sm py-12 text-center">Loading catalog…</div>
+    );
+  }
 
   return (
     <div>
