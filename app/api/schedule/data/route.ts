@@ -5,6 +5,11 @@
  *
  * Returns: { crews, forwardEvents, onDeckEvents, jobs, ptoRows,
  *            today, windowStartIso, windowEndIso }
+ *
+ * IMPORTANT: queries run SEQUENTIALLY (not Promise.all) to avoid concurrent
+ * connection demand. With max:3 pool and 12s polling, parallel queries exhaust
+ * PgBouncer's 25-connection pool (5 concurrent Lambdas × 3 conns = 15 taken).
+ * Sequential execution needs only 1 connection at a time → pool never depleted.
  */
 export const dynamic = "force-dynamic";
 
@@ -26,73 +31,65 @@ type JobMini = {
 type PtoWithCrew = CrewPto & { crew_name: string };
 
 export async function GET() {
-  const t0 = Date.now();
-  console.log("[schedule/data] START");
-
   const builder = await requireBuilderApi();
-  console.log(`[schedule/data] AUTH done ms=${Date.now()-t0} builder=${!!builder}`);
   if (!builder) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const today = new Date().toISOString().slice(0, 10);
   const windowStartIso = isoDateOffset(today, -30);
   const windowEndIso   = isoDateOffset(today, 60);
 
-  console.log(`[schedule/data] Starting Promise.all ms=${Date.now()-t0}`);
+  // Run sequentially — one DB connection at a time.
+  // This prevents pool exhaustion when multiple Lambda invocations overlap.
+  const TIMEOUT_MS = 9000;
+  const deadline = Date.now() + TIMEOUT_MS;
 
-  let crews: Awaited<ReturnType<typeof listCrews>>;
-  let fwdEvents: Awaited<ReturnType<typeof forwardEvents>>;
-  let deckEvents: Awaited<ReturnType<typeof onDeckEvents>>;
-  let jobs: JobMini[];
+  function checkTime(step: string) {
+    if (Date.now() > deadline) throw new Error(`schedule/data timeout at ${step}`);
+  }
 
   try {
-    const results = await Promise.race([
-      Promise.all([
-        listCrews({ activeOnly: true }),
-        forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 }),
-        onDeckEvents(),
-        sql<JobMini[]>`
-          SELECT id, client_name, site_address, city, client_phone, client_email
-          FROM jobs
-          WHERE status <> 'complete'
-             OR created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
-          ORDER BY created_at DESC
-          LIMIT 300
-        `,
-      ]),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("schedule/data Promise.all timed out after 8000ms")), 8000)
-      ),
-    ]);
-    [crews, fwdEvents, deckEvents, jobs] = results;
-    console.log(`[schedule/data] Promise.all done ms=${Date.now()-t0} crews=${crews.length} fwd=${fwdEvents.length} deck=${deckEvents.length} jobs=${jobs.length}`);
+    const crews = await listCrews({ activeOnly: true });
+    checkTime("listCrews");
+
+    const fwdEvents = await forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 });
+    checkTime("forwardEvents");
+
+    const deckEvents = await onDeckEvents();
+    checkTime("onDeckEvents");
+
+    const jobs = await sql<JobMini[]>`
+      SELECT id, client_name, site_address, city, client_phone, client_email
+      FROM jobs
+      WHERE status <> 'complete'
+         OR created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
+      ORDER BY created_at DESC
+      LIMIT 300
+    `;
+    checkTime("jobs");
+
+    let ptoRows: PtoWithCrew[] = [];
+    try {
+      ptoRows = (await sql`
+        SELECT p.*, c.name AS crew_name
+        FROM crew_pto p JOIN crews c ON c.id = p.crew_id
+        ORDER BY p.date_start
+      `) as unknown as PtoWithCrew[];
+    } catch { /* crew_pto may not exist on older deployments */ }
+
+    return NextResponse.json({
+      today,
+      crews,
+      forwardEvents: fwdEvents,
+      onDeckEvents:  deckEvents,
+      jobs,
+      ptoRows,
+      windowStartIso,
+      windowEndIso,
+    });
+
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(`[schedule/data] Promise.all FAILED ms=${Date.now()-t0} err=${msg}`);
-    return NextResponse.json({ error: "schedule data timeout", detail: msg }, { status: 503 });
+    console.error(`[schedule/data] FAILED: ${msg}`);
+    return NextResponse.json({ error: "schedule data unavailable", detail: msg }, { status: 503 });
   }
-
-  let ptoRows: PtoWithCrew[] = [];
-  try {
-    const t1 = Date.now();
-    ptoRows = (await sql`
-      SELECT p.*, c.name AS crew_name
-      FROM crew_pto p JOIN crews c ON c.id = p.crew_id
-      ORDER BY p.date_start
-    `) as unknown as PtoWithCrew[];
-    console.log(`[schedule/data] PTO done ms=${Date.now()-t0} pto_ms=${Date.now()-t1} rows=${ptoRows.length}`);
-  } catch (e) {
-    console.warn(`[schedule/data] PTO query failed ms=${Date.now()-t0}`, e);
-  }
-
-  console.log(`[schedule/data] DONE ms=${Date.now()-t0}`);
-  return NextResponse.json({
-    today,
-    crews,
-    forwardEvents: fwdEvents,
-    onDeckEvents:  deckEvents,
-    jobs,
-    ptoRows,
-    windowStartIso,
-    windowEndIso,
-  });
 }
