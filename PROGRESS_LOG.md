@@ -236,22 +236,110 @@ Doc roles, so nothing drifts:
 
 ---
 
-## CURRENT LIST — 2026-07-13
+## Session: 2026-07-13 PM — Color hex swatches, ESI edgeband library, schedule verify
 
-> Last updated: 2026-07-13. All July 3rd items complete (commits 460a659 + 295f840).
-> This session's installer hardening is complete (commit 4b6e05e).
+**Before:** Installer hardening shipped, BM color import confirmed by Karl (2175 BM + 1526 SW colors loaded)
+**After:** Three features deployed to production (commit 86b02b8)
 
-### Karl actions required (build is blocked on these)
+### What shipped
+- [x] **Color hex swatch chips** — 16×16 color chip in finish group cards; LEFT JOIN on `paint_colors.hex` via spec-data.ts; swatch in PDF (React-PDF View with backgroundColor)
+- [x] **ESI edgeband matching library** — `edgeband_matches` schema in db-push.mjs; admin page at `/admin/edgeband-matches` (CRUD by brand/code → ESI part#); auto-suggest chip in spec form when paint color selected; suggest API at `/api/admin/edgeband-matches/suggest`
+- [x] **Schedule weekly verify UI** — `/schedule/verify` page; last 12 Mondays generated dynamically; event counts per week from `job_events`; Verify/Un-verify buttons; `schedule_weeks` table; ✓ Verify link added to schedule header (admin-only)
+- [x] Fix: `"use server"` directive removed from API route (was causing Vercel build failure)
+- [x] Fix: `pc.hex_value` → `pc.hex` in spec-data.ts SQL (column name was wrong)
 
-- [ ] **[KARL] Run BM color import** — `node scripts/import-bm-colors.mjs` on your local machine (needs internet). Then `node scripts/sync-paint-colors.mjs` to load into DB. BM type-ahead in finish group color field will be dead until this runs.
-- [ ] **[KARL] DocuSign prod flip** — 3 Vercel env var swaps + one-time consent URL + upload real `templates/residential-disclosure.pdf` to Supabase Storage. See `project_docusign_live` memory for exact steps.
-- [ ] **[KARL] ACC stain mixes** — provide the 10 named in-house stains (name + base color). Unblocks real stain dropdown.
+### Files changed (key)
+- `scripts/db-push.mjs` — `edgeband_matches` table, `schedule_weeks` table, `finish_groups.color_hex` column
+- `lib/spec-data.ts` — LEFT JOIN paint_colors for color_hex on finish group SELECT
+- `components/ResidentialSpecClient.tsx` — EsiSuggest component, color_hex in FinishGroup type, valueHex wired to g.color_hex
+- `lib/pdf-spec.tsx` — color swatch View in finish group color cell
+- `app/admin/(protected)/edgeband-matches/page.tsx` — full admin CRUD UI
+- `app/api/admin/edgeband-matches/route.ts` + `suggest/route.ts` — REST + suggest endpoints
+- `app/schedule/verify/page.tsx` — weekly verify client page
+- `app/api/schedule/weeks/route.ts` — GET (12 weeks + counts), POST (verify), DELETE (un-verify)
+- `components/ScheduleWallClient.tsx` — ✓ Verify link in schedule header
+- `components/Header.tsx` — ESI Edgebands in admin nav
+- `app/api/specs/[id]/save/route.ts` — color_hex in finish_groups INSERT
+- `app/jobs/[id]/residential/[specId]/page.tsx` — color_hex hydration
+
+### Known issue discovered (pre-existing, not from this session)
+- Residential spec LISTING page (`/jobs/[id]/residential`) crashes with "Database busy" — queries `catalog_builder_profiles` which is not in `db-push.mjs` and apparently not in production DB. Direct spec URL (`/jobs/[id]/residential/[specId]`) works fine. Needs investigation + fix.
+
+---
+
+## CURRENT LIST — 2026-07-13 PM
+
+> Last updated: 2026-07-13 PM. Three features shipped (color hex, ESI edgeband, schedule verify).
+
+### Karl actions required (blocking)
+
+- [ ] **[KARL] Run `node scripts/db-push.mjs`** — adds three new items: `finish_groups.color_hex` column, `edgeband_matches` table, `schedule_weeks` table. Color swatches won't persist and ESI/verify pages will error on write until this runs.
+- [ ] **[KARL] DocuSign prod flip** — 3 Vercel env var swaps + one-time consent URL + upload real `templates/residential-disclosure.pdf` to Supabase Storage. See `project_docusign_live` memory for exact vars + steps. Sandbox E2E confirmed 2026-07-12.
+- [ ] **[KARL] ACC stain mixes** — 10 named in-house stains (name + base color). Unblocks stain dropdown.
 - [ ] **[KARL] Tafisa color list** — per-line colors (Alto, Crystalite, Isola, etc.). Fan deck photo or rep PDF works.
-- [ ] **[KARL] Builder defaults** — carcass / drawer / pull / accessories typical for: Atlas, Bush Legacy, Premier, Stancraft, Cobalt, Bar 17, RSB Customs.
+- [ ] **[KARL] Builder defaults** — Atlas, Bush Legacy, Premier, Stancraft, Cobalt, Bar 17, RSB Customs. Per builder: carcass / drawer box / pull / typical accessories.
 
 ### Build items (no blockers)
 
-- [ ] **Color hex swatch chips** — `paint_colors` table has `hex_value`; show a 16×16 color chip next to color names in finish group cards and in the spec PDF. Zero data entry needed.
-- [ ] **ESI edgeband matching library** — `edgeband_matches` table (paint_brand + paint_code → ESI part#). Admin page to manage. Auto-suggest ESI part when color selected in finish group. Planned 2026-07-03, not started.
-- [ ] **Schedule weekly verify UI** — lock a past week as "historical truth." Schema designed (schedule_weeks table). UI not built.
+- [ ] **Fix residential spec listing page** — `/jobs/[id]/residential` crashes on `catalog_builder_profiles` query (table not in db-push.mjs / not in prod). Direct spec URLs work fine. Needs the table added to db-push.mjs + migrated, OR the listing page query rewritten to not require it.
+- [ ] **ESI edgeband data entry** — admin page is live at `/admin/edgeband-matches`. Karl or team needs to populate ESI part numbers for the colors used. Auto-suggest will fire once data exists.
+- [ ] **DocuSign prod flip** (see Karl actions above)
+- [ ] **Spec form → spec listing page fix** (see residential listing bug above)
+- [ ] **Z drive Phase 1** — Supabase Storage clone of Z drive folder structure (17 folders 00–15). Architecture locked in memory (project_zdrive_folder_structure).
+- [ ] **Stage-gate transitions** — email-gated status advances (WO→schedule→delivery→install). Architecture locked in memory (project_stage_gate_design).
+- [ ] **Schedule drag-to-reschedule** — PATCH /api/schedule/events/[id] + drag handle in ScheduleWallClient.
+- [ ] **"Schedule" tab on job detail** — primary event creation path; currently can only add from wall page.
+- [ ] **Punch/warranty modules** — pages exist at /punch and /warranty but feature-incomplete per live state survey.
 
+---
+
+## Session: 2026-07-13 PM (cont.) — Backlog audit + listing page fix
+
+**Commit:** 9ae8436 (db-push.mjs only — Karl must push)
+
+### What shipped
+- [x] **Fix: `catalog_builder_profiles` added to db-push.mjs** — table was missing from schema push entirely, causing `/jobs/[id]/residential` to crash. Direct spec URLs were unaffected. Idempotent; safe to re-run.
+
+### Backlog audit — items confirmed already built (not new work needed)
+Thorough code review found the following CURRENT LIST items were already fully built in prior sessions:
+- ✅ **Z drive Phase 1** — `JobFilesPanel.tsx` has all 17 folders (00–15), upload/download/delete per folder, no pre-creation needed (Supabase Storage uses path-based naming).
+- ✅ **Stage-gate transitions** — `lib/transition-gates.ts` (all 6 transitions) + `StatusAdvanceButton.tsx` (332 lines, full modal with upload + email preview + confirm).
+- ✅ **Schedule drag-to-reschedule** — `handleDrop()` in `ScheduleWallClient.tsx`; optimistic update → PATCH /api/schedule/events/[id]. Fully working.
+- ✅ **"Schedule" tab on job detail** — `/jobs/[id]/schedule` exists, shows `PhaseIntakeClient`.
+- ✅ **Punch module** — `PunchListPanel.tsx` (596 lines): add item, photo upload, mark done, grouped by room, type codes, PM vs installer views.
+- ✅ **Warranty module** — `WarrantyPanel.tsx` (220 lines) on job detail; `/warranty` global list page.
+- ✅ **PM hours** — `/jobs/pm-hours` (339 lines), API at `/api/pm-hours`.
+- ✅ **Builder profiles admin** — `/admin/builder-profiles` (316 lines), full CRUD.
+- ✅ **Job creation** — `/jobs/new` with `IntakeForm`.
+- ✅ **Search** — `/search` page, 250ms debounce, jobs + specs.
+
+### Karl actions required
+
+- [ ] **Push this commit** — `cd C:\dev\repos\acc-website && git add scripts/db-push.mjs && git commit -m "fix: catalog_builder_profiles in db-push" && git push`
+- [ ] **Re-run db-push** — `node scripts/db-push.mjs` (idempotent; adds `catalog_builder_profiles` table, skips everything else). Then `/jobs/[id]/residential` listing page will work.
+- [ ] **DocuSign prod flip** — 3 Vercel env var swaps + one-time consent URL + upload real `templates/residential-disclosure.pdf`.
+- [ ] **ACC stain mixes** — 10 named stains (name + base color).
+- [ ] **Tafisa color list** — per-line colors for Alto, Crystalite, Isola, etc.
+- [ ] **Builder defaults** — Atlas, Bush Legacy, Premier, Stancraft, Cobalt, Bar 17, RSB Customs. Enter via `/admin/builder-profiles`.
+
+---
+
+## CURRENT LIST — 2026-07-13 PM (post-audit)
+
+> Last updated: 2026-07-13 PM. App is more feature-complete than the backlog suggested.
+> Phantom items removed after code audit. Genuine gaps below.
+
+### Karl actions required (blocking)
+
+- [ ] **[KARL] Push 9ae8436** — `git add scripts/db-push.mjs && git commit && git push` then `node scripts/db-push.mjs`
+- [ ] **[KARL] DocuSign prod flip** — Vercel env vars + consent + real disclosure PDF. Steps in `project_docusign_live` memory.
+- [ ] **[KARL] ACC stain mixes** — 10 named stains. Unblocks stain dropdown.
+- [ ] **[KARL] Tafisa color list** — fan deck or rep PDF.
+- [ ] **[KARL] Builder defaults data entry** — use `/admin/builder-profiles` for Atlas, Bush Legacy, Premier, Stancraft, Cobalt, Bar 17, RSB Customs.
+- [ ] **[KARL] BM color import** — `node scripts/import-bm-colors.mjs` (needs internet), then `node scripts/sync-paint-colors.mjs`.
+
+### Build items (genuine gaps — no Karl blocker)
+
+- [ ] **Change orders UI on job page** — `/api/jobs/[id]/change-orders` route exists but no UI renders it. Change orders currently exist only as WO-type file uploads.
+- [ ] **Install gate → notify crew email** — `install` transition gate emails PM only. Should also email the assigned crew (requires looking up `event_crew` for the job's install event).
+- [ ] **Stain catalog table + dropdown** — once Karl provides stain list, load `stain_catalog` table and wire dropdown in spec form (currently stain is free-text fallback).
