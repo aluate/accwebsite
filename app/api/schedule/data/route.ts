@@ -5,18 +5,6 @@
  *
  * Returns: { crews, forwardEvents, onDeckEvents, jobs, ptoRows,
  *            today, windowStartIso, windowEndIso }
- *
- * - crews: all active crews for filter chips + dropdowns
- * - forwardEvents: date_start IS NOT NULL events (calendar pane), with
- *   crew_name + job client_name pre-joined for direct rendering
- * - onDeckEvents: date_start IS NULL events (side column), same join shape
- * - jobs: minimal job list (id, client_name, site_address, city,
- *   client_phone, client_email) so the "Add Event" form + job detail
- *   modal can work without an extra round-trip
- * - ptoRows: crew PTO rows for the schedule window
- * - today / windowStartIso / windowEndIso: date context for the client
- *
- * Single fetch keeps wall-mount load fast.
  */
 export const dynamic = "force-dynamic";
 
@@ -38,37 +26,65 @@ type JobMini = {
 type PtoWithCrew = CrewPto & { crew_name: string };
 
 export async function GET() {
-  const builder = await requireBuilderApi();
-  if (!builder) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const t0 = Date.now();
+  console.log("[schedule/data] START");
 
+  const builder = await requireBuilderApi();
+  console.log(`[schedule/data] AUTH done ms=${Date.now()-t0} builder=${!!builder}`);
+  if (!builder) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const today = new Date().toISOString().slice(0, 10);
   const windowStartIso = isoDateOffset(today, -30);
   const windowEndIso   = isoDateOffset(today, 60);
 
-  const [crews, fwdEvents, deckEvents, jobs] = await Promise.all([
-    listCrews({ activeOnly: true }),
-    forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 }),
-    onDeckEvents(),
-    sql<JobMini[]>`
-      SELECT id, client_name, site_address, city, client_phone, client_email
-      FROM jobs
-      WHERE status <> 'complete'
-         OR created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
-      ORDER BY created_at DESC
-      LIMIT 300
-    `,
-  ]);
+  console.log(`[schedule/data] Starting Promise.all ms=${Date.now()-t0}`);
+
+  let crews: Awaited<ReturnType<typeof listCrews>>;
+  let fwdEvents: Awaited<ReturnType<typeof forwardEvents>>;
+  let deckEvents: Awaited<ReturnType<typeof onDeckEvents>>;
+  let jobs: JobMini[];
+
+  try {
+    const results = await Promise.race([
+      Promise.all([
+        listCrews({ activeOnly: true }),
+        forwardEvents({ todayIso: today, windowDaysBack: 30, windowDaysForward: 60 }),
+        onDeckEvents(),
+        sql<JobMini[]>`
+          SELECT id, client_name, site_address, city, client_phone, client_email
+          FROM jobs
+          WHERE status <> 'complete'
+             OR created_at > TO_CHAR(NOW() - INTERVAL '18 months', 'YYYY-MM-DD')
+          ORDER BY created_at DESC
+          LIMIT 300
+        `,
+      ]),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("schedule/data Promise.all timed out after 8000ms")), 8000)
+      ),
+    ]);
+    [crews, fwdEvents, deckEvents, jobs] = results;
+    console.log(`[schedule/data] Promise.all done ms=${Date.now()-t0} crews=${crews.length} fwd=${fwdEvents.length} deck=${deckEvents.length} jobs=${jobs.length}`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[schedule/data] Promise.all FAILED ms=${Date.now()-t0} err=${msg}`);
+    return NextResponse.json({ error: "schedule data timeout", detail: msg }, { status: 503 });
+  }
 
   let ptoRows: PtoWithCrew[] = [];
   try {
+    const t1 = Date.now();
     ptoRows = (await sql`
       SELECT p.*, c.name AS crew_name
       FROM crew_pto p JOIN crews c ON c.id = p.crew_id
       ORDER BY p.date_start
     `) as unknown as PtoWithCrew[];
-  } catch { /* crew_pto may not exist on older deployments */ }
+    console.log(`[schedule/data] PTO done ms=${Date.now()-t0} pto_ms=${Date.now()-t1} rows=${ptoRows.length}`);
+  } catch (e) {
+    console.warn(`[schedule/data] PTO query failed ms=${Date.now()-t0}`, e);
+  }
 
+  console.log(`[schedule/data] DONE ms=${Date.now()-t0}`);
   return NextResponse.json({
     today,
     crews,
