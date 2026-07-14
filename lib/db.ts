@@ -21,9 +21,23 @@ function createSql() {
   return postgres(url, {
     ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
     // max: 3 — Supabase Pro has a dedicated PgBouncer pool (25 connections).
-    // 3 connections per Lambda lets Promise.all run parallel queries without
-    // queue stalls. Safe because Vercel limits concurrent Lambda invocations
-    // and Pro's pooler handles the concurrency headroom.
+    // 3 connections per Lambda is the per-invocation ceiling.
+    // ⚠️  POOL EXHAUSTION TRAP — read this before writing multi-query routes:
+    //    A polled route (e.g. /api/schedule/data, polled every 12s) can have
+    //    several Lambdas alive simultaneously:
+    //      concurrent Lambdas ≈ Lambda_lifetime / poll_interval = 60s / 12s = 5
+    //      connections held  = 5 Lambdas × max:3 = 15
+    //    Add overhead from other routes and you hit PgBouncer's 25-conn limit.
+    //    When the pool is exhausted, postgres.js hangs at connect_timeout (10s),
+    //    then throws. The route returns 503 — or worse, hangs until Vercel kills
+    //    the Lambda at 60s, leaving the client showing "CONNECTION LOST".
+    //
+    //    RULE: Polled routes MUST use sequential await, not Promise.all.
+    //      ✅  const a = await queryA(); const b = await queryB();  // 1 conn
+    //      ❌  const [a,b] = await Promise.all([queryA(), queryB()]); // 3 conns
+    //
+    //    One-shot routes triggered by user action (form submit, page load) are
+    //    fine with Promise.all — they don't stack up in the pool the same way.
     max: 3,
     // idle_timeout: 2 — release connections to PgBouncer quickly after use,
     // so other Lambda invocations can acquire them. 20s idle keeps connections
