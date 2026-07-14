@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 import { getBuilder, type BuilderSession } from "@/lib/auth";
 import { JobsClient } from "@/components/JobsClient";
 
@@ -20,7 +20,7 @@ export type PipelineJob = {
 };
 
 async function fetchPipelineJobs(): Promise<PipelineJob[]> {
-  const rows = await sql<PipelineJob[]>`
+  const rows = await withDbTimeout(() => sql<PipelineJob[]>`
     SELECT
       j.id,
       j.job_number,
@@ -63,16 +63,16 @@ async function fetchPipelineJobs(): Promise<PipelineJob[]> {
         ELSE 99
       END,
       j.client_name
-  `;
+  `);
   return rows;
 }
 
 export default async function JobsPage() {
-  const [jobs, pipelineJobs, session] = await Promise.all([
+  const [jobs, pipelineJobs, session] = await withDbTimeout(() => Promise.all([
     sql`SELECT * FROM jobs ORDER BY seq DESC` as Promise<Job[]>,
     fetchPipelineJobs(),
     getBuilder(),
-  ]);
+  ]));
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">

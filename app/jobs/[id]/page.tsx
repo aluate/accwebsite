@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
@@ -91,14 +91,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect(`/installer/jobs/${jobId2}`);
   }
   const isAdmin = session.role === "admin";
-  const [job] = await sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Job[];
+  const [job] = await withDbTimeout(() =>
+    sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Promise<Job[]>
+  ).then((r) => r);
   if (!job) notFound();
   const internalId = job.id; // always use internal PK for subsequent queries
 
   // ON DECK state: true if ANY schedule events exist for this job (scheduled or not)
-  const [{ count: eventCount }] = await sql`
-    SELECT COUNT(*) AS count FROM job_events WHERE job_id = ${internalId}
-  ` as [{ count: string }];
+  const [{ count: eventCount }] = await withDbTimeout(() =>
+    sql`SELECT COUNT(*) AS count FROM job_events WHERE job_id = ${internalId}` as Promise<[{ count: string }]>
+  );
   const hasScheduleEvents = Number(eventCount) > 0;
 
   // Activity feed — best-effort (may be empty on first use, catches if table not yet in DB)
