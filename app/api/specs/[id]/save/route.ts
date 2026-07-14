@@ -8,7 +8,7 @@ import { sql, uid } from "@/lib/db";
 type FinishGroupPayload = {
   id: string;
   label: string;
-  finish_type: "paint" | "stain" | "melamine" | "plam" | "";
+  finish_type: "paint" | "stain" | "melamine";
   color_id: string;
   color_name: string;
   door_style_id: string;
@@ -24,7 +24,7 @@ type FinishGroupPayload = {
   sort_order: number;
 };
 
-type AccessoryPayload = { acc_id: string; qty: number; custom_note?: string };
+type AccessoryPayload = { acc_id: string; qty: number; custom_note?: string; size?: string; handed?: string };
 
 type CabinetPayload = {
   id: string;
@@ -103,7 +103,9 @@ function validate(payload: SavePayload): Violation[] {
     if (!g.finish_type)    v.push({ path: tag, message: "finish_type is required" });
     if (!g.carcass_id)     v.push({ path: tag, message: "carcass material is required (the $70k field)" });
     if (!g.drawer_box_id)  v.push({ path: tag, message: "drawer box is required (the $70k field)" });
-  
+    if ((g.finish_type === "paint" || g.finish_type === "stain") && !g.edgeband_id) {
+      v.push({ path: tag, message: "edgeband selection is required for paint/stain finishes" });
+    }
   }
 
   for (const r of payload.rooms) {
@@ -155,87 +157,6 @@ function validate(payload: SavePayload): Violation[] {
 
   return v;
 }
-
-// -- autoPopulateEdgebands: upsert 8 standard edgeband location rows per FG
-// Called on every save. Only fills rows that are completely blank (all three fields null).
-// Sentinels: edgeband_id = 'paint_to_match' | 'stain_to_match' for paint/stain finishes.
-// For melamine: looks up matching edgeband from catalog JSON by color_match → stores
-//   where_used = catalog id (###), notes = product_name.
-
-type EbRowSpec = { code: string; ebId: string | null; whereUsed: string | null; notes: string | null; sortOrder: number };
-
-async function autoPopulateEdgebands(
-  specId: string,
-  fgId: string,
-  g: FinishGroupPayload,
-): Promise<void> {
-  // ── Determine face/drawer edgeband assignment ─────────────────────────────
-  let faceEbId: string | null    = null;
-  let faceWhereUsed: string | null = null;
-  let faceNotes: string | null   = null;
-
-  if (g.finish_type === "paint") {
-    faceEbId = "paint_to_match";
-  } else if (g.finish_type === "stain") {
-    faceEbId = "stain_to_match";
-  } else if ((g.finish_type === "melamine" || g.finish_type === "plam") && g.color_id) {
-    try {
-      // Read catalog JSON files directly — no extra DB tables needed
-      const { readFileSync } = await import("fs");
-      const { join } = await import("path");
-      const dataDir = join(process.cwd(), "data", "catalogs");
-
-      const colorFile = g.finish_type === "melamine" ? "colors_melamine.json" : "colors_melamine.json";
-      const colors = JSON.parse(readFileSync(join(dataDir, colorFile), "utf-8")) as Array<{ id: string; name: string }>;
-      const mc = colors.find((c) => c.id === g.color_id);
-
-      if (mc) {
-        const edgebands = JSON.parse(readFileSync(join(dataDir, "edgeband.json"), "utf-8")) as Array<{ id: string; product_name: string; color_match: string | null; placeholder: boolean }>;
-        const eb = edgebands.find((e) => !e.placeholder && e.color_match && e.color_match.toLowerCase() === mc.name.toLowerCase());
-        if (eb) {
-          faceWhereUsed = eb.id;
-          faceNotes = eb.product_name;
-        }
-      }
-    } catch (_) { /* catalog read failed — leave null */ }
-  }
-
-  // Drawer and face share the same assignment for now
-  const drawerEbId    = faceEbId;
-  const drawerWhereUsed = faceWhereUsed;
-  const drawerNotes   = faceNotes;
-
-  // ── 8 standard locations ──────────────────────────────────────────────────
-  // D=door face, E=exposed end, V=vertical divider, U=upper face
-  // I=carcass interior (always manual), B=drawer box, C=drawer front, X=N/A
-  const rows: EbRowSpec[] = [
-    { code: "D", ebId: faceEbId,    whereUsed: faceWhereUsed,    notes: faceNotes,   sortOrder: 1 },
-    { code: "E", ebId: faceEbId,    whereUsed: faceWhereUsed,    notes: faceNotes,   sortOrder: 2 },
-    { code: "V", ebId: faceEbId,    whereUsed: faceWhereUsed,    notes: faceNotes,   sortOrder: 3 },
-    { code: "U", ebId: faceEbId,    whereUsed: faceWhereUsed,    notes: faceNotes,   sortOrder: 4 },
-    { code: "I", ebId: null,        whereUsed: null,             notes: null,        sortOrder: 5 }, // carcass — manual only
-    { code: "B", ebId: drawerEbId,  whereUsed: drawerWhereUsed,  notes: drawerNotes, sortOrder: 6 },
-    { code: "C", ebId: drawerEbId,  whereUsed: drawerWhereUsed,  notes: drawerNotes, sortOrder: 7 },
-    { code: "X", ebId: null,        whereUsed: null,             notes: null,        sortOrder: 8 }, // N/A
-  ];
-
-  for (const row of rows) {
-    await sql`
-      INSERT INTO finish_group_edgebands
-        (id, finish_group_id, letter_code, edgeband_id, where_used, notes, sort_order)
-      VALUES
-        (${uid()}, ${fgId}, ${row.code}, ${row.ebId}, ${row.whereUsed}, ${row.notes}, ${row.sortOrder})
-      ON CONFLICT (finish_group_id, letter_code) DO UPDATE
-        SET edgeband_id = EXCLUDED.edgeband_id,
-            where_used  = EXCLUDED.where_used,
-            notes       = EXCLUDED.notes
-        WHERE finish_group_edgebands.edgeband_id IS NULL
-          AND finish_group_edgebands.where_used IS NULL
-          AND finish_group_edgebands.notes IS NULL
-    `;
-  }
-}
-
 
 // -- Save handler
 
@@ -296,20 +217,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     for (const g of finish_groups) {
       await sql`
         INSERT INTO finish_groups
-          (id, spec_id, label, finish_type, color_id, color_name, color_hex,
+          (id, spec_id, label, finish_type, color_id, color_name,
            door_style_id, drawer_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
-           applied_panels, species, grade, grain_orientation, rollout_box_id,
+           applied_panels, species, rollout_box_id,
            cabdoor_edge_id, cabdoor_profile_id, cabdoor_panel_id,
            notes, sort_order)
         VALUES
           (${g.id}, ${id}, ${g.label}, ${g.finish_type || "paint"},
-           ${g.color_id || null}, ${g.color_name || null}, ${(g as Record<string, unknown>).color_hex as string || null},
+           ${g.color_id || null}, ${g.color_name || null},
            ${g.door_style_id || null},
            ${(g as Record<string, unknown>).drawer_style_id as string || null},
            ${g.pull_id || null},
            ${g.box_material || "melamine"},
            ${g.carcass_id || null}, ${g.drawer_box_id || null}, ${g.edgeband_id || null},
-           ${g.applied_panels || "slab"}, ${g.species || null}, ${(g as Record<string, unknown>).grade as string || null}, ${(g as Record<string, unknown>).grain_orientation as string || null}, ${g.rollout_box_id || null},
+           ${g.applied_panels || "slab"}, ${g.species || null}, ${g.rollout_box_id || null},
            ${(g as Record<string, unknown>).cabdoor_edge_id as string || null},
            ${(g as Record<string, unknown>).cabdoor_profile_id as string || null},
            ${(g as Record<string, unknown>).cabdoor_panel_id as string || null},
@@ -342,8 +263,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       // Accessories
       for (const acc of r.accessories ?? []) {
         await sql`
-          INSERT INTO room_accessories (id, room_id, acc_id, qty, notes)
-          VALUES (${uid()}, ${r.id}, ${acc.acc_id}, ${acc.qty ?? 1}, ${acc.custom_note ?? null})
+          INSERT INTO room_accessories (id, room_id, acc_id, qty, notes, size, handed)
+          VALUES (${uid()}, ${r.id}, ${acc.acc_id}, ${acc.qty ?? 1}, ${acc.custom_note ?? null}, ${acc.size ?? null}, ${acc.handed ?? null})
         `;
       }
 
@@ -427,13 +348,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         } catch (_) { /* seeding failure -- skip */ }
       }
 
-      // edgebands -- auto-populate 8 standard location rows per FG on every save.
-      // Rows: D/E/V/U = face finish edgeband; I = carcass edgeband; B/C = drawer edgeband; X = custom/none.
-      // Uses ON CONFLICT (finish_group_id, letter_code) DO UPDATE ... WHERE edgeband_id IS NULL
-      // so user's manual selections are never overwritten.
-      try {
-        await autoPopulateEdgebands(id, fgId, g);
-      } catch (_) { /* seeding failure -- skip */ }
+      // edgebands -- seed one row from edgeband_id
+      if (g.edgeband_id) {
+        try {
+          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_edgebands WHERE finish_group_id = ${fgId}`;
+          if (Number((cnt[0] as { c: string | number }).c) === 0) {
+            await sql`
+              INSERT INTO finish_group_edgebands (id, finish_group_id, code, edgeband_id, sort_order)
+              VALUES (${uid()}, ${fgId}, ${'EB1'}, ${g.edgeband_id}, ${0})
+            `;
+          }
+        } catch (_) { /* seeding failure -- skip */ }
+      }
 
       // hardware -- seed door_pulls and drawer_pulls rows from pull_id
       if (g.pull_id) {

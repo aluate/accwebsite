@@ -1,7 +1,7 @@
 [
   {
     "id": "ACC-001",
-    "name": "Single Rollout Tray",
+    "name": "Single rollout tray",
     "brand": "Rev-A-Shelf",
     "series": "5WB1",
     "category": "rollout",
@@ -17,11 +17,14 @@
       "Natural"
     ],
     "hand": null,
-    "notes": "Full extension; for base cabinets; standard depth. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-001.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Full extension; standard depth base cabinets. Width confirmed at order time from series."
   },
   {
     "id": "ACC-002",
-    "name": "Double Rollout Tray (Stacked)",
+    "name": "Double rollout tray (stacked)",
     "brand": "Rev-A-Shelf",
     "series": "5WB2",
     "category": "rollout",
@@ -37,11 +40,14 @@
       "Natural"
     ],
     "hand": null,
-    "notes": "Two-tier stacked; fits standard 30+ base. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-002.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Two-tier stacked; fits 30\"+ base. Width confirmed at order time."
   },
   {
     "id": "ACC-003",
-    "name": "Full-Extension Rollout Shelf",
+    "name": "Full-extension rollout shelf (heavy duty)",
     "brand": "Rev-A-Shelf",
     "series": "5RB",
     "category": "rollout",
@@ -57,53 +63,90 @@
       "Chrome"
     ],
     "hand": null,
-    "notes": "Heavy duty; 100lb rating; full extension. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-003.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "100 lb rating; full extension. Width confirmed at order time."
   },
   {
-    "id": "ACC-004",
-    "name": "[RETIRED] Pull-Out Trash (Single 35qt)",
+    "id": "ACC-016",
+    "name": "Pull-out cabinet shelf",
     "brand": "Rev-A-Shelf",
-    "series": "4WCSC-1",
-    "category": "trash",
+    "series": "5PBS",
+    "category": "rollout",
     "width_options_in": [
-      11,
-      14
+      12,
+      15,
+      18,
+      21,
+      24
     ],
-    "finish_options": "White",
+    "finish_options": "Chrome",
     "hand": null,
-    "notes": "RETIRED 2026-05-21 — placeholder series code; never matched a real SKU. Superseded by ACC-022/023/024/025."
+    "image_url": "/accessories/ACC-016.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Single shelf; base or upper; full extension. Width confirmed at order time."
   },
   {
-    "id": "ACC-005",
-    "name": "[RETIRED] Pull-Out Trash (Double 35qt + 8qt)",
+    "id": "ACC-022",
+    "name": "Pull-out trash — double 27qt (15\" base)",
     "brand": "Rev-A-Shelf",
-    "series": "4WCSC-2",
+    "series": "4WCSC/D",
     "category": "trash",
-    "width_options_in": [
-      14,
-      17
-    ],
-    "finish_options": "White",
+    "width_options_in": 15,
+    "finish_options": "Silver/Maple",
     "hand": null,
-    "notes": "RETIRED 2026-05-21 — placeholder series code; never matched a real SKU. Superseded by ACC-022/023/024/025."
+    "image_url": "/accessories/ACC-022.webp",
+    "price_slp": 553.99,
+    "price_date": "2026-07-14",
+    "notes": "SKU: 4WCSC-1527DM-2; Double 27qt; 12\"W x 22-1/8\"D x 19-11/32\"H; CAB B15; Blum Movento soft-close; bottom mount. Largest double for 15\" base — use ACC-025 for single 35qt."
   },
   {
-    "id": "ACC-006",
-    "name": "[RETIRED] Pull-Out Trash (Double 50qt)",
+    "id": "ACC-023",
+    "name": "Pull-out trash — double 35qt (18\" base)",
     "brand": "Rev-A-Shelf",
-    "series": "4WCBLS-2",
+    "series": "4WCSC/D",
     "category": "trash",
-    "width_options_in": [
-      17,
-      20
-    ],
-    "finish_options": "White",
+    "width_options_in": 18,
+    "finish_options": "Silver/Maple",
     "hand": null,
-    "notes": "RETIRED 2026-05-21 — placeholder series code; never matched a real SKU. Superseded by ACC-022/023/024/025."
+    "image_url": "/accessories/ACC-023.webp",
+    "price_slp": 575.99,
+    "price_date": "2026-07-14",
+    "notes": "SKU: 4WCSC-1835DM-2; Double 35qt; 15\"W x 22-1/32\"D x 20-3/8\"H; CAB B18; Blum Movento soft-close; bottom mount."
+  },
+  {
+    "id": "ACC-024",
+    "name": "Pull-out trash — double 35qt (21\" base)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WCSC/D",
+    "category": "trash",
+    "width_options_in": 21,
+    "finish_options": "Silver/Maple",
+    "hand": null,
+    "image_url": "/accessories/ACC-024.webp",
+    "price_slp": 604.99,
+    "price_date": "2026-07-14",
+    "notes": "SKU: 4WCSC-2135DM-2; Double 35qt; 18\"W x 22-1/32\"D x 20-5/16\"H; CAB B21; Blum Movento soft-close; bottom mount."
+  },
+  {
+    "id": "ACC-025",
+    "name": "Pull-out trash — single 35qt (15\" base)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WCSC/D",
+    "category": "trash",
+    "width_options_in": 15,
+    "finish_options": "Silver/Maple",
+    "hand": null,
+    "image_url": "/accessories/ACC-025.webp",
+    "price_slp": 528.99,
+    "price_date": "2026-07-14",
+    "notes": "SKU: 4WCSC-1535DM-1; Single 35qt; 12\"W x 21-21/32\"D x 19-1/2\"H; CAB B15; Blum Movento soft-close; bottom mount. Use when client wants larger single bin over double 27qt."
   },
   {
     "id": "ACC-007",
-    "name": "Lazy Susan – Full Round",
+    "name": "Lazy susan — full round (corner base)",
     "brand": "Rev-A-Shelf",
     "series": "5LS",
     "category": "lazy_susan",
@@ -117,11 +160,14 @@
       "Chrome"
     ],
     "hand": null,
-    "notes": "Corner base; full round; polymer or wire. Not handed — spins in place. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-007.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Corner base; full round; polymer or wire. Not handed — spins in place. Width = susan diameter."
   },
   {
     "id": "ACC-008",
-    "name": "Lazy Susan – Kidney (D-Shape)",
+    "name": "Lazy susan — kidney / D-shape (blind corner base)",
     "brand": "Rev-A-Shelf",
     "series": "5LSC",
     "category": "lazy_susan",
@@ -134,11 +180,14 @@
       "L",
       "R"
     ],
-    "notes": "Blind corner; kidney shape; 2-shelf. HANDED — must specify L or R at time of spec. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-008.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Blind corner base; 2-shelf kidney shape. HANDED — must specify Left or Right. Width = susan diameter."
   },
   {
     "id": "ACC-009",
-    "name": "Pie Cut Lazy Susan",
+    "name": "Lazy susan — pie cut (corner base)",
     "brand": "Rev-A-Shelf",
     "series": "5PC",
     "category": "lazy_susan",
@@ -152,11 +201,158 @@
       "L",
       "R"
     ],
-    "notes": "Corner cabinet; pie-cut shelves. HANDED — must specify L or R at time of spec. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-009.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Corner base; pie-cut shelves. HANDED — must specify Left or Right. Width = susan diameter."
+  },
+  {
+    "id": "ACC-028",
+    "name": "Blind corner optimizer — The Cloud (base)",
+    "brand": "Rev-A-Shelf",
+    "series": "5371",
+    "category": "blind_corner",
+    "width_options_in": [
+      15,
+      18,
+      21
+    ],
+    "finish_options": [
+      "Gray",
+      "Maple"
+    ],
+    "hand": [
+      "L",
+      "R"
+    ],
+    "image_url": "/accessories/ACC-028.webp",
+    "price_slp": 74.99,
+    "price_date": "2026-07-14",
+    "notes": "Base blind corner; cloud-shaped polymer shelves; 1 or 2 tier. Size = face frame opening width. HANDED — must specify Left or Right. Price range $74.99–$955.99 by tier/size."
+  },
+  {
+    "id": "ACC-029",
+    "name": "Blind corner optimizer — Girasolo w/ soft-close (base)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WLS87",
+    "category": "blind_corner",
+    "width_options_in": [
+      12,
+      15,
+      18
+    ],
+    "finish_options": "Maple",
+    "hand": [
+      "L",
+      "R"
+    ],
+    "image_url": "/accessories/ACC-029.webp",
+    "price_slp": 462.99,
+    "price_date": "2026-07-14",
+    "notes": "Base blind corner; pivot-slide system; 1 or 2 tier maple shelves. Size = face frame opening width. HANDED — must specify Left or Right. Price range $462.99–$858.99."
+  },
+  {
+    "id": "ACC-032",
+    "name": "Blind corner half-moon shelf — polymer (base)",
+    "brand": "Rev-A-Shelf",
+    "series": "6842",
+    "category": "blind_corner",
+    "width_options_in": [
+      32,
+      36
+    ],
+    "finish_options": "White",
+    "hand": [
+      "L",
+      "R"
+    ],
+    "image_url": "/accessories/ACC-032.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Base blind corner; traditional kidney/half-moon pull-out polymer shelves. HANDED. WARNING — series code 6842 not verified on RAS site 2026-07-14; confirm before ordering."
+  },
+  {
+    "id": "ACC-033",
+    "name": "Blind corner half-moon shelf — wire (base)",
+    "brand": "Rev-A-Shelf",
+    "series": "6881",
+    "category": "blind_corner",
+    "width_options_in": [
+      32,
+      36
+    ],
+    "finish_options": "Chrome",
+    "hand": [
+      "L",
+      "R"
+    ],
+    "image_url": "/accessories/ACC-033.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Base blind corner; traditional kidney/half-moon pull-out wire shelves. HANDED. WARNING — series code 6881 not verified on RAS site 2026-07-14; confirm before ordering."
+  },
+  {
+    "id": "ACC-034",
+    "name": "Blind corner half-moon — maple wood (base)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WLS882",
+    "category": "blind_corner",
+    "width_options_in": [
+      32,
+      36
+    ],
+    "finish_options": "Maple",
+    "hand": [
+      "L",
+      "R"
+    ],
+    "image_url": "/accessories/ACC-034.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Base blind corner; maple wood half-moon pull-out. HANDED. WARNING — series code 4WLS882 not verified on RAS site 2026-07-14; confirm before ordering."
+  },
+  {
+    "id": "ACC-030",
+    "name": "Lazy susan — full circle polymer (corner wall)",
+    "brand": "Rev-A-Shelf",
+    "series": "3072",
+    "category": "lazy_susan_wall",
+    "width_options_in": [
+      18,
+      20,
+      22,
+      24
+    ],
+    "finish_options": [
+      "White",
+      "Almond"
+    ],
+    "hand": null,
+    "image_url": "/accessories/ACC-030.webp",
+    "price_slp": 79.99,
+    "price_date": "2026-07-14",
+    "notes": "Corner WALL cabinet; full circle 2 or 3-shelf polymer. Not handed. Width = susan diameter. Sold per shelf — specify shelf count at order. Price range $79.99–$132.99."
+  },
+  {
+    "id": "ACC-031",
+    "name": "Lazy susan — D-shape wood (corner wall)",
+    "brand": "Rev-A-Shelf",
+    "series": "4WLS272",
+    "category": "lazy_susan_wall",
+    "width_options_in": [
+      20,
+      22
+    ],
+    "finish_options": "Maple",
+    "hand": null,
+    "image_url": "/accessories/ACC-031.webp",
+    "price_slp": 359.99,
+    "price_date": "2026-07-14",
+    "notes": "Corner WALL cabinet; 2-shelf D-shape wood. Not handed. Width = susan diameter. Price range $359.99–$380.99."
   },
   {
     "id": "ACC-010",
-    "name": "Door Mount Spice Rack",
+    "name": "Door mount spice rack",
     "brand": "Rev-A-Shelf",
     "series": "4ASR",
     "category": "door_storage",
@@ -167,11 +363,14 @@
     ],
     "finish_options": "Chrome",
     "hand": null,
-    "notes": "Mounts inside door; upper or base. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-010.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Mounts inside door; upper or base cabinets."
   },
   {
     "id": "ACC-011",
-    "name": "Door Mount Tray Divider",
+    "name": "Door mount tray divider",
     "brand": "Rev-A-Shelf",
     "series": "4TDS",
     "category": "door_storage",
@@ -181,26 +380,14 @@
     ],
     "finish_options": "Chrome",
     "hand": null,
-    "notes": "Cutting board & tray storage; base. SERIES ONLY — no specific SKU confirmed yet."
-  },
-  {
-    "id": "ACC-012",
-    "name": "Cookware Organizer",
-    "brand": "Rev-A-Shelf",
-    "series": "RCPO",
-    "category": "specialty",
-    "width_options_in": [
-      8,
-      11,
-      14
-    ],
-    "finish_options": "Chrome",
-    "hand": null,
-    "notes": "Vertical dividers for pots/pans; deep base. WARNING — series code unverified; may not be a real RAS SKU pattern. Needs catalog check."
+    "image_url": "/accessories/ACC-011.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Cutting board and tray storage; base cabinet door mount."
   },
   {
     "id": "ACC-013",
-    "name": "Pull-Out Peg Drawer Organizer",
+    "name": "Pull-out peg drawer organizer",
     "brand": "Rev-A-Shelf",
     "series": "4DI",
     "category": "drawer",
@@ -215,11 +402,14 @@
       "Gray"
     ],
     "hand": null,
-    "notes": "Peg system; deep drawer organization. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-013.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Peg system; deep drawer organization. SKU confirmed at order time by width/finish."
   },
   {
     "id": "ACC-014",
-    "name": "Knife Block Insert",
+    "name": "Knife block insert (in-drawer)",
     "brand": "Rev-A-Shelf",
     "series": "4KBSDA",
     "category": "drawer",
@@ -229,11 +419,14 @@
     ],
     "finish_options": "Walnut",
     "hand": null,
-    "notes": "In-drawer knife storage; horizontal. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-014.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "In-drawer horizontal knife storage."
   },
   {
     "id": "ACC-015",
-    "name": "Utensil Divider Kit",
+    "name": "Utensil divider kit",
     "brand": "Rev-A-Shelf",
     "series": "4FSDB",
     "category": "drawer",
@@ -246,28 +439,14 @@
       "Gray"
     ],
     "hand": null,
-    "notes": "Expandable drawer dividers; multi-section. WARNING — series code unverified; needs catalog check."
-  },
-  {
-    "id": "ACC-016",
-    "name": "Pull-Out Cabinet Shelf",
-    "brand": "Rev-A-Shelf",
-    "series": "5PBS",
-    "category": "rollout",
-    "width_options_in": [
-      12,
-      15,
-      18,
-      21,
-      24
-    ],
-    "finish_options": "Chrome",
-    "hand": null,
-    "notes": "Single shelf; base or upper; full extension. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-015.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "Expandable drawer dividers; multi-section. WARNING — series code 4FSDB not confirmed on RAS site 2026-07-14; verify before ordering."
   },
   {
     "id": "ACC-017",
-    "name": "Pantry Pull-Out (Frame)",
+    "name": "Pantry pull-out frame",
     "brand": "Rev-A-Shelf",
     "series": "5PD-Series",
     "category": "pantry",
@@ -278,140 +457,26 @@
     ],
     "finish_options": "Chrome",
     "hand": null,
-    "notes": "For pantry/tall cabinets; multiple shelves. SERIES ONLY — no specific SKU confirmed yet."
+    "image_url": "/accessories/ACC-017.webp",
+    "price_slp": null,
+    "price_date": null,
+    "notes": "For pantry/tall cabinets; multiple shelf tiers. Width confirmed at order time."
   },
   {
-    "id": "ACC-018",
-    "name": "Base Cabinet Filler Pull-Out",
+    "id": "ACC-026",
+    "name": "Two-tier cookware organizer",
     "brand": "Rev-A-Shelf",
-    "series": "BCFPO",
+    "series": "5CW2",
     "category": "specialty",
     "width_options_in": [
-      3,
-      6
+      12,
+      21
     ],
     "finish_options": "Chrome",
     "hand": null,
-    "notes": "Narrow filler pull-out; spice/flat storage. WARNING — series code unverified; may not be a real RAS SKU pattern. Needs catalog check."
-  },
-  {
-    "id": "ACC-019",
-    "name": "Hamper (Single)",
-    "brand": "Rev-A-Shelf",
-    "series": "RV-18KD",
-    "category": "specialty",
-    "width_options_in": [
-      14,
-      18
-    ],
-    "finish_options": [
-      "Chrome",
-      "White"
-    ],
-    "hand": null,
-    "notes": "Laundry hamper insert; bathroom/mudroom. SERIES ONLY — no specific SKU confirmed yet."
-  },
-  {
-    "id": "ACC-020",
-    "name": "Other/Custom",
-    "brand": "Custom",
-    "series": null,
-    "category": "other",
-    "width_options_in": null,
-    "finish_options": null,
-    "hand": null,
-    "notes": "Specify brand + item in notes"
-  },
-  {
-    "id": "ACC-021",
-    "name": "[RETIRED STD] Pull-Out Trash Top Mount (Double)",
-    "brand": "Rev-A-Shelf",
-    "series": "4WCTM",
-    "category": "trash",
-    "width_options_in": [
-      15,
-      18,
-      21,
-      24
-    ],
-    "finish_options": "Silver/Maple",
-    "hand": null,
-    "notes": "RETIRED as standard 2026-05-21 — top mount hardware binds on euro/frameless boxes; no face frame to anchor to. Was the previous default. Do not spec on frameless builds."
-  },
-  {
-    "id": "ACC-022",
-    "name": [
-      "Pull-Out Trash Double 27qt (15 base),Rev-A-Shelf,4WCSC/D,trash,15,Silver/Maple,,SKU: 4WCSC-1527DM-2",
-      "Double 27qt",
-      "12W x 22-1/8D x 19-11/32H",
-      "CAB B15",
-      "Blum Movento soft-close",
-      "bottom mount",
-      "SLP $553.99. NOTE: 27qt is the largest double in a 15 base — single 35qt available as ACC-025."
-    ],
-    "brand": null,
-    "series": null,
-    "category": null,
-    "width_options_in": null,
-    "finish_options": null,
-    "hand": null,
-    "notes": null
-  },
-  {
-    "id": "ACC-023",
-    "name": [
-      "Pull-Out Trash Double 35qt (18 base),Rev-A-Shelf,4WCSC/D,trash,18,Silver/Maple,,SKU: 4WCSC-1835DM-2",
-      "Double 35qt",
-      "15W x 22-1/32D x 20-3/8H",
-      "CAB B18",
-      "Blum Movento soft-close",
-      "bottom mount",
-      "SLP $575.99."
-    ],
-    "brand": null,
-    "series": null,
-    "category": null,
-    "width_options_in": null,
-    "finish_options": null,
-    "hand": null,
-    "notes": null
-  },
-  {
-    "id": "ACC-024",
-    "name": [
-      "Pull-Out Trash Double 35qt (21 base),Rev-A-Shelf,4WCSC/D,trash,21,Silver/Maple,,SKU: 4WCSC-2135DM-2",
-      "Double 35qt",
-      "18W x 22-1/32D x 20-5/16H",
-      "CAB B21",
-      "Blum Movento soft-close",
-      "bottom mount",
-      "SLP $604.99."
-    ],
-    "brand": null,
-    "series": null,
-    "category": null,
-    "width_options_in": null,
-    "finish_options": null,
-    "hand": null,
-    "notes": null
-  },
-  {
-    "id": "ACC-025",
-    "name": [
-      "Pull-Out Trash Single 35qt (15 base),Rev-A-Shelf,4WCSC/D,trash,15,Silver/Maple,,SKU: 4WCSC-1535DM-1",
-      "Single 35qt",
-      "12W x 21-21/32D x 19-1/2H",
-      "CAB B15",
-      "Blum Movento soft-close",
-      "bottom mount",
-      "SLP $528.99. Use when client wants a larger bin in a 15 base instead of double 27qt (ACC-022)."
-    ],
-    "brand": null,
-    "series": null,
-    "category": null,
-    "width_options_in": null,
-    "finish_options": null,
-    "hand": null,
+    "image_url": "/accessories/ACC-026.webp",
+    "price_slp": 225.99,
+    "price_date": "2026-07-14",
     "notes": null
   }
 ]

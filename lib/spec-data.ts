@@ -4,10 +4,10 @@ import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, Moldin
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
-type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; grade: string | null; grain_orientation: string | null; color_id: string | null; color_name: string | null; color_hex: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
+type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
-type AccRow = { room_id: string; acc_id: string; qty: number };
+type AccRow = { room_id: string; acc_id: string; qty: number; size: string | null; handed: string | null };
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type DoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; style_id: string | null; material_id: string | null; oe_id: string | null; ie_id: string | null; panel_id: string | null; grain: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type DrawerRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; drawer_box_id: string | null; slides_id: string | null; notes: string | null; sort_order: number };
@@ -41,13 +41,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const jobRows = await sql<JobRow[]>`SELECT * FROM jobs WHERE id = ${spec.job_id}`;
   const job = jobRows[0]; if (!job) throw new SpecDataError("Job not found", 404);
 
-  const fgs = await sql<FGRow[]>`
-    SELECT fg.*, pc.hex AS color_hex
-    FROM finish_groups fg
-    LEFT JOIN paint_colors pc ON pc.code = fg.color_id
-    WHERE fg.spec_id = ${specId}
-    ORDER BY fg.sort_order
-  `;
+  const fgs = await sql<FGRow[]>`SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order`;
   const fgIds = fgs.map((g) => g.id);
   const rooms = await sql<RoomRow[]>`SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order`;
   const roomIds = (rooms as RoomRow[]).map((r) => r.id);
@@ -68,7 +62,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const drawerBoxIdx=new Map(catalogs.drawerBoxes().map(d=>[d.id,d.name]));
   const edgebandIdx=new Map(catalogs.edgebands().map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));
   const doorStyleIdx=new Map(catalogs.doorStyles().map(d=>[d.id,d.name]));
-  const accIdx=new Map(catalogs.revaAccessories().map(a=>[a.id,{name:a.name,brand:a.brand}]));
+  const accIdx=new Map(catalogs.revaAccessories().map(a=>[a.id,{name:a.name,brand:a.brand,series:a.series,category:a.category}]));
   const moldingProfIdx=new Map(catalogs.moldingProfiles().map(p=>[p.id,p.name]));
   const moldingMatIdx=new Map(catalogs.moldingMaterials().map(m=>[m.id,m.name]));
   const sheenIdx=new Map(catalogs.sheens().map(s=>[s.id,s.name]));
@@ -128,30 +122,10 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     if (tableEbs.length > 0) {
       ebEntries = tableEbs.map((eb) => {
         const id = eb.edgeband_id ?? "";
-        const code = eb.code; // letter code (D/E/V/U/I/B/C/X) — use directly
-        // Resolve edgeband product name from sentinel or custom free-entry fields
-        let edgebandName = "";
-        let supplier = "";
-        let thickness = "";
-        if (id === "paint_to_match") {
-          edgebandName = "Paint to Match";
-        } else if (id === "stain_to_match") {
-          edgebandName = "Stain to Match";
-        } else if (!id) {
-          // Custom free entry: where_used = ### (product number), notes = product name
-          const parts = [eb.where_used, eb.notes].filter(Boolean);
-          edgebandName = parts.join("  ");
-        } else {
-          // Legacy catalog ID lookup
-          const data = edgebandIdx.get(id);
-          edgebandName = data?.name ?? id;
-          supplier = data?.supplier ?? "";
-          thickness = data?.thickness ?? "";
-        }
-        const whereUsedLabel = eb.where_used && id !== "paint_to_match" && id !== "stain_to_match" && !id
-          ? eb.where_used // for custom: show the ### in the Where Used column
-          : (EDGEBAND_WHERE_USED_LABEL[eb.where_used ?? ""] ?? "");
-        return { code, edgeband_name: edgebandName, supplier, thickness, where_used_label: "", notes: eb.notes ?? "" };
+        const code = id ? (ebCodeMap.get(id) ?? eb.code) : eb.code;
+        const data = id ? edgebandIdx.get(id) : undefined;
+        const whereUsedLabel = eb.where_used ? (EDGEBAND_WHERE_USED_LABEL[eb.where_used] ?? eb.where_used) : "";
+        return { code, edgeband_name: data?.name ?? "", supplier: data?.supplier ?? "", thickness: data?.thickness ?? "", where_used_label: whereUsedLabel, notes: eb.notes ?? "" };
       });
     } else {
       // Legacy/fallback: flat column only
@@ -161,7 +135,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     }
 
     return {
-      id: g.id, label: g.label, finish_type: g.finish_type, color_hex: g.color_hex ?? null, notes: g.notes ?? "", species: g.species ?? "", grade: g.grade ?? "", grain_orientation: g.grain_orientation ?? "",
+      id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
       finish: {
         stain_name: isStain ? colorName : "",
@@ -181,11 +155,11 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const roomViews: RoomView[] = rooms.map((r) => {
     const finishes=rfs.filter(f=>f.room_id===r.id).map(f=>({finish_group_id:f.finish_group_id,finish_label:fgLabelIdx.get(f.finish_group_id)??f.finish_group_id,zone:f.zone??""}));
     const seeded=finishes.length===0&&r.finish_group_id?[{finish_group_id:r.finish_group_id,finish_label:fgLabelIdx.get(r.finish_group_id)??r.finish_group_id,zone:""}]:finishes;
-    return{id:r.id,name:r.name,notes:r.notes??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:""}),qty:a.qty}))};
+    return{id:r.id,name:r.name,notes:r.notes??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:"",series:"",category:""}),qty:a.qty,size:a.size??"",handed:a.handed??"N/A"}))};
   });
 
   const accRollupMap=new Map<string,AccessoryRollupRow>();
-  for(const r of roomViews)for(const a of r.accessories){const key=`${a.brand}|${a.name}`;const cur=accRollupMap.get(key)??{name:a.name,brand:a.brand,total_qty:0,rooms:[]};cur.total_qty+=a.qty;if(!cur.rooms.includes(r.name))cur.rooms.push(r.name);accRollupMap.set(key,cur);}
+  for(const r of roomViews)for(const a of r.accessories){const key=`${a.brand}|${a.name}|${a.size??''}|${a.handed??''}`;const cur=accRollupMap.get(key)??{name:a.name,brand:a.brand,series:(a as Record<string,unknown>).series as string??"",category:(a as Record<string,unknown>).category as string??"",size:(a as Record<string,unknown>).size as string??"",handed:(a as Record<string,unknown>).handed as string??"N/A",total_qty:0,rooms:[]};cur.total_qty+=a.qty;if(!cur.rooms.includes(r.name))cur.rooms.push(r.name);accRollupMap.set(key,cur);}
   const accessories_rollup=Array.from(accRollupMap.values()).sort((a,b)=>a.name.localeCompare(b.name));
 
   const mldRollupMap=new Map<string,MoldingRollupRow>();

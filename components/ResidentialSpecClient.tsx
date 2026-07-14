@@ -4,14 +4,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type {
   PaintColor, StainColor, MelamineColor, DoorStyle, HardwarePull, RevaAccessory,
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
-  Species, BuilderProfile,
 } from "@/lib/catalogs";
-// asArray: normalize semicolon-joined string or array to string[] (inlined from catalogs.ts for client safety)
-function asArray(v: unknown): string[] {
-  if (v == null) return [];
-  if (Array.isArray(v)) return v.map(String);
-  return String(v).split(";").map((s) => s.trim()).filter(Boolean);
-}
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
@@ -33,20 +26,16 @@ type CatalogData = {
   applianceCatalog?: { type: string; manufacturer: string; model: string; cutout_w: number; cutout_h: number; cutout_d: number; notes: string }[];
   edgebands: Edgeband[];
   rooms: RoomCatalogEntry[];
-  species: Species[];
-  cabDoorEdges?: { id: string; [k: string]: unknown }[];
-  cabDoorProfiles?: { id: string; [k: string]: unknown }[];
-  cabDoorPanels?: { id: string; [k: string]: unknown }[];
-  moldingTypes?: { id: string; [k: string]: unknown }[];
-  moldingProfiles?: { id: string; [k: string]: unknown }[];
-  moldingMaterials?: { id: string; [k: string]: unknown }[];
+  cabDoorEdges?: { id: string; name: string }[];
+  cabDoorProfiles?: { id: string; name: string }[];
+  cabDoorPanels?: { id: string; name: string }[];
 };
 
 type FinishType = "paint" | "stain" | "melamine" | "plam" | "";
 
 export type FinishGroup = {
   id: string; label: string; finish_type: FinishType;
-  color_id: string; color_name: string; color_hex: string | null; door_style_id: string;
+  color_id: string; color_name: string; door_style_id: string;
   drawer_style_id: string;
   cabdoor_edge_id: string;
   cabdoor_profile_id: string;
@@ -58,8 +47,6 @@ export type FinishGroup = {
   edgeband_id: string;
   applied_panels: "slab" | "match_door";
   species: string;
-  grade: string;
-  grain_orientation: string;
   notes: string; sort_order: number;
 };
 
@@ -129,18 +116,9 @@ export type Room = {
   ceiling_height: string;
   soffit: string;
   backsplash: string;
-  accessories: { acc_id: string; qty: number; custom_note?: string }[];
+  accessories: { acc_id: string; qty: number; custom_note?: string; size?: string; handed?: string }[];
   cabinets: CabinetItem[];
   trim: TrimRow[];
-};
-
-export type EdgebandRowClient = {
-  letter_code: string;
-  edgeband_id: string | null;
-  where_used: string | null;
-  notes: string;
-  sort_order: number;
-  location_description: string;
 };
 
 type Props = {
@@ -152,9 +130,7 @@ type Props = {
   initialAppliances: ApplianceRow[];
   initialAccessories2?: SpecAccessoryItem[];
   initialHardware?: SpecHardwareItem[];
-  initialEdgebands?: Record<string, EdgebandRowClient[]>;
   catalogs: CatalogData;
-  builderProfiles?: BuilderProfile[];
   lastSaved: string;
 };
 
@@ -181,8 +157,8 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
     // The $70k canary (carcass / drawer / edgeband) stays REQUIRED below.
     if (!g.carcass_id)      v.push({ tag, field: "Carcass Material" });
     if (!g.drawer_box_id)   v.push({ tag, field: "Drawer Box" });
-    if (!g.edgeband_id && g.finish_type !== "melamine") {
-      v.push({ tag, field: "Edgeband" });
+    if ((g.finish_type === "paint" || g.finish_type === "stain") && !g.edgeband_id) {
+      v.push({ tag, field: "Edgeband (paint/stain)" });
     }
   }
   for (const r of rooms) {
@@ -197,32 +173,6 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
     }
   }
   return v;
-}
-
-// ── EsiSuggest ───────────────────────────────────────────────────────────────
-// Fetches ESI edgeband match for the selected paint color and shows a tip.
-function EsiSuggest({ colorId, colorName }: { colorId: string; colorName: string }) {
-  const [match, setMatch] = useState<{ esi_part: string; esi_desc: string | null; notes: string | null } | null>(null);
-  useEffect(() => {
-    if (!colorId) { setMatch(null); return; }
-    // Extract brand from colorName e.g. "SW 7757 · Iron Ore — SW" → last word "SW"
-    const brand = colorName?.split("—")?.[1]?.trim() ?? "";
-    fetch(`/api/admin/edgeband-matches/suggest?code=${encodeURIComponent(colorId)}&brand=${encodeURIComponent(brand)}`)
-      .then((r) => r.json())
-      .then((d: { match: { esi_part: string; esi_desc: string | null; notes: string | null } | null }) => setMatch(d.match ?? null))
-      .catch(() => setMatch(null));
-  }, [colorId, colorName]);
-  if (!match) return null;
-  return (
-    <div className="mt-1.5 flex items-start gap-2 bg-amber-900/20 border border-amber-600/30 rounded px-3 py-2 text-xs">
-      <span className="text-amber-400 shrink-0 mt-0.5">ESI match:</span>
-      <div className="text-white/70">
-        <span className="font-mono text-amber-300">{match.esi_part}</span>
-        {match.esi_desc && <span className="ml-1 text-white/50">· {match.esi_desc}</span>}
-        {match.notes && <span className="block text-white/30 mt-0.5">{match.notes}</span>}
-      </div>
-    </div>
-  );
 }
 
 // ── ColorPicker ────────────────────────────────────────────────────────────
@@ -499,7 +449,199 @@ function ColorPicker({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, initialEdgebands = {}, catalogs, builderProfiles = [], lastSaved }: Props) {
+
+// ── Accessory picker row ──────────────────────────────────────────────────────
+const ACC_CATEGORIES: { value: string; label: string }[] = [
+  { value: "trash",          label: "Trash pullout" },
+  { value: "rollout",        label: "Rollout shelf" },
+  { value: "lazy_susan",     label: "Corner / lazy susan (base)" },
+  { value: "blind_corner",   label: "Blind corner optimizer (base)" },
+  { value: "lazy_susan_wall",label: "Corner lazy susan (wall)" },
+  { value: "door_storage",   label: "Door mount" },
+  { value: "drawer",         label: "Drawer organizer" },
+  { value: "pantry",         label: "Pantry" },
+  { value: "specialty",      label: "Specialty" },
+  { value: "other",          label: "Custom / Other" },
+];
+
+const SEL = "bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white focus:outline-none focus:border-[#f08122]";
+
+function AccessoryPickerRow({
+  acc,
+  revaAccessories,
+  onUpdate,
+  onRemove,
+}: {
+  acc: { acc_id: string; qty: number; custom_note?: string; size?: string; handed?: string };
+  revaAccessories: RevaAccessory[];
+  onUpdate: (patch: { acc_id?: string; qty?: number; custom_note?: string; size?: string; handed?: string }) => void;
+  onRemove: () => void;
+}) {
+  const selectedItem = revaAccessories.find((x) => x.id === acc.acc_id);
+  const derivedCat = selectedItem?.category ?? (acc.acc_id === "ACC-020" ? "other" : "");
+
+  // Local state for the type picker (before item is selected)
+  const [localCat, setLocalCat] = useState<string>(derivedCat);
+
+  const effectiveCat = derivedCat || localCat;
+
+  // Sizes available for this category
+  const sizeOptions: string[] = effectiveCat && effectiveCat !== "other"
+    ? [...new Set(
+        revaAccessories
+          .filter((a) => a.category === effectiveCat)
+          .flatMap((a) => (a.width_options_in ?? "").split(";").map((s) => s.trim()).filter(Boolean))
+      )].sort((a, b) => parseFloat(a) - parseFloat(b))
+    : [];
+
+  // Items for this category + size
+  const currentSize = acc.size ?? "";
+  const itemOptions = effectiveCat && effectiveCat !== "other"
+    ? revaAccessories.filter((a) => {
+        if (a.category !== effectiveCat) return false;
+        if (!currentSize) return true;
+        return (a.width_options_in ?? "").split(";").map((s) => s.trim()).includes(currentSize);
+      })
+    : [];
+
+  const handOptions = selectedItem?.hand
+    ? selectedItem.hand.split(";").map((h) => h.trim()).filter(Boolean)
+    : [];
+  const isCustom = effectiveCat === "other";
+  const hasWarning = selectedItem?.notes?.includes("WARNING");
+
+  function handleCatChange(cat: string) {
+    setLocalCat(cat);
+    if (cat === "other") {
+      onUpdate({ acc_id: "ACC-020", size: "", handed: "N/A" });
+    } else {
+      onUpdate({ acc_id: "", size: "", handed: "N/A" });
+    }
+  }
+
+  function handleSizeChange(size: string) {
+    // If current item still valid for new size, keep it; otherwise clear
+    const stillValid = selectedItem &&
+      (selectedItem.width_options_in ?? "").split(";").map((s) => s.trim()).includes(size);
+    onUpdate({ size, acc_id: stillValid ? acc.acc_id : "", handed: "N/A" });
+  }
+
+  function handleItemChange(id: string) {
+    const item = revaAccessories.find((x) => x.id === id);
+    const firstHand = item?.hand ? item.hand.split(";")[0].trim() : "N/A";
+    onUpdate({ acc_id: id, handed: firstHand || "N/A" });
+  }
+
+  return (
+    <div className="space-y-1.5 bg-[#161616] rounded p-2 border border-white/5">
+      {/* Row 1: type → size → item → qty → remove */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {/* Type */}
+        <select
+          value={effectiveCat}
+          onChange={(e) => handleCatChange(e.target.value)}
+          className={SEL + " flex-1 min-w-[130px]"}
+        >
+          <option value="">— Type —</option>
+          {ACC_CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
+
+        {/* Size — only when category chosen and not custom */}
+        {effectiveCat && !isCustom && sizeOptions.length > 0 && (
+          <select
+            value={currentSize}
+            onChange={(e) => handleSizeChange(e.target.value)}
+            className={SEL + " w-[80px]"}
+          >
+            <option value="">— Size —</option>
+            {sizeOptions.map((s) => (
+              <option key={s} value={s}>{s}&quot;</option>
+            ))}
+          </select>
+        )}
+
+        {/* Item — only when category chosen and not custom */}
+        {effectiveCat && !isCustom && (
+          <select
+            value={acc.acc_id}
+            onChange={(e) => handleItemChange(e.target.value)}
+            className={SEL + " flex-[2] min-w-[160px]"}
+          >
+            <option value="">— Item —</option>
+            {itemOptions.map((a) => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Handed — only when item requires it */}
+        {handOptions.length > 0 && (
+          <select
+            value={acc.handed ?? ""}
+            onChange={(e) => onUpdate({ handed: e.target.value })}
+            className={SEL + " w-[70px]"}
+          >
+            <option value="">—</option>
+            {handOptions.map((h) => (
+              <option key={h} value={h}>{h === "L" ? "Left" : h === "R" ? "Right" : h}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Qty */}
+        <input
+          type="number" min={1}
+          value={acc.qty}
+          onChange={(e) => onUpdate({ qty: parseInt(e.target.value) || 1 })}
+          className="w-14 bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white text-center focus:outline-none focus:border-[#f08122]"
+        />
+
+        <button onClick={onRemove} className="text-white/20 hover:text-red-400 transition-colors px-1 text-sm">✕</button>
+      </div>
+
+      {/* Row 2: item info / warning badge */}
+      {selectedItem && !isCustom && (
+        <div className="flex items-center gap-2 px-1">
+          {/* Image placeholder / actual image */}
+          <div className="w-10 h-10 bg-[#222] rounded flex-shrink-0 overflow-hidden">
+            <img
+              src={selectedItem.image_url ?? ""}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white/70 text-xs truncate">{selectedItem.brand} · Series {selectedItem.series}</p>
+            {selectedItem.price_slp && (
+              <p className="text-white/40 text-[10px]">SLP ${selectedItem.price_slp} ({selectedItem.price_date})</p>
+            )}
+          </div>
+          {hasWarning && (
+            <span className="text-[10px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded px-1.5 py-0.5 font-condensed uppercase tracking-wide flex-shrink-0">
+              Verify SKU
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Row 3: custom notes */}
+      {(isCustom || acc.custom_note) && (
+        <input
+          type="text"
+          value={acc.custom_note ?? ""}
+          onChange={(e) => onUpdate({ custom_note: e.target.value })}
+          placeholder={isCustom ? "Brand, model, description…" : "Notes (optional)"}
+          className="w-full bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
+        />
+      )}
+    </div>
+  );
+}
+
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
@@ -509,7 +651,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [appliances, setAppliances] = useState<ApplianceRow[]>(initialAppliances);
   const [specAccs, setSpecAccs] = useState<SpecAccessoryItem[]>(initialAccessories2 ?? []);
   const [specHW, setSpecHW] = useState<SpecHardwareItem[]>(initialHardware ?? []);
-  const [edgebands, setEdgebands] = useState<Record<string, EdgebandRowClient[]>>(initialEdgebands);
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -711,16 +852,14 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       id: uid(),
       label: "",
       finish_type: "",
-      color_id: "", color_name: "", color_hex: null,
+      color_id: "", color_name: "",
       door_style_id: "", drawer_style_id: "",
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
       pull_id: "",
       box_material: "melamine",
-      carcass_id: "", drawer_box_id: "", rollout_box_id: "", edgeband_id: "",
+      carcass_id: "", drawer_box_id: "", edgeband_id: "",
       applied_panels: "slab",
       species: "",
-      grade: "",
-      grain_orientation: "",
       notes: "",
       sort_order: idx,
     }]);
@@ -874,10 +1013,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   // ── Accessories ───────────────────────────────────────────────────────────
   function addAccessory(roomId: string) {
-    setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, accessories: [...r.accessories, { acc_id: "", qty: 1 }] }));
+    setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, accessories: [...r.accessories, { acc_id: "", qty: 1, size: "", handed: "N/A" }] }));
     markDirty();
   }
-  function updateAccessory(roomId: string, idx: number, patch: { acc_id?: string; qty?: number; custom_note?: string }) {
+  function updateAccessory(roomId: string, idx: number, patch: { acc_id?: string; qty?: number; custom_note?: string; size?: string; handed?: string }) {
     setRooms(rooms.map((r) => {
       if (r.id !== roomId) return r;
       const acc = [...r.accessories]; acc[idx] = { ...acc[idx], ...patch };
@@ -1291,35 +1430,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
             return (
               <div key={g.id} className="bg-[#2d2d2d] rounded p-4 sm:p-6 space-y-5">
-                <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center justify-between">
                   <span className="text-[#f08122] font-condensed uppercase tracking-widest text-sm">{g.label}</span>
-                  <div className="flex items-center gap-3">
-                    {builderProfiles.length > 0 && (
-                      <select
-                        defaultValue=""
-                        onChange={(e) => {
-                          const profileId = e.target.value;
-                          if (!profileId) return;
-                          const profile = builderProfiles.find(p => p.id === profileId);
-                          if (!profile) return;
-                          updateGroup(g.id, {
-                            finish_type: (profile.default_finish_type as FinishType) || g.finish_type,
-                            carcass_id: profile.default_carcass_id || g.carcass_id,
-                            drawer_box_id: profile.default_drawer_box_id || g.drawer_box_id,
-                            pull_id: profile.default_pull_id || g.pull_id,
-                          });
-                          e.target.value = "";
-                        }}
-                        className="bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/50 focus:outline-none focus:border-[#f08122]/60 font-condensed"
-                      >
-                        <option value="">Load builder defaults…</option>
-                        {builderProfiles.map(p => (
-                          <option key={p.id} value={p.id}>{p.builder_name}{p.builder_company ? ` — ${p.builder_company}` : ""}</option>
-                        ))}
-                      </select>
-                    )}
-                    <button onClick={() => removeGroup(g.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
-                  </div>
+                  <button onClick={() => removeGroup(g.id)} className="text-white/20 hover:text-red-400 text-xs font-condensed uppercase tracking-widest transition-colors">Remove</button>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
@@ -1361,10 +1474,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       type={g.finish_type}
                       value={g.color_id}
                       valueName={g.color_name}
-                      valueHex={g.color_hex ?? null}
+                      valueHex={null}
                       catalogs={catalogs}
-                      onChange={(id, label, hex) => {
-                        const updates: Partial<FinishGroup> = { color_id: id, color_name: label, color_hex: hex ?? null };
+                      onChange={(id, label) => {
+                        const updates: Partial<FinishGroup> = { color_id: id, color_name: label };
                         // Auto-derive edgeband when a melamine color is picked
                         if (g.finish_type === "melamine" && id) {
                           const mc = catalogs.melamineColors.find((c) => c.id === id);
@@ -1415,21 +1528,21 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <label className={LABEL}>Edge Detail</label>
                         <select value={g.cabdoor_edge_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_edge_id: e.target.value })} className={SELECT}>
                           <option value="">-- Select Edge --</option>
-                          {(catalogs.cabDoorEdges ?? []).map((e) => <option key={e.id} value={e.id}>{(e.name as string) || e.id}</option>)}
+                          {(catalogs.cabDoorEdges ?? []).map((e) => <option key={e.id} value={e.id}>{e.name || e.id}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className={LABEL}>Inside Profile</label>
                         <select value={g.cabdoor_profile_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_profile_id: e.target.value })} className={SELECT}>
                           <option value="">-- Select Profile --</option>
-                          {(catalogs.cabDoorProfiles ?? []).map((p) => <option key={p.id} value={p.id}>{(p.name as string) || p.id}</option>)}
+                          {(catalogs.cabDoorProfiles ?? []).map((p) => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className={LABEL}>Panel</label>
                         <select value={g.cabdoor_panel_id ?? ""} onChange={(e) => updateGroup(g.id, { cabdoor_panel_id: e.target.value })} className={SELECT}>
                           <option value="">-- Select Panel --</option>
-                          {(catalogs.cabDoorPanels ?? []).map((p) => <option key={p.id} value={p.id}>{(p.name as string) || p.id}</option>)}
+                          {(catalogs.cabDoorPanels ?? []).map((p) => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
                         </select>
                       </div>
                     </div>
@@ -1458,54 +1571,15 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     </select>
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
-                    <>
-                      <div>
-                        <label className={LABEL}>Species</label>
-                        <select
-                          value={g.species ?? ""}
-                          onChange={(e) => updateGroup(g.id, { species: e.target.value, grade: "", grain_orientation: "" })}
-                          className={SELECT}
-                        >
-                          <option value="">-- Select Species --</option>
-                          {catalogs.species.map((s) => (
-                            <option key={s.id} value={s.name}>{s.name}</option>
-                          ))}
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className={LABEL}>Grade</label>
-                        <select
-                          value={g.grade ?? ""}
-                          onChange={(e) => updateGroup(g.id, { grade: e.target.value })}
-                          className={SELECT}
-                          disabled={!g.species}
-                        >
-                          <option value="">-- Select Grade --</option>
-                          {g.species && (() => {
-                            const sp = catalogs.species.find(s => s.name === g.species);
-                            const grades = sp ? asArray(sp.grades) : [];
-                            return grades.map((gr) => <option key={gr} value={gr}>{gr}</option>);
-                          })()}
-                          {g.species && <option value="Other">Other</option>}
-                        </select>
-                      </div>
-                      <div>
-                        <label className={LABEL}>Grain Orientation</label>
-                        <select
-                          value={g.grain_orientation ?? ""}
-                          onChange={(e) => updateGroup(g.id, { grain_orientation: e.target.value })}
-                          className={SELECT}
-                        >
-                          <option value="">-- Select Grain --</option>
-                          <option value="Random (standard)">Random (standard)</option>
-                          <option value="Vertical (linear)">Vertical (linear)</option>
-                          <option value="Horizontal">Horizontal</option>
-                          <option value="Bookmatched">Bookmatched</option>
-                          <option value="Rift & Quartered">Rift & Quartered</option>
-                        </select>
-                      </div>
-                    </>
+                    <div>
+                      <label className={LABEL}>Species</label>
+                      <input
+                        value={g.species ?? ""}
+                        onChange={(e) => updateGroup(g.id, { species: e.target.value })}
+                        placeholder="e.g. Red Oak, Alder, Maple, Paint Grade"
+                        className={INPUT}
+                      />
+                    </div>
                   )}
                   <div>
                     <label className={LABEL}>Notes</label>
@@ -1549,17 +1623,21 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   </div>
                   <div>
                     <label className={LABEL}>Edgeband {requiresEdgebandPick ? "*" : ""}</label>
-                    <select
-                      value={g.edgeband_id ?? ""}
-                      onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value || "" })}
-                      className={SELECT}
-                    >
-                      <option value="">— Matches carcass material</option>
-                      {catalogs.edgebands.filter((e) => !e.placeholder).map((e) => (
-                        <option key={e.id} value={e.id}>{e.product_name}{e.supplier ? ` · ${e.supplier}` : ""}{e.thickness_mm ? ` · ${e.thickness_mm}mm` : ""}</option>
-                      ))}
-                    </select>
-                    <EsiSuggest colorId={g.color_id} colorName={g.color_name} />
+                    {g.finish_type === "melamine" ? (
+                      // Melamine: edgeband IS the carcass material — no separate pick needed.
+                      // Store no edgeband_id (null). Display a read-only callout.
+                      <div className={INPUT + " text-white/50 text-xs italic"}>
+                        Matches carcass material
+                      </div>
+                    ) : (
+                      // Paint / Stain: PM must pick an edgeband from the filtered list.
+                      <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
+                        <option value="">-- Select Edgeband --</option>
+                        {edgebandOptions.map((e) => (
+                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
 
@@ -1763,31 +1841,15 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               <div className="pt-2 border-t border-white/5">
                 <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Accessories</p>
                 <div className="space-y-2">
-                  {room.accessories.map((acc, ai) => {
-                    const isCustom = acc.acc_id && acc.acc_id.toLowerCase().includes("custom");
-                    return (
-                      <div key={ai} className="space-y-1.5">
-                        <div className="flex flex-wrap sm:flex-nowrap gap-3 items-stretch sm:items-center">
-                          <select value={acc.acc_id} onChange={(e) => updateAccessory(room.id, ai, { acc_id: e.target.value })} className={SELECT + " flex-1"}>
-                            <option value="">-- Select Accessory --</option>
-                            {catalogs.revaAccessories.map((a) => <option key={a.id} value={a.id}>{a.name} - {a.brand}</option>)}
-                          </select>
-                          <input type="number" min={1} value={acc.qty} onChange={(e) => updateAccessory(room.id, ai, { qty: parseInt(e.target.value) || 1 })}
-                            className="w-16 bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white text-center focus:outline-none focus:border-[#f08122]" />
-                          <button onClick={() => removeAccessory(room.id, ai)} className="text-white/20 hover:text-red-400 transition-colors px-1">x</button>
-                        </div>
-                        {isCustom && (
-                          <input
-                            type="text"
-                            value={acc.custom_note ?? ""}
-                            onChange={(e) => updateAccessory(room.id, ai, { custom_note: e.target.value })}
-                            placeholder="Custom accessory description / notes..."
-                            className={INPUT + " text-xs"}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+                  {room.accessories.map((acc, ai) => (
+                    <AccessoryPickerRow
+                      key={ai}
+                      acc={acc}
+                      revaAccessories={catalogs.revaAccessories}
+                      onUpdate={(patch) => updateAccessory(room.id, ai, patch)}
+                      onRemove={() => removeAccessory(room.id, ai)}
+                    />
+                  ))}
                   <button onClick={() => addAccessory(room.id)} className="text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-[10px] transition-colors">
                     + Add Accessory
                   </button>
@@ -2140,151 +2202,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               )}
             </div>
           </div>
-
-          {/* ── EdgeBand Schedule ─────────────────────────────────────── */}
-          <div className="pt-6 border-t border-white/10">
-            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-4">EdgeBand Schedule — edit per finish group</p>
-            {groups.map((g) => {
-              const fgEbs = edgebands[g.id] ?? [];
-              return (
-                <div key={g.id} className="mb-6">
-                  <p className="text-[#f08122] font-condensed uppercase tracking-widest text-xs mb-2">{g.label} — EdgeBand Schedule</p>
-                  <div className="bg-[#2d2d2d] rounded overflow-hidden">
-                    <div className="grid grid-cols-12 gap-0 border-b border-white/10 px-3 py-1.5">
-                      <span className="col-span-1 text-white/40 text-[10px] font-condensed uppercase tracking-widest">#</span>
-                      <span className="col-span-4 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Where Used</span>
-                      <span className="col-span-4 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Edgeband</span>
-                      <span className="col-span-3 text-white/40 text-[10px] font-condensed uppercase tracking-widest">Notes</span>
-                    </div>
-                    {fgEbs.length === 0 ? (
-                      <p className="text-white/20 text-xs px-3 py-3">No edgeband rows — save finish group to auto-populate.</p>
-                    ) : fgEbs.map((eb) => {
-                      const ebMode: "paint" | "stain" | "custom" | "none" =
-                        eb.edgeband_id === "paint_to_match" ? "paint" :
-                        eb.edgeband_id === "stain_to_match" ? "stain" :
-                        (eb.edgeband_id === null && (eb.where_used || eb.notes)) ? "custom" : "none";
-                      return (() => {
-                        const patchRow = async (ebId: string | null, whereUsed: string | null, notes: string | null) => {
-                          setEdgebands((prev) => ({
-                            ...prev,
-                            [g.id]: (prev[g.id] ?? []).map((r) =>
-                              r.letter_code === eb.letter_code
-                                ? { ...r, edgeband_id: ebId, where_used: whereUsed, notes: notes ?? "" }
-                                : r
-                            ),
-                          }));
-                          await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ edgeband_id: ebId, where_used: whereUsed, notes }),
-                          });
-                        };
-
-                        const BTN = "px-2 py-1 rounded text-[10px] font-condensed uppercase tracking-widest transition-colors border";
-                        const BTN_ON  = "bg-[#f08122]/20 border-[#f08122]/50 text-[#f08122]";
-                        const BTN_OFF = "border-white/10 text-white/30 hover:text-white/60 hover:border-white/25";
-
-                        return (
-                          <div key={eb.letter_code} className="px-3 py-2 border-b border-white/5">
-                            {/* Row header: letter code + location */}
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-[#f08122] font-condensed font-bold text-sm w-5">{eb.letter_code}</span>
-                              <span className="text-white/40 text-[10px] font-condensed uppercase tracking-widest">{eb.location_description}</span>
-                            </div>
-                            {/* Option buttons */}
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <button
-                                type="button"
-                                className={`${BTN} ${ebMode === "paint" ? BTN_ON : BTN_OFF}`}
-                                onClick={() => patchRow("paint_to_match", null, null)}
-                              >
-                                Paint to Match
-                              </button>
-                              <button
-                                type="button"
-                                className={`${BTN} ${ebMode === "stain" ? BTN_ON : BTN_OFF}`}
-                                onClick={() => patchRow("stain_to_match", null, null)}
-                              >
-                                Stain to Match
-                              </button>
-                              <button
-                                type="button"
-                                className={`${BTN} ${ebMode === "custom" || ebMode === "none" ? BTN_ON : BTN_OFF}`}
-                                onClick={() => {
-                                  if (ebMode !== "custom" && ebMode !== "none") {
-                                    patchRow(null, eb.where_used, eb.notes || null);
-                                  }
-                                }}
-                              >
-                                Custom
-                              </button>
-                              {ebMode !== "none" && (
-                                <button
-                                  type="button"
-                                  className={`${BTN} border-white/5 text-white/20 hover:text-red-400 hover:border-red-400/30 ml-1`}
-                                  onClick={() => patchRow(null, null, null)}
-                                  title="Clear"
-                                >
-                                  ✕
-                                </button>
-                              )}
-                            </div>
-                            {/* Custom free-entry fields */}
-                            {(ebMode === "custom" || ebMode === "none") && (
-                              <div className="flex gap-2 mt-1.5">
-                                <input
-                                  value={eb.where_used ?? ""}
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    setEdgebands((prev) => ({
-                                      ...prev,
-                                      [g.id]: (prev[g.id] ?? []).map((r) =>
-                                        r.letter_code === eb.letter_code ? { ...r, where_used: v } : r
-                                      ),
-                                    }));
-                                  }}
-                                  onBlur={async (e) => {
-                                    await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                                      method: "PATCH",
-                                      headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({ edgeband_id: null, where_used: e.target.value || null, notes: eb.notes || null }),
-                                    });
-                                  }}
-                                  placeholder="Product ###"
-                                  className="w-28 bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors font-condensed"
-                                />
-                                <input
-                                  value={eb.notes ?? ""}
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    setEdgebands((prev) => ({
-                                      ...prev,
-                                      [g.id]: (prev[g.id] ?? []).map((r) =>
-                                        r.letter_code === eb.letter_code ? { ...r, notes: v } : r
-                                      ),
-                                    }));
-                                  }}
-                                  onBlur={async (e) => {
-                                    await fetch(`/api/specs/${specId}/finish-groups/${g.id}/edgebands/${eb.letter_code}`, {
-                                      method: "PATCH",
-                                      headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({ edgeband_id: null, where_used: eb.where_used || null, notes: e.target.value || null }),
-                                    });
-                                  }}
-                                  placeholder="Product name"
-                                  className="flex-1 bg-[#1a1a1a] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-[#f08122] transition-colors"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })();
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </div>
       )}
 
@@ -2300,7 +2217,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               if (!g.door_style_id) issues.push(`${g.label}: no door style selected`);
               if (!g.carcass_id) issues.push(`${g.label}: no carcass material selected`);
               if (!g.drawer_box_id) issues.push(`${g.label}: no drawer box selected`);
-              if (!g.edgeband_id && g.finish_type !== "melamine") issues.push(`${g.label}: no edgeband selected`);
+              if (!g.edgeband_id) issues.push(`${g.label}: no edgeband selected`);
             });
             rooms.forEach((r) => {
               const hasFinish = (r.finishes ?? []).some((f) => f.finish_group_id) || r.finish_group_id;
@@ -2329,8 +2246,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 const door = catalogs.doorStyles.find((d) => d.id === g.door_style_id);
                 const carc = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
                 const dbox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
-                // FG-level edgeband (legacy field — edgeband schedule rows are the primary source now)
-                const _ebLegacy = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
+                const eb   = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
                 const fgPulls = pulls[g.id] ?? [];
                 const doorFlag = !g.door_style_id || door?.name === "Other / Custom";
                 return (
@@ -2347,7 +2263,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       <SumRow label="Species"       value={g.species} />
                       <SumRow label="Carcass"       value={carc?.name} />
                       <SumRow label="Drawer Box"    value={dbox?.name} />
-                      {/* Edgeband shown in schedule table below — not in summary grid */}
+                      <SumRow label="Edgeband"      value={eb?.product_name} />
                     </div>
                     {fgPulls.length > 0 && (
                       <div>
@@ -2361,46 +2277,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         </div>
                       </div>
                     )}
-                    {/* EdgeBand Schedule — read-only preview */}
-                    {(() => {
-                      const fgEbs = edgebands[g.id] ?? [];
-                      if (fgEbs.length === 0) return null;
-                      return (
-                        <div className="mt-3 mb-2">
-                          <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2">EdgeBand Schedule</p>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-xs border-collapse">
-                              <thead>
-                                <tr className="text-white/30 text-[10px] font-condensed uppercase tracking-widest border-b border-white/10">
-                                  <th className="text-left pb-1 pr-3 w-6">#</th>
-                                  <th className="text-left pb-1 pr-3">Where Used</th>
-                                  <th className="text-left pb-1">Edgeband</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {fgEbs.map((eb) => {
-                                  // Resolve edgeband display from sentinel or custom fields
-                                  const ebDisplay =
-                                    eb.edgeband_id === "paint_to_match" ? "Paint to Match" :
-                                    eb.edgeband_id === "stain_to_match" ? "Stain to Match" :
-                                    !eb.edgeband_id
-                                      ? [eb.where_used, eb.notes].filter(Boolean).join("  ") || "—"
-                                      : (catalogs.edgebands.find((e) => e.id === eb.edgeband_id)?.product_name ?? eb.edgeband_id);
-                                  const isEmpty = !eb.edgeband_id && !eb.where_used && !eb.notes;
-                                  return (
-                                    <tr key={eb.letter_code} className="border-b border-white/5">
-                                      <td className="py-1 pr-3 text-[#f08122] font-bold font-condensed">{eb.letter_code}</td>
-                                      <td className="py-1 pr-3 text-white/50">{eb.location_description}</td>
-                                      <td className={`py-1 pr-3 ${isEmpty ? "text-white/20 italic" : "text-white/70"}`}>{ebDisplay}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      );
-                    })()}
                   </div>
                 );
               })}
@@ -2440,7 +2316,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-0.5">Accessories</p>
                         {room.accessories.filter((a) => a.acc_id).map((a, ai) => {
                           const acc = catalogs.revaAccessories.find((x) => x.id === a.acc_id);
-                          return <p key={ai} className="text-white/60 text-xs">{acc?.name ?? a.acc_id} · qty {a.qty}</p>;
+                          return <p key={ai} className="text-white/60 text-xs">{acc?.name ?? a.acc_id}{a.size ? ` · ${a.size}"` : ""}{a.handed && a.handed !== "N/A" ? ` · ${a.handed}` : ""} · qty {a.qty}</p>;
                         })}
                       </div>
                     )}

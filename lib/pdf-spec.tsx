@@ -27,8 +27,7 @@ export type CountertopView = { location: string; style_name: string; edge_name: 
 export type MoldingView = { molding_type: string; type_label: string; profile_name: string; size_in: number | null; material_name: string; qty_lf: number | null; where_used: string[]; notes: string };
 
 export type FinishGroupView = {
-  id: string; label: string; finish_type: string; notes: string; species: string; grade: string; grain_orientation: string;
-  color_hex?: string | null;
+  id: string; label: string; finish_type: string; notes: string; species: string;
   applied_panels: string | null;
   rollout_box_name: string;
   finish: FinishView;
@@ -45,10 +44,10 @@ export type RoomFinishView = { finish_group_id: string; finish_label: string; zo
 export type RoomView = {
   id: string; name: string; notes: string;
   finishes: RoomFinishView[];
-  accessories: { name: string; brand: string; qty: number }[];
+  accessories: { name: string; brand: string; series: string; category: string; size: string; handed: string; qty: number }[];
 };
 
-export type AccessoryRollupRow = { name: string; brand: string; total_qty: number; rooms: string[] };
+export type AccessoryRollupRow = { name: string; brand: string; series: string; category: string; size: string; handed: string; total_qty: number; rooms: string[] };
 export type MoldingRollupRow = { type_label: string; profile_name: string; size_in: number | null; material_name: string; total_lf: number; finishes: string[] };
 
 export type SpecPullRow = { id: string; make: string; model: string; size: string; room: string; notes: string; qty: number };
@@ -224,7 +223,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   const fgPulls = data.finish_group_pulls ?? {};
 
   // Column flex widths
-  const COL = { fg: 0.9, color: 1.4, species: 0.7, grade: 0.6, grain: 0.6, carcass: 1.1, drawerBox: 1.1, rolloutBox: 1.0, doorStyle: 1.3, appliedPanels: 0.8, pulls: 2.0, notes: 1.4 };
+  const COL = { fg: 0.9, color: 1.6, species: 0.9, carcass: 1.3, drawerBox: 1.3, rolloutBox: 1.3, doorStyle: 1.5, appliedPanels: 0.9, pulls: 2.2, notes: 1.6 };
 
   const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
   return (
@@ -243,8 +242,6 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             <Text style={[S.colHdrTx, { flex: COL.fg }]}>Finish Group</Text>
             <Text style={[S.colHdrTx, { flex: COL.color }]}>Color</Text>
             <Text style={[S.colHdrTx, { flex: COL.species }]}>Species</Text>
-            <Text style={[S.colHdrTx, { flex: COL.grade }]}>Grade</Text>
-            <Text style={[S.colHdrTx, { flex: COL.grain }]}>Grain</Text>
             <Text style={[S.colHdrTx, { flex: COL.carcass }]}>Carcass</Text>
             <Text style={[S.colHdrTx, { flex: COL.drawerBox }]}>Drawer Box</Text>
             <Text style={[S.colHdrTx, { flex: COL.rolloutBox }]}>Rollout Box</Text>
@@ -267,13 +264,8 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             return (
               <View key={fg.id} style={rowStyle} wrap={false}>
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
-                <View style={[S.cell, { flex: COL.color, flexDirection: "row", alignItems: "center", gap: 3 }]}>
-                  {fg.color_hex ? <View style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: fg.color_hex, borderWidth: 0.5, borderColor: "#999", flexShrink: 0 }} /> : null}
-                  <Text>{d(colorName)}</Text>
-                </View>
+                <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
                 <Text style={[S.cell, { flex: COL.species }]}>{d(fg.species)}</Text>
-                <Text style={[S.cell, { flex: COL.grade }]}>{d(fg.grade)}</Text>
-                <Text style={[S.cell, { flex: COL.grain }]}>{d(fg.grain_orientation)}</Text>
                 <Text style={[S.cell, { flex: COL.carcass }]}>{d(carcass)}</Text>
                 <Text style={[S.cell, { flex: COL.drawerBox }]}>{d(drawerBox)}</Text>
                 <Text style={[S.cell, { flex: COL.rolloutBox }]}>{d(fg.rollout_box_name) === "—" ? d(drawerBox) : d(fg.rollout_box_name)}</Text>
@@ -321,6 +313,57 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
         </View>
       )}
 
+      {/* ACCESSORIES BY FINISH GROUP (WO-specific view) */}
+      {(() => {
+        // Build: for each finish group, list rooms + their accessories
+        const fgAccMap = new Map<string, { roomName: string; accs: typeof data.rooms[0]["accessories"] }[]>();
+        for (const room of data.rooms) {
+          for (const rf of room.finishes) {
+            if (!fgAccMap.has(rf.finish_group_id)) fgAccMap.set(rf.finish_group_id, []);
+            if (room.accessories.length > 0) {
+              fgAccMap.get(rf.finish_group_id)!.push({ roomName: room.name, accs: room.accessories });
+            }
+          }
+        }
+        const fgsWithAccs = data.finish_groups.filter(fg => (fgAccMap.get(fg.id)?.length ?? 0) > 0);
+        if (fgsWithAccs.length === 0) return null;
+        return (
+          <>
+            <Text style={[S.secHead, { marginTop: 10 }]}>ACCESSORIES BY FINISH GROUP</Text>
+            {fgsWithAccs.map(fg => {
+              const roomAccs = fgAccMap.get(fg.id) ?? [];
+              return (
+                <View key={fg.id} style={{ marginBottom: 6 }} wrap={false}>
+                  <View style={S.fgBand}>
+                    <Text style={S.fgBandTx}>{fg.label}</Text>
+                  </View>
+                  <View style={S.colHdr}>
+                    <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
+                    <Text style={[S.colHdrTx, { flex: 3 }]}>Item</Text>
+                    <Text style={[S.colHdrTx, { flex: 0.8 }]}>Series</Text>
+                    <Text style={[S.colHdrTx, { flex: 0.6 }]}>Size</Text>
+                    <Text style={[S.colHdrTx, { flex: 0.6 }]}>Hand</Text>
+                    <Text style={[S.colHdrTx, { flex: 0.5 }]}>Qty</Text>
+                  </View>
+                  {roomAccs.flatMap(({ roomName, accs }) =>
+                    accs.map((a, ai) => (
+                      <View key={`${roomName}-${ai}`} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
+                        <Text style={[S.cell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{ai === 0 ? roomName : ""}</Text>
+                        <Text style={[S.cell, { flex: 3 }]}>{d(a.name)}</Text>
+                        <Text style={[S.cell, { flex: 0.8 }]}>{d(a.series)}</Text>
+                        <Text style={[S.cell, { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+                        <Text style={[S.cell, { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+                        <Text style={[S.cell, { flex: 0.5 }]}>{String(a.qty)}</Text>
+                      </View>
+                    ))
+                  )}
+                </View>
+              );
+            })}
+          </>
+        );
+      })()}
+
       <PageFooter data={data} />
     </Page>
   );
@@ -354,26 +397,28 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
       {isDraftA && <DraftWatermark />}
       <TitleBlock data={data} code="A.1" />
 
-      {/* ACCESSORIES */}
+      {/* ACCESSORIES — from per-room catalog picker */}
       <Text style={S.secHead}>ACCESSORIES</Text>
-      {accs.length === 0 ? (
+      {(data.accessories_rollup?.length ?? 0) === 0 ? (
         <Text style={[S.cellMu, { marginBottom: 12 }]}>No accessories specified.</Text>
       ) : (
         <View style={{ marginBottom: 16 }}>
           <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Type</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Part #</Text>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Room</Text>
-            <Text style={[S.colHdrTx, { flex: 1 }]}>Size</Text>
-            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Notes</Text>
+            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Item</Text>
+            <Text style={[S.colHdrTx, { flex: 1 }]}>Series</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Size</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Hand</Text>
+            <Text style={[S.colHdrTx, { flex: 0.6 }]}>Qty</Text>
+            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Room(s)</Text>
           </View>
-          {accs.map((a, ai) => (
-            <View key={a.id} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-              <Text style={[S.cell, { flex: 2, fontFamily: "Helvetica-Bold" }]}>{d(a.type)}</Text>
-              <Text style={[S.cell, { flex: 1.5 }]}>{d(a.part_number)}</Text>
-              <Text style={[S.cell, { flex: 2 }]}>{d(a.room)}</Text>
-              <Text style={[S.cell, { flex: 1 }]}>{d(a.size)}</Text>
-              <Text style={[S.cellMu, { flex: 2.5 }]}>{d(a.notes)}</Text>
+          {(data.accessories_rollup ?? []).map((a, ai) => (
+            <View key={ai} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
+              <Text style={[S.cell, { flex: 2.5, fontFamily: "Helvetica-Bold" }]}>{d(a.name)}</Text>
+              <Text style={[S.cell, { flex: 1 }]}>{d(a.series)}</Text>
+              <Text style={[S.cell, { flex: 0.7 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+              <Text style={[S.cell, { flex: 0.7 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+              <Text style={[S.cell, { flex: 0.6 }]}>{String(a.total_qty)}</Text>
+              <Text style={[S.cellMu, { flex: 2.5 }]}>{a.rooms.join(", ")}</Text>
             </View>
           ))}
         </View>
@@ -561,7 +606,7 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   );
   const hasAppliances = (data.spec_appliances_list?.length ?? 0) > 0;
   const hasHardware   = (data.spec_hardware?.length ?? 0) > 0;
-  const hasAccs       = (data.spec_accessories?.length ?? 0) > 0;
+  const hasAccs       = (data.spec_accessories?.length ?? 0) > 0 || (data.accessories_rollup?.length ?? 0) > 0;
   const hasMoldings   = data.finish_groups.some(fg => fg.moldings.some(m => m.qty_lf || m.type_label));
   const hasEdgebands  = data.finish_groups.some(fg => fg.edgebands.length > 0);
 

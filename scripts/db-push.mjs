@@ -105,6 +105,9 @@ async function main() {
     );
     -- Add notes column if upgrading from schema without it
     ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS notes TEXT;
+    -- Add size + handed columns for accessory picker (2026-07-14)
+    ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS size TEXT;
+    ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS handed TEXT DEFAULT 'N/A';
 
     CREATE TABLE IF NOT EXISTS finish_group_materials (
       id TEXT PRIMARY KEY,
@@ -905,19 +908,19 @@ async function main() {
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
     // Builder profiles (spec auto-seed defaults)
-        `CREATE TABLE IF NOT EXISTS catalog_builder_profiles (
-              id                      TEXT PRIMARY KEY,
-                    builder_name            TEXT NOT NULL,
-                          builder_company         TEXT,
-                                default_finish_type     TEXT NOT NULL DEFAULT 'paint',
-                                      default_carcass_id      TEXT,
-                                            default_drawer_box_id   TEXT,
-                                                  default_pull_id         TEXT,
-                                                        default_paint_brand     TEXT,
-                                                              notes                   TEXT,
-                                                                    is_residential_default  BOOLEAN NOT NULL DEFAULT false
-                                                                        )`,
-        `CREATE INDEX IF NOT EXISTS idx_cbp_company ON catalog_builder_profiles(LOWER(builder_company))`,
+    `CREATE TABLE IF NOT EXISTS catalog_builder_profiles (
+      id                      TEXT PRIMARY KEY,
+      builder_name            TEXT NOT NULL,
+      builder_company         TEXT,
+      default_finish_type     TEXT NOT NULL DEFAULT 'paint',
+      default_carcass_id      TEXT,
+      default_drawer_box_id   TEXT,
+      default_pull_id         TEXT,
+      default_paint_brand     TEXT,
+      notes                   TEXT,
+      is_residential_default  BOOLEAN NOT NULL DEFAULT false
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_cbp_company ON catalog_builder_profiles(LOWER(builder_company))`,
     // Bug reports
     `CREATE TABLE IF NOT EXISTS bug_reports (
       id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
@@ -936,8 +939,9 @@ async function main() {
     try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
   }
 
-  console.log("Schema push complete.");
-  await sql.end();
-}
-
-main().catch((e) => { console.error(e); process.exit(1); });
+  // catalog_active_states — active/inactive toggle per catalog item (admin-controlled)
+  await sql`
+    CREATE TABLE IF NOT EXISTS catalog_active_states (
+      catalog    TEXT NOT NULL,
+      item_id    TEXT NOT NULL,
+      active     BOOLEAN NOT NULL DEFAULT T

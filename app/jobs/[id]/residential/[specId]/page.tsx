@@ -16,8 +16,6 @@ type FGRow      = {
   carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null;
   applied_panels: "slab" | "match_door" | null;
   species: string | null;
-  grade: string | null;
-  grain_orientation: string | null;
   notes: string; sort_order: number;
 };
 
@@ -38,16 +36,6 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 // per-finish state. Material is the first sub-section to land — others follow
 // the same pattern (door fronts, drawers, edgebands, hardware, countertops).
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
-
-type EdgebandRow = {
-  fg_id: string;
-  letter_code: string;
-  edgeband_id: string | null;
-  notes: string;
-  sort_order: number;
-  where_used: string;
-  location_description: string;
-};
 
 export default async function SpecEditorPage({
   params,
@@ -155,7 +143,7 @@ export default async function SpecEditorPage({
       finishes: seededFinishes,
       accessories: accessories
         .filter((a) => a.room_id === r.id)
-        .map((a) => ({ acc_id: a.acc_id, qty: a.qty, custom_note: a.notes ?? undefined })),
+        .map((a) => ({ acc_id: a.acc_id, qty: a.qty, custom_note: a.notes ?? undefined, size: (a as Record<string,unknown>).size as string ?? "", handed: (a as Record<string,unknown>).handed as string ?? "N/A" })),
       cabinets: cabinets
         .filter((c) => c.room_id === r.id)
         .map((c) => ({
@@ -188,7 +176,6 @@ export default async function SpecEditorPage({
 
   const finishGroupsHydrated = finish_groups.map((g) => ({
     ...g,
-    color_hex: (g as Record<string, unknown>).color_hex as string | null ?? null,
     finish_type:    (g.finish_type ?? "") as "paint" | "stain" | "melamine" | "plam" | "",
     drawer_style_id: (g as Record<string, unknown>).drawer_style_id as string ?? "",
     cabdoor_edge_id: (g as Record<string, unknown>).cabdoor_edge_id as string ?? "",
@@ -200,8 +187,6 @@ export default async function SpecEditorPage({
     edgeband_id:   g.edgeband_id   ?? "",
     applied_panels: (g.applied_panels ?? "slab") as "slab" | "match_door",
     species:        g.species        ?? "",
-    grade:          g.grade          ?? "",
-    grain_orientation: g.grain_orientation ?? "",
   }));
 
   // Build pulls keyed by finish_group_id
@@ -259,49 +244,20 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
-  // Edgebands: per-finish-group schedule rows with catalog location descriptions
-  let edgebandRows: EdgebandRow[] = [];
-  try {
-    edgebandRows = fgIds.length
-      ? await sql`
-          SELECT
-            fge.finish_group_id AS fg_id,
-            fge.letter_code,
-            fge.edgeband_id,
-            COALESCE(fge.where_used, '') AS where_used,
-            COALESCE(fge.notes, '') AS notes,
-            COALESCE(cel.sort_order, 0) AS sort_order,
-            COALESCE(cel.description, fge.letter_code) AS location_description
-          FROM finish_group_edgebands fge
-          LEFT JOIN catalog_edgeband_locations cel ON cel.letter_code = fge.letter_code
-          WHERE fge.spec_id = ${specId}
-          ORDER BY cel.sort_order NULLS LAST, fge.letter_code
-        ` as EdgebandRow[]
-      : [];
-  } catch {
-    // Table not yet created
-  }
-
-  const initialEdgebands: Record<string, import("@/components/ResidentialSpecClient").EdgebandRowClient[]> = {};
-  for (const row of edgebandRows) {
-    if (!initialEdgebands[row.fg_id]) initialEdgebands[row.fg_id] = [];
-    initialEdgebands[row.fg_id].push({
-      letter_code: row.letter_code,
-      edgeband_id: row.edgeband_id,
-      where_used: row.where_used,
-      notes: row.notes,
-      sort_order: row.sort_order,
-      location_description: row.location_description,
-    });
-  }
-
   const catalogData = {
     paintColors:      catalogs.paintColors(),
     stainColors:      catalogs.stainColors(),
     melamineColors:   catalogs.melamineColors(),
     doorStyles:       catalogs.doorStyles(),
     hardwarePulls:    catalogs.hardwarePulls(),
-    revaAccessories:  catalogs.revaAccessories(),
+    revaAccessories:  await (async () => {
+      const inactiveRows = await sql<{ item_id: string }[]>`
+        SELECT item_id FROM catalog_active_states
+        WHERE catalog = 'accessories_reva' AND active = false
+      `.catch(() => []);
+      const inactiveIds = new Set(inactiveRows.map((r) => r.item_id));
+      return catalogs.revaAccessories().filter((a) => !inactiveIds.has(a.id));
+    })(),
     cabinetFamilies:  catalogs.cabinetFamilies(),
     carcassMaterials: catalogs.carcassMaterials(),
     drawerBoxes:      catalogs.drawerBoxes(),
@@ -312,11 +268,10 @@ export default async function SpecEditorPage({
     moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
     cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
+    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
     cabDoorPanels:    catalogs.cabDoorPanels(),
-    species:          catalogs.species(),
   };
-
-  const builderProfiles = catalogs.builderProfiles();
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -341,9 +296,7 @@ export default async function SpecEditorPage({
         initialAppliances={initialAppliances}
         initialAccessories2={initialAccessories2}
         initialHardware={initialHardware}
-        initialEdgebands={initialEdgebands}
         catalogs={catalogData}
-        builderProfiles={builderProfiles}
         lastSaved={spec.updated_at}
       />
     </section>

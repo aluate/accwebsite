@@ -79,9 +79,14 @@ export type HardwarePull = {
 
 export type RevaAccessory = {
   id: string; name: string; brand: string; series: string; category: string;
-  /** Numeric after sync-catalogs coercion. Single value -> number, list -> number[]. */
-  width_options_in: number | number[] | null;
-  finish_options: string | string[] | null;
+  /** Semicolon-delimited size options from CSV (e.g. "12;15;18"). */
+  width_options_in: string | null;
+  finish_options: string | null;
+  /** Semicolon-delimited if multiple hands (e.g. "L;R"), empty if not handed. */
+  hand: string | null;
+  image_url: string | null;
+  price_slp: string | null;
+  price_date: string | null;
   notes: string | null;
 };
 
