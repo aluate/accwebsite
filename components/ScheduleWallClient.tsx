@@ -1364,8 +1364,17 @@ function SpanningCalendar({
         if (!ev.date_start) continue;
         const evEnd = ev.date_end ?? ev.date_start;
         if (ev.date_start > weekEnd || evEnd < weekStart) continue;
-        // Map which weekday columns this event covers
-        const covered = week.map((d) => d >= ev.date_start! && d <= evEnd);
+        // Map which weekday columns this event covers.
+        // Saturday (index 5) is excluded from pass-through spans — bars should
+        // end at Friday and resume Monday, so Saturday doesn't look like a
+        // working day. Exception: if the event explicitly starts or ends on
+        // Saturday (i.e. someone intentionally scheduled there), show the bar.
+        const covered = week.map((d) => {
+          if (d < ev.date_start! || d > evEnd) return false;
+          const dow = new Date(d + "T00:00:00Z").getUTCDay();
+          if (dow === 6) return ev.date_start === d || evEnd === d;
+          return true;
+        });
         if (!covered.some(Boolean)) continue;
         segs.push({
           eventId: ev.id,
@@ -1409,6 +1418,7 @@ function SpanningCalendar({
             {/* ── Day cells ── */}
             {week.map((iso) => {
               const isToday     = iso === today;
+              const isSaturday  = new Date(iso + "T00:00:00Z").getUTCDay() === 6;
               const holiday     = holidayMap.get(iso);
               const ptoDayList  = ptoMap.get(iso) ?? [];
               const isDropTarget = dropTargetKey === iso;
@@ -1420,6 +1430,8 @@ function SpanningCalendar({
                       ? "bg-green-500/10 border-2 border-green-500"
                       : isDropTarget
                       ? "bg-white/5 border-white/25"
+                      : isSaturday
+                      ? "bg-white/[0.012] border-white/[0.04]"
                       : "border-white/5"
                   }`}
                   style={{ minHeight: CELL_MIN_H }}
@@ -1427,9 +1439,14 @@ function SpanningCalendar({
                       onDrop={(e) => { e.preventDefault(); if (draggingId) onDrop(draggingId, iso); }}
                 >
                   <div className="flex items-baseline gap-1.5 px-1.5 pt-1" style={{ height: ROW_HEADER_H }}>
-                    <span className={`text-sm font-bold tabular-nums leading-none ${isToday ? "text-[#f08122]" : "text-white/75"}`}>
+                    <span className={`text-sm font-bold tabular-nums leading-none ${isToday ? "text-[#f08122]" : isSaturday ? "text-white/40" : "text-white/75"}`}>
                       {iso.slice(8)}
                     </span>
+                    {isSaturday && !holiday && (
+                      <span className="text-[8px] font-condensed uppercase tracking-widest text-white/20 ml-0.5">
+                        Sat
+                      </span>
+                    )}
                     {holiday && (
                       <span
                         className="text-[9px] font-condensed bg-yellow-400/15 text-yellow-300/80 rounded px-1 truncate max-w-[90px]"
