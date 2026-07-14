@@ -296,14 +296,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     for (const g of finish_groups) {
       await sql`
         INSERT INTO finish_groups
-          (id, spec_id, label, finish_type, color_id, color_name,
+          (id, spec_id, label, finish_type, color_id, color_name, color_hex,
            door_style_id, drawer_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
            applied_panels, species, grade, grain_orientation, rollout_box_id,
            cabdoor_edge_id, cabdoor_profile_id, cabdoor_panel_id,
            notes, sort_order)
         VALUES
           (${g.id}, ${id}, ${g.label}, ${g.finish_type || "paint"},
-           ${g.color_id || null}, ${g.color_name || null},
+           ${g.color_id || null}, ${g.color_name || null}, ${(g as Record<string, unknown>).color_hex as string || null},
            ${g.door_style_id || null},
            ${(g as Record<string, unknown>).drawer_style_id as string || null},
            ${g.pull_id || null},

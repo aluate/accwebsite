@@ -4,7 +4,7 @@ import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, Moldin
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
-type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; grade: string | null; grain_orientation: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
+type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; grade: string | null; grain_orientation: string | null; color_id: string | null; color_name: string | null; color_hex: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
 type AccRow = { room_id: string; acc_id: string; qty: number };
@@ -41,7 +41,13 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const jobRows = await sql<JobRow[]>`SELECT * FROM jobs WHERE id = ${spec.job_id}`;
   const job = jobRows[0]; if (!job) throw new SpecDataError("Job not found", 404);
 
-  const fgs = await sql<FGRow[]>`SELECT * FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order`;
+  const fgs = await sql<FGRow[]>`
+    SELECT fg.*, pc.hex_value AS color_hex
+    FROM finish_groups fg
+    LEFT JOIN paint_colors pc ON pc.code = fg.color_id
+    WHERE fg.spec_id = ${specId}
+    ORDER BY fg.sort_order
+  `;
   const fgIds = fgs.map((g) => g.id);
   const rooms = await sql<RoomRow[]>`SELECT * FROM rooms WHERE spec_id = ${specId} ORDER BY sort_order`;
   const roomIds = (rooms as RoomRow[]).map((r) => r.id);
@@ -155,7 +161,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     }
 
     return {
-      id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "", grade: g.grade ?? "", grain_orientation: g.grain_orientation ?? "",
+      id: g.id, label: g.label, finish_type: g.finish_type, color_hex: g.color_hex ?? null, notes: g.notes ?? "", species: g.species ?? "", grade: g.grade ?? "", grain_orientation: g.grain_orientation ?? "",
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
       finish: {
         stain_name: isStain ? colorName : "",

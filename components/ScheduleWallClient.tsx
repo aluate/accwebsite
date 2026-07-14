@@ -723,6 +723,15 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             >
               ⬛ TV Mode
             </a>
+            {isAdmin && (
+              <a
+                href="/schedule/verify"
+                className="flex items-center gap-1.5 border border-white/15 hover:border-white/30 text-white/40 hover:text-white/80 font-condensed uppercase tracking-widest text-[10px] px-3 py-1.5 rounded transition-colors"
+                title="Weekly schedule verification"
+              >
+                ✓ Verify
+              </a>
+            )}
           </div>
         </header>
       )}

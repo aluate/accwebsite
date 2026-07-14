@@ -28,6 +28,7 @@ export type MoldingView = { molding_type: string; type_label: string; profile_na
 
 export type FinishGroupView = {
   id: string; label: string; finish_type: string; notes: string; species: string; grade: string; grain_orientation: string;
+  color_hex?: string | null;
   applied_panels: string | null;
   rollout_box_name: string;
   finish: FinishView;
@@ -266,7 +267,10 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             return (
               <View key={fg.id} style={rowStyle} wrap={false}>
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
-                <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
+                <View style={[S.cell, { flex: COL.color, flexDirection: "row", alignItems: "center", gap: 3 }]}>
+                  {fg.color_hex ? <View style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: fg.color_hex, borderWidth: 0.5, borderColor: "#999", flexShrink: 0 }} /> : null}
+                  <Text>{d(colorName)}</Text>
+                </View>
                 <Text style={[S.cell, { flex: COL.species }]}>{d(fg.species)}</Text>
                 <Text style={[S.cell, { flex: COL.grade }]}>{d(fg.grade)}</Text>
                 <Text style={[S.cell, { flex: COL.grain }]}>{d(fg.grain_orientation)}</Text>

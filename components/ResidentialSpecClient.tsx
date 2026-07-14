@@ -46,7 +46,7 @@ type FinishType = "paint" | "stain" | "melamine" | "plam" | "";
 
 export type FinishGroup = {
   id: string; label: string; finish_type: FinishType;
-  color_id: string; color_name: string; door_style_id: string;
+  color_id: string; color_name: string; color_hex: string | null; door_style_id: string;
   drawer_style_id: string;
   cabdoor_edge_id: string;
   cabdoor_profile_id: string;
@@ -197,6 +197,32 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
     }
   }
   return v;
+}
+
+// ── EsiSuggest ───────────────────────────────────────────────────────────────
+// Fetches ESI edgeband match for the selected paint color and shows a tip.
+function EsiSuggest({ colorId, colorName }: { colorId: string; colorName: string }) {
+  const [match, setMatch] = useState<{ esi_part: string; esi_desc: string | null; notes: string | null } | null>(null);
+  useEffect(() => {
+    if (!colorId) { setMatch(null); return; }
+    // Extract brand from colorName e.g. "SW 7757 · Iron Ore — SW" → last word "SW"
+    const brand = colorName?.split("—")?.[1]?.trim() ?? "";
+    fetch(`/api/admin/edgeband-matches/suggest?code=${encodeURIComponent(colorId)}&brand=${encodeURIComponent(brand)}`)
+      .then((r) => r.json())
+      .then((d: { match: { esi_part: string; esi_desc: string | null; notes: string | null } | null }) => setMatch(d.match ?? null))
+      .catch(() => setMatch(null));
+  }, [colorId, colorName]);
+  if (!match) return null;
+  return (
+    <div className="mt-1.5 flex items-start gap-2 bg-amber-900/20 border border-amber-600/30 rounded px-3 py-2 text-xs">
+      <span className="text-amber-400 shrink-0 mt-0.5">ESI match:</span>
+      <div className="text-white/70">
+        <span className="font-mono text-amber-300">{match.esi_part}</span>
+        {match.esi_desc && <span className="ml-1 text-white/50">· {match.esi_desc}</span>}
+        {match.notes && <span className="block text-white/30 mt-0.5">{match.notes}</span>}
+      </div>
+    </div>
+  );
 }
 
 // ── ColorPicker ────────────────────────────────────────────────────────────
@@ -685,7 +711,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       id: uid(),
       label: "",
       finish_type: "",
-      color_id: "", color_name: "",
+      color_id: "", color_name: "", color_hex: null,
       door_style_id: "", drawer_style_id: "",
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
       pull_id: "",
@@ -1335,10 +1361,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       type={g.finish_type}
                       value={g.color_id}
                       valueName={g.color_name}
-                      valueHex={null}
+                      valueHex={g.color_hex ?? null}
                       catalogs={catalogs}
-                      onChange={(id, label) => {
-                        const updates: Partial<FinishGroup> = { color_id: id, color_name: label };
+                      onChange={(id, label, hex) => {
+                        const updates: Partial<FinishGroup> = { color_id: id, color_name: label, color_hex: hex ?? null };
                         // Auto-derive edgeband when a melamine color is picked
                         if (g.finish_type === "melamine" && id) {
                           const mc = catalogs.melamineColors.find((c) => c.id === id);
@@ -1533,6 +1559,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <option key={e.id} value={e.id}>{e.product_name}{e.supplier ? ` · ${e.supplier}` : ""}{e.thickness_mm ? ` · ${e.thickness_mm}mm` : ""}</option>
                       ))}
                     </select>
+                    <EsiSuggest colorId={g.color_id} colorName={g.color_name} />
                   </div>
                 </div>
 

@@ -39,6 +39,7 @@ const ADMIN_NAV = [
   { label: "Floor Plans",     href: "/admin/floor-plans" },
   { label: "Palettes",        href: "/admin/palettes" },
   { label: "Catalog Review",  href: "/admin/catalog-review" },
+  { label: "ESI Edgebands",    href: "/admin/edgeband-matches" },
   { label: "Search",          href: "/search" },
   { label: "Punch",           href: "/punch" },
   { label: "Warranty",        href: "/warranty" },

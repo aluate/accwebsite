@@ -188,6 +188,7 @@ export default async function SpecEditorPage({
 
   const finishGroupsHydrated = finish_groups.map((g) => ({
     ...g,
+    color_hex: (g as Record<string, unknown>).color_hex as string | null ?? null,
     finish_type:    (g.finish_type ?? "") as "paint" | "stain" | "melamine" | "plam" | "",
     drawer_style_id: (g as Record<string, unknown>).drawer_style_id as string ?? "",
     cabdoor_edge_id: (g as Record<string, unknown>).cabdoor_edge_id as string ?? "",

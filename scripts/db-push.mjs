@@ -751,6 +751,30 @@ async function main() {
   }
 
   await sql`
+    CREATE TABLE IF NOT EXISTS edgeband_matches (
+      id          TEXT PRIMARY KEY,
+      paint_brand TEXT NOT NULL,
+      paint_code  TEXT NOT NULL,
+      esi_part    TEXT NOT NULL,
+      esi_desc    TEXT,
+      notes       TEXT,
+      created_at  TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(paint_brand, paint_code)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_edgeband_matches ON edgeband_matches(paint_brand, paint_code)`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS schedule_weeks (
+      id           TEXT PRIMARY KEY,
+      week_start   DATE NOT NULL UNIQUE,
+      verified_by  TEXT,
+      verified_at  TIMESTAMPTZ,
+      notes        TEXT
+    )
+  `;
+
+  await sql`
     CREATE TABLE IF NOT EXISTS paint_colors (
       id          SERIAL PRIMARY KEY,
       brand       TEXT NOT NULL,
@@ -776,6 +800,7 @@ async function main() {
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_profile_id TEXT`,
     `ALTER TABLE estimates ADD COLUMN IF NOT EXISTS profile_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
+    `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS color_hex TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }
