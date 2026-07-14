@@ -912,6 +912,8 @@ async function main() {
     \`ALTER TABLE estimate_settings ADD COLUMN IF NOT EXISTS shop_capacity_hrs_per_week NUMERIC NOT NULL DEFAULT 40\`,
     \`ALTER TABLE estimate_settings ADD COLUMN IF NOT EXISTS install_capacity_hrs_per_week NUMERIC NOT NULL DEFAULT 32\`,
     \`ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS fg_id TEXT\`,
+    // One-time role promotion — karlv gets the 'karl' super-admin role. Idempotent.
+    \`UPDATE builder_accounts SET role = 'karl' WHERE username = 'karlv' AND role = 'admin'\`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS crown         INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS toekick       INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE estimate_rooms ADD COLUMN IF NOT EXISTS light_valance INTEGER NOT NULL DEFAULT 0`,
