@@ -995,7 +995,7 @@ async function main() {
         )
       `;
     }
-    console.log(\`Seeded \${items.length} accessories into accessories_catalog\`);
+    console.log("Seeded " + items.length + " accessories into accessories_catalog");
   }
 
   console.log("Schema push complete.");
