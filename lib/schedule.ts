@@ -75,7 +75,21 @@ export async function forwardEvents(opts: { todayIso?: string; windowDaysBack?: 
   const today = opts.todayIso ?? new Date().toISOString().slice(0, 10);
   const lo = isoDateOffset(today, -(opts.windowDaysBack ?? 7));
   const hi = isoDateOffset(today, +(opts.windowDaysForward ?? 90));
-  return await sql<JobEventWithJoins[]>`
+  // Validate date strings — YYYY-MM-DD from isoDateOffset, safe to inline
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(lo) || !/^\d{4}-\d{2}-\d{2}$/.test(hi))
+    throw new Error(`Invalid date range: ${lo} – ${hi}`);
+  // sql.unsafe with NO args → simple:true → simple query protocol (Q message)
+  // Simple protocol is atomic (P+B+E in one wire message) → PgBouncer transaction mode safe
+  let where = `sub.date_start IS NOT NULL AND sub.date_start >= '${lo}' AND sub.date_start <= '${hi}'`;
+  if (opts.crewId) {
+    if (!/^[0-9a-f-]{36}$/i.test(opts.crewId)) throw new Error(`Invalid crewId`);
+    where += ` AND EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = '${opts.crewId}')`;
+  }
+  if (opts.eventType) {
+    if (!isEventType(opts.eventType)) throw new Error(`Invalid eventType`);
+    where += ` AND sub.event_type = '${opts.eventType}'`;
+  }
+  return await sql.unsafe<JobEventWithJoins[]>(`
     SELECT sub.*,
       COALESCE(agg.crew_ids, '{}') AS crew_ids,
       COALESCE(agg.crew_names, '{}') AS crew_names,
@@ -94,17 +108,23 @@ export async function forwardEvents(opts: { todayIso?: string; windowDaysBack?: 
       GROUP BY ec.event_id
     ) agg ON agg.event_id = sub.id
     LEFT JOIN jobs j ON j.id = sub.job_id
-    WHERE sub.date_start IS NOT NULL
-      AND sub.date_start >= ${lo}
-      AND sub.date_start <= ${hi}
-      ${opts.crewId ? sql`AND EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = ${opts.crewId})` : sql``}
-      ${opts.eventType ? sql`AND sub.event_type = ${opts.eventType}` : sql``}
+    WHERE ${where}
     ORDER BY sub.date_start, sub.sort_order, sub.created_at
-  `;
+  `);
 }
 
 export async function onDeckEvents(opts: { jobId?: string; eventType?: EventType } = {}): Promise<JobEventWithJoins[]> {
-  return await sql<JobEventWithJoins[]>`
+  // sql.unsafe with NO args → simple:true → simple query protocol → PgBouncer safe
+  let where = `sub.date_start IS NULL`;
+  if (opts.jobId) {
+    if (!/^[0-9a-f-]{36}$/i.test(opts.jobId)) throw new Error(`Invalid jobId`);
+    where += ` AND sub.job_id = '${opts.jobId}'`;
+  }
+  if (opts.eventType) {
+    if (!isEventType(opts.eventType)) throw new Error(`Invalid eventType`);
+    where += ` AND sub.event_type = '${opts.eventType}'`;
+  }
+  return await sql.unsafe<JobEventWithJoins[]>(`
     SELECT sub.*,
       COALESCE(agg.crew_ids, '{}') AS crew_ids,
       COALESCE(agg.crew_names, '{}') AS crew_names,
@@ -123,11 +143,9 @@ export async function onDeckEvents(opts: { jobId?: string; eventType?: EventType
       GROUP BY ec.event_id
     ) agg ON agg.event_id = sub.id
     LEFT JOIN jobs j ON j.id = sub.job_id
-    WHERE sub.date_start IS NULL
-      ${opts.jobId ? sql`AND sub.job_id = ${opts.jobId}` : sql``}
-      ${opts.eventType ? sql`AND sub.event_type = ${opts.eventType}` : sql``}
+    WHERE ${where}
     ORDER BY sub.created_at DESC
-  `;
+  `);
 }
 
 export async function jobEvents(jobId: string): Promise<JobEventWithJoins[]> {
