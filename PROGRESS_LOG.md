@@ -202,7 +202,56 @@ Doc roles, so nothing drifts:
 
 ---
 
-## CURRENT LIST — 2026-07-03
+## Session: 2026-07-13 — Multi-crew, installer portal, installer hardening (this session)
 
-**Form fixes (from testing session):**
-- [ ] Rename "EXPRE
+**Before:** event_crew backfill, installer portal with crew filtering, floor plans CRUD
+**After:** Installer fully isolated (can't access /schedule or /jobs/[id]), Google Maps everywhere, install drawings on installer job detail
+
+### What shipped
+- [x] `event_crew` junction table + migration (many-to-many crew-to-event)
+- [x] Multi-select crew checkboxes in AddEventForm
+- [x] Double-booking + same-day delivery conflict detection (⚠ badge on calendar)
+- [x] Inline crew edit in admin schedule page
+- [x] Installer portal `/installer` — filters to assigned jobs only by crew email
+- [x] Installer job detail `/installer/jobs/[id]` — address (Google Maps), install drawings, punch list
+- [x] Floor plans admin: full CRUD UI + rooms
+- [x] Block `/schedule` for installer role → redirect to `/installer`
+- [x] Block `/jobs/[id]` for installer role → redirect to `/installer/jobs/[id]`
+- [x] Remove Full Calendar + All Jobs links from installer dashboard
+- [x] Fix Apple Maps → Google Maps site-wide (jobs page + installer)
+- [x] Install drawings section on installer job detail (kind = 14_install_drawings)
+
+### Files changed (key)
+- `scripts/db-push.mjs` — event_crew table + indexes
+- `lib/schedule.ts` — crew_ids arrays, createEvent/updateEvent write event_crew, conflict detection
+- `components/AddEventForm.tsx` — multi-select crew
+- `components/AdminScheduleClient.tsx` — inline crew edit
+- `components/ScheduleWallClient.tsx` — crew_names on bars, ⚠ badge
+- `app/installer/layout.tsx` — NEW: installer-scoped nav
+- `app/installer/page.tsx` — crew filter by email, Google Maps links, /installer/jobs/[id] links
+- `app/installer/jobs/[id]/page.tsx` — Google Maps, install drawings, punch list
+- `app/admin/(protected)/floor-plans/page.tsx` — full CRUD UI
+- `app/schedule/page.tsx` — installer redirect
+- `app/jobs/[id]/page.tsx` — installer redirect, Apple Maps → Google Maps
+
+---
+
+## CURRENT LIST — 2026-07-13
+
+> Last updated: 2026-07-13. All July 3rd items complete (commits 460a659 + 295f840).
+> This session's installer hardening is complete (commit 4b6e05e).
+
+### Karl actions required (build is blocked on these)
+
+- [ ] **[KARL] Run BM color import** — `node scripts/import-bm-colors.mjs` on your local machine (needs internet). Then `node scripts/sync-paint-colors.mjs` to load into DB. BM type-ahead in finish group color field will be dead until this runs.
+- [ ] **[KARL] DocuSign prod flip** — 3 Vercel env var swaps + one-time consent URL + upload real `templates/residential-disclosure.pdf` to Supabase Storage. See `project_docusign_live` memory for exact steps.
+- [ ] **[KARL] ACC stain mixes** — provide the 10 named in-house stains (name + base color). Unblocks real stain dropdown.
+- [ ] **[KARL] Tafisa color list** — per-line colors (Alto, Crystalite, Isola, etc.). Fan deck photo or rep PDF works.
+- [ ] **[KARL] Builder defaults** — carcass / drawer / pull / accessories typical for: Atlas, Bush Legacy, Premier, Stancraft, Cobalt, Bar 17, RSB Customs.
+
+### Build items (no blockers)
+
+- [ ] **Color hex swatch chips** — `paint_colors` table has `hex_value`; show a 16×16 color chip next to color names in finish group cards and in the spec PDF. Zero data entry needed.
+- [ ] **ESI edgeband matching library** — `edgeband_matches` table (paint_brand + paint_code → ESI part#). Admin page to manage. Auto-suggest ESI part when color selected in finish group. Planned 2026-07-03, not started.
+- [ ] **Schedule weekly verify UI** — lock a past week as "historical truth." Schema designed (schedule_weeks table). UI not built.
+
