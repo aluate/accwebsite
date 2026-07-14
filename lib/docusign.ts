@@ -217,7 +217,8 @@ export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelo
       const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY;
       const isProd = !basePath.includes("demo");
       const authHost = isProd ? "account.docusign.com" : "account-d.docusign.com";
-      const consentUrl = `https://${authHost}/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=${integrationKey}&redirect_uri=${basePath}`;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://accwebsite-cd58.vercel.app";
+      const consentUrl = `https://${authHost}/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=${integrationKey}&redirect_uri=${appUrl}`;
       return {
         ok: false,
         error: `DocuSign consent not yet granted. Open this URL in a browser and click Allow: ${consentUrl}`,
