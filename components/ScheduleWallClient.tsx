@@ -376,6 +376,10 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     eventId: string; conflicts: JobEventWithJoins[];
   } | null>(null);
   const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
+  // Saturday confirmation — holds a pending drop until user confirms intent
+  const [saturdayConfirm, setSaturdayConfirm] = useState<{
+    eventId: string; targetIso: string;
+  } | null>(null);
 
   // ── Visible window ────────────────────────────────────────────────────────
   const visibleStart = weeks[0]?.[0] ?? today;
@@ -528,6 +532,15 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   async function handleDrop(eventId: string, targetIso: string | null) {
     setDraggingId(null);
     setDropTargetKey(null);
+
+    // Ask before placing anything on a Saturday — prevents accidental weekend scheduling
+    if (targetIso) {
+      const dow = new Date(targetIso + "T00:00:00Z").getUTCDay();
+      if (dow === 6) {
+        setSaturdayConfirm({ eventId, targetIso });
+        return;
+      }
+    }
 
     const prevForward = forwardEvents;
     const prevOnDeck  = onDeckEvents;
@@ -1091,6 +1104,38 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {/* Saturday confirmation modal */}
+      {saturdayConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-amber-500/30 rounded-xl p-6 max-w-sm w-full mx-4">
+            <div className="text-amber-400 text-2xl mb-3">📅</div>
+            <h3 className="text-white font-condensed uppercase tracking-widest mb-2">Saturday</h3>
+            <p className="text-white/60 text-sm mb-5">
+              This drops onto <span className="text-white font-semibold">{saturdayConfirm.targetIso}</span> (Saturday).
+              Saturdays are non-working by default — only schedule here for intentional weekend work.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  const { eventId, targetIso } = saturdayConfirm;
+                  setSaturdayConfirm(null);
+                  await handleDrop(eventId, targetIso);
+                }}
+                className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-condensed uppercase tracking-widest text-xs px-4 py-2.5 rounded transition-colors"
+              >
+                Yes, schedule Saturday
+              </button>
+              <button
+                onClick={() => setSaturdayConfirm(null)}
+                className="flex-1 border border-white/20 hover:border-white/40 text-white/60 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2.5 rounded transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
