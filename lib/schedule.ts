@@ -10,35 +10,14 @@ import {
 export { EVENT_TYPES, EVENT_TYPE_LABELS, EVENT_STATUSES, CREW_KINDS, isEventType, isEventStatus, isCrewKind, isoDateOffset, isoWeekStart };
 export type { EventType, EventStatus, CrewKind, Crew, JobEvent, JobEventWithJoins, JobEventAuditRow };
 
-// Static SQL fragment shared by all event queries.
-// Used via sql.unsafe(EVENT_SELECT) — a *no-arg* call — embedded inside
-// tagged-template queries so that the outer query uses postgres.js's simple
-// query protocol.  Never pass EVENT_SELECT as the string arg to sql.unsafe()
-// WITH a params array: that would set simple:false (extended protocol) which
-// hangs on PgBouncer in transaction mode.
-const EVENT_SELECT = `
-  SELECT sub.*,
-    COALESCE(agg.crew_ids, '{}') AS crew_ids,
-    COALESCE(agg.crew_names, '{}') AS crew_names,
-    agg.crew_name, agg.crew_kind,
-    j.client_name AS job_client_name, j.site_address AS job_site_address,
-    j.job_number AS job_job_number
-  FROM job_events sub
-  LEFT JOIN (
-    SELECT ec.event_id,
-      array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
-      array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
-      (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
-      (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
-    FROM event_crew ec
-    JOIN crews c ON c.id = ec.crew_member_id
-    GROUP BY ec.event_id
-  ) agg ON agg.event_id = sub.id
-  LEFT JOIN jobs j ON j.id = sub.job_id
-`;
-
-// Shorthand so callers can write ${ES} in tagged templates.
-const ES = sql.unsafe(EVENT_SELECT);
+// NOTE: EVENT_SELECT is kept as a plain string for documentation purposes only.
+// It is NEVER passed to sql.unsafe() with args (that sets simple:false → extended
+// protocol → PgBouncer transaction mode hang). It is also NOT stored as a module-
+// level sql.unsafe() fragment (postgres.js may execute queries eagerly on next tick,
+// consuming a pool connection before the route queries run).
+//
+// Each query function below inlines the SQL directly inside a tagged template literal.
+// Tagged templates with prepare:false use simple query protocol — safe with PgBouncer.
 
 export async function listCrews(opts: { activeOnly?: boolean } = {}): Promise<Crew[]> {
   if (opts.activeOnly) return await sql<Crew[]>`SELECT * FROM crews WHERE active = 1 ORDER BY active DESC, name`;
@@ -68,7 +47,27 @@ export async function updateCrew(id: string, patch: Partial<Pick<Crew, "name"|"k
 }
 
 export async function getEvent(id: string): Promise<JobEventWithJoins | null> {
-  const rows = await sql<JobEventWithJoins[]>`${ES} WHERE sub.id = ${id}`;
+  const rows = await sql<JobEventWithJoins[]>`
+    SELECT sub.*,
+      COALESCE(agg.crew_ids, '{}') AS crew_ids,
+      COALESCE(agg.crew_names, '{}') AS crew_names,
+      agg.crew_name, agg.crew_kind,
+      j.client_name AS job_client_name, j.site_address AS job_site_address,
+      j.job_number AS job_job_number
+    FROM job_events sub
+    LEFT JOIN (
+      SELECT ec.event_id,
+        array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
+        array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
+        (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
+        (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
+      FROM event_crew ec
+      JOIN crews c ON c.id = ec.crew_member_id
+      GROUP BY ec.event_id
+    ) agg ON agg.event_id = sub.id
+    LEFT JOIN jobs j ON j.id = sub.job_id
+    WHERE sub.id = ${id}
+  `;
   return rows[0] ?? null;
 }
 
@@ -77,7 +76,24 @@ export async function forwardEvents(opts: { todayIso?: string; windowDaysBack?: 
   const lo = isoDateOffset(today, -(opts.windowDaysBack ?? 7));
   const hi = isoDateOffset(today, +(opts.windowDaysForward ?? 90));
   return await sql<JobEventWithJoins[]>`
-    ${ES}
+    SELECT sub.*,
+      COALESCE(agg.crew_ids, '{}') AS crew_ids,
+      COALESCE(agg.crew_names, '{}') AS crew_names,
+      agg.crew_name, agg.crew_kind,
+      j.client_name AS job_client_name, j.site_address AS job_site_address,
+      j.job_number AS job_job_number
+    FROM job_events sub
+    LEFT JOIN (
+      SELECT ec.event_id,
+        array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
+        array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
+        (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
+        (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
+      FROM event_crew ec
+      JOIN crews c ON c.id = ec.crew_member_id
+      GROUP BY ec.event_id
+    ) agg ON agg.event_id = sub.id
+    LEFT JOIN jobs j ON j.id = sub.job_id
     WHERE sub.date_start IS NOT NULL
       AND sub.date_start >= ${lo}
       AND sub.date_start <= ${hi}
@@ -89,7 +105,24 @@ export async function forwardEvents(opts: { todayIso?: string; windowDaysBack?: 
 
 export async function onDeckEvents(opts: { jobId?: string; eventType?: EventType } = {}): Promise<JobEventWithJoins[]> {
   return await sql<JobEventWithJoins[]>`
-    ${ES}
+    SELECT sub.*,
+      COALESCE(agg.crew_ids, '{}') AS crew_ids,
+      COALESCE(agg.crew_names, '{}') AS crew_names,
+      agg.crew_name, agg.crew_kind,
+      j.client_name AS job_client_name, j.site_address AS job_site_address,
+      j.job_number AS job_job_number
+    FROM job_events sub
+    LEFT JOIN (
+      SELECT ec.event_id,
+        array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
+        array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
+        (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
+        (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
+      FROM event_crew ec
+      JOIN crews c ON c.id = ec.crew_member_id
+      GROUP BY ec.event_id
+    ) agg ON agg.event_id = sub.id
+    LEFT JOIN jobs j ON j.id = sub.job_id
     WHERE sub.date_start IS NULL
       ${opts.jobId ? sql`AND sub.job_id = ${opts.jobId}` : sql``}
       ${opts.eventType ? sql`AND sub.event_type = ${opts.eventType}` : sql``}
@@ -99,7 +132,24 @@ export async function onDeckEvents(opts: { jobId?: string; eventType?: EventType
 
 export async function jobEvents(jobId: string): Promise<JobEventWithJoins[]> {
   return await sql<JobEventWithJoins[]>`
-    ${ES}
+    SELECT sub.*,
+      COALESCE(agg.crew_ids, '{}') AS crew_ids,
+      COALESCE(agg.crew_names, '{}') AS crew_names,
+      agg.crew_name, agg.crew_kind,
+      j.client_name AS job_client_name, j.site_address AS job_site_address,
+      j.job_number AS job_job_number
+    FROM job_events sub
+    LEFT JOIN (
+      SELECT ec.event_id,
+        array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
+        array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
+        (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
+        (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
+      FROM event_crew ec
+      JOIN crews c ON c.id = ec.crew_member_id
+      GROUP BY ec.event_id
+    ) agg ON agg.event_id = sub.id
+    LEFT JOIN jobs j ON j.id = sub.job_id
     WHERE sub.job_id = ${jobId}
     ORDER BY sub.date_start IS NULL, sub.date_start, sub.sort_order, sub.created_at
   `;
@@ -108,7 +158,24 @@ export async function jobEvents(jobId: string): Promise<JobEventWithJoins[]> {
 export async function findCrewConflicts(input: { crewId: string; dateStart: string; dateEnd?: string | null; excludeEventId?: string }): Promise<JobEventWithJoins[]> {
   const end = input.dateEnd ?? input.dateStart;
   return await sql<JobEventWithJoins[]>`
-    ${ES}
+    SELECT sub.*,
+      COALESCE(agg.crew_ids, '{}') AS crew_ids,
+      COALESCE(agg.crew_names, '{}') AS crew_names,
+      agg.crew_name, agg.crew_kind,
+      j.client_name AS job_client_name, j.site_address AS job_site_address,
+      j.job_number AS job_job_number
+    FROM job_events sub
+    LEFT JOIN (
+      SELECT ec.event_id,
+        array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
+        array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
+        (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
+        (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
+      FROM event_crew ec
+      JOIN crews c ON c.id = ec.crew_member_id
+      GROUP BY ec.event_id
+    ) agg ON agg.event_id = sub.id
+    LEFT JOIN jobs j ON j.id = sub.job_id
     WHERE EXISTS (SELECT 1 FROM event_crew ec2 WHERE ec2.event_id = sub.id AND ec2.crew_member_id = ${input.crewId})
       AND sub.date_start IS NOT NULL
       AND sub.date_start <= ${end}
@@ -120,7 +187,24 @@ export async function findCrewConflicts(input: { crewId: string; dateStart: stri
 
 export async function findDeliveryConflicts(dateStart: string, excludeEventId?: string): Promise<JobEventWithJoins[]> {
   return await sql<JobEventWithJoins[]>`
-    ${ES}
+    SELECT sub.*,
+      COALESCE(agg.crew_ids, '{}') AS crew_ids,
+      COALESCE(agg.crew_names, '{}') AS crew_names,
+      agg.crew_name, agg.crew_kind,
+      j.client_name AS job_client_name, j.site_address AS job_site_address,
+      j.job_number AS job_job_number
+    FROM job_events sub
+    LEFT JOIN (
+      SELECT ec.event_id,
+        array_agg(c.id ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_ids,
+        array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL) AS crew_names,
+        (array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_name,
+        (array_agg(c.kind ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL))[1] AS crew_kind
+      FROM event_crew ec
+      JOIN crews c ON c.id = ec.crew_member_id
+      GROUP BY ec.event_id
+    ) agg ON agg.event_id = sub.id
+    LEFT JOIN jobs j ON j.id = sub.job_id
     WHERE sub.event_type IN ('cab_delivery', 'top_delivery')
       AND sub.date_start = ${dateStart}
       ${excludeEventId ? sql`AND sub.id <> ${excludeEventId}` : sql``}
