@@ -466,6 +466,14 @@ const ACC_CATEGORIES: { value: string; label: string }[] = [
 
 const SEL = "bg-[#1a1a1a] border border-white/15 rounded px-2 py-2 text-sm text-white focus:outline-none focus:border-[#f08122]";
 
+// Normalize width_options_in / hand fields — sync-catalogs.mjs converts
+// semicolon-separated CSV cells to arrays, so these can be string | number | array | null.
+function asArr(v: unknown): string[] {
+  if (v == null) return [];
+  if (Array.isArray(v)) return (v as unknown[]).map(String);
+  return String(v).split(";").map((s) => s.trim()).filter(Boolean);
+}
+
 function AccessoryPickerRow({
   acc,
   revaAccessories,
@@ -490,7 +498,7 @@ function AccessoryPickerRow({
     ? [...new Set(
         revaAccessories
           .filter((a) => a.category === effectiveCat)
-          .flatMap((a) => (a.width_options_in ?? "").split(";").map((s) => s.trim()).filter(Boolean))
+          .flatMap((a) => asArr(a.width_options_in))
       )].sort((a, b) => parseFloat(a) - parseFloat(b))
     : [];
 
@@ -500,13 +508,11 @@ function AccessoryPickerRow({
     ? revaAccessories.filter((a) => {
         if (a.category !== effectiveCat) return false;
         if (!currentSize) return true;
-        return (a.width_options_in ?? "").split(";").map((s) => s.trim()).includes(currentSize);
+        return asArr(a.width_options_in).includes(currentSize);
       })
     : [];
 
-  const handOptions = selectedItem?.hand
-    ? selectedItem.hand.split(";").map((h) => h.trim()).filter(Boolean)
-    : [];
+  const handOptions = asArr(selectedItem?.hand);
   const isCustom = effectiveCat === "other";
   const hasWarning = selectedItem?.notes?.includes("WARNING");
 
@@ -522,13 +528,13 @@ function AccessoryPickerRow({
   function handleSizeChange(size: string) {
     // If current item still valid for new size, keep it; otherwise clear
     const stillValid = selectedItem &&
-      (selectedItem.width_options_in ?? "").split(";").map((s) => s.trim()).includes(size);
+      asArr(selectedItem.width_options_in).includes(size);
     onUpdate({ size, acc_id: stillValid ? acc.acc_id : "", handed: "N/A" });
   }
 
   function handleItemChange(id: string) {
     const item = revaAccessories.find((x) => x.id === id);
-    const firstHand = item?.hand ? item.hand.split(";")[0].trim() : "N/A";
+    const firstHand = asArr(item?.hand)[0] ?? "N/A";
     onUpdate({ acc_id: id, handed: firstHand || "N/A" });
   }
 
