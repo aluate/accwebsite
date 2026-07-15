@@ -19,6 +19,7 @@ type BuilderAccount = {
 const ROLES: Role[] = ["karl", "admin", "pm", "engineer", "shop", "installer"];
 
 const ROLE_LABELS: Record<Role, string> = {
+  karl:      "Karl",
   admin:     "Admin",
   pm:        "PM",
   engineer:  "Engineer",
@@ -28,6 +29,7 @@ const ROLE_LABELS: Record<Role, string> = {
 
 // What each role can access — shown in the role description
 const ROLE_DESC: Record<Role, string> = {
+  karl:      "Super-admin: admin tab + all permissions",
   admin:     "Full access: jobs, schedule, admin panel",
   pm:        "Jobs, schedule, spec editing",
   engineer:  "Engineering queue + job detail",
@@ -36,6 +38,7 @@ const ROLE_DESC: Record<Role, string> = {
 };
 
 const ROLE_BADGE: Record<Role, string> = {
+  karl:      "text-white bg-white/20 border-white/40",
   admin:     "text-[#f08122] bg-[#f08122]/15 border-[#f08122]/30",
   pm:        "text-blue-300 bg-blue-900/30 border-blue-400/30",
   engineer:  "text-purple-300 bg-purple-900/30 border-purple-400/30",
@@ -136,7 +139,7 @@ export default function BuildersAdminPage() {
         alert("Cannot change the last admin's role. Promote another user to admin first.");
         return;
       }
-      if (!confirm(`Change ${account.name} from Admin to ${ROLE_LABELS[newRole as Role] ?? newRole}? They will lose admin panel access.`)) return;
+      if (!confirm(`Change ${account.name} from ${ROLE_LABELS[account.role as Role] ?? account.role} to ${ROLE_LABELS[newRole as Role] ?? newRole}?`)) return;
     }
     await fetch("/api/admin/builders", {
       method: "PATCH",
