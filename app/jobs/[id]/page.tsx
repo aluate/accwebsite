@@ -6,6 +6,7 @@ import { sql, withDbTimeout } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
+import { EnableModuleButton } from "@/components/EnableModuleButton";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { SignoffButton } from "@/components/SignoffButton";
 import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
@@ -261,8 +262,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <div className="space-y-2">
               <p className="text-white/20 font-condensed uppercase tracking-widest text-[10px] mt-4">Not in scope</p>
               {inactiveModules.map((m) => (
-                <div key={m.key} className="flex items-center justify-between bg-[#252525] rounded p-4 opacity-40">
-                  <p className="text-white/50 text-sm">{m.label}</p>
+                <div key={m.key} className="flex items-center justify-between bg-[#252525] rounded p-4">
+                  <p className="text-white/30 text-sm">{m.label}</p>
+                  {(isAdmin || session.role === "pm") && (
+                    <EnableModuleButton jobId={internalId} modKey={m.key} label={m.label} />
+                  )}
                 </div>
               ))}
             </div>

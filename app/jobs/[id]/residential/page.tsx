@@ -30,22 +30,24 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
   // Look up builder profile from DB — match by builder_company or fall back to walk-in default
   type BPRow = { id: string; builder_name: string; is_residential_default: boolean };
   let builderProfile: BPRow | null = null;
-  if (job.builder_company?.trim()) {
-    const wanted = job.builder_company.trim().toLowerCase();
-    const [match] = await sql<BPRow[]>`
-      SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
-      WHERE LOWER(COALESCE(builder_company, '')) = ${wanted}
-      LIMIT 1
-    `;
-    builderProfile = match ?? null;
-  }
-  if (!builderProfile) {
-    const [def] = await sql<BPRow[]>`
-      SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
-      WHERE is_residential_default = true LIMIT 1
-    `;
-    builderProfile = def ?? null;
-  }
+  try {
+    if (job.builder_company?.trim()) {
+      const wanted = job.builder_company.trim().toLowerCase();
+      const [match] = await sql<BPRow[]>`
+        SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
+        WHERE LOWER(COALESCE(builder_company, '')) = ${wanted}
+        LIMIT 1
+      `;
+      builderProfile = match ?? null;
+    }
+    if (!builderProfile) {
+      const [def] = await sql<BPRow[]>`
+        SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
+        WHERE is_residential_default = true LIMIT 1
+      `;
+      builderProfile = def ?? null;
+    }
+  } catch { /* table may not exist yet */ }
   const builderProfileId = builderProfile?.id ?? null;
 
   const specs = await sql`

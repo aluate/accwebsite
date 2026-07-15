@@ -190,13 +190,13 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       <div className={SECTION}>
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-4">Job Number</p>
         <div className="max-w-xs">
-          <label className={LABEL}>TradeSoft Job # *</label>
+          <label className={LABEL}>TradeSoft Job # <span className="text-white/30 normal-case font-normal">(optional)</span></label>
           <input
             type="text"
             name="job_number"
             defaultValue={initial?.job_number ?? ""}
             placeholder="e.g. 26162"
-            required={!isEdit}
+            required={false}
             className={INPUT}
           />
         </div>
