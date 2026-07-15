@@ -1,24 +1,26 @@
 /**
  * POST /api/punch-items/[itemId]/photo
  *
- * Uploads a before or after photo for a punch list item.
- * Stores to Supabase Storage under jobs/{jobId}/punch/{itemId}/{which}-{filename}.
- * Updates punch_list_items.before_photo_path or after_photo_path.
- * Returns: { ok, url } where url is a 1-hour signed URL for immediate display.
+ * Uploads one or more photos/videos for a punch list item.
+ * Writes to punch_item_photos table. Supports multiple files per request.
  *
  * Body: multipart/form-data
- *   file:  File (image)
- *   which: "before" | "after"
+ *   file  : File | File[]  — image or video
+ *   label : string (optional) — 'before' | 'after' | omit for general
+ *
+ * Storage path: jobs/{jobId}/punch/{itemId}/{timestamp}-{filename}
+ * Returns: { ok, photos: [{ id, url }] }
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@/lib/db";
-import { getBuilder } from "@/lib/auth";
+import { sql, uid } from "@/lib/db";
+import { getPunchActor } from "@/lib/punch-auth";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
+const ALLOWED_MIME = /^(image\/(jpeg|png|gif|webp|heic|heif)|video\/(mp4|quicktime|mov|avi|webm))$/i;
 
 function supabaseAdmin() {
   return createClient(
@@ -35,8 +37,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const session = await getBuilder();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await getPunchActor();
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { itemId } = await params;
 
@@ -46,42 +48,44 @@ export async function POST(
   if (!item) return NextResponse.json({ error: "Item not found" }, { status: 404 });
 
   const form = await req.formData();
-  const file = form.get("file") as File | null;
-  const which = String(form.get("which") ?? "");
+  const label = String(form.get("label") ?? "").trim() || null;
 
-  if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 });
-  if (which !== "before" && which !== "after") {
-    return NextResponse.json({ error: "which must be 'before' or 'after'" }, { status: 400 });
-  }
-
-  // Installers can only upload after photos
-  if (session.role === "installer" && which === "before") {
-    return NextResponse.json({ error: "Installers can only upload completion photos" }, { status: 403 });
-  }
-
-  const safeName = safeFilename(file.name);
-  const path = `jobs/${item.job_id}/punch/${itemId}/${which}-${Date.now()}-${safeName}`;
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  // Collect all files — supports single "file" key or multiple "file" entries
+  const files = form.getAll("file") as File[];
+  if (files.length === 0) return NextResponse.json({ error: "No files provided" }, { status: 400 });
 
   const supabase = supabaseAdmin();
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, buffer, { contentType: file.type || "image/jpeg", upsert: true });
+  const results: Array<{ id: string; url: string | null }> = [];
 
-  if (uploadError) {
-    console.error("[punch/photo] Storage error:", uploadError);
-    return NextResponse.json({ error: "Upload failed: " + uploadError.message }, { status: 500 });
-  }
+  // Find current max sort_order for this item
+  const [maxRow] = await sql<Array<{ max_order: number | null }>>`
+    SELECT MAX(sort_order) AS max_order FROM punch_item_photos WHERE punch_item_id = ${itemId}
+  `;
+  let sortOrder = (maxRow?.max_order ?? -1) + 1;
 
-  // Update item record
-  if (which === "before") {
-    await sql`UPDATE punch_list_items SET before_photo_path = ${path} WHERE id = ${itemId}`;
-  } else {
-    await sql`UPDATE punch_list_items SET after_photo_path = ${path} WHERE id = ${itemId}`;
-  }
+  for (const file of files) {
+    const mimeType = file.type || "image/jpeg";
+    if (!ALLOWED_MIME.test(mimeType)) {
+      continue; // skip unsupported types silently
+    }
 
-  // Return 1-hour signed URL for immediate display
-  const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
-  return NextResponse.json({ ok: true, url: signed?.signedUrl ?? null });
-}
+    const mediaType = mimeType.startsWith("video/") ? "video" : "photo";
+    const safeName = safeFilename(file.name);
+    const path = `jobs/${item.job_id}/punch/${itemId}/${Date.now()}-${safeName}`;
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET)
+      .upload(path, buffer, { contentType: mimeType, upsert: false });
+
+    if (uploadError) {
+      console.error("[punch/photo] Storage error:", uploadError.message);
+      continue;
+    }
+
+    const photoId = uid();
+    await sql`
+      INSERT INTO punch_item_photos
+        
