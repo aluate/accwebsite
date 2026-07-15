@@ -13,7 +13,7 @@ import { sql } from "@/lib/db";
 
 export async function GET() {
   const builder = await requireBuilder();
-  if (builder.role !== "admin") {
+  if (builder.role !== "admin" && builder.role !== "karl" && role !== "karl") {
     return NextResponse.json({ ok: false, error: "Admin only" }, { status: 403 });
   }
 

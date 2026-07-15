@@ -5,7 +5,7 @@ import { BugLogClient } from "@/components/BugLogClient";
 
 export default async function BugsPage() {
   const builder = await requireBuilder();
-  if (builder.role !== "admin") {
+  if (builder.role !== "admin" && builder.role !== "karl") {
     return <p className="p-8 text-white/50">Admin access required.</p>;
   }
   return <BugLogClient />;

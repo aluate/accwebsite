@@ -17,7 +17,7 @@ import { ScheduleWallClient } from "@/components/ScheduleWallClient";
 export default async function SchedulePage() {
   const session = await requireBuilder();
   if (session.role === "installer") redirect("/installer");
-  const isAdmin = session.role === "admin";
+  const isAdmin = (session.role === "admin" || session.role === "karl");
   const today = new Date().toISOString().slice(0, 10);
 
   return <ScheduleWallClient isAdmin={isAdmin} today={today} />;

@@ -90,7 +90,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     const { id: jobId2 } = await params;
     redirect(`/installer/jobs/${jobId2}`);
   }
-  const isAdmin = session.role === "admin";
+  const isAdmin = (session.role === "admin" || session.role === "karl");
   const [job] = await withDbTimeout(() =>
     sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Promise<Job[]>
   ).then((r) => r);
@@ -270,13 +270,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3 items-start">
             <StatusAdvanceButton jobId={id} currentStatus={job.status} />
-            {(session.role === "admin" || session.role === "pm") && (
+            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
               <SignoffButton jobId={internalId} />
             )}
-            {(session.role === "admin" || session.role === "pm") && (
+            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
               <GateCheckinButton jobId={internalId} currentStage={job.status} />
             )}
-            {(session.role === "admin" || session.role === "user") && (
+            {((session.role === "admin" || session.role === "karl") || session.role === "user") && (
               <ReadyToScheduleButton jobId={internalId} initialOnDeck={hasScheduleEvents} />
             )}
           </div>
@@ -290,11 +290,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </Link>
           </div>
 
-          {(session.role === "admin" || session.role === "pm") && (
+          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
             <EngineeringReleasePanel jobId={internalId} />
           )}
 
-          {(session.role === "admin" || session.role === "pm") && (
+          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
             <div className="mt-6 pt-4 border-t border-white/5">
               <WorkOrdersPanel jobId={internalId} />
             </div>
@@ -308,7 +308,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <PunchListPanel jobId={internalId} role={session.role} />
           </div>
 
-          {(session.role === "admin" || session.role === "pm") && (
+          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
             <div className="mt-6 pt-4 border-t border-white/5">
               <ChangeOrdersPanel jobId={internalId} role={session.role} />
             </div>

@@ -15,7 +15,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const builder = await requireBuilder();
-  if (builder.role !== "admin") {
+  if (builder.role !== "admin" && builder.role !== "karl" && role !== "karl") {
     return NextResponse.json({ ok: false, error: "Admin only" }, { status: 403 });
   }
   const { label, sort_order } = (await req.json()) as { label?: string; sort_order?: number };
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const builder = await requireBuilder();
-  if (builder.role !== "admin") {
+  if (builder.role !== "admin" && builder.role !== "karl" && role !== "karl") {
     return NextResponse.json({ ok: false, error: "Admin only" }, { status: 403 });
   }
   const { id } = (await req.json()) as { id?: number };

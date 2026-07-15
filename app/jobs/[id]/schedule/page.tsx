@@ -9,7 +9,7 @@ export default async function JobSchedulePage({ params }: { params: Promise<{ id
   const { id } = await params;
   const session = await requireBuilder();
   // PMs (role="user") and admins can add/delete phases; installers are read-only.
-  const canEdit = session.role === "admin" || session.role === "user";
+  const canEdit = (session.role === "admin" || session.role === "karl") || session.role === "user";
 
   // Resolve job_number to internal UUID, same as the main job detail page.
   // Without this, navigating via ACC-YYYY-NNNN URLs returns no events because
