@@ -96,7 +96,7 @@ export async function DELETE(
   { params }: { params: Promise<{ itemId: string }> }
 ) {
   const session = await getBuilder();
-  if (!session || !["admin", "pm"].includes(session.role)) {
+  if (!session || !["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

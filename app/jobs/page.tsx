@@ -90,7 +90,7 @@ export default async function JobsPage() {
           >
             Search
           </Link>
-          {session && ["admin", "pm"].includes(session.role) && (
+          {session && ["karl", "admin", "pm"].includes(session.role) && (
             <Link
               href="/punch"
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
@@ -98,7 +98,7 @@ export default async function JobsPage() {
               Punch
             </Link>
           )}
-          {session && ["admin", "pm"].includes(session.role) && (
+          {session && ["karl", "admin", "pm"].includes(session.role) && (
             <Link
               href="/warranty"
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
@@ -106,7 +106,7 @@ export default async function JobsPage() {
               Warranty
             </Link>
           )}
-          {session && ["admin", "pm"].includes(session.role) && (
+          {session && ["karl", "admin", "pm"].includes(session.role) && (
             <Link
               href="/dashboard"
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
@@ -114,7 +114,7 @@ export default async function JobsPage() {
               Dashboard
             </Link>
           )}
-          {session && ["admin", "engineer"].includes(session.role) && (
+          {session && ["karl", "admin", "engineer"].includes(session.role) && (
             <Link
               href="/engineer"
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
@@ -122,7 +122,7 @@ export default async function JobsPage() {
               Engineering
             </Link>
           )}
-          {session && ["admin", "installer"].includes(session.role) && (
+          {session && ["karl", "admin", "installer"].includes(session.role) && (
             <Link
               href="/installer"
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
@@ -136,7 +136,7 @@ export default async function JobsPage() {
           >
             Schedule
           </Link>
-          {session && ["admin", "pm"].includes(session.role) && (
+          {session && ["karl", "admin", "pm"].includes(session.role) && (
             <Link
               href="/jobs/pm-hours"
               className="text-white/40 font-condensed uppercase tracking-widest text-xs border border-white/15 rounded px-3 py-2 hover:border-white/30 transition-colors hidden sm:block"
@@ -144,7 +144,7 @@ export default async function JobsPage() {
               My Hours
             </Link>
           )}
-          {session && ["admin", "pm"].includes(session.role) && (
+          {session && ["karl", "admin", "pm"].includes(session.role) && (
             <Link
               href="/jobs/new"
               className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded transition-colors"
@@ -152,7 +152,7 @@ export default async function JobsPage() {
               + New Job
             </Link>
           )}
-          {session && !["admin", "pm"].includes(session.role) && (
+          {session && !["karl", "admin", "pm"].includes(session.role) && (
             <Link
               href="/jobs/new"
               className="bg-[#f08122] hover:bg-[#d9711e] text-white font-condensed uppercase tracking-widest text-sm py-2.5 px-5 rounded transition-colors"

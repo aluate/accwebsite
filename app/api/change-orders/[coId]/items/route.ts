@@ -34,7 +34,7 @@ async function recalcTotals(coId: string) {
 
 export async function POST(req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 

@@ -27,7 +27,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await requireBuilder();
-  if (!["admin", "pm", "engineer"].includes(session.role ?? "")) {
+  if (!["karl", "admin", "pm", "engineer"].includes(session.role ?? "")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

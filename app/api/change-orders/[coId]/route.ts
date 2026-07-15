@@ -31,7 +31,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 

@@ -23,7 +23,7 @@ export type PmJob = {
 
 export default async function PmDashboardPage() {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     redirect("/jobs");
   }
 

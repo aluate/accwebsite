@@ -32,7 +32,7 @@ export async function GET() {
 // POST /api/admin/builder-profiles — create
 export async function POST(req: NextRequest) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role ?? "")) {
+  if (!["karl", "admin", "pm"].includes(session.role ?? "")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 // PATCH /api/admin/builder-profiles — update by id in body
 export async function PATCH(req: NextRequest) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role ?? "")) {
+  if (!["karl", "admin", "pm"].includes(session.role ?? "")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -93,7 +93,7 @@ export async function PATCH(req: NextRequest) {
 // DELETE /api/admin/builder-profiles?id=...
 export async function DELETE(req: NextRequest) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role ?? "")) {
+  if (!["karl", "admin", "pm"].includes(session.role ?? "")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

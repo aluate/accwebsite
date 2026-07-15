@@ -75,7 +75,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof must_change_pw === "number") {
     await sql`UPDATE builder_accounts SET must_change_pw = ${must_change_pw} WHERE id = ${id}`;
   }
-  if (["admin", "pm", "engineer", "shop", "installer"].includes(role)) {
+  if (["karl", "admin", "pm", "engineer", "shop", "installer"].includes(role)) {
     await sql`UPDATE builder_accounts SET role = ${role} WHERE id = ${id}`;
   }
   if (name !== undefined) {

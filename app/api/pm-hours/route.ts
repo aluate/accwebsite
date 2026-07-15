@@ -24,7 +24,7 @@ function mondayOf(dateStr: string): string {
 
 export async function GET(req: NextRequest) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 

@@ -28,7 +28,7 @@ async function guardEditableCO(coId: string) {
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!["karl", "admin", "pm"].includes(session.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { coId, itemId } = await params;
   const guard = await guardEditableCO(coId);
@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!["karl", "admin", "pm"].includes(session.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { coId, itemId } = await params;
   const guard = await guardEditableCO(coId);

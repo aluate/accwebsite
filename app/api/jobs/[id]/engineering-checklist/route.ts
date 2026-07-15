@@ -103,7 +103,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 // POST — save (upsert) checklist state
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getBuilder();
-  if (!session || !["admin", "pm", "engineer"].includes(session.role ?? "")) {
+  if (!session || !["karl", "admin", "pm", "engineer"].includes(session.role ?? "")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

@@ -50,7 +50,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 // POST /api/jobs/[id]/work-orders  — upsert full list
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getBuilder();
-  if (!session || !["admin", "pm"].includes(session.role ?? "")) {
+  if (!session || !["karl", "admin", "pm"].includes(session.role ?? "")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
