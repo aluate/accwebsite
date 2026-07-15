@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const session = await getBuilder().catch(() => null);
-  if (!session || session.role !== "admin" && session.role !== "karl" && role !== "karl") {
+  if (!session || session.role !== "admin" && session.role !== "karl") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const session = await getBuilder().catch(() => null);
-  if (!session || session.role !== "admin" && session.role !== "karl" && role !== "karl") {
+  if (!session || session.role !== "admin" && session.role !== "karl") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
