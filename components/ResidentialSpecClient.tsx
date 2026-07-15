@@ -1639,9 +1639,16 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       // Paint / Stain: PM must pick an edgeband from the filtered list.
                       <select value={g.edgeband_id} onChange={(e) => updateGroup(g.id, { edgeband_id: e.target.value })} className={SELECT}>
                         <option value="">-- Select Edgeband --</option>
-                        {edgebandOptions.map((e) => (
-                          <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
-                        ))}
+                        <optgroup label="Common choices">
+                          <option value="MATCH_PAINT_STAIN">Paint / Stain to Match</option>
+                          <option value="PVC_SPECIFY">PVC (specify on Schedules tab)</option>
+                          <option value="OTHER_EDGEBAND">Other / Non-standard (add note)</option>
+                        </optgroup>
+                        <optgroup label="Catalog">
+                          {edgebandOptions.map((e) => (
+                            <option key={e.id} value={e.id}>{e.product_name} - {e.supplier}</option>
+                          ))}
+                        </optgroup>
                       </select>
                     )}
                   </div>
@@ -2252,7 +2259,13 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 const door = catalogs.doorStyles.find((d) => d.id === g.door_style_id);
                 const carc = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
                 const dbox = catalogs.drawerBoxes.find((d) => d.id === g.drawer_box_id);
+                const EDGEBAND_SENTINEL_LABELS: Record<string,string> = {
+                  MATCH_PAINT_STAIN: "Paint/Stain to Match",
+                  PVC_SPECIFY: "PVC (see Schedules)",
+                  OTHER_EDGEBAND: "Other",
+                };
                 const eb   = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
+                const ebLabel = eb?.product_name ?? EDGEBAND_SENTINEL_LABELS[g.edgeband_id] ?? g.edgeband_id;
                 const fgPulls = pulls[g.id] ?? [];
                 const doorFlag = !g.door_style_id || door?.name === "Other / Custom";
                 return (

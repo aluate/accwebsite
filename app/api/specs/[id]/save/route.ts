@@ -348,8 +348,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         } catch (_) { /* seeding failure -- skip */ }
       }
 
-      // edgebands -- seed one row from edgeband_id
-      if (g.edgeband_id) {
+      // edgebands -- seed one row from edgeband_id (skip sentinel values)
+      const EDGEBAND_SENTINELS = ["MATCH_PAINT_STAIN", "PVC_SPECIFY", "OTHER_EDGEBAND"];
+      if (g.edgeband_id && !EDGEBAND_SENTINELS.includes(g.edgeband_id)) {
         try {
           const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_edgebands WHERE finish_group_id = ${fgId}`;
           if (Number((cnt[0] as { c: string | number }).c) === 0) {

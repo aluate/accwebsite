@@ -26,7 +26,7 @@ const SEV_ICON: Record<string, string> = {
 
 export function BugLogClient() {
   const [bugs, setBugs]       = useState<BugReport[]>([]);
-  const [filter, setFilter]   = useState<"open" | "fixed" | "wont_fix" | "all">("open");
+  const [filter, setFilter]   = useState<"open" | "in_progress" | "deferred" | "fixed" | "all">("open");
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -100,12 +100,13 @@ export function BugLogClient() {
     URL.revokeObjectURL(url);
   }
 
-  const shown = filter === "all" ? bugs : bugs.filter((b) => b.status === (filter === "wont_fix" ? "wont_fix" : filter));
+  const shown = filter === "all" ? bugs : bugs.filter((b) => b.status === filter);
   const counts = {
-    open:     bugs.filter((b) => b.status === "open").length,
-    fixed:    bugs.filter((b) => b.status === "fixed").length,
-    wont_fix: bugs.filter((b) => b.status === "wont_fix").length,
-    all:      bugs.length,
+    open:        bugs.filter((b) => b.status === "open").length,
+    in_progress: bugs.filter((b) => b.status === "in_progress").length,
+    deferred:    bugs.filter((b) => b.status === "deferred").length,
+    fixed:       bugs.filter((b) => b.status === "fixed").length,
+    all:         bugs.length,
   };
 
   return (
@@ -128,7 +129,7 @@ export function BugLogClient() {
 
       {/* Filter tabs */}
       <div className="flex border-b border-white/10 mb-6 flex-wrap">
-        {(["open", "fixed", "wont_fix", "all"] as const).map((f) => (
+        {(["open", "in_progress", "deferred", "fixed", "all"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -138,7 +139,7 @@ export function BugLogClient() {
                 : "border-transparent text-white/30 hover:text-white/60"
             }`}
           >
-            {f === "wont_fix" ? "Won&apos;t Fix" : f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f]})
+            {{ open: "Open", in_progress: "In Progress", deferred: "Deferred", fixed: "Fixed", all: "All" }[f]} ({counts[f as keyof typeof counts]})
           </button>
         ))}
       </div>
@@ -188,19 +189,29 @@ export function BugLogClient() {
                     </div>
                   </div>
                 </div>
-                {b.status === "open" ? (
-                  <div className="flex gap-2 shrink-0">
+                {b.status === "open" || b.status === "in_progress" || b.status === "deferred" ? (
+                  <div className="flex gap-1 shrink-0 flex-wrap">
+                    {b.status !== "in_progress" && (
+                      <button
+                        onClick={() => updateStatus(b.id, "in_progress")}
+                        className="bg-blue-700/20 hover:bg-blue-700/40 text-blue-300 font-condensed uppercase tracking-widest text-xs px-2.5 py-1.5 rounded transition-colors"
+                      >
+                        In Progress
+                      </button>
+                    )}
+                    {b.status !== "deferred" && (
+                      <button
+                        onClick={() => updateStatus(b.id, "deferred")}
+                        className="bg-white/5 hover:bg-white/10 text-white/40 font-condensed uppercase tracking-widest text-xs px-2.5 py-1.5 rounded transition-colors"
+                      >
+                        Defer
+                      </button>
+                    )}
                     <button
                       onClick={() => updateStatus(b.id, "fixed")}
-                      className="bg-green-700/20 hover:bg-green-700/40 text-green-300 font-condensed uppercase tracking-widest text-xs px-3 py-1.5 rounded transition-colors"
+                      className="bg-green-700/20 hover:bg-green-700/40 text-green-300 font-condensed uppercase tracking-widest text-xs px-2.5 py-1.5 rounded transition-colors"
                     >
                       ✓ Fixed
-                    </button>
-                    <button
-                      onClick={() => updateStatus(b.id, "wont_fix")}
-                      className="bg-white/5 hover:bg-white/10 text-white/40 font-condensed uppercase tracking-widest text-xs px-3 py-1.5 rounded transition-colors"
-                    >
-                      Skip
                     </button>
                   </div>
                 ) : (

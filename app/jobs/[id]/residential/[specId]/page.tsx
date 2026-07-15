@@ -272,8 +272,6 @@ export default async function SpecEditorPage({
     moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
     cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
-    cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
-    cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
     cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 

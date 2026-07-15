@@ -6,19 +6,14 @@ import { requireRole } from "@/lib/auth";
 export async function GET() {
   await requireRole("admin");
 
-  const [jobs, settings] = await Promise.all([
-    sql`
+  const jobs = await sql`
       SELECT
         j.id, j.client_name, j.site_address, j.city, j.status,
         j.job_number, j.pm, j.delivery_date, j.created_at, j.seq,
         e.id           AS estimate_id,
-        e.title        AS estimate_title,
-        e.scope,
-        e.status       AS estimate_status,
         e.sell_price_snapshot,
         e.shop_labor_hrs_snapshot,
         e.install_labor_hrs_snapshot,
-        e.updated_at   AS estimate_updated_at,
         (
           SELECT COALESCE(SUM(eli.qty), 0)
           FROM estimate_line_items eli
@@ -36,12 +31,13 @@ export async function GET() {
       ) e ON true
       WHERE j.status NOT IN ('complete', 'cancelled')
       ORDER BY j.seq DESC
-    `,
-    sql`SELECT shop_capacity_hrs_per_week, install_capacity_hrs_per_week FROM estimate_settings WHERE id = 'singleton'`,
-  ]);
+    `;
+  const settings = await sql`SELECT shop_capacity_hrs_per_week, install_capacity_hrs_per_week FROM estimate_settings WHERE id = 'singleton'`;
+  const pms = await sql`SELECT id, name FROM builder_accounts WHERE role IN ('pm','admin','karl') AND active = 1 ORDER BY name`;
 
   return NextResponse.json({
     jobs,
+    pms,
     capacity: settings[0] ?? { shop_capacity_hrs_per_week: 40, install_capacity_hrs_per_week: 32 },
   });
 }

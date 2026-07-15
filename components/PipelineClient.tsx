@@ -27,6 +27,7 @@ type PipelineJob = {
   install_labor_hrs_snapshot: number | null;
   box_count: number | null;
 };
+type Pm = { id: string; name: string };
 type Capacity = { shop_capacity_hrs_per_week: number; install_capacity_hrs_per_week: number };
 
 function fmt$(n: number | null) {
@@ -130,8 +131,70 @@ function EditableStatus({ value, onSave }: { value: string; onSave: (v: string) 
   );
 }
 
+function EditableSelect({ value, options, placeholder, onSave }: {
+  value: string | null; options: { id: string; name: string }[];
+  placeholder?: string; onSave: (v: string | null) => Promise<void>;
+}) {
+  const [saving, setSaving] = useState(false);
+  async function onChange(v: string) {
+    setSaving(true);
+    await onSave(v || null);
+    setSaving(false);
+  }
+  return (
+    <select
+      value={value ?? ""}
+      onChange={e => onChange(e.target.value)}
+      disabled={saving}
+      className={`text-xs text-white bg-transparent hover:bg-white/5 rounded px-1 py-0.5 border border-transparent hover:border-white/20 focus:outline-none focus:border-[#f08122]/60 cursor-pointer w-full transition-colors ${saving ? "opacity-50" : ""}`}
+    >
+      <option value="" className="bg-[#2d2d2d] text-white/40">{placeholder ?? "—"}</option>
+      {options.map(o => (
+        <option key={o.id} value={o.name} className="bg-[#2d2d2d] text-white">{o.name}</option>
+      ))}
+    </select>
+  );
+}
+
+function EditableNumber({ value, prefix, suffix, onSave }: {
+  value: number | null; prefix?: string; suffix?: string;
+  onSave: (v: number | null) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value != null ? String(value) : "");
+  const [saving, setSaving] = useState(false);
+
+  async function commit() {
+    setSaving(true);
+    const n = draft.trim() === "" ? null : parseFloat(draft);
+    await onSave(isNaN(n as number) ? null : n);
+    setSaving(false);
+    setEditing(false);
+  }
+
+  if (editing) {
+    return (
+      <input autoFocus type="number" value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+        disabled={saving}
+        className="w-20 bg-white/10 border border-[#f08122]/60 rounded px-1.5 py-0.5 text-xs text-white text-right focus:outline-none"
+      />
+    );
+  }
+  return (
+    <button onClick={() => { setDraft(value != null ? String(value) : ""); setEditing(true); }}
+      className="text-xs text-white/60 hover:text-white group tabular-nums">
+      {value != null ? `${prefix ?? ""}${Math.round(value).toLocaleString()}${suffix ?? ""}` : <span className="text-white/20 group-hover:text-white/40">—</span>}
+      <span className="ml-1 opacity-0 group-hover:opacity-40 text-[9px]">✎</span>
+    </button>
+  );
+}
+
 export default function PipelineClient() {
   const [jobs, setJobs]         = useState<PipelineJob[]>([]);
+  const [pms, setPms]           = useState<Pm[]>([]);
   const [capacity, setCapacity] = useState<Capacity>({ shop_capacity_hrs_per_week: 40, install_capacity_hrs_per_week: 32 });
   const [loading, setLoading]   = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -144,6 +207,7 @@ export default function PipelineClient() {
       const r = await fetch("/api/admin/pipeline");
       const d = await r.json();
       setJobs(d.jobs ?? []);
+      setPms(d.pms ?? []);
       setCapacity(d.capacity ?? { shop_capacity_hrs_per_week: 40, install_capacity_hrs_per_week: 32 });
       setCapDraft(d.capacity ?? { shop_capacity_hrs_per_week: 40, install_capacity_hrs_per_week: 32 });
     } finally { setLoading(false); }
@@ -158,6 +222,15 @@ export default function PipelineClient() {
       body: JSON.stringify({ ...updates, _actor: "admin", _actorRole: "admin" }),
     });
     setJobs(prev => prev.map(j => j.id === jobId ? { ...j, ...updates } : j));
+  }
+
+  async function patchSnapshot(estimateId: string, updates: Record<string, number | null>) {
+    await fetch(`/api/estimates/${estimateId}/snapshot`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+    setJobs(prev => prev.map(j => j.estimate_id === estimateId ? { ...j, ...updates } : j));
   }
 
   const saveCapacity = async () => {
@@ -306,15 +379,31 @@ export default function PipelineClient() {
                       onSave={v => patchJob(job.id, { status: v })}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums font-medium">{fmt$(job.sell_price_snapshot)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{job.box_count ? job.box_count : "—"}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{fmtHrs(job.shop_labor_hrs_snapshot)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{fmtHrs(job.install_labor_hrs_snapshot)}</td>
-                  <td className="px-4 py-2 min-w-[80px]">
-                    <EditableText
+                  <td className="px-4 py-2 text-right">
+                    {job.estimate_id ? (
+                      <EditableNumber value={job.sell_price_snapshot} prefix="$"
+                        onSave={v => patchSnapshot(job.estimate_id!, { sell_price_snapshot: v })} />
+                    ) : <span className="text-white/20 text-xs">—</span>}
+                  </td>
+                  <td className="px-4 py-3 text-right tabular-nums text-xs text-white/60">{job.box_count ? job.box_count : "—"}</td>
+                  <td className="px-4 py-2 text-right">
+                    {job.estimate_id ? (
+                      <EditableNumber value={job.shop_labor_hrs_snapshot} suffix=" hrs"
+                        onSave={v => patchSnapshot(job.estimate_id!, { shop_labor_hrs_snapshot: v })} />
+                    ) : <span className="text-white/20 text-xs">—</span>}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    {job.estimate_id ? (
+                      <EditableNumber value={job.install_labor_hrs_snapshot} suffix=" hrs"
+                        onSave={v => patchSnapshot(job.estimate_id!, { install_labor_hrs_snapshot: v })} />
+                    ) : <span className="text-white/20 text-xs">—</span>}
+                  </td>
+                  <td className="px-4 py-2 min-w-[100px]">
+                    <EditableSelect
                       value={job.pm}
+                      options={pms}
                       placeholder="Assign PM"
-                      onSave={v => patchJob(job.id, { pm: v || null })}
+                      onSave={v => patchJob(job.id, { pm: v })}
                     />
                   </td>
                   <td className="px-4 py-2 min-w-[110px]">
