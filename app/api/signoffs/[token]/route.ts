@@ -8,10 +8,23 @@ export const dynamic = "force-dynamic";
  *   signature_data = base64 PNG data URL from canvas
  */
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@/lib/db";
+import { sql, uid } from "@/lib/db";
 import { sendEmail } from "@/lib/mailer";
 import { logActivity } from "@/lib/activity-log";
 import { createDraftInvoice, invoiceExists } from "@/lib/invoices";
+import { renderCertificate } from "@/lib/pdf-certificate";
+import { createClient } from "@supabase/supabase-js";
+
+export const runtime = "nodejs";
+
+const BUCKET = "job-files";
+
+function supabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 type Params = { params: Promise<{ token: string }> };
 
@@ -44,7 +57,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   // Look up the token
   const [signoff] = await sql`
-    SELECT cs.*, j.client_name, j.site_address, j.pm,
+    SELECT cs.*, j.client_name, j.site_address, j.pm, j.client_email,
            co.id AS co_id, co.co_number, co.title AS co_title, co.total_amount AS co_amount
     FROM client_signoffs cs
     JOIN jobs j ON j.id = cs.job_id
@@ -52,8 +65,9 @@ export async function POST(req: NextRequest, { params }: Params) {
     WHERE cs.token = ${token}
   ` as Array<{
     id: string; job_id: string; status: string; token_expires_at: string;
-    client_name: string; site_address: string; pm: string;
-    change_order_id: string | null;
+    client_name: string; site_address: string; pm: string; client_email: string | null;
+    change_order_id: string | null; signoff_purpose: string | null;
+    attached_docs_json: string | null;
     co_id: string | null; co_number: number | null; co_title: string | null; co_amount: number | null;
   }>;
 
@@ -86,17 +100,4 @@ export async function POST(req: NextRequest, { params }: Params) {
     entityId: signoff.job_id,
     jobId: signoff.job_id,
     eventType: "client_signed",
-    actor: signer_name.trim(),
-    actorRole: "client",
-    payload: { signer_ip: ip, signed_at: signedAt },
-  }).catch(() => {});
-
-  // Notify PM
-  const pmEmail = process.env.PM_EMAIL ?? "residential@advancedcabinets.net";
-  await sendEmail({
-    to: pmEmail,
-    subject: `✅ Client signed — ${signoff.client_name} (${signoff.job_id ?? signoff.site_address})`,
-    text: [
-      `The client has signed the spec for this job.`,
-      ``,
-      `Job: ${s
+    actor: signer

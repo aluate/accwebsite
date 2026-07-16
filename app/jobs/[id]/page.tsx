@@ -7,6 +7,7 @@ import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
 import { InvoicePanel } from "@/components/InvoicePanel";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
+import { JobActionButtons } from "@/components/JobActionButtons";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { SignoffButton } from "@/components/SignoffButton";
 import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
@@ -372,6 +373,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             {(session.role === "admin" || session.role === "user") && (
               <ReadyToScheduleButton jobId={internalId} initialOnDeck={hasScheduleEvents} />
             )}
+            <JobActionButtons
+              jobId={internalId}
+              jobStatus={job.status}
+              clientEmail={job.client_email}
+              canManage={session.role === "admin" || session.role === "pm"}
+            />
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5">
@@ -447,13 +454,4 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   );
 }
 
-function DetailCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-[#2d2d2d] rounded p-5">
-      <p className="text-white/30 font-condensed uppercase tracking-widest text-[10px] mb-3">{title}</p>
-      <div className="space-y-2">{children}</div>
-    </div>
-  );
-}
-
-function Row({ label, value, href }: { label: s
+function DetailCard({ title, children }: { title: string; children

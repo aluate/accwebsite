@@ -11,6 +11,7 @@ const ADMIN_LINKS = [
   { href: "/admin/builder-companies", label: "Builder Companies", desc: "Manage builder company records" },
   { href: "/admin/schedule", label: "Schedule Admin", desc: "Crew management, change requests, on-deck queue" },
   { href: "/admin/billing", label: "Billing", desc: "Past-due invoices, payment status, outstanding balances" },
+  { href: "/admin/documents", label: "Document Library", desc: "Upload boilerplate docs — warranty, disclosure, payment terms — auto-attached to client emails" },
 ];
 
 export default async function AdminIndexPage() {
@@ -24,6 +25,4 @@ export default async function AdminIndexPage() {
           <Link
             key={href}
             href={href}
-            className="block bg-[#1a1b1c] border border-white/10 hover:border-[#f08122]/40 hover:bg-[#1a1b1c]/80 rounded-xl px-5 py-4 transition-colors group"
-          >
-            <div className="font-
+            className="block bg-[#1a1

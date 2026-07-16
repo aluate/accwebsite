@@ -182,46 +182,56 @@ export function leadInquiryResponse(data: {
  * Sent to homeowner (and optionally builder) when a quote is ready.
  */
 export function bidSent(data: {
-  jobId: string;
   clientName: string;
-  clientFirstName: string;
   siteAddress: string;
-  pm: string;
+  deliveryDate?: string;
+  bidNumber?: string;
+  note?: string;
+  estimateUrl?: string;
+  /** @deprecated use clientName */
+  jobId?: string;
+  /** @deprecated */
+  clientFirstName?: string;
+  /** @deprecated */
+  pm?: string;
   pmPhone?: string;
   pmEmail?: string;
   quoteNotes?: string;
 }): TemplateResult {
-  const subject = `Your estimate is ready — Advanced Cabinets`;
+  const subject = `Your estimate is ready — Advanced Custom Cabinets`;
+  const firstName = data.clientFirstName ?? data.clientName.split(" ")[0];
+  const noteText = data.note ?? data.quoteNotes;
 
   const text = [
-    `Hi ${data.clientFirstName},`,
+    `Hi ${firstName},`,
     ``,
-    `Your estimate for ${data.siteAddress} is ready. Please review the attached quote at your convenience.`,
-    ``,
-    data.quoteNotes ? `A note from your project manager:\n${data.quoteNotes}\n` : "",
-    `If you have any questions or would like to make changes, reply to this email or reach out directly:`,
-    ``,
-    `${data.pm}`,
-    data.pmPhone ?? "",
-    data.pmEmail ?? "",
+    `Your estimate for ${data.siteAddress} is ready.`,
+    data.estimateUrl ? `\nView your estimate online: ${data.estimateUrl}\n` : "",
+    noteText ? `\nA note from your project manager:\n${noteText}\n` : "",
+    `If you have any questions, reply to this email or call us any time.`,
     ``,
     `We look forward to working with you.`,
     ``,
-    `Advanced Cabinets`,
+    `Advanced Custom Cabinets`,
   ].join("\n");
 
   const html = layout({
     heading: "Your Estimate Is Ready",
-    subheading: data.siteAddress,
+    subheading: h(data.siteAddress),
+    ctaLabel: data.estimateUrl ? "View Your Estimate →" : undefined,
+    ctaUrl: data.estimateUrl,
     body: [
-      para(`Hi ${h(data.clientFirstName)},`),
-      para(`Your estimate for <strong>${h(data.siteAddress)}</strong> is attached. Please review it at your convenience and let us know if you have any questions or would like to walk through it together.`),
-      data.quoteNotes ? highlight(h(data.quoteNotes)) : "",
+      para(`Hi ${h(firstName)},`),
+      para(`Your estimate for <strong>${h(data.siteAddress)}</strong> is ready. Please review it at your convenience and let us know if you have any questions or would like to walk through it together.`),
+      noteText ? highlight(h(noteText)) : "",
       infoTable([
-        infoRow("Project", data.siteAddress),
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
-        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_NAVY};">${h(data.pmEmail)}</a>`) : "",
-      ]),
+        infoRow("Project", h(data.siteAddress)),
+        data.deliveryDate ? infoRow("Target Delivery", fmtDate(data.deliveryDate)) : "",
+        data.bidNumber ? infoRow("Quote #", h(data.bidNumber)) : "",
+      ].filter(Boolean)),
+      data.estimateUrl
+        ? para(`<a href="${h(data.estimateUrl)}" style="color:${BRAND_NAVY};">Click here to view your estimate online</a> — or see the attached PDF if one is included.`)
+        : para(`Please see the attached estimate document.`),
       para(`Reply to this email or call us any time — we're happy to walk through the numbers with you.`),
     ].join(""),
   });
@@ -282,16 +292,19 @@ export function finalDesignSent(data: {
  * Sent with the full contract packet: final drawings, quote, and residential disclosure.
  */
 export function contractSent(data: {
-  jobId: string;
   clientName: string;
-  clientFirstName: string;
   siteAddress: string;
-  pm: string;
-  pmPhone?: string;
-  pmEmail?: string;
   signoffUrl?: string;
   notes?: string;
+  /** @deprecated */
+  jobId?: string;
+  clientFirstName?: string;
+  pm?: string;
+  pmPhone?: string;
+  pmEmail?: string;
 }): TemplateResult {
+  // derive first name if not provided
+  data = { ...data, clientFirstName: data.clientFirstName ?? data.clientName.split(" ")[0] };
   const subject = `Contract documents enclosed — Advanced Cabinets`;
 
   const text = [
@@ -712,18 +725,4 @@ export function scheduleDateChanged(data: {
     ``,
     `Event:    ${data.eventType}`,
     data.oldDate ? `Was:      ${fmtDate(data.oldDate)}` : "",
-    data.newDate ? `Now:      ${fmtDate(data.newDate)}` : "",
-    `Changed by: ${data.changedBy}`,
-    data.reason ? `Reason:  ${data.reason}` : "",
-    ``,
-    data.jobUrl ? `Job portal: ${data.jobUrl}` : "",
-  ].filter(Boolean).join("\n");
-
-  const html = layout({
-    heading: "Schedule Change",
-    subheading: jobRef,
-    body: [
-      infoTable([
-        infoRow("Event", `<strong>${h(data.eventType)}</strong>`),
-        data.oldDate ? infoRow("Was", `<span style="text-decoration:line-through;color:#999;">${fmtDate(data.oldDate)}</span>`) : "",
-        data.newD
+  
