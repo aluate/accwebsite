@@ -934,6 +934,7 @@ async function main() {
     // Bug reports
     `CREATE TABLE IF NOT EXISTS bug_reports (
       id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+      serial_no     INTEGER,
       page_url      TEXT NOT NULL,
       user_name     TEXT NOT NULL,
       user_role     TEXT NOT NULL,
@@ -941,10 +942,19 @@ async function main() {
       what_happened TEXT NOT NULL,
       severity      TEXT NOT NULL DEFAULT 'annoying',
       status        TEXT NOT NULL DEFAULT 'open',
+      triage        TEXT NOT NULL DEFAULT 'open',
+      direction     TEXT,
+      gh_file_sha   TEXT,
       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`,
     `CREATE INDEX IF NOT EXISTS idx_bug_reports_status  ON bug_reports(status)`,
     `CREATE INDEX IF NOT EXISTS idx_bug_reports_created ON bug_reports(created_at DESC)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_bug_reports_serial ON bug_reports(serial_no)`,
+    // Add columns to existing bug_reports table (idempotent)
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS serial_no   INTEGER`,
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS triage      TEXT NOT NULL DEFAULT 'open'`,
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS direction   TEXT`,
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS gh_file_sha TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
   }
