@@ -1,11 +1,12 @@
 /**
  * PDF generator for residential cabinet specs.
- * Rebuilt 2026-07-08 — new 4-page layout.
+ * Rebuilt 2026-07-08 — new 4-page layout + WO sheets per FG.
  *
  * Page 1 (F.1):  Finish Schedule (FG-as-rows) + Room Schedule
- * Page 2 (A.1):  Accessories + Moldings (by FG) + Edgebanding (by FG)
+ * Page 2 (A.1):  Accessories + Moldings (by FG)
  * Page 3 (AP.1): Appliances + Hardware
  * Page 4 (N.1):  Notes (conditional)
+ * Page W.n (per FG): Work Order sheet — Specs + Hardware + Moldings + EB Schedule
  */
 import React from "react";
 import {
@@ -80,6 +81,18 @@ export type SpecPDFData = {
   spec_appliances_list: ApplianceEntry[];
 };
 
+// ─── WO Edgeband type ─────────────────────────────────────────────────────────
+
+export type WOEbRow = {
+  code: string;         // D, E, I, V, U, B, C, X
+  thickness: string;    // e.g. "1MM", ".018", "3.0"
+  manufacturer: string;
+  part_no: string;      // # column
+  description: string;  // short description
+  where_used: string;
+  notes: string;
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ORANGE  = "#f08122";
@@ -89,6 +102,7 @@ const HAIR    = "#e0e0e0";
 const HEAD_BG = "#3d3d3d";
 const STRIPE  = "#f7f7f5";
 const BAND_BG = "#f0ede8";
+const RED     = "#cc0000";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -134,9 +148,52 @@ const S = StyleSheet.create({
   notesBox: { borderWidth: 0.5, borderColor: HAIR, borderRadius: 2, padding: 5, marginBottom: 4 },
   notesLbl: { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 },
   notesBody:{ fontSize: 7, color: DARK, lineHeight: 1.4 },
+
   // ── DRAFT watermark ──
   draftWrap: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center", opacity: 0.08 },
   draftTx:   { fontSize: 120, fontFamily: "Helvetica-Bold", color: "#cc0000", transform: "rotate(-35deg)", letterSpacing: 20 },
+});
+
+// WO-specific styles (portrait layout)
+const WS = StyleSheet.create({
+  page:        { padding: 20, fontSize: 7, fontFamily: "Helvetica", color: DARK },
+  header:      { flexDirection: "row", borderWidth: 1, borderColor: "#ccc", marginBottom: 5 },
+  hdrLeft:     { flex: 1, padding: 5, borderRightWidth: 0.5, borderRightColor: "#ccc" },
+  hdrRight:    { width: 175, padding: 5 },
+  hdrLabel:    { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8 },
+  hdrTitle:    { fontSize: 10, fontFamily: "Helvetica-Bold", color: DARK, marginTop: 1 },
+  hdrSub:      { fontSize: 7, color: "#444", marginTop: 1 },
+  hdrFinish:   { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: ORANGE, marginTop: 3 },
+  notesBox:    { borderWidth: 1, borderColor: RED, padding: 4, minHeight: 36, flex: 1 },
+  notesLbl:    { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: RED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 },
+  notesBody:   { fontSize: 6.5, color: RED, lineHeight: 1.3 },
+  metaBar:     { flexDirection: "row", borderWidth: 0.5, borderColor: "#ccc", borderRadius: 2, marginBottom: 5 },
+  metaCell:    { flex: 1, borderRightWidth: 0.5, borderRightColor: "#ccc", padding: 0 },
+  metaLbl:     { fontSize: 5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.4, paddingHorizontal: 4, paddingTop: 3, paddingBottom: 1 },
+  metaVal:     { fontSize: 7, color: DARK, paddingHorizontal: 4, paddingBottom: 3 },
+  body:        { flexDirection: "row", gap: 5, marginBottom: 5 },
+  bodyLeft:    { flex: 1 },
+  bodyRight:   { width: 210 },
+  secHead:     { fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#fff", backgroundColor: HEAD_BG, padding: 3, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 0 },
+  specRow:     { flexDirection: "row", borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  specLabel:   { width: 105, fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#555", padding: 3, textTransform: "uppercase", letterSpacing: 0.2 },
+  specValue:   { flex: 1, fontSize: 7, color: DARK, padding: 3 },
+  pullSubHead: { backgroundColor: BAND_BG, paddingHorizontal: 4, paddingVertical: 2, marginTop: 3 },
+  pullSubTx:   { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: DARK, textTransform: "uppercase", letterSpacing: 0.6 },
+  roomPillRow: { flexDirection: "row", flexWrap: "wrap", padding: 4 },
+  roomPill:    { backgroundColor: BAND_BG, borderWidth: 0.4, borderColor: "#ccc", borderRadius: 2, paddingHorizontal: 4, paddingVertical: 2, marginRight: 3, marginBottom: 3 },
+  roomPillTx:  { fontSize: 6, color: "#333", fontFamily: "Helvetica-Bold" },
+  roomNote:    { fontSize: 6, color: MUTED, fontStyle: "italic", paddingHorizontal: 4, paddingBottom: 2 },
+  fullSecHead: { fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#fff", backgroundColor: HEAD_BG, padding: 3, textTransform: "uppercase", letterSpacing: 0.8, marginTop: 5, marginBottom: 0 },
+  tableRow:    { flexDirection: "row", borderBottomWidth: 0.3, borderBottomColor: HAIR },
+  tableRowAlt: { flexDirection: "row", borderBottomWidth: 0.3, borderBottomColor: HAIR, backgroundColor: STRIPE },
+  th:          { fontSize: 6, fontFamily: "Helvetica-Bold", color: "#fff", padding: 3, textTransform: "uppercase", letterSpacing: 0.2 },
+  td:          { fontSize: 6.5, color: DARK, padding: 3 },
+  tdMu:        { fontSize: 6.5, color: MUTED, fontStyle: "italic", padding: 3 },
+  tdBold:      { fontSize: 6.5, color: DARK, fontFamily: "Helvetica-Bold", padding: 3 },
+  tdOrange:    { fontSize: 7, color: ORANGE, fontFamily: "Helvetica-Bold", padding: 3 },
+  footer:      { position: "absolute", bottom: 10, left: 20, right: 20, flexDirection: "row", justifyContent: "space-between" },
+  footerTxt:   { fontSize: 6, color: "#aaa" },
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -157,8 +214,59 @@ function fmtAppliedPanels(v: string | null | undefined): string {
 }
 
 const stageMap: Record<string, string> = {
-  F: "FINISH", A: "ACC & MOLDINGS", AP: "APPLIANCES", N: "NOTES",
+  F: "FINISH", A: "ACC & MOLDINGS", AP: "APPLIANCES", N: "NOTES", W: "WORK ORDER",
 };
+
+/** Extract part# from edgeband product name (e.g. "Uniboard K15 Cannes..." → "K15") */
+function extractEbPartNo(supplier: string, productName: string): string {
+  if (!supplier || !productName) return "";
+  const internals = ["internal", "stock"];
+  if (internals.includes(supplier.toLowerCase())) return "STOCK";
+  // Remove supplier prefix from name to get "K15 Cannes Riviera Oak" → first token = "K15"
+  const normalized = productName.startsWith(supplier)
+    ? productName.slice(supplier.length).trim()
+    : productName;
+  return normalized.split(/\s+/)[0] || "";
+}
+
+/** Derive the 8 standard WO edgeband rows from a finish group. */
+export function deriveWOEdgebands(fg: FinishGroupView): WOEbRow[] {
+  const faceEb = fg.edgebands[0];
+  const isPaint = fg.finish_type === "paint";
+  const isStain = fg.finish_type === "stain";
+
+  let faceThick: string, faceMfr: string, facePart: string, faceDesc: string;
+
+  if (isPaint) {
+    faceThick = "3.0";  faceMfr = "Internal";  facePart = "STOCK";  faceDesc = "Paint to Match";
+  } else if (isStain) {
+    faceThick = "3.0";  faceMfr = "Internal";  facePart = "STOCK";  faceDesc = "Stain to Match";
+  } else {
+    // Melamine: use selected edgeband
+    faceThick = faceEb?.thickness || "1MM";
+    faceMfr   = faceEb?.supplier  || "";
+    faceDesc  = fg.label.replace("-", " ");   // "MEL-1" → "MEL 1"
+    facePart  = faceEb
+      ? extractEbPartNo(faceEb.supplier, faceEb.edgeband_name)
+      : "";
+  }
+
+  // Interior edgeband based on carcass
+  const carcassName = (fg.materials.find(m => m.role === "cab_ext")?.name ?? "").toLowerCase();
+  const interiorDesc = (carcassName.includes("plywood") || carcassName.includes("birch"))
+    ? "PF MAPLE" : "HARDROCK MAPLE";
+
+  return [
+    { code: "D", thickness: faceThick, manufacturer: faceMfr, part_no: facePart, description: faceDesc,     where_used: "Applied End Panels / Door & Drawer Fronts", notes: "" },
+    { code: "E", thickness: faceThick, manufacturer: faceMfr, part_no: facePart, description: faceDesc,     where_used: "Cabinet Body Parts",                        notes: "" },
+    { code: "I", thickness: ".018",    manufacturer: "Stock",  part_no: "STOCK",  description: interiorDesc, where_used: "Adjustable Shelves",                        notes: "" },
+    { code: "V", thickness: faceThick, manufacturer: faceMfr, part_no: facePart, description: faceDesc,     where_used: "Bottom of Upper F.E.",                      notes: "" },
+    { code: "U", thickness: ".018",    manufacturer: "Stock",  part_no: "STOCK",  description: interiorDesc, where_used: "Bottom of Upper UN-F.E.",                   notes: "" },
+    { code: "B", thickness: ".018",    manufacturer: "Stock",  part_no: "STOCK",  description: "PF MAPLE",   where_used: "Drawer Box Sides",                          notes: "" },
+    { code: "C", thickness: ".018",    manufacturer: "Stock",  part_no: "STOCK",  description: "PF MAPLE",   where_used: "Drawer Box Front and Backs",                notes: "" },
+    { code: "X", thickness: "",        manufacturer: "",       part_no: "",       description: "",            where_used: "MISC",                                      notes: "" },
+  ];
+}
 
 // ─── Shared components ────────────────────────────────────────────────────────
 
@@ -315,7 +423,6 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
 
       {/* ACCESSORIES BY FINISH GROUP (WO-specific view) */}
       {(() => {
-        // Build: for each finish group, list rooms + their accessories
         const fgAccMap = new Map<string, { roomName: string; accs: typeof data.rooms[0]["accessories"] }[]>();
         for (const room of data.rooms) {
           for (const rf of room.finishes) {
@@ -369,10 +476,10 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   );
 }
 
-// ─── Page 2: Accessories + Moldings + Edgebanding ────────────────────────────
+// ─── Page 2: Accessories + Moldings ──────────────────────────────────────────
+// (Edgebanding removed — now lives on W.n Work Order sheets)
 
 function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
-  const accs = data.spec_accessories ?? [];
   const fgs  = data.finish_groups;
 
   // Flatten moldings per FG for display
@@ -383,12 +490,6 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
     if (rows.length > 0) {
       moldingsByFG.set(fg.id, rows.map(m => ({ fgLabel: fg.label, type_label: m.type_label || m.molding_type, size_in: m.size_in, qty_lf: m.qty_lf, notes: m.notes })));
     }
-  }
-
-  // Edgebands per FG
-  const ebByFG: Map<string, { fg: FinishGroupView; ebs: EdgebandView[] }> = new Map();
-  for (const fg of fgs) {
-    if (fg.edgebands.length > 0) ebByFG.set(fg.id, { fg, ebs: fg.edgebands });
   }
 
   const isDraftA = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
@@ -448,41 +549,6 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
                     <Text style={[S.cell, { flex: 1 }]}>{m.size_in ? `${m.size_in}"` : "—"}</Text>
                     <Text style={[S.cell, { flex: 0.8 }]}>{m.qty_lf ?? "—"}</Text>
                     <Text style={[S.cellMu, { flex: 3 }]}>{d(m.notes)}</Text>
-                  </View>
-                ))}
-              </View>
-            );
-          })}
-        </>
-      )}
-
-      {/* EDGEBANDING */}
-      {ebByFG.size > 0 && (
-        <>
-          <Text style={[S.secHead, { marginTop: 8 }]}>EDGEBANDING</Text>
-          {Array.from(ebByFG.values()).map(({ fg, ebs }) => {
-            const colorName = fg.finish.stain_name || fg.finish.paint_name || "";
-            return (
-              <View key={fg.id} style={{ marginBottom: 8 }}>
-                <View style={S.fgBand}>
-                  <Text style={S.fgBandTx}>{fg.label}{colorName ? `  ·  ${colorName}` : ""}</Text>
-                </View>
-                <View style={S.colHdr}>
-                  <Text style={[S.colHdrTx, { flex: 0.4 }]}>ID</Text>
-                  <Text style={[S.colHdrTx, { flex: 0.7 }]}>Thick</Text>
-                  <Text style={[S.colHdrTx, { flex: 1.5 }]}>Supplier</Text>
-                  <Text style={[S.colHdrTx, { flex: 2.5 }]}>Description</Text>
-                  <Text style={[S.colHdrTx, { flex: 2.5 }]}>Where Used</Text>
-                  <Text style={[S.colHdrTx, { flex: 1.5 }]}>Notes</Text>
-                </View>
-                {ebs.map((eb, ei) => (
-                  <View key={ei} style={ei % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-                    <Text style={[S.cell, { flex: 0.4, fontFamily: "Helvetica-Bold", fontSize: 9, color: ORANGE }]}>{eb.code}</Text>
-                    <Text style={[S.cell, { flex: 0.7 }]}>{d(eb.thickness)}</Text>
-                    <Text style={[S.cell, { flex: 1.5 }]}>{d(eb.supplier)}</Text>
-                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.edgeband_name)}</Text>
-                    <Text style={[S.cell, { flex: 2.5 }]}>{d(eb.where_used_label)}</Text>
-                    <Text style={[S.cellMu, { flex: 1.5 }]}>{d(eb.notes)}</Text>
                   </View>
                 ))}
               </View>
@@ -597,6 +663,230 @@ function NotesPage({ data }: { data: SpecPDFData }) {
   );
 }
 
+// ─── Page W.n: Work Order Sheet (portrait, one per Finish Group) ──────────────
+
+function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroupView; index: number }) {
+  const isDraft     = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const projectName = [data.builder_company, data.client_name].filter(Boolean).join(" — ") || data.client_name;
+  const pageCode    = `W.${index + 1}`;
+  const colorName   = fg.finish.paint_name || fg.finish.stain_name || "";
+  const fgPulls     = (data.finish_group_pulls ?? {})[fg.id] ?? [];
+  const hw          = data.spec_hardware ?? [];
+  const ebRows      = deriveWOEdgebands(fg);
+  const moldings    = fg.moldings.filter(m => m.qty_lf || m.type_label);
+
+  // Spec summary values
+  const cabExt      = fg.materials.find(m => m.role === "cab_ext")?.name ?? "—";
+  const cabInt      = fg.materials.find(m => m.role === "cab_int")?.name ?? cabExt;
+  const doorStyle   = fg.door_fronts.find(df => df.role === "base")?.style_name
+                   ?? fg.door_fronts[0]?.style_name ?? "—";
+  const drawerFront = fg.door_fronts.find(df => df.role === "drawer_front")?.style_name ?? doorStyle;
+  const drawerBox   = fg.drawers.find(dr => dr.role === "drawer_box")?.drawer_box_name ?? "—";
+  const rolloutBox  = fg.rollout_box_name || drawerBox;
+  const appliedPnl  = fmtAppliedPanels(fg.applied_panels);
+
+  // Finish type label for header
+  const finishTypeLabel = fg.finish_type === "paint" ? "PAINT" : fg.finish_type === "stain" ? "STAIN" : "MELAMINE";
+  const finishLabel     = `${finishTypeLabel}${colorName ? ` — ${colorName.toUpperCase()}` : ""}`;
+
+  // Touchup kit
+  const touchupKit  = fg.finish_type === "paint" ? "PENS TO MATCH"
+                    : fg.finish_type === "stain" ? "STAINS TO MATCH" : "N/A";
+
+  // Rooms assigned to this FG
+  const fgRooms = data.rooms.filter(r => r.finishes.some(f => f.finish_group_id === fg.id));
+
+  const EBcols = [
+    { label: "ID",          w: 0.35 },
+    { label: "Thick.",      w: 0.55 },
+    { label: "Mfr.",        w: 1.1 },
+    { label: "#",           w: 0.65 },
+    { label: "Description", w: 1.4 },
+    { label: "Where Used",  w: 2.4 },
+    { label: "Notes",       w: 1.5 },
+  ];
+
+  return (
+    <Page size="LETTER" style={WS.page}>
+      {isDraft && <DraftWatermark />}
+
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <View style={WS.header}>
+        <View style={WS.hdrLeft}>
+          <Text style={WS.hdrLabel}>RESIDENTIAL — WORK ORDER SPEC</Text>
+          <Text style={WS.hdrTitle}>JOB # {data.job_id}</Text>
+          <Text style={WS.hdrSub}>{projectName}</Text>
+          <Text style={WS.hdrFinish}>{fg.label} · {finishLabel}</Text>
+          {(data.site_address || data.city) && (
+            <Text style={[WS.hdrSub, { marginTop: 4, color: MUTED }]}>
+              {[data.site_address, data.city].filter(Boolean).join(", ")}
+            </Text>
+          )}
+        </View>
+        <View style={WS.hdrRight}>
+          <View style={WS.notesBox}>
+            <Text style={WS.notesLbl}>JOB NOTES</Text>
+            <Text style={WS.notesBody}>{cleanNotes(data.job_notes) || "—"}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ── Meta bar ────────────────────────────────────────────────────── */}
+      <View style={WS.metaBar}>
+        {[
+          { label: "Job #",    value: data.job_id },
+          { label: "WO #",     value: "" },
+          { label: "PM",       value: data.pm || "—" },
+          { label: "Engineer", value: "—" },
+          { label: "Date",     value: new Date(data.generated_at).toLocaleDateString() },
+          { label: "Page",     value: pageCode },
+        ].map(({ label, value }, i, arr) => (
+          <View key={label} style={[WS.metaCell, i === arr.length - 1 ? { borderRightWidth: 0 } : {}]}>
+            <Text style={WS.metaLbl}>{label}</Text>
+            <Text style={WS.metaVal}>{value}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* ── Body: two columns ─────────────────────────────────────────── */}
+      <View style={WS.body}>
+
+        {/* LEFT: Work Order Specs + Finish Sched + Rooms */}
+        <View style={WS.bodyLeft}>
+          <Text style={WS.secHead}>WORK ORDER SPECS</Text>
+          {[
+            { label: "Cab Exterior",       value: cabExt },
+            { label: "Cab Interior",       value: cabInt },
+            { label: "Doors",              value: doorStyle },
+            { label: "Drawer Fronts",      value: drawerFront },
+            { label: "Applied End Panels", value: appliedPnl },
+            { label: "Drawer Box",         value: drawerBox },
+            { label: "Rollout Box",        value: rolloutBox },
+          ].map(({ label, value }, i) => (
+            <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+              <Text style={WS.specLabel}>{label}</Text>
+              <Text style={WS.specValue}>{value}</Text>
+            </View>
+          ))}
+
+          <View style={{ marginTop: 6 }}>
+            <Text style={WS.secHead}>FINISH SCHED.</Text>
+            {[
+              { label: "Touchup Kit", value: touchupKit },
+              { label: "Fastcaps",    value: "TO MATCH" },
+            ].map(({ label, value }, i) => (
+              <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                <Text style={WS.specLabel}>{label}</Text>
+                <Text style={WS.specValue}>{value}</Text>
+              </View>
+            ))}
+          </View>
+
+          {fgRooms.length > 0 && (
+            <View style={{ marginTop: 6 }}>
+              <Text style={WS.secHead}>ROOMS ({fgRooms.length})</Text>
+              <View style={WS.roomPillRow}>
+                {fgRooms.map(r => (
+                  <View key={r.id} style={WS.roomPill}>
+                    <Text style={WS.roomPillTx}>{r.name}</Text>
+                  </View>
+                ))}
+              </View>
+              {fgRooms.filter(r => r.notes).map(r => (
+                <Text key={r.id} style={WS.roomNote}>
+                  {r.name}: {r.notes}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* RIGHT: Work Order Hardware */}
+        <View style={WS.bodyRight}>
+          <Text style={WS.secHead}>WORK ORDER HARDWARE</Text>
+          {hw.length === 0 && fgPulls.length === 0 ? (
+            <Text style={[WS.tdMu, { padding: 4 }]}>No hardware specified.</Text>
+          ) : (
+            <>
+              {hw.map((h, i) => (
+                <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                  <Text style={[WS.specLabel, { width: 90 }]}>{h.type}</Text>
+                  <Text style={WS.specValue}>{h.part_no || h.notes || "—"}</Text>
+                </View>
+              ))}
+              {fgPulls.length > 0 && (
+                <>
+                  <View style={WS.pullSubHead}>
+                    <Text style={WS.pullSubTx}>PULLS</Text>
+                  </View>
+                  {fgPulls.map((p, i) => (
+                    <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                      <Text style={[WS.specLabel, { width: 90 }]}>{p.where_used || `Pull ${i + 1}`}</Text>
+                      <Text style={WS.specValue}>
+                        {[p.description, p.part_no, p.finish_color].filter(Boolean).join(" · ")}
+                      </Text>
+                    </View>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </View>
+      </View>
+
+      {/* ── MOLDINGS ──────────────────────────────────────────────────── */}
+      {moldings.length > 0 && (
+        <View style={{ marginBottom: 4 }}>
+          <Text style={WS.fullSecHead}>MOLDINGS</Text>
+          <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+            {[{ l: "Type", w: 1.5 }, { l: "Profile", w: 1.5 }, { l: "Size", w: 0.7 }, { l: "Material", w: 1.5 }, { l: "Qty (LF)", w: 0.8 }, { l: "Notes", w: 2 }].map((h, i) => (
+              <Text key={i} style={[WS.th, { flex: h.w }]}>{h.l}</Text>
+            ))}
+          </View>
+          {moldings.map((m, i) => (
+            <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+              <Text style={[WS.tdBold, { flex: 1.5 }]}>{m.type_label}</Text>
+              <Text style={[WS.td, { flex: 1.5 }]}>{d(m.profile_name)}</Text>
+              <Text style={[WS.td, { flex: 0.7 }]}>{m.size_in ? `${m.size_in}"` : "—"}</Text>
+              <Text style={[WS.td, { flex: 1.5 }]}>{d(m.material_name)}</Text>
+              <Text style={[WS.td, { flex: 0.8 }]}>{m.qty_lf ?? "—"}</Text>
+              <Text style={[WS.tdMu, { flex: 2 }]}>{d(m.notes)}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* ── EDGEBAND SCHEDULE ─────────────────────────────────────────── */}
+      <View>
+        <Text style={WS.fullSecHead}>WORK ORDER EDGEBAND SCHEDULE</Text>
+        <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+          {EBcols.map((c, i) => (
+            <Text key={i} style={[WS.th, { flex: c.w }]}>{c.label}</Text>
+          ))}
+        </View>
+        {ebRows.map((row, i) => (
+          <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+            <Text style={[WS.tdOrange, { flex: 0.35 }]}>{row.code}</Text>
+            <Text style={[WS.td, { flex: 0.55 }]}>{row.thickness || "—"}</Text>
+            <Text style={[WS.td, { flex: 1.1 }]}>{row.manufacturer || "—"}</Text>
+            <Text style={[WS.td, { flex: 0.65 }]}>{row.part_no || "—"}</Text>
+            <Text style={[row.description ? WS.tdBold : WS.tdMu, { flex: 1.4 }]}>{row.description || "—"}</Text>
+            <Text style={[WS.td, { flex: 2.4 }]}>{row.where_used}</Text>
+            <Text style={[WS.tdMu, { flex: 1.5 }]}>{row.notes || "—"}</Text>
+          </View>
+        ))}
+      </View>
+
+      <View style={WS.footer} fixed>
+        <Text style={WS.footerTxt}>
+          {[data.spec_name, data.job_id, fg.label, "Work Order Spec"].filter(Boolean).join("  ·  ")}
+        </Text>
+        <Text style={WS.footerTxt} render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`} />
+      </View>
+    </Page>
+  );
+}
+
 // ─── Main renderer ────────────────────────────────────────────────────────────
 
 export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
@@ -608,18 +898,21 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
   const hasHardware   = (data.spec_hardware?.length ?? 0) > 0;
   const hasAccs       = (data.spec_accessories?.length ?? 0) > 0 || (data.accessories_rollup?.length ?? 0) > 0;
   const hasMoldings   = data.finish_groups.some(fg => fg.moldings.some(m => m.qty_lf || m.type_label));
-  const hasEdgebands  = data.finish_groups.some(fg => fg.edgebands.length > 0);
 
   return (
     <Document>
       {/* Page 1: Finish Schedule + Room Schedule */}
       <FinishSchedulePage data={data} />
-      {/* Page 2: Accessories + Moldings + Edgebanding (only if any content) */}
-      {(hasAccs || hasMoldings || hasEdgebands) && <AccessoriesMoldingsPage data={data} />}
+      {/* Page 2: Accessories + Moldings (only if any content) */}
+      {(hasAccs || hasMoldings) && <AccessoriesMoldingsPage data={data} />}
       {/* Page 3: Appliances + Hardware (only if any content) */}
       {(hasAppliances || hasHardware) && <AppliancesHardwarePage data={data} />}
       {/* Page 4: Notes */}
       {hasNotes && <NotesPage data={data} />}
+      {/* W.1 … W.n: Work Order sheets — one per finish group */}
+      {data.finish_groups.map((fg, i) => (
+        <WorkOrderPage key={fg.id} data={data} fg={fg} index={i} />
+      ))}
     </Document>
   );
 }

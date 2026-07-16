@@ -2215,6 +2215,94 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               )}
             </div>
           </div>
+
+          {/* ── Edgeband Schedule (preview, per FG) ──────────────────────── */}
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-1">Edgeband Schedule</p>
+            <p className="text-white/20 text-[10px] font-condensed mb-4">
+              Auto-derived from finish group selections. These rows print on the Work Order sheets (W.1, W.2…). Verify before generating the PDF.
+            </p>
+            {groups.map((g) => {
+              const eb   = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
+              const carc = catalogs.carcassMaterials.find((c) => c.id === g.carcass_id);
+
+              // Face edgeband rows: D, E, V
+              let faceThick: string, faceMfr: string, facePart: string, faceDesc: string;
+              if (g.finish_type === "paint") {
+                faceThick = "3.0"; faceMfr = "Internal"; facePart = "STOCK"; faceDesc = "Paint to Match";
+              } else if (g.finish_type === "stain") {
+                faceThick = "3.0"; faceMfr = "Internal"; facePart = "STOCK"; faceDesc = "Stain to Match";
+              } else {
+                faceThick = eb?.thickness_mm || "1MM";
+                faceMfr   = eb?.supplier     || "";
+                faceDesc  = g.label.replace("-", " "); // "MEL-1" → "MEL 1"
+                // Extract catalog part# from product name (e.g. "Uniboard K15 Cannes…" → "K15")
+                const internals = ["Internal", "Stock"];
+                facePart = eb && !internals.includes(eb.supplier)
+                  ? (() => {
+                      const stripped = eb.product_name.startsWith(eb.supplier)
+                        ? eb.product_name.slice(eb.supplier.length).trim()
+                        : eb.product_name;
+                      return stripped.split(/\s+/)[0] || "";
+                    })()
+                  : "STOCK";
+              }
+
+              // Interior edgeband rows: I, U
+              const carcName    = (carc?.name || "").toLowerCase();
+              const interiorDesc = carcName.includes("plywood") || carcName.includes("birch")
+                ? "PF MAPLE" : "HARDROCK MAPLE";
+
+              const ebRows = [
+                { code: "D", thick: faceThick, mfr: faceMfr, part: facePart, desc: faceDesc,     where: "Applied End Panels / Door & Drawer Fronts" },
+                { code: "E", thick: faceThick, mfr: faceMfr, part: facePart, desc: faceDesc,     where: "Cabinet Body Parts"                        },
+                { code: "I", thick: ".018",    mfr: "Stock",  part: "STOCK",  desc: interiorDesc, where: "Adjustable Shelves"                         },
+                { code: "V", thick: faceThick, mfr: faceMfr, part: facePart, desc: faceDesc,     where: "Bottom of Upper F.E."                       },
+                { code: "U", thick: ".018",    mfr: "Stock",  part: "STOCK",  desc: interiorDesc, where: "Bottom of Upper UN-F.E."                    },
+                { code: "B", thick: ".018",    mfr: "Stock",  part: "STOCK",  desc: "PF MAPLE",   where: "Drawer Box Sides"                           },
+                { code: "C", thick: ".018",    mfr: "Stock",  part: "STOCK",  desc: "PF MAPLE",   where: "Drawer Box Front and Backs"                 },
+                { code: "X", thick: "",        mfr: "",       part: "",       desc: "",            where: "MISC"                                       },
+              ];
+
+              return (
+                <div key={g.id} className="mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[#f08122] font-condensed font-bold text-xs uppercase tracking-widest">{g.label}</span>
+                    {g.color_name && <span className="text-white/40 text-[10px] font-condensed">· {g.color_name}</span>}
+                    <span className="text-white/20 text-[10px] font-condensed uppercase tracking-wider">({g.finish_type})</span>
+                  </div>
+                  <div className="overflow-x-auto rounded">
+                    <table className="w-full text-[10px] font-condensed border-collapse">
+                      <thead>
+                        <tr className="bg-[#3d3d3d] text-white">
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-7">ID</th>
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-12">Thick.</th>
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-24">Mfr.</th>
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-14">#</th>
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-32">Description</th>
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px]">Where Used</th>
+                          <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-20">Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ebRows.map((row, ri) => (
+                          <tr key={row.code} className={ri % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"}>
+                            <td className="px-2 py-1.5 font-bold text-[#f08122]">{row.code}</td>
+                            <td className="px-2 py-1.5 text-white/50">{row.thick || "—"}</td>
+                            <td className="px-2 py-1.5 text-white/60">{row.mfr || "—"}</td>
+                            <td className="px-2 py-1.5 text-white/60">{row.part || "—"}</td>
+                            <td className="px-2 py-1.5 font-bold text-white/80">{row.desc || <span className="text-white/20 italic font-normal">blank</span>}</td>
+                            <td className="px-2 py-1.5 text-white/40">{row.where}</td>
+                            <td className="px-2 py-1.5 text-white/20 italic">—</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
