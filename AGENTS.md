@@ -16,28 +16,39 @@ This app is **live and used in the field on phones every day** (`www.advancedcab
 
 ## 1. The one branch rule — READ THIS TWICE
 
-**You work on `staging`. Only `staging`. Never `master`.**
+**You work on `staging`. Only `staging`. Never `main`.**
 
-- `master` = production = the live phone app. You never commit to it, never push to it, never merge into it. **Promoting `staging` → `master` is Karl's job and only Karl's job.**
-- `staging` = where all your work goes. It has its own Vercel preview URL (the "staging URL") and its own database (the staging Supabase project). Breaking staging breaks nothing real.
+- `main` = production = live at www.advancedcabinets.org. **Protected by GitHub branch rules — direct pushes are blocked.** You cannot push there; only Karl merges staging → main via Pull Request.
+- `staging` = where all your work goes. It deploys to the Vercel preview URL. Breaking staging breaks nothing real.
 
-**Start of every session:**
+**Start of every session (MANDATORY):**
 ```bash
-git checkout staging          # if it doesn't exist: git checkout -b staging master
+cd /tmp/acc-repo    # or git clone if not present
+git checkout staging
 git pull origin staging
+```
+If the repo isn't cloned yet:
+```bash
+git clone https://x-access-token:$(cat /path/to/secrets.txt | grep ghp_ | head -1)@github.com/aluate/accwebsite.git /tmp/acc-repo
+cd /tmp/acc-repo && git checkout staging
 ```
 
 **To ship your work (this is the ONLY push you ever run):**
 ```bash
+cd /tmp/acc-repo
 git add -A
-git commit -m "clear message describing the change"
+git commit -m "feat/fix/chore: clear description"
 git push origin staging
 ```
-Pushing `staging` automatically rebuilds the **staging preview URL**. Karl tests there on his phone. That is the whole delivery mechanism.
+Karl opens a PR on GitHub (staging → main) to review and merge to production.
 
 **Forbidden, no exceptions:**
-- `git push origin master` / `git push origin main`
-- `git checkout master && <commit>` — do not commit on master, ever
+- `git push origin main`  ← blocked by branch protection anyway
+- `git checkout main && git commit` ← don't even switch to main
+- Editing files via the Edit/Write tools directly on the NTFS repo mount (C:\dev\repos\acc-website) — NTFS truncation bug silently corrupts files. Always write via bash to /tmp/acc-repo, then push.
+
+**NTFS write constraint (permanent):**
+All writes must go through bash at `/tmp/acc-repo` — never use the Edit or Write tool on the mounted NTFS repo at C:\dev\repos\acc-website. The NTFS mount silently truncates files.
 - merging anything into master
 - force-pushing any branch
 
