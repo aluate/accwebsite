@@ -89,3 +89,12 @@ export async function POST(
     await sql`
       INSERT INTO punch_item_photos
         
+        (id, punch_item_id, storage_path, media_type, label, sort_order, uploaded_at)
+      VALUES
+        (${photoId}, ${itemId}, ${path}, ${mimeType}, ${label ?? null}, ${idx}, ${new Date().toISOString()})
+    `;
+    results.push({ id: photoId, url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}` });
+  }
+
+  return NextResponse.json({ ok: true, photos: results });
+}

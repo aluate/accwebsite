@@ -167,3 +167,51 @@ export async function POST(
   const { id } = await params;
   const [job] = await sql`SELECT id FROM jobs WHERE id = ${id} OR job_number = ${id}`;
   if (!job
+  if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+  const jobId = job.id;
+
+  const body = await req.json() as {
+    room_id?: string | null;
+    general_location?: string;
+    item_description: string;
+    type_code: string;
+  };
+
+  const { room_id = null, general_location, item_description, type_code } = body;
+
+  if (!item_description?.trim()) {
+    return NextResponse.json({ error: "item_description is required" }, { status: 400 });
+  }
+  if (!VALID_TYPES.has(type_code)) {
+    return NextResponse.json({ error: "type_code must be S, S+M, HP, or TD" }, { status: 400 });
+  }
+  if (!room_id && !general_location?.trim()) {
+    return NextResponse.json({ error: "general_location is required when room is GENERAL" }, { status: 400 });
+  }
+
+  if (room_id) {
+    const [roomRow] = await sql`
+      SELECT r.id FROM rooms r
+      JOIN residential_specs rs ON rs.id = r.spec_id
+      WHERE r.id = ${room_id} AND rs.job_id = ${jobId}
+    `;
+    if (!roomRow) return NextResponse.json({ error: "Room not found on this job" }, { status: 400 });
+  }
+
+  const itemId = uid();
+  const now = new Date().toISOString();
+
+  await sql`
+    INSERT INTO punch_list_items
+      (id, job_id, room_id, general_location, item_description, type_code, status, created_by, created_at)
+    VALUES
+      (${itemId}, ${jobId}, ${room_id}, ${general_location?.trim() ?? null},
+       ${item_description.trim()}, ${type_code}, 'open', ${actor.name}, ${now})
+  `;
+
+  logActivity({ entityType: "punch", entityId: itemId, jobId: jobId,
+    eventType: "created", actor: actor.name, actorRole: actor.role,
+    payload: { type_code, item_description: item_description.trim() } }).catch(() => {});
+
+  return NextResponse.json({ ok: true, id: itemId }, { status: 201 });
+}

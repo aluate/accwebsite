@@ -725,4 +725,102 @@ export function scheduleDateChanged(data: {
     ``,
     `Event:    ${data.eventType}`,
     data.oldDate ? `Was:      ${fmtDate(data.oldDate)}` : "",
-  
+    data.newDate ? `Now:      ${fmtDate(data.newDate)}` : "",
+    ``,
+    `Changed by: ${data.changedBy}`,
+    data.reason ? `Reason:   ${data.reason}` : "",
+  ].filter(Boolean).join("\n");
+
+  const html = layout({
+    heading: `Schedule Change`,
+    subheading: jobRef,
+    body: `
+      <p><strong>Event:</strong> ${h(data.eventType)}</p>
+      ${data.oldDate ? `<p><strong>Was:</strong> ${h(fmtDate(data.oldDate))}</p>` : ""}
+      ${data.newDate ? `<p><strong>Now:</strong> ${h(fmtDate(data.newDate))}</p>` : ""}
+      <p><strong>Changed by:</strong> ${h(data.changedBy)}</p>
+      ${data.reason ? `<p><strong>Reason:</strong> ${h(data.reason)}</p>` : ""}
+    `,
+    ctaLabel: data.jobUrl ? "View Job" : undefined,
+    ctaUrl: data.jobUrl,
+  });
+
+  return { subject, text, html };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NOTIFICATION_TRIGGERS — registry of all trigger types for settings UI
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const NOTIFICATION_TRIGGERS: NotificationTrigger[] = [
+  {
+    id: "bid_sent",
+    label: "Bid Sent",
+    description: "When a bid email is sent to a client",
+    defaultRecipients: ["pm", "residential"],
+    status: "built",
+  },
+  {
+    id: "contract_sent",
+    label: "Contract Sent",
+    description: "When a contract packet is emailed to a client for signature",
+    defaultRecipients: ["pm", "residential"],
+    status: "built",
+  },
+  {
+    id: "released_to_production",
+    label: "Released to Production",
+    description: "When a job advances to the shop production queue",
+    defaultRecipients: ["engineering", "shop"],
+    status: "built",
+  },
+  {
+    id: "ready_for_delivery",
+    label: "Ready for Delivery",
+    description: "When a job is marked ready for customer delivery",
+    defaultRecipients: ["pm", "installer"],
+    status: "built",
+  },
+  {
+    id: "delivered",
+    label: "Delivered",
+    description: "When a job is marked as delivered to the customer",
+    defaultRecipients: ["pm"],
+    status: "built",
+  },
+  {
+    id: "install_complete",
+    label: "Install Complete",
+    description: "When the installation is marked complete",
+    defaultRecipients: ["pm", "homeowner"],
+    status: "built",
+  },
+  {
+    id: "invoice_sent",
+    label: "Invoice Sent",
+    description: "When an invoice is emailed to a client",
+    defaultRecipients: ["pm"],
+    status: "built",
+  },
+  {
+    id: "schedule_date_changed",
+    label: "Schedule Date Changed",
+    description: "When a scheduled install date is moved",
+    defaultRecipients: ["pm", "installer"],
+    status: "built",
+  },
+  {
+    id: "lead_inquiry_response",
+    label: "Lead Inquiry Response",
+    description: "Response email to a new inquiry",
+    defaultRecipients: ["residential"],
+    status: "built",
+  },
+  {
+    id: "new_lead_alert",
+    label: "New Lead Alert",
+    description: "Internal alert when a new lead is logged",
+    defaultRecipients: ["pm", "residential"],
+    status: "built",
+  },
+];
