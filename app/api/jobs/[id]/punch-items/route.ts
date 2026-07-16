@@ -166,7 +166,6 @@ export async function POST(
 
   const { id } = await params;
   const [job] = await sql`SELECT id FROM jobs WHERE id = ${id} OR job_number = ${id}`;
-  if (!job
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
   const jobId = job.id;
 

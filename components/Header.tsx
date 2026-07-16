@@ -220,3 +220,8 @@ export function Header({ userRole }: { userRole?: string }) {
               Team Login
             </Link>
           </nav>
+        )}
+      </div>
+    </header>
+  );
+}
