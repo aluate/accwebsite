@@ -1080,6 +1080,25 @@ async function main() {
   try { await sql`ALTER TABLE client_signoffs ADD COLUMN certificate_path TEXT`; } catch {}
   try { await sql`ALTER TABLE client_signoffs ADD COLUMN attached_docs_json TEXT`; } catch {}
 
+
+  // ── builders (contractor company CRM) ────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS builders (
+      id           TEXT PRIMARY KEY,
+      company      TEXT NOT NULL,
+      contact_name TEXT,
+      phone        TEXT,
+      email        TEXT,
+      typical_pm   TEXT,
+      notes        TEXT,
+      active       INTEGER NOT NULL DEFAULT 1,
+      created_at   TEXT NOT NULL,
+      updated_at   TEXT NOT NULL
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_builders_active ON builders (active)`;
+  console.log("builders OK");
+
   // ── jobs: innergy sync columns ────────────────────────────────────────────
   try { await sql`ALTER TABLE jobs ADD COLUMN innergy_opportunity_id TEXT`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN innergy_bid_id TEXT`; } catch {}
