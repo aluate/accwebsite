@@ -17,7 +17,6 @@ export default async function RootPage() {
           width={120}
           height={120}
           className="mx-auto mb-6 opacity-90"
-          onError={() => {}}
         />
         <h1 className="font-heading text-4xl uppercase tracking-wide text-white mb-2">
           Advanced Custom Cabinets
