@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
+import { syncJobToInnergy } from "@/lib/innergy-sync";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -61,6 +62,40 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       actor, actorRole,
       payload: { fields },
     }).catch(() => {});
+  }
+
+  // On status change, re-sync win-probability to Innergy (fire-and-forget)
+  if ("status" in updates) {
+    const [fullJob] = await sql`SELECT * FROM jobs WHERE id = ${internalId}` as Array<Record<string, unknown>>;
+    if (fullJob) {
+      syncJobToInnergy({
+        id: fullJob.id as string,
+        job_number: fullJob.job_number as string | null,
+        client_name: fullJob.client_name as string,
+        site_address: fullJob.site_address as string | null,
+        city: fullJob.city as string | null,
+        state: fullJob.state as string | null,
+        zip_code: fullJob.zip_code as string | null,
+        job_type: fullJob.job_type as string | null,
+        pm: fullJob.pm as string | null,
+        builder_name: fullJob.builder_name as string | null,
+        builder_company: fullJob.builder_company as string | null,
+        delivery_date: fullJob.delivery_date as string | null,
+        estimated_value: fullJob.estimated_value ? Number(fullJob.estimated_value) : null,
+        status: updates.status as string,
+        innergy_opportunity_id: fullJob.innergy_opportunity_id as string | null,
+      }).then((result) => {
+        if (result?.created) {
+          sql`UPDATE jobs SET
+            innergy_opportunity_id = ${result.opportunityId},
+            innergy_bid_id = ${result.bidId},
+            innergy_synced_at = NOW()
+          WHERE id = ${internalId}`.catch(() => {});
+        } else if (result && !result.created) {
+          sql`UPDATE jobs SET innergy_synced_at = NOW() WHERE id = ${internalId}`.catch(() => {});
+        }
+      }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ ok: true });
