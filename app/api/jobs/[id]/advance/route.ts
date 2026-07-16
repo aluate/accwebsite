@@ -27,6 +27,7 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
+import { createDraftInvoice, invoiceExists } from "@/lib/invoices";
 
 type JobRow = JobMeta & {
   status: string;
@@ -216,10 +217,4 @@ export async function POST(
     payload: note ? { note } : undefined,
   }).catch(() => {});
 
-  return NextResponse.json({
-    ok: true,
-    fromStatus: job.status,
-    toStatus,
-    emailErrors: emailErrors.length ? emailErrors : undefined,
-  });
-}
+  // ── 8. Auto-create balance invoice draft on delivery ─────────

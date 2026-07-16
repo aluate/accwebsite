@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-import { sql, withDbTimeout } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { JobFilesPanel } from "@/components/JobFilesPanel";
 import { PunchListPanel } from "@/components/PunchListPanel";
+import { InvoicePanel } from "@/components/InvoicePanel";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
-import { EnableModuleButton } from "@/components/EnableModuleButton";
 import { StatusAdvanceButton } from "@/components/StatusAdvanceButton";
 import { SignoffButton } from "@/components/SignoffButton";
 import { ChangeOrdersPanel } from "@/components/ChangeOrdersPanel";
@@ -14,7 +14,6 @@ import { GateCheckinButton } from "@/components/GateCheckinButton";
 import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { JobInlineEditClient } from "@/components/JobInlineEditClient";
-import { WorkOrdersPanel } from "@/components/WorkOrdersPanel";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -87,26 +86,119 @@ type JobEvent = {
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await requireBuilder();
-  if (session.role === "installer") {
-    const { id: jobId2 } = await params;
-    redirect(`/installer/jobs/${jobId2}`);
-  }
-  const isAdmin = (session.role === "admin" || session.role === "karl");
-  const [job] = await withDbTimeout(() =>
-    sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Promise<Job[]>
-  ).then((r) => r);
+  const isAdmin = session.role === "admin";
+  const isInstaller = session.role === "installer";
+
+  const [job] = await sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Job[];
   if (!job) notFound();
   const internalId = job.id; // always use internal PK for subsequent queries
 
   // ON DECK state: true if ANY schedule events exist for this job (scheduled or not)
-  const [{ count: eventCount }] = await withDbTimeout(() =>
-    sql`SELECT COUNT(*) AS count FROM job_events WHERE job_id = ${internalId}` as Promise<[{ count: string }]>
-  );
+  const [{ count: eventCount }] = await sql`
+    SELECT COUNT(*) AS count FROM job_events WHERE job_id = ${internalId}
+  ` as [{ count: string }];
   const hasScheduleEvents = Number(eventCount) > 0;
 
   // Activity feed — best-effort (may be empty on first use, catches if table not yet in DB)
   let activityLog: ActivityRow[] = [];
   try { activityLog = await listActivityForJob(internalId, 30); } catch {}
+
+  // ── Installer view — stripped down to essentials ──────────────────────────
+  if (isInstaller) {
+    const today = new Date().toISOString().slice(0, 10);
+    const events = await sql<JobEvent[]>`
+      SELECT je.id, je.event_type, je.date_start, je.date_end, je.note, je.status,
+             c.name AS crew_name
+      FROM job_events je
+      LEFT JOIN crews c ON c.id = je.crew_id
+      WHERE je.job_id = ${internalId}
+        AND je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
+        AND (je.date_end IS NULL OR je.date_end >= ${today})
+      ORDER BY je.date_start NULLS LAST
+    `;
+
+    const mapsUrl = "https://maps.apple.com/?q=" + encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "));
+    const gmapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([job.site_address, job.city].filter(Boolean).join(", "));
+
+    return (
+      <div className="min-h-screen bg-[#111] text-white">
+        {/* Compact header */}
+        <div className="sticky top-0 z-10 bg-[#111]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
+          <Link href="/installer" className="text-white/40 hover:text-[#f08122] transition-colors text-sm">
+            ← My Jobs
+          </Link>
+          <span className="text-white/15">|</span>
+          <span className="text-[#f08122] font-condensed uppercase tracking-widest text-xs">Job #{job.job_number ?? job.id}</span>
+        </div>
+
+        <div className="px-4 py-5 max-w-lg mx-auto space-y-5">
+          {/* Client + address */}
+          <div>
+            <h1 className="font-heading text-2xl uppercase tracking-wide text-white">{job.client_name}</h1>
+            {(job.site_address || job.city) && (
+              <div className="mt-2 flex gap-2">
+                <a
+                  href={mapsUrl}
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white/80 hover:text-white hover:border-white/20 transition-colors"
+                >
+                  📍 {[job.site_address, job.city].filter(Boolean).join(", ")}
+                  <span className="block text-[#f08122] text-[10px] font-condensed uppercase tracking-widest mt-1">Open in Maps →</span>
+                </a>
+                <a
+                  href={gmapsUrl}
+                  className="bg-white/5 border border-white/10 rounded-lg px-3 py-3 text-white/40 hover:text-white hover:border-white/20 transition-colors text-xs font-condensed uppercase tracking-widest flex items-center"
+                >
+                  G
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Upcoming events */}
+          {events.length > 0 && (
+            <div>
+              <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-2">Your Schedule</p>
+              <div className="space-y-2">
+                {events.map((ev) => {
+                  const dateStr = ev.date_start
+                    ? ev.date_end && ev.date_end !== ev.date_start
+                      ? ev.date_start + " – " + ev.date_end
+                      : ev.date_start
+                    : "TBD";
+                  const TYPE_LABELS: Record<string, string> = {
+                    install: "Install", cab_delivery: "Cab Delivery",
+                    top_delivery: "Top Delivery", punch: "Punch",
+                    final_walkthrough: "Final Walkthrough", service: "Service",
+                  };
+                  return (
+                    <div key={ev.id} className="bg-white/5 border border-white/10 rounded-lg px-4 py-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[#f08122] text-[10px] font-condensed uppercase tracking-widest">
+                          {TYPE_LABELS[ev.event_type] ?? ev.event_type}
+                        </span>
+                        <span className="text-white/30 text-[10px] font-condensed">{ev.status}</span>
+                      </div>
+                      <p className="text-white/70 text-sm">{dateStr}</p>
+                      {ev.crew_name && <p className="text-white/40 text-xs mt-0.5">👷 {ev.crew_name}</p>}
+                      {ev.note && (
+                        <p className="mt-2 text-yellow-300/70 text-xs border-l-2 border-yellow-500/40 pl-2">{ev.note}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Punch list — all active items this installer can action */}
+          <PunchListPanel jobId={internalId} role={session.role} />
+
+          {/* Photo upload — site kind pre-selected */}
+          <JobFilesPanel jobId={internalId} isAdmin={false} defaultKind="09_site_photos" />
+        </div>
+      </div>
+    );
+  }
 
   // ── PM / Admin / Engineer view ────────────────────────────────────────────
   const activeModules = MODULE_DEFS.filter((m) => job[m.key]);
@@ -262,11 +354,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <div className="space-y-2">
               <p className="text-white/20 font-condensed uppercase tracking-widest text-[10px] mt-4">Not in scope</p>
               {inactiveModules.map((m) => (
-                <div key={m.key} className="flex items-center justify-between bg-[#252525] rounded p-4">
-                  <p className="text-white/30 text-sm">{m.label}</p>
-                  {(isAdmin || session.role === "pm") && (
-                    <EnableModuleButton jobId={internalId} modKey={m.key} label={m.label} />
-                  )}
+                <div key={m.key} className="flex items-center justify-between bg-[#252525] rounded p-4 opacity-40">
+                  <p className="text-white/50 text-sm">{m.label}</p>
                 </div>
               ))}
             </div>
@@ -274,13 +363,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3 items-start">
             <StatusAdvanceButton jobId={id} currentStatus={job.status} />
-            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+            {(session.role === "admin" || session.role === "pm") && (
               <SignoffButton jobId={internalId} />
             )}
-            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+            {(session.role === "admin" || session.role === "pm") && (
               <GateCheckinButton jobId={internalId} currentStage={job.status} />
             )}
-            {((session.role === "admin" || session.role === "karl") || session.role === "user") && (
+            {(session.role === "admin" || session.role === "user") && (
               <ReadyToScheduleButton jobId={internalId} initialOnDeck={hasScheduleEvents} />
             )}
           </div>
@@ -294,14 +383,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </Link>
           </div>
 
-          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+          {(session.role === "admin" || session.role === "pm") && (
             <EngineeringReleasePanel jobId={internalId} />
-          )}
-
-          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
-            <div className="mt-6 pt-4 border-t border-white/5">
-              <WorkOrdersPanel jobId={internalId} />
-            </div>
           )}
 
           <div className="mt-6">
@@ -312,9 +395,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <PunchListPanel jobId={internalId} role={session.role} />
           </div>
 
-          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+          {(session.role === "admin" || session.role === "pm") && (
             <div className="mt-6 pt-4 border-t border-white/5">
               <ChangeOrdersPanel jobId={internalId} role={session.role} />
+            </div>
+          )}
+
+          {(session.role === "admin" || session.role === "pm") && (
+            <div className="mt-6 pt-4 border-t border-white/5">
+              <p className="text-[10px] font-condensed uppercase tracking-widest text-white/30 mb-3">Billing</p>
+              <InvoicePanel jobId={internalId} canManage={true} />
             </div>
           )}
 
@@ -366,16 +456,4 @@ function DetailCard({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-function Row({ label, value, href }: { label: string; value?: string; href?: string }) {
-  if (!value) return null;
-  return (
-    <div>
-      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-wider">{label}</p>
-      {href ? (
-        <a href={href} className="text-white text-sm hover:text-[#f08122] transition-colors">{value}</a>
-      ) : (
-        <p className="text-white text-sm">{value}</p>
-      )}
-    </div>
-  );
-}
+function Row({ label, value, href }: { label: s

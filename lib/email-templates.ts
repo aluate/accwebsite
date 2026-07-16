@@ -532,6 +532,112 @@ export function installComplete(data: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// BILLING templates
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * invoice_sent
+ * Emailed to the client (homeowner and/or builder) when PM sends an invoice.
+ */
+export function invoiceSent(data: {
+  clientName: string;
+  siteAddress: string;
+  invoiceNumber: number | string;
+  invoiceType: "deposit" | "balance" | "change_order" | "manual";
+  lineItems: Array<{ description: string; amount: number }>;
+  terms: string;
+  notes?: string | null;
+  jobUrl?: string;
+}): TemplateResult {
+  const { clientName, siteAddress, invoiceNumber, invoiceType, lineItems, terms, notes, jobUrl } = data;
+
+  const typeLabel: Record<string, string> = {
+    deposit:      "Deposit Invoice",
+    balance:      "Balance Invoice",
+    change_order: "Change Order Invoice",
+    manual:       "Invoice",
+  };
+  const label = typeLabel[invoiceType] ?? "Invoice";
+
+  const total = lineItems.reduce((sum, li) => sum + Number(li.amount), 0);
+
+  const subject = `Invoice #${invoiceNumber} — Advanced Custom Cabinets — ${clientName}`;
+
+  const text = [
+    `${label} — Advanced Custom Cabinets`,
+    ``,
+    `Client: ${clientName}`,
+    `Project: ${siteAddress}`,
+    `Invoice #: ${invoiceNumber}`,
+    `Terms: ${terms}`,
+    ``,
+    `Line Items:`,
+    ...lineItems.map((li) => `  ${li.description}: $${Number(li.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}`),
+    ``,
+    `Total Due: $${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+    ``,
+    ...(notes ? [`Notes: ${notes}`, ``] : []),
+    `Payment Instructions:`,
+    `  Please remit payment by check payable to:`,
+    `  Advanced Custom Cabinets`,
+    `  PO Box TBD`,
+    `  Please include your invoice number on the memo line.`,
+    ``,
+    `Questions? Contact your project manager.`,
+  ].join("\n");
+
+  // Build line items table rows
+  const itemRows = lineItems.map((li) =>
+    `<tr>
+      <td style="padding:8px 14px 8px 0;font-size:13px;color:#333;">${h(li.description)}</td>
+      <td style="padding:8px 0;font-size:13px;color:#333;text-align:right;white-space:nowrap;">$${Number(li.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+    </tr>`
+  ).join("\n");
+
+  const html = layout({
+    heading: `${label} — Advanced Custom Cabinets`,
+    subheading: h(clientName),
+    ctaLabel: jobUrl ? "View Project Portal" : undefined,
+    ctaUrl: jobUrl,
+    body: `
+      ${infoTable([
+        infoRow("Invoice #", String(invoiceNumber)),
+        infoRow("Project", h(siteAddress)),
+        infoRow("Terms", h(terms)),
+      ])}
+
+      <table style="border-collapse:collapse;width:100%;margin-bottom:16px;">
+        <thead>
+          <tr style="border-bottom:2px solid #1e3a5f;">
+            <th style="text-align:left;padding:6px 14px 6px 0;font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Description</th>
+            <th style="text-align:right;padding:6px 0;font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemRows}
+          <tr style="border-top:2px solid #1e3a5f;">
+            <td style="padding:10px 14px 10px 0;font-size:14px;font-weight:700;color:#1e3a5f;">Total Due</td>
+            <td style="padding:10px 0;font-size:14px;font-weight:700;color:#1e3a5f;text-align:right;">$${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      ${notes ? highlight(h(notes)) : ""}
+
+      ${para(`<strong>Payment Instructions:</strong><br>
+        Please remit payment by check payable to:<br>
+        <strong>Advanced Custom Cabinets</strong><br>
+        PO Box TBD<br>
+        Please include invoice number <strong>#${invoiceNumber}</strong> on the memo line.`)}
+
+      ${para("Questions? Contact your project manager.")}
+    `,
+  });
+
+  return { subject, text, html };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // INTERNAL templates
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -620,129 +726,4 @@ export function scheduleDateChanged(data: {
       infoTable([
         infoRow("Event", `<strong>${h(data.eventType)}</strong>`),
         data.oldDate ? infoRow("Was", `<span style="text-decoration:line-through;color:#999;">${fmtDate(data.oldDate)}</span>`) : "",
-        data.newDate ? infoRow("Now", `<strong style="color:${BRAND_ORANGE};">${fmtDate(data.newDate)}</strong>`) : "",
-        infoRow("Address", h(data.siteAddress)),
-        infoRow("Changed by", h(data.changedBy)),
-        data.reason ? infoRow("Reason", h(data.reason)) : "",
-      ]),
-    ].join(""),
-    ctaLabel: data.jobUrl ? "Open Job" : undefined,
-    ctaUrl: data.jobUrl,
-  });
-
-  return { subject, text, html };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Notification trigger registry
-// Maps trigger IDs → metadata including default recipients.
-// Use this to build a notification-settings UI in the future.
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const NOTIFICATION_TRIGGERS: NotificationTrigger[] = [
-  {
-    id: "new_lead_alert",
-    label: "New Lead / Inquiry",
-    description: "Fires when a contact form is submitted. Alerts the PM inbox.",
-    defaultRecipients: ["pm"],
-    status: "planned",
-  },
-  {
-    id: "lead_inquiry_response",
-    label: "Lead Response (to client)",
-    description: "Outbound reply to a new lead collecting project info.",
-    defaultRecipients: ["homeowner"],
-    status: "planned",
-  },
-  {
-    id: "express_order_received",
-    label: "Express Order Received",
-    description: "Builder submits via Express wizard. PM gets the order PDF.",
-    defaultRecipients: ["pm"],
-    status: "built",
-  },
-  {
-    id: "bid_sent",
-    label: "Bid / Quote Sent",
-    description: "PM uploads and sends the initial quote to the client.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "final_design_sent",
-    label: "Final Design Sent",
-    description: "Updated drawings + quote sent for final review.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "contract_sent",
-    label: "Contract / Disclosure Sent",
-    description: "Full contract packet (drawings, quote, disclosure) sent for signing.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "client_signed",
-    label: "Client Signed Spec",
-    description: "Client completes the digital signoff. Alerts the PM.",
-    defaultRecipients: ["pm"],
-    status: "built",
-  },
-  {
-    id: "engineering_release",
-    label: "Released to Engineering",
-    description: "Rich HTML digest: spec, work orders, schedule, files.",
-    defaultRecipients: ["pm", "residential", "engineering"],
-    status: "built",
-  },
-  {
-    id: "released_to_production",
-    label: "Released to Production",
-    description: "Client-facing notice that the job has entered the shop.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "ready_for_delivery",
-    label: "Ready for Delivery",
-    description: "Order is built and ready to ship.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "delivered",
-    label: "Delivered",
-    description: "Delivery confirmed. Includes install date if scheduled.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "install_complete",
-    label: "Install Complete",
-    description: "Final client email including warranty info.",
-    defaultRecipients: ["homeowner", "builder"],
-    status: "planned",
-  },
-  {
-    id: "schedule_date_changed",
-    label: "Schedule Date Changed",
-    description: "Any install or delivery date shift. Goes to a configurable internal group.",
-    defaultRecipients: ["configurable_group", "builder"],
-    status: "planned",
-  },
-  {
-    id: "portal_input_received",
-    label: "Portal: Input Received",
-    description: "Builder portal item marked received by PM.",
-    defaultRecipients: ["builder"],
-    status: "built",
-  },
-  {
-    id: "portal_drawing_comment",
-    label: "Portal: Drawing Comment",
-    description: "ACC adds a comment on a drawing in the builder portal.",
-    defaultRecipients: ["builder"],
-    status: "built",
-  },
-];
+        data.newD

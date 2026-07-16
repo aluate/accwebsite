@@ -10,6 +10,7 @@ const ADMIN_LINKS = [
   { href: "/admin/portal-accounts", label: "Portal Accounts", desc: "Builder portal access and credentials" },
   { href: "/admin/builder-companies", label: "Builder Companies", desc: "Manage builder company records" },
   { href: "/admin/schedule", label: "Schedule Admin", desc: "Crew management, change requests, on-deck queue" },
+  { href: "/admin/billing", label: "Billing", desc: "Past-due invoices, payment status, outstanding balances" },
 ];
 
 export default async function AdminIndexPage() {
@@ -25,6 +26,4 @@ export default async function AdminIndexPage() {
             href={href}
             className="block bg-[#1a1b1c] border border-white/10 hover:border-[#f08122]/40 hover:bg-[#1a1b1c]/80 rounded-xl px-5 py-4 transition-colors group"
           >
-            <div className="font-medium text-white group-hover:text-[#f08122] transition-colors mb-0.5">
-              {label}
-            </div>
+            <div className="font-
