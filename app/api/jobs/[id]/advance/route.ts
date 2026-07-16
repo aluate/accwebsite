@@ -27,6 +27,7 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
+import { createDraftInvoice, invoiceExists } from "@/lib/invoices";
 
 type JobRow = JobMeta & {
   status: string;
@@ -215,6 +216,20 @@ export async function POST(
     actor: _actor, actorRole: _actorRole,
     payload: note ? { note } : undefined,
   }).catch(() => {});
+
+  // ── 8. Auto-create balance invoice draft on delivery ───────
+  if (toStatus === "delivered") {
+    const alreadyExists = await invoiceExists(internalId, "balance").catch(() => true);
+    if (!alreadyExists) {
+      const label = [job.client_name, job.site_address].filter(Boolean).join(" — ");
+      await createDraftInvoice({
+        jobId: internalId,
+        jobLabel: label,
+        invoiceType: "balance",
+        createdBy: _actor,
+      }).catch(() => {});
+    }
+  }
 
   return NextResponse.json({
     ok: true,

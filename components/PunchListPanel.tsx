@@ -1,27 +1,31 @@
 "use client";
 
 /**
- * PunchListPanel — Full punch list UI for a job.
+ * PunchListPanel — Centralized punch list UI.
  *
- * PM / Admin view:
- *   - Add Item form (room from spec or GENERAL, description, type code)
- *   - Optional before-photo upload when creating
- *   - Reopen items
- *   - Delete items
+ * Anyone with job access can add items: PM, admin, engineer, shop,
+ * installer, builder portal, homeowner (future).
  *
- * Installer view:
- *   - Read only for item details
- *   - Mark Done button: uploads after-photo then marks complete
- *
- * Items are grouped by room. GENERAL items appear at the bottom.
- * Type codes: S = Service only, S+M = Service + manufacture, HP = Hardware procurement, TD = Trade dependency.
+ * Statuses: open → scheduled → done | wont_fix
+ * Photos:   multiple per item, images + videos
+ * Types:    S / S+M / HP / TD (shown to internal users only)
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 type Room = { id: string; name: string; sort_order: number };
+
+type PunchPhoto = {
+  id: string;
+  punch_item_id: string;
+  storage_path: string;
+  media_type: string;
+  label: string | null;
+  sort_order: number;
+  url: string | null;
+};
 
 type PunchItem = {
   id: string;
@@ -30,20 +34,21 @@ type PunchItem = {
   general_location: string | null;
   item_description: string;
   type_code: string;
-  status: "open" | "done";
-  before_photo_url: string | null;
-  after_photo_url: string | null;
+  status: "open" | "scheduled" | "done" | "wont_fix";
+  photos: PunchPhoto[];
   created_by: string;
   created_at: string;
   completed_by: string | null;
   completed_at: string | null;
 };
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const TYPE_LABELS: Record<string, string> = {
   "S":   "Service only",
   "S+M": "Service + manufacture",
   "HP":  "Hardware procurement",
-  "TD":  "Trade dependency",
+  "TD":  "To Do",
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -53,7 +58,14 @@ const TYPE_COLORS: Record<string, string> = {
   "TD":  "text-orange-300 bg-orange-900/30 border-orange-700/40",
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
+  open:      { label: "Open",      cls: "text-red-300 bg-red-900/30 border-red-700/40" },
+  scheduled: { label: "Scheduled", cls: "text-yellow-300 bg-yellow-900/30 border-yellow-700/40" },
+  done:      { label: "Done",      cls: "text-green-400 bg-green-900/30 border-green-700/40" },
+  wont_fix:  { label: "Won’t Fix", cls: "text-white/30 bg-white/5 border-white/10" },
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function groupByRoom(items: PunchItem[]): Array<{ label: string; items: PunchItem[] }> {
   const map = new Map<string, { label: string; items: PunchItem[] }>();
@@ -66,7 +78,6 @@ function groupByRoom(items: PunchItem[]): Array<{ label: string; items: PunchIte
     map.get(key)!.items.push(item);
   }
 
-  // Sort groups: named rooms first (in order they come from API), GENERAL last
   const groups = [...map.entries()]
     .filter(([k]) => k !== generalKey)
     .map(([, v]) => v);
@@ -75,103 +86,133 @@ function groupByRoom(items: PunchItem[]): Array<{ label: string; items: PunchIte
 }
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-// ─── Photo Upload ─────────────────────────────────────────────────────────────
+// ─── Upload helper ────────────────────────────────────────────────────────────
 
-async function uploadPhoto(
-  itemId: string,
-  which: "before" | "after",
-  file: File
-): Promise<string | null> {
+async function uploadMediaFiles(itemId: string, files: File[], label?: string): Promise<void> {
+  if (files.length === 0) return;
   const form = new FormData();
-  form.append("file", file);
-  form.append("which", which);
-  const res = await fetch(`/api/punch-items/${itemId}/photo`, { method: "POST", body: form });
-  if (!res.ok) return null;
-  const body = await res.json();
-  return body.url ?? null;
+  for (const f of files) form.append("file", f);
+  if (label) form.append("label", label);
+  await fetch(`/api/punch-items/${itemId}/photo`, { method: "POST", body: form });
 }
 
-// ─── PhotoThumbnail ───────────────────────────────────────────────────────────
+// ─── MediaThumbnail ───────────────────────────────────────────────────────────
 
-function PhotoThumbnail({ url, label }: { url: string; label: string }) {
+function MediaThumbnail({ photo }: { photo: PunchPhoto }) {
+  if (!photo.url) return null;
+  const isVideo = photo.media_type === "video";
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-      <img
-        src={url}
-        alt={label}
-        className="w-20 h-20 object-cover rounded border border-white/10 hover:border-[#f08122] transition-colors"
-      />
-      <p className="text-[10px] text-white/30 mt-0.5 font-condensed uppercase tracking-wider">{label}</p>
+    <a href={photo.url} target="_blank" rel="noopener noreferrer" className="block relative group">
+      {isVideo ? (
+        <div className="w-20 h-20 rounded border border-white/10 group-hover:border-[#f08122] bg-black flex items-center justify-center transition-colors">
+          <span className="text-2xl opacity-60 group-hover:opacity-100">&#9654;</span>
+        </div>
+      ) : (
+        <img src={photo.url} alt={photo.label ?? ""} className="w-20 h-20 object-cover rounded border border-white/10 group-hover:border-[#f08122] transition-colors" />
+      )}
+      {photo.label && (
+        <p className="text-[9px] text-white/30 mt-0.5 font-condensed uppercase tracking-wider truncate w-20">{photo.label}</p>
+      )}
     </a>
+  );
+}
+
+// ─── FilePicker ───────────────────────────────────────────────────────────────
+
+function FilePicker({ files, onChange, label = "Add photos / videos" }: {
+  files: File[];
+  onChange: (f: File[]) => void;
+  label?: string;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? []);
+    onChange([...files, ...picked]);
+    if (ref.current) ref.current.value = "";
+  }
+
+  function remove(idx: number) {
+    onChange(files.filter((_, i) => i !== idx));
+  }
+
+  return (
+    <div className="space-y-2">
+      {files.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {files.map((f, idx) => {
+            const src = URL.createObjectURL(f);
+            const isVideo = f.type.startsWith("video/");
+            return (
+              <div key={idx} className="relative">
+                {isVideo
+                  ? <div className="w-16 h-16 rounded border border-white/15 bg-black flex items-center justify-center text-lg opacity-70">&#9654;</div>
+                  : <img src={src} alt="" className="w-16 h-16 object-cover rounded border border-white/15" />
+                }
+                <button type="button" onClick={() => remove(idx)}
+                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center hover:bg-red-500 leading-none">
+                  &times;
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <label className="flex items-center gap-2 cursor-pointer bg-[#111] border border-white/10 rounded px-3 py-2 text-sm text-white/40 hover:border-white/20 transition-colors w-full">
+        <span>&#128206;</span>
+        <span>{files.length > 0 ? `${files.length} file${files.length > 1 ? "s" : ""} — add more` : label}</span>
+        <input ref={ref} type="file" accept="image/*,video/*" capture="environment" multiple className="sr-only" onChange={handleChange} />
+      </label>
+    </div>
   );
 }
 
 // ─── ItemCard ─────────────────────────────────────────────────────────────────
 
-function ItemCard({
-  item,
-  isInstaller,
-  canEdit,
-  onRefresh,
-}: {
+function ItemCard({ item, canManage, onRefresh }: {
   item: PunchItem;
-  isInstaller: boolean;
-  canEdit: boolean;
+  canManage: boolean;
   onRefresh: () => void;
 }) {
-  const [completing, setCompleting] = useState(false);
-  const [afterFile, setAfterFile] = useState<File | null>(null);
-  const [afterPreview, setAfterPreview] = useState<string | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
 
-  const isDone = item.status === "done";
+  const isResolved = item.status === "done" || item.status === "wont_fix";
+  const statusCfg  = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.open;
+  const typeCls    = TYPE_COLORS[item.type_code] ?? "text-white/40 bg-white/5 border-white/10";
 
-  function onAfterFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setAfterFile(f);
-    setAfterPreview(URL.createObjectURL(f));
+  async function patchStatus(status: string) {
+    await fetch(`/api/punch-items/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    onRefresh();
   }
 
-  async function handleComplete() {
-    if (!afterFile) {
-      setError("Photo required to mark as done");
-      return;
-    }
-    setError("");
-    setCompleting(true);
+  async function handleMarkDone() {
+    setError(""); setBusy(true);
     try {
-      // Upload after photo
-      const url = await uploadPhoto(item.id, "after", afterFile);
-      if (!url) { setError("Photo upload failed"); setCompleting(false); return; }
-
-      // Mark done
+      if (pendingFiles.length > 0) await uploadMediaFiles(item.id, pendingFiles, "after");
       const res = await fetch(`/api/punch-items/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "done" }),
       });
-      if (!res.ok) { setError("Could not mark item done"); setCompleting(false); return; }
+      if (!res.ok) { setError("Could not mark done"); setBusy(false); return; }
       onRefresh();
-    } catch {
-      setError("Something went wrong");
-      setCompleting(false);
-    }
+    } catch { setError("Something went wrong"); setBusy(false); }
   }
 
-  async function handleReopen() {
-    await fetch(`/api/punch-items/${item.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "open" }),
-    });
-    onRefresh();
+  async function handleSavePhotos() {
+    if (pendingFiles.length === 0) return;
+    setBusy(true);
+    await uploadMediaFiles(item.id, pendingFiles);
+    setPendingFiles([]); setBusy(false); onRefresh();
   }
 
   async function handleDelete() {
@@ -180,100 +221,71 @@ function ItemCard({
     onRefresh();
   }
 
-  const typeCls = TYPE_COLORS[item.type_code] ?? "text-white/40 bg-white/5 border-white/10";
-
   return (
-    <div className={`rounded-xl border p-4 transition-colors ${isDone ? "bg-white/3 border-white/5 opacity-60" : "bg-white/5 border-white/10"}`}>
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <span className={`text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded border ${typeCls}`}>
-          {item.type_code} — {TYPE_LABELS[item.type_code] ?? item.type_code}
-        </span>
-        {isDone && (
-          <span className="text-[10px] font-condensed uppercase tracking-wider text-green-400">
-            ✓ Done
-          </span>
-        )}
+    <div className={`rounded-xl border p-4 transition-colors ${isResolved ? "bg-white/3 border-white/5 opacity-50" : "bg-white/5 border-white/10"}`}>
+
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        <span className={`text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded border ${statusCfg.cls}`}>{statusCfg.label}</span>
+        <span className={`text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded border ${typeCls}`}>{item.type_code} — {TYPE_LABELS[item.type_code] ?? item.type_code}</span>
       </div>
 
-      <p className={`text-sm leading-snug ${isDone ? "text-white/40 line-through" : "text-white"}`}>
-        {item.item_description}
-      </p>
+      <p className={`text-sm leading-snug ${isResolved ? "text-white/40 line-through" : "text-white"}`}>{item.item_description}</p>
+      {item.general_location && <p className="text-xs text-white/40 italic mt-0.5">{item.general_location}</p>}
 
-      {/* Location detail for GENERAL items */}
-      {item.general_location && (
-        <p className="text-xs text-white/40 mt-0.5 italic">{item.general_location}</p>
-      )}
-
-      {/* Photos row */}
-      {(item.before_photo_url || item.after_photo_url || afterPreview) && (
-        <div className="flex gap-3 mt-3">
-          {item.before_photo_url && (
-            <PhotoThumbnail url={item.before_photo_url} label="Before" />
-          )}
-          {item.after_photo_url && (
-            <PhotoThumbnail url={item.after_photo_url} label="After" />
-          )}
-          {afterPreview && !item.after_photo_url && (
-            <div className="block">
-              <img src={afterPreview} alt="After (pending)" className="w-20 h-20 object-cover rounded border border-[#f08122]/50" />
-              <p className="text-[10px] text-[#f08122]/60 mt-0.5 font-condensed uppercase tracking-wider">After (pending)</p>
-            </div>
-          )}
+      {item.photos.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {item.photos.map((p) => <MediaThumbnail key={p.id} photo={p} />)}
         </div>
       )}
 
-      {/* Footer meta */}
       <p className="text-[10px] text-white/20 mt-2">
         Added {fmtDate(item.created_at)} by {item.created_by}
-        {isDone && item.completed_by && ` · Completed by ${item.completed_by}`}
-        {isDone && item.completed_at && ` on ${fmtDate(item.completed_at)}`}
+        {isResolved && item.completed_by && ` · ${item.status === "done" ? "Completed" : "Closed"} by ${item.completed_by}`}
+        {isResolved && item.completed_at && ` on ${fmtDate(item.completed_at)}`}
       </p>
 
-      {/* Actions */}
-      {!isDone && (
+      {!isResolved && (
         <div className="mt-3 space-y-2">
-          {/* Completion flow */}
-          <div className="flex items-center gap-2">
-            <label className="flex-1 flex items-center gap-2 cursor-pointer bg-white/5 hover:bg-white/8 border border-white/10 rounded-lg px-3 py-2 transition-colors text-sm text-white/60">
-              <span className="text-[#f08122]">📷</span>
-              {afterFile ? afterFile.name : "Attach completion photo"}
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="sr-only"
-                onChange={onAfterFileChange}
-              />
-            </label>
-            <button
-              onClick={handleComplete}
-              disabled={completing}
-              className="shrink-0 px-4 py-2 rounded-lg bg-green-700/60 hover:bg-green-600/70 text-green-200 text-sm font-condensed uppercase tracking-wider transition-colors disabled:opacity-40"
-            >
-              {completing ? "Saving…" : "Mark Done"}
-            </button>
-          </div>
+          <FilePicker files={pendingFiles} onChange={setPendingFiles} label="Attach photos / videos" />
           {error && <p className="text-red-400 text-xs">{error}</p>}
+          <div className="flex flex-wrap gap-2 pt-1">
+            {pendingFiles.length > 0 && (
+              <button onClick={handleSavePhotos} disabled={busy}
+                className="px-3 py-1.5 rounded bg-white/10 text-white/70 text-xs font-condensed uppercase tracking-wider hover:bg-white/15 transition-colors disabled:opacity-40">
+                {busy ? "Uploading…" : "Save photos"}
+              </button>
+            )}
+            <button onClick={handleMarkDone} disabled={busy}
+              className="px-3 py-1.5 rounded bg-green-700/60 hover:bg-green-600/70 text-green-200 text-xs font-condensed uppercase tracking-wider transition-colors disabled:opacity-40">
+              {busy ? "Saving…" : "Mark Done"}
+            </button>
+            {canManage && item.status === "open" && (
+              <button onClick={() => patchStatus("scheduled")}
+                className="px-3 py-1.5 rounded bg-yellow-900/40 text-yellow-300 text-xs font-condensed uppercase tracking-wider hover:bg-yellow-800/50 transition-colors">
+                Schedule
+              </button>
+            )}
+            {canManage && item.status === "scheduled" && (
+              <button onClick={() => patchStatus("open")}
+                className="px-3 py-1.5 rounded bg-white/5 text-white/40 text-xs font-condensed uppercase tracking-wider hover:bg-white/10 transition-colors">
+                Unschedule
+              </button>
+            )}
+            {canManage && (
+              <button onClick={() => patchStatus("wont_fix")}
+                className="px-3 py-1.5 rounded bg-white/5 text-white/30 text-xs font-condensed uppercase tracking-wider hover:bg-white/10 transition-colors">
+                Won&apos;t Fix
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {/* PM / admin reopen + delete */}
-      {canEdit && isDone && (
-        <button
-          onClick={handleReopen}
-          className="mt-2 text-[10px] text-white/25 hover:text-[#f08122] font-condensed uppercase tracking-wider transition-colors"
-        >
-          Reopen
-        </button>
-      )}
-      {canEdit && (
-        <button
-          onClick={handleDelete}
-          className="mt-2 ml-4 text-[10px] text-white/15 hover:text-red-400 font-condensed uppercase tracking-wider transition-colors"
-        >
-          Delete
-        </button>
+      {canManage && isResolved && (
+        <div className="mt-2 flex gap-3">
+          <button onClick={() => patchStatus("open")} className="text-[10px] text-white/25 hover:text-[#f08122] font-condensed uppercase tracking-wider transition-colors">Reopen</button>
+          <button onClick={handleDelete} className="text-[10px] text-white/15 hover:text-red-400 font-condensed uppercase tracking-wider transition-colors">Delete</button>
+        </div>
       )}
     </div>
   );
@@ -281,36 +293,28 @@ function ItemCard({
 
 // ─── AddItemForm ──────────────────────────────────────────────────────────────
 
-function AddItemForm({
-  jobId,
-  rooms,
-  onAdded,
-}: {
+function AddItemForm({ jobId, rooms, isInternal, onAdded }: {
   jobId: string;
   rooms: Room[];
+  isInternal: boolean;
   onAdded: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [roomId, setRoomId] = useState<string>("__general__");
-  const [generalLocation, setGeneralLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [typeCode, setTypeCode] = useState("S");
-  const [beforeFile, setBeforeFile] = useState<File | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [open, setOpen]                   = useState(false);
+  const [roomId, setRoomId]               = useState("__general__");
+  const [generalLocation, setGeneralLoc]  = useState("");
+  const [description, setDescription]     = useState("");
+  const [typeCode, setTypeCode]           = useState("TD");
+  const [mediaFiles, setMediaFiles]       = useState<File[]>([]);
+  const [saving, setSaving]               = useState(false);
+  const [error, setError]                 = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!description.trim()) { setError("Description is required"); return; }
-    if (roomId === "__general__" && !generalLocation.trim()) {
-      setError("Location detail is required for General items");
-      return;
-    }
-
+    if (roomId === "__general__" && !generalLocation.trim()) { setError("Location detail required"); return; }
     setSaving(true);
     try {
-      // Create item
       const res = await fetch(`/api/jobs/${jobId}/punch-items`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -321,141 +325,78 @@ function AddItemForm({
           type_code: typeCode,
         }),
       });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(body.error ?? "Failed to create item");
-        setSaving(false);
-        return;
-      }
-
-      const { id: newItemId } = await res.json();
-
-      // Upload before photo if attached
-      if (beforeFile && newItemId) {
-        await uploadPhoto(newItemId, "before", beforeFile);
-      }
-
-      // Reset form
-      setDescription("");
-      setGeneralLocation("");
-      setBeforeFile(null);
-      setTypeCode("S");
-      setOpen(false);
+      if (!res.ok) { const b = await res.json().catch(() => ({})); setError(b.error ?? "Failed"); setSaving(false); return; }
+      const { id: newId } = await res.json();
+      if (mediaFiles.length > 0 && newId) await uploadMediaFiles(newId, mediaFiles, "before");
+      setDescription(""); setGeneralLoc(""); setMediaFiles([]); setTypeCode("TD"); setOpen(false);
       onAdded();
-    } catch {
-      setError("Something went wrong");
-    } finally {
-      setSaving(false);
-    }
+    } catch { setError("Something went wrong"); }
+    finally { setSaving(false); }
   }
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full flex items-center justify-center gap-2 border border-dashed border-white/15 rounded-xl py-3 text-white/30 hover:text-[#f08122] hover:border-[#f08122]/30 text-sm font-condensed uppercase tracking-wider transition-colors"
-      >
-        + Add Punch Item
-      </button>
-    );
-  }
+  if (!open) return (
+    <button onClick={() => setOpen(true)}
+      className="w-full flex items-center justify-center gap-2 border border-dashed border-white/15 rounded-xl py-3 text-white/30 hover:text-[#f08122] hover:border-[#f08122]/30 text-sm font-condensed uppercase tracking-wider transition-colors">
+      + Add Punch Item
+    </button>
+  );
 
   return (
     <form onSubmit={handleSubmit} className="bg-[#1e1e1e] border border-white/10 rounded-xl p-4 space-y-3">
-      <p className="text-[#f08122] font-condensed uppercase tracking-wider text-xs mb-1">New Punch Item</p>
+      <p className="text-[#f08122] font-condensed uppercase tracking-wider text-xs">New Punch Item</p>
 
-      {/* Room */}
       <div>
         <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">Room</label>
-        <select
-          value={roomId}
-          onChange={(e) => setRoomId(e.target.value)}
-          className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/50"
-        >
-          {rooms.map((r) => (
-            <option key={r.id} value={r.id}>{r.name}</option>
-          ))}
-          <option value="__general__">General (not room-specific)</option>
+        <select value={roomId} onChange={(e) => setRoomId(e.target.value)}
+          className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/50">
+          {rooms.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+          <option value="__general__">General / not room-specific</option>
         </select>
       </div>
 
-      {/* General location (only when GENERAL selected) */}
       {roomId === "__general__" && (
         <div>
-          <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">
-            Location / Context
-          </label>
-          <input
-            type="text"
-            value={generalLocation}
-            onChange={(e) => setGeneralLocation(e.target.value)}
-            placeholder="e.g. STN-1 fascia caps"
-            className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#f08122]/50"
-          />
+          <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">Location detail</label>
+          <input type="text" value={generalLocation} onChange={(e) => setGeneralLoc(e.target.value)}
+            placeholder="e.g. garage ceiling, hallway baseboard…"
+            className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#f08122]/50" />
         </div>
       )}
 
-      {/* Description */}
       <div>
-        <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe the punch item…"
-          rows={2}
-          className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#f08122]/50 resize-none"
-        />
+        <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">What needs to happen *</label>
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)}
+          placeholder="Describe the issue or task…" rows={3}
+          className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#f08122]/50 resize-none" />
       </div>
 
-      {/* Type code */}
-      <div>
-        <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">Type</label>
-        <select
-          value={typeCode}
-          onChange={(e) => setTypeCode(e.target.value)}
-          className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/50"
-        >
-          <option value="S">S — Service only (same trip)</option>
-          <option value="S+M">S+M — Service + manufacture (~10 days)</option>
-          <option value="HP">HP — Hardware procurement</option>
-          <option value="TD">TD — Trade dependency (not ACC&apos;s clock)</option>
-        </select>
-      </div>
+      {isInternal && (
+        <div>
+          <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">Type</label>
+          <select value={typeCode} onChange={(e) => setTypeCode(e.target.value)}
+            className="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/50">
+            <option value="S">S — Service only (same trip)</option>
+            <option value="S+M">S+M — Service + manufacture (~10 days)</option>
+            <option value="HP">HP — Hardware procurement</option>
+            <option value="TD">TD — To Do</option>
+          </select>
+        </div>
+      )}
 
-      {/* Before photo */}
       <div>
-        <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">
-          Before Photo (optional)
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer bg-[#111] border border-white/10 rounded px-3 py-2 text-sm text-white/40 hover:border-white/20 transition-colors">
-          <span>📷</span>
-          {beforeFile ? beforeFile.name : "Attach photo"}
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="sr-only"
-            onChange={(e) => setBeforeFile(e.target.files?.[0] ?? null)}
-          />
-        </label>
+        <label className="text-[10px] text-white/30 font-condensed uppercase tracking-wider block mb-1">Photos / videos (optional)</label>
+        <FilePicker files={mediaFiles} onChange={setMediaFiles} />
       </div>
 
       {error && <p className="text-red-400 text-xs">{error}</p>}
 
       <div className="flex gap-2 pt-1">
-        <button
-          type="submit"
-          disabled={saving}
-          className="flex-1 py-2 rounded-lg bg-[#f08122] text-black text-sm font-condensed uppercase tracking-wider hover:bg-[#d4701e] transition-colors disabled:opacity-40"
-        >
+        <button type="submit" disabled={saving}
+          className="flex-1 py-2 rounded-lg bg-[#f08122] text-black text-sm font-condensed uppercase tracking-wider hover:bg-[#d4701e] transition-colors disabled:opacity-40">
           {saving ? "Saving…" : "Add Item"}
         </button>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="px-4 py-2 rounded-lg border border-white/10 text-white/40 text-sm hover:border-white/20 transition-colors"
-        >
+        <button type="button" onClick={() => setOpen(false)}
+          className="px-4 py-2 rounded-lg border border-white/10 text-white/40 text-sm hover:border-white/20 transition-colors">
           Cancel
         </button>
       </div>
@@ -465,20 +406,17 @@ function AddItemForm({
 
 // ─── PunchListPanel ───────────────────────────────────────────────────────────
 
-export function PunchListPanel({
-  jobId,
-  role,
-}: {
+export function PunchListPanel({ jobId, role }: {
   jobId: string;
-  role: "admin" | "pm" | "engineer" | "shop" | "installer";
+  role: "admin" | "pm" | "engineer" | "shop" | "installer" | "portal" | string;
 }) {
-  const [items, setItems] = useState<PunchItem[]>([]);
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [items, setItems]     = useState<PunchItem[]>([]);
+  const [rooms, setRooms]     = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError]     = useState("");
 
-  const isInstaller = role === "installer";
-  const canEdit = role === "admin" || role === "pm";
+  const isInternal = !["portal", "homeowner"].includes(role);
+  const canManage  = ["admin", "pm"].includes(role);
 
   const refresh = useCallback(async () => {
     try {
@@ -487,110 +425,42 @@ export function PunchListPanel({
       const body = await res.json();
       setItems(body.items ?? []);
       setRooms(body.rooms ?? []);
-    } catch {
-      setError("Failed to load punch list");
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError("Failed to load punch list"); }
+    finally { setLoading(false); }
   }, [jobId]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  const openItems = items.filter((i) => i.status === "open");
-  const doneItems = items.filter((i) => i.status === "done");
-  const groups = groupByRoom(openItems);
-  const doneGroups = groupByRoom(doneItems);
+  const activeItems    = items.filter((i) => i.status === "open" || i.status === "scheduled");
+  const resolvedItems  = items.filter((i) => i.status === "done" || i.status === "wont_fix");
+  const scheduledCount = items.filter((i) => i.status === "scheduled").length;
+  const activeGroups   = groupByRoom(activeItems);
+  const resolvedGroups = groupByRoom(resolvedItems);
 
-  if (loading) {
-    return (
-      <div className="py-8 text-center text-white/20 text-sm font-condensed uppercase tracking-wider">
-        Loading punch list…
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="py-8 text-center text-white/20 text-sm font-condensed uppercase tracking-wider">Loading…</div>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs">
-          Punch List
-        </p>
+        <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs">Punch List</p>
         <div className="flex gap-3 text-xs text-white/30 font-condensed uppercase tracking-wider">
-          <span>{openItems.length} open</span>
+          <span>{activeItems.length} active</span>
+          {scheduledCount > 0 && <span className="text-yellow-400">{scheduledCount} scheduled</span>}
           <span>·</span>
-          <span>{doneItems.length} done</span>
+          <span>{resolvedItems.length} resolved</span>
         </div>
       </div>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
-      {/* Add item (PM/admin only) */}
-      {canEdit && (
-        <AddItemForm jobId={jobId} rooms={rooms} onAdded={refresh} />
-      )}
+      <AddItemForm jobId={jobId} rooms={rooms} isInternal={isInternal} onAdded={refresh} />
 
-      {/* No items state */}
       {items.length === 0 && (
-        <div className="text-center py-8 text-white/15 text-sm">
-          No punch items yet.
-          {canEdit && " Add the first one above."}
-        </div>
+        <div className="text-center py-8 text-white/15 text-sm">No punch items yet.</div>
       )}
 
-      {/* Open items by room */}
-      {groups.length > 0 && (
-        <div className="space-y-5">
-          {groups.map((group) => (
-            <div key={group.label}>
-              <p className="text-[10px] font-condensed uppercase tracking-[0.2em] text-white/30 mb-2 px-1">
-                {group.label}
-              </p>
-              <div className="space-y-2">
-                {group.items.map((item) => (
-                  <ItemCard
-                    key={item.id}
-                    item={item}
-                    isInstaller={isInstaller}
-                    canEdit={canEdit}
-                    onRefresh={refresh}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Completed items — collapsed by default */}
-      {doneItems.length > 0 && (
-        <details className="group">
-          <summary className="cursor-pointer text-[10px] font-condensed uppercase tracking-[0.2em] text-white/20 hover:text-white/40 transition-colors list-none flex items-center gap-2">
-            <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-            {doneItems.length} completed item{doneItems.length !== 1 ? "s" : ""}
-          </summary>
-          <div className="mt-3 space-y-5">
-            {doneGroups.map((group) => (
-              <div key={group.label}>
-                <p className="text-[10px] font-condensed uppercase tracking-[0.2em] text-white/20 mb-2 px-1">
-                  {group.label}
-                </p>
-                <div className="space-y-2">
-                  {group.items.map((item) => (
-                    <ItemCard
-                      key={item.id}
-                      item={item}
-                      isInstaller={isInstaller}
-                      canEdit={canEdit}
-                      onRefresh={refresh}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </details>
-      )}
-    </div>
-  );
-}
+      {activeGroups.map((group) => (
+        <div key={group.label}>
+          <p className="text-[10px] font-condensed uppercase tracking-[0.2em] text-white/30 m
