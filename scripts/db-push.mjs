@@ -1008,6 +1008,88 @@ async function main() {
     console.log("Seeded " + items.length + " accessories into accessories_catalog");
   }
 
+
+  // ── invoices ─────────────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS invoices (
+      id                TEXT        PRIMARY KEY,
+      job_id            TEXT        NOT NULL REFERENCES jobs(id),
+      invoice_number    INTEGER,
+      invoice_type      TEXT        NOT NULL DEFAULT 'deposit',
+      change_order_id   TEXT        REFERENCES change_orders(id),
+      status            TEXT        NOT NULL DEFAULT 'draft',
+      terms             TEXT        NOT NULL DEFAULT 'Due on receipt',
+      notes             TEXT,
+      check_number      TEXT,
+      check_date        TEXT,
+      paid_at           TEXT,
+      sent_at           TEXT,
+      created_by        TEXT,
+      created_at        TEXT        NOT NULL
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS invoice_line_items (
+      id            TEXT          PRIMARY KEY,
+      invoice_id    TEXT          NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+      description   TEXT          NOT NULL,
+      amount        NUMERIC(10,2) NOT NULL,
+      sort_order    INTEGER       NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`CREATE SEQUENCE IF NOT EXISTS invoice_number_seq START 1001 INCREMENT 1`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_invoices_job_id ON invoices(job_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_invoice_line_items_invoice_id ON invoice_line_items(invoice_id)`;
+  console.log("invoices + invoice_line_items OK");
+
+  // ── template_documents ────────────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS template_documents (
+      id           TEXT PRIMARY KEY,
+      doc_type     TEXT NOT NULL UNIQUE,
+      label        TEXT NOT NULL,
+      description  TEXT,
+      storage_path TEXT,
+      filename     TEXT,
+      file_size    INTEGER,
+      mime_type    TEXT,
+      uploaded_by  TEXT,
+      uploaded_at  TEXT,
+      is_active    INTEGER NOT NULL DEFAULT 1
+    )
+  `;
+  // Seed default slots
+  const tdocSlots = [
+    { id: "tdoc-disclosure", doc_type: "residential_disclosure", label: "Residential Disclosure", description: "Attached to every contract packet sent to clients" },
+    { id: "tdoc-warranty", doc_type: "warranty", label: "Warranty Document", description: "Attached to the install complete email" },
+    { id: "tdoc-payment-terms", doc_type: "payment_terms", label: "Payment Terms", description: "Optionally attached to invoice emails" },
+    { id: "tdoc-install-care", doc_type: "install_care", label: "Installation & Care Guide", description: "Included with install complete email alongside warranty" },
+  ];
+  for (const slot of tdocSlots) {
+    await sql`
+      INSERT INTO template_documents (id, doc_type, label, description, is_active)
+      VALUES (${slot.id}, ${slot.doc_type}, ${slot.label}, ${slot.description}, 1)
+      ON CONFLICT (doc_type) DO NOTHING
+    `;
+  }
+  console.log("template_documents OK");
+
+  // ── client_signoffs extra columns (from template-documents migration) ─────
+  try { await sql`ALTER TABLE client_signoffs ADD COLUMN signoff_purpose TEXT DEFAULT 'spec'`; } catch {}
+  try { await sql`ALTER TABLE client_signoffs ADD COLUMN certificate_path TEXT`; } catch {}
+  try { await sql`ALTER TABLE client_signoffs ADD COLUMN attached_docs_json TEXT`; } catch {}
+
+  // ── jobs: innergy sync columns ────────────────────────────────────────────
+  try { await sql`ALTER TABLE jobs ADD COLUMN innergy_opportunity_id TEXT`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN innergy_bid_id TEXT`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN innergy_synced_at TIMESTAMPTZ`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN estimated_value NUMERIC(12,2)`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN state TEXT`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN zip_code TEXT`; } catch {}
+  await sql`CREATE INDEX IF NOT EXISTS idx_jobs_innergy_opportunity_id ON jobs (innergy_opportunity_id) WHERE innergy_opportunity_id IS NOT NULL`;
+  console.log("jobs innergy columns OK");
+
   console.log("Schema push complete.");
   await sql.end();
 }

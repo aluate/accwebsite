@@ -15,6 +15,8 @@ import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { JobInlineEditClient } from "@/components/JobInlineEditClient";
 import { WorkOrdersPanel } from "@/components/WorkOrdersPanel";
+import { JobActionButtons } from "@/components/JobActionButtons";
+import { InvoicePanel } from "@/components/InvoicePanel";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -283,6 +285,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             {((session.role === "admin" || session.role === "karl") || session.role === "user") && (
               <ReadyToScheduleButton jobId={internalId} initialOnDeck={hasScheduleEvents} />
             )}
+            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+              <JobActionButtons
+                jobId={internalId}
+                jobStatus={job.status}
+                clientEmail={job.client_email}
+                canManage={true}
+              />
+            )}
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5">
@@ -315,6 +325,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
             <div className="mt-6 pt-4 border-t border-white/5">
               <ChangeOrdersPanel jobId={internalId} role={session.role} />
+            </div>
+          )}
+
+          {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+            <div className="mt-6 pt-4 border-t border-white/5">
+              <InvoicePanel jobId={internalId} canManage={isAdmin || session.role === "pm"} />
             </div>
           )}
 
