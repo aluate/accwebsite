@@ -1115,6 +1115,7 @@ async function main() {
   try { await sql`ALTER TABLE jobs ADD COLUMN innergy_synced_at TIMESTAMPTZ`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN estimated_value NUMERIC(12,2)`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN pm_complexity INTEGER NOT NULL DEFAULT 1`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_duration_days INTEGER`; } catch {}
   try { await sql`ALTER TABLE finish_groups ADD COLUMN pm_complexity INTEGER`; } catch {}
   try { await sql`ALTER TABLE finish_groups ADD COLUMN box_count INTEGER`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN box_count INTEGER`; } catch {}

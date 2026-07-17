@@ -23,6 +23,8 @@ type ConstraintJob = {
   pm_complexity: number | null; // job-level default
   job_box_count: number | null;
   job_wo_count: number | null;
+  install_start_date: string | null;
+  install_duration_days: number | null;
   finish_groups: FinishGroup[];
 };
 
@@ -174,6 +176,38 @@ function EditableDollar({ value, onSave }: { value: number | null; onSave: (v: n
   );
 }
 
+
+function EditableNumber({ value, unit, min, onSave }: {
+  value: number | null; unit: string; min?: number;
+  onSave: (v: number | null) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value != null ? String(value) : "");
+  const [saving, setSaving] = useState(false);
+
+  async function commit() {
+    setSaving(true);
+    const n = draft.trim() === "" ? null : parseInt(draft, 10);
+    await onSave(isNaN(n as number) ? null : n);
+    setSaving(false); setEditing(false);
+  }
+  if (editing) {
+    return <input autoFocus type="number" min={min ?? 0} step="1" value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+      disabled={saving}
+      className="w-16 bg-white/10 border border-[#f08122]/60 rounded px-1.5 py-0.5 text-xs text-white text-center focus:outline-none" />;
+  }
+  return (
+    <button onClick={() => { setDraft(value != null ? String(value) : ""); setEditing(true); }}
+      className="text-xs text-white/60 hover:text-[#f08122] group tabular-nums flex items-center gap-0.5">
+      <span>{value != null ? `${value} ${unit}` : <span className="text-white/25">—</span>}</span>
+      <span className="text-white/20 group-hover:text-[#f08122] text-[10px]">&#9999;</span>
+    </button>
+  );
+}
+
 // Job-level box/WO — only shown when job has NO finish groups
 function EditableBoxes({ boxes, onSaveBoxes }: {
   boxes: number | null;
@@ -266,6 +300,12 @@ function FgRow({ fg, jobComplexity, onSaveFg }: {
       <td className="px-2 py-2" />
 
       {/* Delivery — empty */}
+      <td className="px-2 py-2" />
+
+      {/* Install Start — empty on FG rows */}
+      <td className="px-2 py-2" />
+
+      {/* Install Duration — empty on FG rows */}
       <td className="px-2 py-2" />
 
       {/* Box count + WO */}
@@ -366,6 +406,17 @@ function JobRow({ job, pms, onSaveJob, onSaveFg }: {
         {/* Delivery */}
         <td className="px-2 py-2.5">
           <EditableDate value={job.delivery_date} onSave={v => onSaveJob(job.id, { delivery_date: v })} />
+        </td>
+
+        {/* Install Start */}
+        <td className="px-2 py-2.5">
+          <EditableDate value={job.install_start_date} onSave={v => onSaveJob(job.id, { install_start_date: v })} />
+        </td>
+
+        {/* Install Duration (days) */}
+        <td className="px-2 py-2.5">
+          <EditableNumber value={job.install_duration_days} unit="days" min={1}
+            onSave={v => onSaveJob(job.id, { install_duration_days: v })} />
         </td>
 
         {/* Boxes + WO summary */}
@@ -556,6 +607,8 @@ export default function ConstraintsClient() {
                 <th className="text-left px-2 py-3">Complexity &#9999;</th>
                 <th className="text-left px-2 py-3">PM</th>
                 <th className="text-left px-2 py-3">Delivery &#9999;</th>
+                <th className="text-left px-2 py-3">Install Start &#9999;</th>
+                <th className="text-left px-2 py-3">Duration &#9999;</th>
                 <th className="text-right px-2 py-3" colSpan={2}>Boxes &#9999; → WO (auto)</th>
               </tr>
             </thead>
