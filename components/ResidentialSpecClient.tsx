@@ -29,6 +29,7 @@ type CatalogData = {
   cabDoorEdges?: { id: string; name: string }[];
   cabDoorProfiles?: { id: string; name: string }[];
   cabDoorPanels?: { id: string; name: string }[];
+  species?: { id: string; name: string; grades: string | string[] | null }[];
 };
 
 type FinishType = "paint" | "stain" | "melamine" | "plam" | "";
@@ -1579,12 +1580,38 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
                     <div>
                       <label className={LABEL}>Species</label>
-                      <input
-                        value={g.species ?? ""}
+                      <select
+                        value={(catalogs.species ?? []).find(s => g.species?.startsWith(s.name)) ? g.species.split(" - ")[0] : ""}
                         onChange={(e) => updateGroup(g.id, { species: e.target.value })}
-                        placeholder="e.g. Red Oak, Alder, Maple, Paint Grade"
-                        className={INPUT}
-                      />
+                        className={SELECT}
+                      >
+                        <option value="">-- Select Species --</option>
+                        {(catalogs.species ?? []).map((s) => (
+                          <option key={s.id} value={s.name}>{s.name}</option>
+                        ))}
+                      </select>
+                      {(() => {
+                        const spName = g.species?.split(" - ")[0] ?? "";
+                        const sp = (catalogs.species ?? []).find((s) => s.name === spName);
+                        const grades = sp?.grades
+                          ? (Array.isArray(sp.grades) ? sp.grades : String(sp.grades).split(";").filter(Boolean))
+                          : [];
+                        if (!grades.length) return null;
+                        const currentGrade = g.species?.includes(" - ") ? g.species.split(" - ").slice(1).join(" - ") : "";
+                        return (
+                          <select
+                            className={`${SELECT} mt-1`}
+                            value={currentGrade}
+                            onChange={(e) => {
+                              const base = g.species?.split(" - ")[0] ?? spName;
+                              updateGroup(g.id, { species: e.target.value ? `${base} - ${e.target.value}` : base });
+                            }}
+                          >
+                            <option value="">Grade (optional)</option>
+                            {grades.map((gr) => <option key={gr} value={gr}>{gr}</option>)}
+                          </select>
+                        );
+                      })()}
                     </div>
                   )}
                   <div>

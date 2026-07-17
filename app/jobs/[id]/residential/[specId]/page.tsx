@@ -259,7 +259,7 @@ export default async function SpecEditorPage({
         category: r.category, width_options_in: r.width_options,
         finish_options: r.finish_opts, hand: r.hand,
         image_url: r.image_url ?? "", price_slp: r.price_slp != null ? String(r.price_slp) : "",
-        price_date: r.price_date ?? "", notes: r.notes ?? "",
+        price_date: r.price_date != null ? String(r.price_date).slice(0, 10) : "", notes: r.notes ?? "",
       }));
     })(),
     cabinetFamilies:  catalogs.cabinetFamilies(),
@@ -272,6 +272,7 @@ export default async function SpecEditorPage({
     moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
     cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
+    species:          catalogs.species(),
     cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 
