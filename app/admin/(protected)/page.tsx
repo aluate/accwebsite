@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 
 const ADMIN_LINKS = [
   { href: "/admin/pipeline",          label: "Pipeline",          desc: "Active jobs — value, box count, shop hours, install hours, capacity" },
+  { href: "/admin/constraints",       label: "Constraints Data",  desc: "Inline-edit value, complexity, PM, delivery, box/WO counts for shop model" },
   { href: "/admin/leads",             label: "Leads",             desc: "Intake and respond to new inquiries from the contact form or cold calls" },
   { href: "/admin/estimating",        label: "Estimating",        desc: "Build bids, room-by-room cabinet entry, cost summary" },
   { href: "/admin/builders",          label: "User Accounts",     desc: "Manage internal builder accounts and roles" },
