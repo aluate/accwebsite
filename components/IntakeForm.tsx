@@ -121,6 +121,17 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
 
     if (window.google?.maps?.places) {
       initAutocomplete();
+    } else {
+      // Polling fallback: script may already be in DOM but Places not yet ready
+      let attempts = 0;
+      const poll = setInterval(() => {
+        if (window.google?.maps?.places) {
+          clearInterval(poll);
+          initAutocomplete();
+        } else if (++attempts > 20) {
+          clearInterval(poll); // give up after ~10s
+        }
+      }, 500);
     }
   }, []);
 
@@ -268,6 +279,10 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
           <label className={LABEL}>Assigned PM</label>
           <select name="pm" defaultValue={initial?.pm ?? ""} className={SELECT}>
             <option value="">-- Select PM --</option>
+            {/* Show current PM value even if not in list (e.g. 'karl' role) */}
+            {initial?.pm && !pms.find(p => p.name === initial.pm) && (
+              <option value={initial.pm}>{initial.pm}</option>
+            )}
             {pms.map((pm) => (
               <option key={pm.name} value={pm.name}>{pm.name}</option>
             ))}

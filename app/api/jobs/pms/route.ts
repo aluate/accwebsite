@@ -9,7 +9,7 @@ export async function GET() {
   const rows = await sql<{ name: string; email: string | null }[]>`
     SELECT name, email
     FROM builder_accounts
-    WHERE role IN ('pm', 'admin') AND active = 1
+    WHERE role IN ('pm', 'admin', 'karl') AND active = 1
     ORDER BY name ASC
   `;
   return NextResponse.json(rows);

@@ -7,7 +7,7 @@ import { IntakeForm } from "@/components/IntakeForm";
 
 type Job = {
   id: string; job_type: string; client_name: string; client_email: string;
-  client_phone: string; site_address: string; city: string; pm: string;
+  client_phone: string; site_address: string; city: string; state: string | null; zip_code: string | null; pm: string;
   builder_name: string; builder_email: string; builder_phone: string;
   builder_company: string; delivery_date: string; notes: string;
   notes_install: string | null; notes_finishing: string | null;
