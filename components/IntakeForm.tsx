@@ -16,7 +16,7 @@ type InitialValues = Partial<{
   job_type: string; client_name: string; client_email: string; client_phone: string;
   site_address: string; city: string; pm: string;
   builder_name: string; builder_email: string; builder_phone: string; builder_company: string;
-  delivery_date: string; notes: string;
+  delivery_date: string; notes: string; estimated_value?: string | number | null; pm_complexity?: number | null;
   notes_install: string; notes_finishing: string; notes_shop: string; notes_client: string;
   mod_residential: number; mod_commercial: number; mod_trim: number; mod_doors: number;
   id: string;
@@ -155,6 +155,8 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       builder_phone:    builderPhone,
       builder_company:  builderCompany,
       delivery_date:    fd.get("delivery_date"),
+      estimated_value:  fd.get("estimated_value") || null,
+      pm_complexity:    fd.get("pm_complexity") ? Number(fd.get("pm_complexity")) : 1,
       notes:            fd.get("notes"),
       notes_install:    fd.get("notes_install"),
       notes_finishing:  fd.get("notes_finishing"),
@@ -366,6 +368,21 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
           <div>
             <label className={LABEL}>Rough Delivery Date</label>
             <input name="delivery_date" type="date" defaultValue={initial?.delivery_date ?? ""} className={INPUT} />
+          </div>
+          <div>
+            <label className={LABEL}>Estimated Value ($)</label>
+            <input name="estimated_value" type="number" step="1000" min="0"
+              defaultValue={initial?.estimated_value ?? ""}
+              placeholder="e.g. 85000"
+              className={INPUT} />
+          </div>
+          <div>
+            <label className={LABEL}>Complexity</label>
+            <select name="pm_complexity" defaultValue={String(initial?.pm_complexity ?? 1)} className={SELECT}>
+              <option value="0">0 — Standard</option>
+              <option value="1">1 — Moderate</option>
+              <option value="2">2 — Complex</option>
+            </select>
           </div>
         </div>
         <div className="mt-4">

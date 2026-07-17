@@ -49,6 +49,7 @@ export type FinishGroup = {
   applied_panels: "slab" | "match_door";
   species: string;
   notes: string; sort_order: number;
+  box_count: number | null; wo_count: number | null;
 };
 
 export type CabinetItem = {
@@ -859,6 +860,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       id: uid(),
       label: "",
       finish_type: "",
+    box_count: null,
+    wo_count: null,
       color_id: "", color_name: "",
       door_style_id: "", drawer_style_id: "",
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
@@ -1495,6 +1498,29 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         }
                         updateGroup(g.id, updates);
                       }}
+                    />
+                  </div>
+                </div>
+                {/* Box count + WO count — planning data for constraints model, does not affect spec */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={LABEL}>Box Count <span className="text-white/30 normal-case font-normal">(est. — planning only)</span></label>
+                    <input
+                      type="number" min="0" step="1"
+                      value={g.box_count ?? ""}
+                      onChange={(e) => updateGroup(g.id, { box_count: e.target.value === "" ? null : Number(e.target.value) })}
+                      placeholder="e.g. 42"
+                      className={INPUT}
+                    />
+                  </div>
+                  <div>
+                    <label className={LABEL}>WO Count <span className="text-white/30 normal-case font-normal">(est. — planning only)</span></label>
+                    <input
+                      type="number" min="0" step="1"
+                      value={g.wo_count ?? ""}
+                      onChange={(e) => updateGroup(g.id, { wo_count: e.target.value === "" ? null : Number(e.target.value) })}
+                      placeholder="e.g. 1"
+                      className={INPUT}
                     />
                   </div>
                 </div>

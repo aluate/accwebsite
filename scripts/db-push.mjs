@@ -1114,6 +1114,9 @@ async function main() {
   try { await sql`ALTER TABLE jobs ADD COLUMN innergy_bid_id TEXT`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN innergy_synced_at TIMESTAMPTZ`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN estimated_value NUMERIC(12,2)`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN pm_complexity INTEGER NOT NULL DEFAULT 1`; } catch {}
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN box_count INTEGER`; } catch {}
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN wo_count INTEGER`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN state TEXT`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN zip_code TEXT`; } catch {}
   await sql`CREATE INDEX IF NOT EXISTS idx_jobs_innergy_opportunity_id ON jobs (innergy_opportunity_id) WHERE innergy_opportunity_id IS NOT NULL`;

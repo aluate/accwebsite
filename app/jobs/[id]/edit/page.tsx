@@ -13,6 +13,7 @@ type Job = {
   notes_install: string | null; notes_finishing: string | null;
   notes_shop: string | null;    notes_client: string | null;
   mod_residential: number; mod_commercial: number; mod_trim: number; mod_doors: number;
+  estimated_value: number | null; pm_complexity: number | null;
 };
 
 export default async function EditJobPage({ params }: { params: Promise<{ id: string }> }) {
@@ -27,6 +28,8 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
     notes_finishing: job.notes_finishing ?? "",
     notes_shop:      job.notes_shop      ?? "",
     notes_client:    job.notes_client    ?? "",
+    estimated_value:  job.estimated_value  ?? null,
+    pm_complexity:    job.pm_complexity   ?? 1,
   };
 
   return (
