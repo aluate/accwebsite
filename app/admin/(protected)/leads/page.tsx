@@ -8,7 +8,7 @@ const INPUT = "w-full bg-[#1d1d1d] border border-white/15 rounded px-3 py-2 text
 const SELECT = INPUT + " appearance-none";
 
 const YOUR_NAME  = "Advanced Cabinets";
-const YOUR_PHONE = "(208) 888-0000"; // update to real number
+const YOUR_PHONE = "(208) 229-0690";
 const YOUR_EMAIL = "residential@advancedcabinets.net";
 
 type Status = "idle" | "sending" | "sent" | "error";

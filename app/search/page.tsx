@@ -33,15 +33,19 @@ export default function SearchPage() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (query.trim().length < 2) { setResults(null); return; }
+    const controller = new AbortController();
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal });
         if (res.ok) setResults(await res.json());
+      } catch (e) {
+        if ((e as Error).name !== "AbortError") throw e;
       } finally {
         setLoading(false);
       }
     }, 250);
+    return () => controller.abort();
   }, [query]);
 
   const total = (results?.jobs.length ?? 0) + (results?.specs.length ?? 0);

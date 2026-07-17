@@ -7,7 +7,7 @@ import { requireRole } from "@/lib/auth";
 type StageCount = { status: string; cnt: number };
 type AgingJob   = { id: string; job_number: string | null; client_name: string; site_address: string; pm: string | null; status: string; days_in_stage: number };
 type PunchJob   = { id: string; job_number: string | null; client_name: string; open_count: number };
-type ActivityRow = { id: string; job_id: string | null; event_type: string; actor: string; from_state: string | null; to_state: string | null; occurred_at: string };
+type ActivityRow = { id: string; job_id: string | null; event_type: string; actor: string; from_state: string | null; to_state: string | null; occurred_at: string | Date };
 type WarrantyCounts = { open_count: number; in_progress_count: number };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -31,7 +31,7 @@ function fmtAge(days: number) {
   return `${days}d`;
 }
 
-function fmtTime(iso: string) {
+function fmtTime(iso: string | Date) {
   const d = new Date(iso);
   const now = new Date();
   const diff = (now.getTime() - d.getTime()) / 1000;
