@@ -4,13 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, nextJobId } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
+import { requireBuilderApi } from "@/lib/auth";
 
 export async function GET() {
+  const session = await requireBuilderApi();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const jobs = await sql`SELECT * FROM jobs ORDER BY seq DESC`;
   return NextResponse.json({ jobs });
 }
 
 export async function POST(req: NextRequest) {
+  const session = await requireBuilderApi();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const { id } = await nextJobId();
   const now = new Date().toISOString();

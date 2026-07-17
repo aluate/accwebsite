@@ -4,8 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
+import { requireBuilderApi } from "@/lib/auth";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireBuilderApi();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const [job] = await sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}`;
   if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -13,6 +16,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireBuilderApi();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
   const body = await req.json();
 

@@ -23,8 +23,8 @@ const PRIORITY_COLOR: Record<string, string> = {
   normal: "text-white/40", low: "text-white/25",
 };
 
-function fmtDate(iso: string) {
-  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+function fmtDate(iso: string | Date) {
+  const [y, m, d] = String(iso).slice(0, 10).split("-").map(Number);
   return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m-1]} ${d}, ${y}`;
 }
 

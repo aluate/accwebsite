@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { requireRole } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { notFound } from "next/navigation";
@@ -39,6 +41,7 @@ export default async function BOMReportPage({
   if (!estimateRows[0]) notFound();
 
   const estimate = estimateRows[0] as Record<string, unknown>;
+  if (!settingsRows[0]) notFound();
   const settings = settingsRows[0] as unknown as EstimateSettings;
   const rawRooms = roomRows as Array<Record<string, unknown>>;
   const rawItems = itemRows as Array<Record<string, unknown>>;
