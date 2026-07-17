@@ -30,7 +30,8 @@ export async function GET() {
       j.pm, j.status, j.job_type, j.delivery_date, j.created_at,
       j.estimated_value, j.pm_complexity,
       j.mod_residential, j.mod_commercial, j.mod_trim, j.mod_doors,
-      j.innergy_opportunity_id
+      j.innergy_opportunity_id,
+      j.box_count AS job_box_count, j.wo_count AS job_wo_count
     FROM jobs j
     WHERE j.status NOT IN ('complete', 'cancelled')
     ORDER BY j.seq DESC
