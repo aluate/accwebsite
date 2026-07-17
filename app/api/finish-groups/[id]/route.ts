@@ -19,9 +19,9 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const body = await req.json() as { box_count?: number | null; wo_count?: number | null };
+  const body = await req.json() as { box_count?: number | null; wo_count?: number | null; pm_complexity?: number | null };
 
-  const allowed = ["box_count", "wo_count"];
+  const allowed = ["box_count", "wo_count", "pm_complexity"];
   const updates: Record<string, number | null> = {};
   for (const k of allowed) {
     if (k in body) updates[k] = (body as Record<string, number | null>)[k] ?? null;

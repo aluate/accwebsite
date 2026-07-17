@@ -46,7 +46,7 @@ export async function GET() {
           fg.id, fg.spec_id, fg.label, fg.finish_type,
           fg.species, fg.door_style_id, fg.box_material,
           fg.glaze_id, fg.stain_id, fg.paint_id,
-          fg.box_count, fg.wo_count,
+          fg.box_count, fg.wo_count, fg.pm_complexity AS fg_complexity,
           rs.job_id
         FROM finish_groups fg
         JOIN residential_specs rs ON rs.id = fg.spec_id
