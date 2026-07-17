@@ -12,7 +12,7 @@ export default async function RootPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
       <div className="mb-10">
         <Image
-          src="/acc-logo.png"
+          src="/logo.png"
           alt="Advanced Custom Cabinets"
           width={120}
           height={120}
