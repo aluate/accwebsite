@@ -19,6 +19,7 @@ const INTERNAL_NAV = [
 
 const ADMIN_NAV = [
   { label: "Pipeline",        href: "/admin/pipeline" },
+  { label: "Constraints",      href: "/admin/constraints" },
   { label: "Estimating",      href: "/admin/estimating" },
   { label: "Users",           href: "/admin/builders" },
   { label: "Libraries",       href: "/admin/libraries" },
