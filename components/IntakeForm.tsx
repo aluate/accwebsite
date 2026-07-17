@@ -47,7 +47,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
         const res = await fetch(`/api/builders?q=${encodeURIComponent(q)}`);
         if (!res.ok) return;
         const data = await res.json();
-        setBuilderSuggestions(data.builders ?? []);
+        setBuilderSuggestions(Array.isArray(data) ? data : (data.builders ?? []));
         setShowBuilderDropdown(true);
       } catch { /* ignore */ }
     }, 200);
