@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAdmin } from "@/lib/admin-auth";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -29,7 +29,7 @@ function supabaseAdmin() {
 
 // ── GET — signed download URL ─────────────────────────────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
-  const ok = await requireAdmin();
+  const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { docType } = await params;
@@ -45,7 +45,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
 // ── POST — upload ─────────────────────────────────────────────────────────
 export async function POST(req: NextRequest, { params }: Params) {
-  const ok = await requireAdmin();
+  const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { docType } = await params;
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
 // ── DELETE — clear slot ───────────────────────────────────────────────────
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const ok = await requireAdmin();
+  const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { docType } = await params;

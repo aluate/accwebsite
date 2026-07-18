@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAdmin } from "@/lib/admin-auth";
 
 export async function GET() {
-  const ok = await requireAdmin();
+  const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const docs = await sql`
