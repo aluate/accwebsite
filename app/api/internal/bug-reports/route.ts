@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   const rows = await sql`
     SELECT id, page_url, user_name, user_role, what_trying, what_happened,
-           severity, status, created_at
+           severity, status, source, serial_no, created_at
     FROM bug_reports
     WHERE status = 'open'
     ORDER BY

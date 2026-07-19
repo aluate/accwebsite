@@ -954,7 +954,10 @@ async function main() {
     `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS serial_no   INTEGER`,
     `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS triage      TEXT NOT NULL DEFAULT 'open'`,
     `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS direction   TEXT`,
-    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS gh_file_sha TEXT`,
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS gh_file_sha  TEXT`,
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS source       TEXT NOT NULL DEFAULT 'manual'`,
+    `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS dedup_hash   TEXT`,
+    `CREATE INDEX IF NOT EXISTS idx_bug_reports_dedup ON bug_reports(dedup_hash, created_at DESC)`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
   }

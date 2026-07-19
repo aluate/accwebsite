@@ -34,6 +34,20 @@ PM_EMAIL
 ADMIN_PASSWORD
   acc-admin-2026
 
+
+INTERNAL_API_KEY
+  xD4UAxmgwpQpwwcQaaTadC0MXEmgW92v6TNfYxWSQaw
+  (Used by /api/internal/bug-reports GET and the morning triage scheduled task)
+
+VERCEL_LOG_DRAIN_SECRET
+  tWkttQEV1GL4R_lHZBzMprRLKVtBJqOEvBCcjL9rMEo
+  (Must match the secret you enter in Vercel → Settings → Log Drains)
+  Setup: Vercel dashboard → accwebsite-cd58 → Settings → Log Drains → Add drain
+    URL:     https://www.advancedcabinets.org/api/internal/vercel-log-drain
+    Secret:  (this value)
+    Sources: Lambda, Edge
+    Level:   Error
+
 =================================================================
 ALSO DO BEFORE FIRST DEPLOY:
 =================================================================

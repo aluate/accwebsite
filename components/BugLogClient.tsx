@@ -14,6 +14,7 @@ type BugReport = {
   status: string;
   triage: string;
   direction: string | null;
+  source?: string;
   created_at: string;
 };
 
@@ -224,6 +225,9 @@ export function BugLogClient() {
                         <span className={`text-[10px] font-condensed uppercase tracking-widest border rounded px-1.5 py-0.5 ${SEV_COLOR[b.severity] ?? "text-white/40 bg-white/5 border-white/10"}`}>
                           {SEV_ICON[b.severity]} {b.severity}
                         </span>
+                        {b.source === "auto" && (
+                          <span className="text-[10px] font-condensed uppercase tracking-widest border rounded px-1.5 py-0.5 text-sky-400 bg-sky-400/10 border-sky-400/30">⚡ auto</span>
+                        )}
                         {/* Triage badge */}
                         <span className={`text-[10px] font-condensed uppercase tracking-widest border rounded px-1.5 py-0.5 ${tri.color}`}>
                           {tri.label}
