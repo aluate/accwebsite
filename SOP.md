@@ -1,7 +1,7 @@
 # ACC Website — System SOP
 
 > **Audience:** Claude (primary reference), Karl (accuracy review), eventually developer/staff handoff.
-> **Last updated:** 2026-07-18. Reflects production state post-commit `ac49d93`.
+> **Last updated:** 2026-07-18. Reflects production state post-session `2026-07-18-esig`.
 > **How to use this doc:** Read the Status Legend, then jump to the section relevant to the task.
 > Living document — update after every session that changes feature status.
 
@@ -197,7 +197,7 @@
 | Portal accounts | ✅ Live | `/admin/portal-accounts` | |
 | Floor plans | ✅ Live | `/admin/floor-plans` | CRUD + rooms |
 | Leads intake | ✅ Live | `/admin/leads` | Contact form inquiries + response composer + email send |
-| Document library | ✅ Live | `/admin/documents` | Template docs (warranty, disclosure, payment terms) |
+| Document library | ✅ Live | `/admin/documents` | Template docs (warranty, disclosure, payment terms); API was broken 2026-07-18 (`requireAdmin` returns void — fixed by swapping to `getAdmin`) |
 | Bug log | ✅ Live | `/admin/bugs` | Bug reports with status management |
 | Color catalog / paint colors | ✅ Live | `/api/paint-colors` | `paint_colors` table; 2175 BM + 1526 SW colors with hex |
 | Palettes | 🟡 Built/Unverified | `/admin/palettes` | Custom color palette management |
@@ -211,10 +211,14 @@ All client approvals use the in-house canvas e-sig flow. No third-party signing 
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Signoff link generation | ✅ Live | `POST /api/jobs/[id]/send-signoff` generates a 30-day token |
-| Client signing page | ✅ Live | `/signoff/[token]` — name, canvas sig, IP + timestamp recorded |
-| Signed record storage | ✅ Live | `client_signoffs` table; permanent |
+| Contract packet send | ✅ Live | `POST /api/jobs/[id]/send-contract` — auto-attaches `residential_disclosure` from template library + PM-selected drawing/quote file IDs; creates signoff token; sends email with all PDFs attached |
+| Signoff link generation | ✅ Live | Same `send-contract` call generates a 30-day token stored in `client_signoffs.token` |
+| Inline document review | ✅ Live | `/signoff/[token]` — client sees all attached docs (Preview iframe + Open in new tab) **before** the signature canvas; signed URLs resolved server-side (2-hour TTL) |
+| Client signing page | ✅ Live | `/signoff/[token]` — name + canvas sig; IP + timestamp recorded |
+| Signed record storage | ✅ Live | `client_signoffs` table; `attached_docs_json` stores `[{type, filename}]` for URL resolution |
 | PM confirmation email | ✅ Live | Fires to `residential@advancedcabinets.net` on client submit |
+
+**Note:** There is no separate `send-signoff` route. The only route that creates a signoff token is `send-contract`. Triggering this from the job page sends the full contract packet (disclosure + selected files) and creates the signoff link in one step.
 
 ### 3.12 Bug Reporting
 
