@@ -4,11 +4,57 @@ export const dynamic = "force-dynamic";
  * /signoff/[token] — public client approval page.
  *
  * No auth required — the token IS the auth.
- * Shows job summary + signature canvas.
+ * Fetches attached documents, generates signed URLs server-side,
+ * then renders them inline for client review before signing.
  */
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 import { SignoffCanvas } from "./SignoffCanvas";
+
+const BUCKET = "job-files";
+
+function supabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
+
+type AttachedDoc = { type: string; filename: string };
+type DocWithUrl  = AttachedDoc & { url: string };
+
+async function resolveDocUrls(jobId: string, docs: AttachedDoc[]): Promise<DocWithUrl[]> {
+  if (!docs.length) return [];
+  const supabase = supabaseAdmin();
+  const results: DocWithUrl[] = [];
+
+  for (const doc of docs) {
+    let storagePath: string | null = null;
+
+    if (doc.type === "disclosure") {
+      const [tmpl] = await sql<{ storage_path: string }[]>`
+        SELECT storage_path FROM template_documents
+        WHERE doc_type = 'residential_disclosure' AND storage_path IS NOT NULL
+        LIMIT 1
+      `.catch(() => []);
+      storagePath = tmpl?.storage_path ?? null;
+    } else {
+      const [file] = await sql<{ storage_path: string }[]>`
+        SELECT storage_path FROM job_files
+        WHERE job_id = ${jobId} AND filename = ${doc.filename}
+        LIMIT 1
+      `.catch(() => []);
+      storagePath = file?.storage_path ?? null;
+    }
+
+    if (!storagePath) continue;
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(storagePath, 7200);
+    if (data?.signedUrl) results.push({ ...doc, url: data.signedUrl });
+  }
+
+  return results;
+}
 
 type Signoff = {
   id: string;
@@ -18,6 +64,7 @@ type Signoff = {
   pm_note: string | null;
   signer_name: string | null;
   signed_at: string | null;
+  attached_docs_json: string | null;
   client_name: string;
   site_address: string;
   city: string | null;
@@ -30,7 +77,7 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
   try {
     const [row] = await sql`
       SELECT cs.id, cs.job_id, cs.status, cs.token_expires_at,
-             cs.pm_note, cs.signer_name, cs.signed_at,
+             cs.pm_note, cs.signer_name, cs.signed_at, cs.attached_docs_json,
              j.client_name, j.site_address, j.city
       FROM client_signoffs cs
       JOIN jobs j ON j.id = cs.job_id
@@ -38,21 +85,25 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
     ` as Signoff[];
     signoff = row ?? null;
   } catch {
-    // Table may not exist yet
     notFound();
   }
 
   if (!signoff) notFound();
 
-  const expired = new Date(signoff.token_expires_at) < new Date();
+  const expired      = new Date(signoff.token_expires_at) < new Date();
   const alreadySigned = signoff.status === "signed";
-  const jobLabel = [signoff.site_address, signoff.city].filter(Boolean).join(", ");
+  const jobLabel     = [signoff.site_address, signoff.city].filter(Boolean).join(", ");
+
+  // Resolve attached document URLs server-side
+  const rawDocs: AttachedDoc[] = (() => {
+    try { return JSON.parse(signoff.attached_docs_json ?? "[]"); } catch { return []; }
+  })();
+  const docs = (!expired && !alreadySigned) ? await resolveDocUrls(signoff.job_id, rawDocs) : [];
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
       {/* Header */}
       <header className="border-b border-white/10 px-6 py-4 flex items-center gap-4">
-        {/* Logo text */}
         <div>
           <p className="font-heading text-lg uppercase tracking-widest text-[#f08122]">
             Advanced Custom Cabinets
@@ -61,9 +112,17 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
             Client Specification Approval
           </p>
         </div>
+        <div className="ml-auto">
+          <a
+            href="/login"
+            className="text-white/30 text-xs font-condensed uppercase tracking-widest hover:text-white/60 transition-colors"
+          >
+            Team Login
+          </a>
+        </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-10">
+      <main className="max-w-2xl mx-auto px-4 py-10">
 
         {/* Expired */}
         {expired && !alreadySigned && (
@@ -94,19 +153,18 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
           </div>
         )}
 
-        {/* Active — show signature form */}
+        {/* Active — show documents + signature form */}
         {!expired && !alreadySigned && (
           <>
             <h1 className="font-heading text-2xl uppercase tracking-wide text-white mb-2">
               Specification Approval
             </h1>
             <p className="text-white/40 text-sm mb-6">
-              Please review and sign below to approve the cabinet specifications
-              for your project.
+              Please review each document below, then sign at the bottom to approve.
             </p>
 
             {signoff.pm_note && (
-              <div className="bg-[#f08122]/10 border border-[#f08122]/20 rounded-lg px-4 py-3 mb-6">
+              <div className="bg-[#f08122]/10 border border-[#f08122]/20 rounded-lg px-4 py-3 mb-8">
                 <p className="text-[10px] font-condensed uppercase tracking-widest text-[#f08122]/60 mb-1">
                   Note from your project manager
                 </p>
@@ -114,14 +172,14 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
               </div>
             )}
 
-            <SignoffCanvas token={token} jobLabel={jobLabel} />
+            <SignoffCanvas token={token} jobLabel={jobLabel} docs={docs} />
           </>
         )}
       </main>
 
       <footer className="border-t border-white/5 px-6 py-6 mt-10 text-center">
-        <p className="text-white/20 text-xs font-condensed">
-          Advanced Custom Cabinets · 250 W Anton Ave, Coeur d'Alene, ID 83815 · 208.772.2377
+        <p className="text-white/20 text-[11px] font-condensed">
+          Advanced Custom Cabinets · 250 W Anton Ave, Coeur d&apos;Alene, ID 83815 · 208.772.2377
         </p>
       </footer>
     </div>
