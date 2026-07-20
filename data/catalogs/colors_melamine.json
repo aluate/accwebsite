@@ -7,11 +7,11 @@
     "code": "W03",
     "name": "Valenti Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Walnut series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W04",
@@ -21,11 +21,11 @@
     "code": "W04",
     "name": "Amble Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Walnut series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W13",
@@ -35,11 +35,11 @@
     "code": "W13",
     "name": "Opus Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Walnut series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W43",
@@ -49,11 +49,11 @@
     "code": "W43",
     "name": "Roan Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Walnut series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W45",
@@ -63,11 +63,11 @@
     "code": "W45",
     "name": "Magpie Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Walnut series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W68",
@@ -77,11 +77,11 @@
     "code": "W68",
     "name": "Cognac Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Walnut series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W77",
@@ -91,11 +91,11 @@
     "code": "W77",
     "name": "Nova Itabri",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Itabri series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W80",
@@ -105,11 +105,11 @@
     "code": "W80",
     "name": "Jordan Itabri",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Itabri series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W89",
@@ -119,11 +119,11 @@
     "code": "W89",
     "name": "Sandro Itabri",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL Itabri series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-784",
@@ -133,11 +133,11 @@
     "code": "784",
     "name": "Karius Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Sary Walnut Lab series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-774",
@@ -147,11 +147,11 @@
     "code": "774",
     "name": "Tyne Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Sary Walnut Lab series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-669",
@@ -161,11 +161,11 @@
     "code": "669",
     "name": "Tino Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Sary Walnut Lab series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-540",
@@ -175,11 +175,11 @@
     "code": "540",
     "name": "Solano Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Sary Walnut Lab series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-579",
@@ -189,11 +189,11 @@
     "code": "579",
     "name": "Tuscany Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Sary Walnut Lab series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-633",
@@ -203,11 +203,11 @@
     "code": "633",
     "name": "Tonali Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Sary Walnut Lab series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-514",
@@ -217,11 +217,11 @@
     "code": "514",
     "name": "Outer Banks Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Timber Oak series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-592",
@@ -231,11 +231,11 @@
     "code": "592",
     "name": "Battle Creek Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Timber Oak series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-603",
@@ -245,11 +245,11 @@
     "code": "603",
     "name": "Door County Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Timber Oak series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-637",
@@ -259,11 +259,11 @@
     "code": "637",
     "name": "Iron Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Timber Oak series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-654",
@@ -273,11 +273,11 @@
     "code": "654",
     "name": "Lakefront Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Timber Oak series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-688",
@@ -287,11 +287,11 @@
     "code": "688",
     "name": "Studio Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood Timber Oak series",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-574",
@@ -301,11 +301,11 @@
     "code": "574",
     "name": "Natural Elm",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-596",
@@ -315,11 +315,11 @@
     "code": "596",
     "name": "Morning Fog",
     "texture": "Warm Matte",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL solid",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-632",
@@ -329,11 +329,11 @@
     "code": "632",
     "name": "Midnight Espresso",
     "texture": "Softex",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL solid",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-700",
@@ -343,165 +343,165 @@
     "code": "700",
     "name": "Insipid",
     "texture": "Warm Matte",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
+    "hex_approx": "",
     "notes": "Stevenswood TFL solid",
-    "placeholder": false
+    "placeholder": "false"
   },
   {
     "id": "MEL-TF-PRELUDE-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Prelude",
     "line": "Alto (A)",
-    "code": null,
+    "code": "\u2014",
     "name": "Alto Series Placeholder",
     "texture": "Alto (A)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Prelude line — populate Alto colors from Tafisa rep",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Prelude line \u2014 populate Alto colors from Tafisa rep",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-PRELUDE-C-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Prelude",
     "line": "Crystalite (C)",
-    "code": null,
+    "code": "\u2014",
     "name": "Crystalite Series Placeholder",
     "texture": "Crystalite (C)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Prelude line — Crystalite (matte)",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Prelude line \u2014 Crystalite (matte)",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-PRELUDE-I-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Prelude",
     "line": "Isola (I)",
-    "code": null,
+    "code": "\u2014",
     "name": "Isola Series Placeholder",
     "texture": "Isola (I)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Prelude line — Isola texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Prelude line \u2014 Isola texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-PRELUDE-K-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Prelude",
     "line": "Karisma (K)",
-    "code": null,
+    "code": "\u2014",
     "name": "Karisma Series Placeholder",
     "texture": "Karisma (K)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Prelude line — Karisma texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Prelude line \u2014 Karisma texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-PRELUDE-S-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Prelude",
     "line": "Smoothwood (S)",
-    "code": null,
+    "code": "\u2014",
     "name": "Smoothwood Series Placeholder",
     "texture": "Smoothwood (S)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Prelude line — Smoothwood texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Prelude line \u2014 Smoothwood texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-PRELUDE-R-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Prelude",
     "line": "Urbania (R)",
-    "code": null,
+    "code": "\u2014",
     "name": "Urbania Series Placeholder",
     "texture": "Urbania (R)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Prelude line — Urbania texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Prelude line \u2014 Urbania texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-SOMMET-B-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Sommet",
     "line": "Brava (B)",
-    "code": null,
+    "code": "\u2014",
     "name": "Brava Series Placeholder",
     "texture": "Brava (B)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "B",
-    "hex_approx": null,
-    "notes": "Tafisa Sommet line — Brava texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Sommet line \u2014 Brava texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-SOMMET-F-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Sommet",
     "line": "Feria (F)",
-    "code": null,
+    "code": "\u2014",
     "name": "Feria Series Placeholder",
     "texture": "Feria (F)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "B",
-    "hex_approx": null,
-    "notes": "Tafisa Sommet line — Feria texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Sommet line \u2014 Feria texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-SOMMET-Y-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Sommet",
     "line": "Viva (Y)",
-    "code": null,
+    "code": "\u2014",
     "name": "Viva Series Placeholder",
     "texture": "Viva (Y)",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "B",
-    "hex_approx": null,
-    "notes": "Tafisa Sommet line — Viva texture",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Sommet line \u2014 Viva texture",
+    "placeholder": "true"
   },
   {
     "id": "MEL-TF-MATERIA-PLACEHOLDER",
     "supplier": "Tafisa",
     "collection": "Materia",
     "line": "Materia",
-    "code": null,
+    "code": "\u2014",
     "name": "Materia Series Placeholder",
     "texture": "Materia",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "A",
-    "hex_approx": null,
-    "notes": "Tafisa Materia matte line — newer launch",
-    "placeholder": true
+    "hex_approx": "",
+    "notes": "Tafisa Materia matte line \u2014 newer launch",
+    "placeholder": "true"
   },
   {
     "id": "MEL-CUSTOM",
     "supplier": "Custom",
     "collection": "Custom Match",
     "line": "Custom",
-    "code": null,
+    "code": "\u2014",
     "name": "Other / Custom Match",
-    "texture": null,
-    "woodgrain": false,
+    "texture": "\u2014",
+    "woodgrain": "false",
     "price_tier": "custom",
-    "hex_approx": null,
-    "notes": "Escape hatch — PM specifies supplier and code in finish notes",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Escape hatch \u2014 PM specifies supplier and code in finish notes",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-F416-ST10",
@@ -511,11 +511,11 @@
     "code": "F416 ST10",
     "name": "Beige Textile",
     "texture": "ST10",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST10 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST10 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-F417-ST10",
@@ -525,11 +525,11 @@
     "code": "F417 ST10",
     "name": "Grey Textile",
     "texture": "ST10",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST10 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST10 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-F422-ST10",
@@ -539,11 +539,11 @@
     "code": "F422 ST10",
     "name": "White Linen",
     "texture": "ST10",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST10 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST10 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-F433-ST10",
@@ -553,11 +553,11 @@
     "code": "F433 ST10",
     "name": "Anthracite Linen",
     "texture": "ST10",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST10 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST10 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1176-ST37",
@@ -567,11 +567,11 @@
     "code": "H1176 ST37",
     "name": "White Halifax",
     "texture": "ST37",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST37 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST37 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1180-ST37",
@@ -581,11 +581,11 @@
     "code": "H1180 ST37",
     "name": "Natural Halifax",
     "texture": "ST37",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST37 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST37 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1181-ST37",
@@ -595,11 +595,11 @@
     "code": "H1181 ST37",
     "name": "Tobacco Halifax",
     "texture": "ST37",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST37 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST37 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1210-ST12",
@@ -609,11 +609,11 @@
     "code": "H1210 ST12",
     "name": "GB Tossini Elm",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1222-ST12",
@@ -623,11 +623,11 @@
     "code": "H1222 ST12",
     "name": "Fox Grey Tossini Elm",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1225-ST12",
@@ -637,11 +637,11 @@
     "code": "H1225 ST12",
     "name": "Trondhelm Ash",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1247-ST17",
@@ -651,11 +651,11 @@
     "code": "H1247 ST17",
     "name": "Graphite Sheffield Acacia",
     "texture": "ST17",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST17 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST17 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1288-ST19",
@@ -665,11 +665,11 @@
     "code": "H1288 ST19",
     "name": "Stone Grey Frozen Wood",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1290-ST19",
@@ -679,11 +679,11 @@
     "code": "H1290 ST19",
     "name": "White Frozen Wood",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1292-ST19",
@@ -693,11 +693,11 @@
     "code": "H1292 ST19",
     "name": "Carbon Frozen Wood",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1307-ST19",
@@ -707,11 +707,11 @@
     "code": "H1307 ST19",
     "name": "Brown Warmla Walnut",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1367-ST40",
@@ -721,11 +721,11 @@
     "code": "H1367 ST40",
     "name": "Light Natural Casella Oak",
     "texture": "ST40",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST40 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST40 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1369-ST40",
@@ -735,11 +735,11 @@
     "code": "H1369 ST40",
     "name": "Marone Casella Oak",
     "texture": "ST40",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST40 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST40 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1384-ST40",
@@ -749,11 +749,11 @@
     "code": "H1384 ST40",
     "name": "White Casella Oak",
     "texture": "ST40",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST40 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST40 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1385-ST40",
@@ -763,11 +763,11 @@
     "code": "H1385 ST40",
     "name": "Natural Casella Oak",
     "texture": "ST40",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST40 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST40 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1386-ST40",
@@ -777,11 +777,11 @@
     "code": "H1386 ST40",
     "name": "Brown Casella Oak",
     "texture": "ST40",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • ST40 • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 ST40 \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1388",
@@ -790,12 +790,12 @@
     "line": "Exclusive",
     "code": "H1388",
     "name": "Sand Casella Oak",
-    "texture": null,
-    "woodgrain": false,
+    "texture": "",
+    "woodgrain": "false",
     "price_tier": "tier6_exclusive",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Exclusive line • $2.58/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Exclusive line \u2022 $2.58/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1701-ST12",
@@ -805,11 +805,11 @@
     "code": "H1701 ST12",
     "name": "White Tossini Elm",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1708-ST17",
@@ -819,11 +819,11 @@
     "code": "H1708 ST17",
     "name": "Brighton Chestnut",
     "texture": "ST17",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST17 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST17 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1715-ST12",
@@ -833,11 +833,11 @@
     "code": "H1715 ST12",
     "name": "Parona Walnut",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H1816-ST7",
@@ -847,11 +847,11 @@
     "code": "H1816 ST7",
     "name": "Natural Maple",
     "texture": "ST7",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier_call",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Everyday line • ST7 • call for pricing",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Everyday line \u2022 ST7 \u2022 call for pricing",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3041-ST12",
@@ -861,11 +861,11 @@
     "code": "H3041 ST12",
     "name": "Natural Eucalyptus",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3157-ST12",
@@ -875,11 +875,11 @@
     "code": "H3157 ST12",
     "name": "Vicenza Oak",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3158-ST19",
@@ -889,11 +889,11 @@
     "code": "H3158 ST19",
     "name": "Grey Vicenza Oak",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3165-ST12",
@@ -903,11 +903,11 @@
     "code": "H3165 ST12",
     "name": "Light Vicenza Oak",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3171-ST12",
@@ -917,11 +917,11 @@
     "code": "H3171 ST12",
     "name": "Oiled Kendal Oak",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST12 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST12 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3195-ST19",
@@ -931,11 +931,11 @@
     "code": "H3195 ST19",
     "name": "White Fineline",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3197-ST19",
@@ -945,11 +945,11 @@
     "code": "H3197 ST19",
     "name": "Medium Grey Fineline",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3198-ST19",
@@ -959,11 +959,11 @@
     "code": "H3198 ST19",
     "name": "Dark Grey Fineline",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3322-ST17",
@@ -973,11 +973,11 @@
     "code": "H3322 ST17",
     "name": "Light Natural Rovato Oak",
     "texture": "ST17",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST17 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST17 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3710-ST12",
@@ -987,11 +987,11 @@
     "code": "H3710 ST12",
     "name": "Natural Carini Walnut",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST12 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST12 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3786-ST19",
@@ -1001,11 +1001,11 @@
     "code": "H3786 ST19",
     "name": "Natural Bolivar Wood",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3787-ST19",
@@ -1015,11 +1015,11 @@
     "code": "H3787 ST19",
     "name": "Brown Bolivar Wood",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST19 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST19 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3790-ST12",
@@ -1029,11 +1029,11 @@
     "code": "H3790 ST12",
     "name": "Honey Carini Walnut",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST12 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST12 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3791-ST12",
@@ -1043,11 +1043,11 @@
     "code": "H3791 ST12",
     "name": "Auburn Carini Walnut",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST12 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST12 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3794-ST12",
@@ -1057,11 +1057,11 @@
     "code": "H3794 ST12",
     "name": "Chocolate Carini Walnut",
     "texture": "ST12",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier5_essence",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essence line • ST12 • $2.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essence line \u2022 ST12 \u2022 $2.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H3860-ST9",
@@ -1071,11 +1071,11 @@
     "code": "H3860 ST9",
     "name": "Champagne Hard Maple",
     "texture": "ST9",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST9 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST9 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-H7604-ST17",
@@ -1085,11 +1085,11 @@
     "code": "H7604 ST17",
     "name": "Natural Dimaro Walnut",
     "texture": "ST17",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST17 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST17 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U216-ST9",
@@ -1099,11 +1099,11 @@
     "code": "U216 ST9",
     "name": "Came Beige",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier1_classic",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Classic line • ST9 • $1.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Classic line \u2022 ST9 \u2022 $1.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U220-ST9",
@@ -1113,11 +1113,11 @@
     "code": "U220 ST9",
     "name": "Soft Beige",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier1_classic",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Classic line • ST9 • $1.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Classic line \u2022 ST9 \u2022 $1.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U250-ST9",
@@ -1127,11 +1127,11 @@
     "code": "U250 ST9",
     "name": "Caramel Beige",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U398-TM",
@@ -1141,11 +1141,11 @@
     "code": "U398 TM",
     "name": "Dark Berry",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U444-ST9",
@@ -1155,11 +1155,11 @@
     "code": "U444 ST9",
     "name": "Cassis",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U502-ST9",
@@ -1169,11 +1169,11 @@
     "code": "U502 ST9",
     "name": "Misty Blue",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U590",
@@ -1182,12 +1182,12 @@
     "line": "Perfect Sense",
     "code": "U590",
     "name": "Deep Blue",
-    "texture": null,
-    "woodgrain": false,
+    "texture": "",
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U604-ST9",
@@ -1197,11 +1197,11 @@
     "code": "U604 ST9",
     "name": "Reed Green",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U665-ST9",
@@ -1211,11 +1211,11 @@
     "code": "U665 ST9",
     "name": "Stone Green",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U665-TM",
@@ -1225,11 +1225,11 @@
     "code": "U665 TM",
     "name": "Stone Green",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U702-ST9",
@@ -1239,11 +1239,11 @@
     "code": "U702 ST9",
     "name": "Cashmere Grey",
     "texture": "ST9",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier2_essential",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essential line • ST9 • $1.56/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essential line \u2022 ST9 \u2022 $1.56/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U702-TM",
@@ -1253,11 +1253,11 @@
     "code": "U702 TM",
     "name": "Cashmere Grey",
     "texture": "TM",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U705-ST9",
@@ -1267,11 +1267,11 @@
     "code": "U705 ST9",
     "name": "Angora Grey",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier2_essential",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essential line • ST9 • $1.56/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essential line \u2022 ST9 \u2022 $1.56/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U708-TM",
@@ -1281,11 +1281,11 @@
     "code": "U708 TM",
     "name": "Light Grey",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U732-ST9",
@@ -1295,11 +1295,11 @@
     "code": "U732 ST9",
     "name": "Dust Grey",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier1_classic",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Classic line • ST9 • $1.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Classic line \u2022 ST9 \u2022 $1.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U750-ST9",
@@ -1309,11 +1309,11 @@
     "code": "U750 ST9",
     "name": "Taupe Grey",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier2_essential",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essential line • ST9 • $1.56/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essential line \u2022 ST9 \u2022 $1.56/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U755-TM",
@@ -1323,11 +1323,11 @@
     "code": "U755 TM",
     "name": "Havanna Grey",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U779-ST7",
@@ -1337,11 +1337,11 @@
     "code": "U779 ST7",
     "name": "Fog Grey",
     "texture": "ST7",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier1_classic",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Classic line • ST7 • $1.34/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Classic line \u2022 ST7 \u2022 $1.34/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U780-ST9",
@@ -1351,11 +1351,11 @@
     "code": "U780 ST9",
     "name": "Monument Grey",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U961-TM",
@@ -1365,11 +1365,11 @@
     "code": "U961 TM",
     "name": "Graphite Grey",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U963-ST9",
@@ -1379,11 +1379,11 @@
     "code": "U963 ST9",
     "name": "Diamond Grey",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier2_essential",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Essential line • ST9 • $1.56/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Essential line \u2022 ST9 \u2022 $1.56/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U999-ST19",
@@ -1393,11 +1393,11 @@
     "code": "U999 ST19",
     "name": "Black",
     "texture": "ST19",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "tier4_nextlevel",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Next Level line • ST19 • $1.87/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Next Level line \u2022 ST19 \u2022 $1.87/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U999-TM",
@@ -1407,11 +1407,11 @@
     "code": "U999 TM",
     "name": "Black",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-U999-ST7",
@@ -1421,11 +1421,11 @@
     "code": "U999 ST7",
     "name": "Black",
     "texture": "ST7",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier_call",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Everyday line • ST7 • call for pricing",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Everyday line \u2022 ST7 \u2022 call for pricing",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-W1100-ST9",
@@ -1435,11 +1435,11 @@
     "code": "W1100 ST9",
     "name": "Alpine White",
     "texture": "ST9",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier3_inspired",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Inspired line • ST9 • $1.76/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Inspired line \u2022 ST9 \u2022 $1.76/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-W1100-TM",
@@ -1449,11 +1449,11 @@
     "code": "W1100 TM",
     "name": "Alpine White",
     "texture": "TM",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier7_perfectsense",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Perfect Sense line • TM • $4.12/sq ft",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Perfect Sense line \u2022 TM \u2022 $4.12/sq ft",
+    "placeholder": "false"
   },
   {
     "id": "MEL-EG-W960-ST7",
@@ -1463,11 +1463,11 @@
     "code": "W960 ST7",
     "name": "Classic White",
     "texture": "ST7",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "tier_call",
-    "hex_approx": null,
-    "notes": "Egger 26+ — Everyday line • ST7 • call for pricing",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Egger 26+ \u2014 Everyday line \u2022 ST7 \u2022 call for pricing",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-589",
@@ -1477,11 +1477,11 @@
     "code": "589",
     "name": "Grey Echo",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-G86",
@@ -1491,11 +1491,11 @@
     "code": "G86",
     "name": "Gregio Notte",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-L39",
@@ -1505,11 +1505,11 @@
     "code": "L39",
     "name": "Midnight Run",
     "texture": "Walnut Pittoni",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-G88",
@@ -1519,11 +1519,11 @@
     "code": "G88",
     "name": "Natural Rustik",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W51",
@@ -1533,11 +1533,11 @@
     "code": "W51",
     "name": "Richmond Cherry",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-529",
@@ -1547,11 +1547,11 @@
     "code": "529",
     "name": "Takase Teak",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W42",
@@ -1561,11 +1561,11 @@
     "code": "W42",
     "name": "Bleached Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-L33",
@@ -1575,11 +1575,11 @@
     "code": "L33",
     "name": "Serotina",
     "texture": "Mezzo Cherry",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-L35",
@@ -1589,11 +1589,11 @@
     "code": "L35",
     "name": "Kirsche",
     "texture": "Mezzo Cherry",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W66",
@@ -1603,11 +1603,11 @@
     "code": "W66",
     "name": "Dark Walnut",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W53",
@@ -1617,11 +1617,11 @@
     "code": "W53",
     "name": "Arizona Cypress",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-174",
@@ -1631,11 +1631,11 @@
     "code": "174",
     "name": "Black",
     "texture": "ARTIKA",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-G87",
@@ -1645,11 +1645,11 @@
     "code": "G87",
     "name": "Cannella Rustik",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-G92",
@@ -1659,11 +1659,11 @@
     "code": "G92",
     "name": "Drift Loud",
     "texture": "ARTIKA",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-SW-W29",
@@ -1673,11 +1673,11 @@
     "code": "W29",
     "name": "Gregio Pine",
     "texture": "ARTIKA",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Stevenswood TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Stevenswood TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-L05",
@@ -1687,11 +1687,11 @@
     "code": "L05",
     "name": "Alno",
     "texture": "Legno",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-L09",
@@ -1701,11 +1701,11 @@
     "code": "L09",
     "name": "Kyushu",
     "texture": "Legno",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-L33",
@@ -1715,11 +1715,11 @@
     "code": "L33",
     "name": "Serotina",
     "texture": "Legno",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-L35",
@@ -1729,11 +1729,11 @@
     "code": "L35",
     "name": "Kirsche",
     "texture": "Legno",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-L39",
@@ -1743,11 +1743,11 @@
     "code": "L39",
     "name": "Midnight Run",
     "texture": "Legno",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-W29",
@@ -1757,11 +1757,11 @@
     "code": "W29",
     "name": "Gregio Pine",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-W42",
@@ -1771,11 +1771,11 @@
     "code": "W42",
     "name": "Bleached Walnut",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-W51",
@@ -1785,11 +1785,11 @@
     "code": "W51",
     "name": "Richmond Cherry",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-W53",
@@ -1799,11 +1799,11 @@
     "code": "W53",
     "name": "Arizona Cypress",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-W66",
@@ -1813,11 +1813,11 @@
     "code": "W66",
     "name": "Dark Walnut",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-174",
@@ -1827,11 +1827,11 @@
     "code": "174",
     "name": "Black",
     "texture": "Timber",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-514",
@@ -1841,11 +1841,11 @@
     "code": "514",
     "name": "Outer Banks Oak",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-529",
@@ -1855,11 +1855,11 @@
     "code": "529",
     "name": "Takase Teak",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-574",
@@ -1869,11 +1869,11 @@
     "code": "574",
     "name": "Natural Elm",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-576",
@@ -1883,11 +1883,11 @@
     "code": "576",
     "name": "Dark Elm",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-589",
@@ -1897,11 +1897,11 @@
     "code": "589",
     "name": "Grey Echo",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-592",
@@ -1911,11 +1911,11 @@
     "code": "592",
     "name": "Battle Creek Oak",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-596",
@@ -1925,11 +1925,11 @@
     "code": "596",
     "name": "Morning Fog",
     "texture": "Artica",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-603",
@@ -1939,11 +1939,11 @@
     "code": "603",
     "name": "Door County Oak",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-654",
@@ -1953,11 +1953,11 @@
     "code": "654",
     "name": "Lakefront Oak",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-688",
@@ -1967,11 +1967,11 @@
     "code": "688",
     "name": "Studio Oak",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-043",
@@ -1981,11 +1981,11 @@
     "code": "043",
     "name": "Pearl White Oak",
     "texture": "Timber",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-G76",
@@ -1995,11 +1995,11 @@
     "code": "G76",
     "name": "Shadow Teak",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-G77",
@@ -2009,11 +2009,11 @@
     "code": "G77",
     "name": "Natural Teak",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-G86",
@@ -2023,11 +2023,11 @@
     "code": "G86",
     "name": "Gregio Notte",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-G87",
@@ -2037,11 +2037,11 @@
     "code": "G87",
     "name": "Cannella Rustik",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-G88",
@@ -2051,11 +2051,11 @@
     "code": "G88",
     "name": "Natural Rustik",
     "texture": "Artica",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TN-G92",
@@ -2065,11 +2065,11 @@
     "code": "G92",
     "name": "Drift Loud",
     "texture": "Artica",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "TruNorth TFL · ingested from sample-box photo 2026-05-05",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "TruNorth TFL \u00b7 ingested from sample-box photo 2026-05-05",
+    "placeholder": "false"
   },
   {
     "id": "MEL-AGT-3010",
@@ -2079,11 +2079,11 @@
     "code": "3010",
     "name": "Pearl Black",
     "texture": "Matte",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
     "hex_approx": "#111111",
-    "notes": "AGT Pearl Black 3010 — Pritchette Residence, multiple jobs",
-    "placeholder": false
+    "notes": "AGT Pearl Black 3010 \u2014 Pritchette Residence, multiple jobs",
+    "placeholder": "false"
   },
   {
     "id": "MEL-AGT-3002",
@@ -2093,11 +2093,11 @@
     "code": "3002",
     "name": "Dark Grey Matte Soft Touch",
     "texture": "Soft Touch Matte",
-    "woodgrain": false,
+    "woodgrain": "false",
     "price_tier": "std",
     "hex_approx": "#4A4A4A",
-    "notes": "AGT Dark Grey Matte Soft Touch 3002 — Kenny Debaene",
-    "placeholder": false
+    "notes": "AGT Dark Grey Matte Soft Touch 3002 \u2014 Kenny Debaene",
+    "placeholder": "false"
   },
   {
     "id": "MEL-UNI-K15",
@@ -2107,11 +2107,11 @@
     "code": "K15",
     "name": "Cannes Riviera Oak",
     "texture": "Wood Matte",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Uniboard K15 — Stancraft Smith Lake House",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Uniboard K15 \u2014 Stancraft Smith Lake House",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TA-L582K",
@@ -2121,11 +2121,11 @@
     "code": "L582 (K)",
     "name": "Fashionista",
     "texture": "Horizontal Grain",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Tafisa Fashionista L582 (K) — Kenny Debaene, Woolridge. Horizontal grain.",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Tafisa Fashionista L582 (K) \u2014 Kenny Debaene, Woolridge. Horizontal grain.",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TA-L583K",
@@ -2135,11 +2135,11 @@
     "code": "L583 (K)",
     "name": "First Class",
     "texture": "Horizontal Grain",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Tafisa First Class L583 (K) — Atlas Plant 6549. Horizontal grain.",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Tafisa First Class L583 (K) \u2014 Atlas Plant 6549. Horizontal grain.",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TA-T581",
@@ -2149,11 +2149,11 @@
     "code": "T581",
     "name": "Sheer Beauty",
     "texture": "Vertical Grain",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Tafisa Sheer Beauty T581 — Spivey Residence",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Tafisa Sheer Beauty T581 \u2014 Spivey Residence",
+    "placeholder": "false"
   },
   {
     "id": "MEL-TA-T2013",
@@ -2163,10 +2163,710 @@
     "code": "T2013",
     "name": "Summertime Blues",
     "texture": "Vertical Grain",
-    "woodgrain": true,
+    "woodgrain": "true",
     "price_tier": "std",
-    "hex_approx": null,
-    "notes": "Tafisa Summertime Blues T2013 — Spivey Residence",
-    "placeholder": false
+    "hex_approx": "",
+    "notes": "Tafisa Summertime Blues T2013 \u2014 Spivey Residence",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L420C",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Crystalite (C)",
+    "code": "L420C",
+    "name": "Summer Flame",
+    "texture": "Crystalite",
+    "woodgrain": "false",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. Crystalite texture solid color.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L421C",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Crystalite (C)",
+    "code": "L421C",
+    "name": "Candlelight",
+    "texture": "Crystalite",
+    "woodgrain": "false",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. Crystalite texture solid color.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L444C",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Crystalite (C)",
+    "code": "L444C",
+    "name": "Chocolate Pear Tree",
+    "texture": "Crystalite",
+    "woodgrain": "false",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. Crystalite texture solid color.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L474C",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Crystalite (C)",
+    "code": "L474C",
+    "name": "Brushed Aluminum",
+    "texture": "Crystalite",
+    "woodgrain": "false",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. See also T4000 (prior code).",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L481S",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Smoothwood (S)",
+    "code": "L481S",
+    "name": "Nutmeg",
+    "texture": "Smoothwood",
+    "woodgrain": "false",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L492R",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Urbania (R)",
+    "code": "L492R",
+    "name": "White Chocolate",
+    "texture": "Urbania",
+    "woodgrain": "false",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L530A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L530A",
+    "name": "Latitude North",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L532A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L532A",
+    "name": "Latitude West",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L535A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L535A",
+    "name": "Southwester",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L538A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L538A",
+    "name": "River Rock",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L540A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L540A",
+    "name": "Summer Breeze",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L543A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L543A",
+    "name": "Spring Blossom",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L544A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L544A",
+    "name": "Niagara",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L546A",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Alto (A)",
+    "code": "L546A",
+    "name": "Mojave",
+    "texture": "Alto",
+    "woodgrain": "true",
+    "price_tier": "tfl_standard",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. See also 456/L456 (prior).",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L580K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L580K",
+    "name": "Free Spirit",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L581K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L581K",
+    "name": "Sheer Beauty",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L584K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L584K",
+    "name": "Chameleon",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L585K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L585K",
+    "name": "Rhapsody",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L586K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L586K",
+    "name": "Natural Affinity",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 586.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L587K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L587K",
+    "name": "Sugar Rush",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 587.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L588K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L588K",
+    "name": "Sweet & Savory",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 588.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L589K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L589K",
+    "name": "Salt of the Earth",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 589.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L590K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L590K",
+    "name": "Love at First Sight",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L591K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L591K",
+    "name": "Acacia Honey",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L592K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L592K",
+    "name": "Kiss Curl",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 592.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L593K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L593K",
+    "name": "Mastermind",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 593.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L830K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L830K",
+    "name": "Force of Nature",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L831K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L831K",
+    "name": "Rock Solid",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 531.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L832K",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Karisma (K)",
+    "code": "L832K",
+    "name": "Urban Vibe",
+    "texture": "Karisma",
+    "woodgrain": "true",
+    "price_tier": "tfl_karisma",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L175M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L175M",
+    "name": "White",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia \u2014 NEW. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L761M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L761M",
+    "name": "Moonlight",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia \u2014 NEW. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L763M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L763M",
+    "name": "Morning Dew",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100. See also PM763.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L767M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L767M",
+    "name": "Milky Way",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L775M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L775M",
+    "name": "Gardenia",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100. See also PM775.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L781M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L781M",
+    "name": "Cream Puff",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L782M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L782M",
+    "name": "Sand Castle",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia \u2014 NEW. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L783M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L783M",
+    "name": "Tiramisu",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-L784M",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Materia (M)",
+    "code": "L784M",
+    "name": "Secret Garden",
+    "texture": "Materia",
+    "woodgrain": "false",
+    "price_tier": "tfl_materia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2014Y",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Lummia (Y)",
+    "code": "M2014Y",
+    "name": "Sugar on Ice",
+    "texture": "Lummia",
+    "woodgrain": "false",
+    "price_tier": "tfl_lummia",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Lummia \u2014 NEW color. 3/4 5x9 pcs=$102/$94.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M175B",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Brava (B)",
+    "code": "M175B",
+    "name": "White Brava",
+    "texture": "Brava",
+    "woodgrain": "false",
+    "price_tier": "tfl_brava",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Brava. 3/4 5x9 ~$96 wht/$116 other.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M203B",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Brava (B)",
+    "code": "M203B",
+    "name": "Black Brava",
+    "texture": "Brava",
+    "woodgrain": "false",
+    "price_tier": "tfl_brava",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Brava. 3/4 5x9 ~$116.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2031B",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Brava (B)",
+    "code": "M2031B",
+    "name": "Cr\u00e8me de la Cr\u00e8me",
+    "texture": "Brava",
+    "woodgrain": "false",
+    "price_tier": "tfl_brava",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Brava. 3/4 5x9 ~$116.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M203Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M203Q",
+    "name": "Black Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M763Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M763Q",
+    "name": "Morning Dew Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2061Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M2061Q",
+    "name": "Muse Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2062Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M2062Q",
+    "name": "Masterpiece Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2063Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M2063Q",
+    "name": "Emblem Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2064Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M2064Q",
+    "name": "Prodigy Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2065Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M2065Q",
+    "name": "Maestro Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
+  },
+  {
+    "id": "MEL-TA-M2066Q",
+    "supplier": "Tafisa",
+    "collection": "Tafisa 2026 West Coast TFL",
+    "line": "Iconiq (Q)",
+    "code": "M2066Q",
+    "name": "Pioneer Iconiq",
+    "texture": "Iconiq",
+    "woodgrain": "false",
+    "price_tier": "tfl_iconiq",
+    "hex_approx": "",
+    "notes": "Tafisa 2026 West Coast TFL. Iconiq Texture \u2014 NEW. 3/4 5x9 pcs=$144/$133.",
+    "placeholder": "false"
   }
 ]

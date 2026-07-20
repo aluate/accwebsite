@@ -39,7 +39,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
     // Edgeband rows (all finish groups for this job)
     sql`
-      SELECT fge.finish_group_id, fge.letter_code, fge.edgeband_id
+      SELECT fge.finish_group_id, fge.code, fge.edgeband_id
       FROM finish_group_edgebands fge
       JOIN finish_groups fg ON fg.id = fge.finish_group_id
       JOIN residential_specs rs ON rs.id = fg.spec_id
@@ -117,7 +117,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       function ebFilled(codes: string[]): boolean {
         // Every FG must have at least one filled edgeband row for these letter codes
         return [...fgIds].every(fgId => {
-          const fgEbs = ebList.filter(e => e.finish_group_id === fgId && codes.includes(e.letter_code as string));
+          const fgEbs = ebList.filter(e => e.finish_group_id === fgId && codes.includes(e.code as string));
           return fgEbs.some(e => e.edgeband_id);
         });
       }

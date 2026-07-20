@@ -5,14 +5,11 @@
     "supplier": "Internal",
     "type": "hardwood",
     "color_match": "custom",
-    "compatible_finish_type": [
-      "paint",
-      "stain"
-    ],
+    "compatible_finish_type": "[\"paint\", \"stain\"]",
     "thickness_mm": "3.0",
     "width_in": "15/16",
     "notes": "Solid hardwood applied edge then painted to match \u2014 flags Finishing Dept",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-008",
@@ -24,19 +21,19 @@
     "thickness_mm": "3.0",
     "width_in": "15/16",
     "notes": "Solid hardwood applied edge then stained to match \u2014 flags Finishing Dept",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-099",
     "product_name": "Other (specify in notes)",
     "supplier": "Custom",
     "type": "custom",
-    "color_match": null,
+    "color_match": "",
     "compatible_finish_type": "all",
-    "thickness_mm": null,
-    "width_in": null,
+    "thickness_mm": "",
+    "width_in": "",
     "notes": "Escape hatch when none of the above fit",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-3103",
@@ -44,14 +41,11 @@
     "supplier": "ESI",
     "type": "pvc",
     "color_match": "warm beige/taupe",
-    "compatible_finish_type": [
-      "stain",
-      "paint"
-    ],
+    "compatible_finish_type": "[\"stain\", \"paint\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Used with BELLINI finish on alder (Stancraft Smith Lake)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-8726TF",
@@ -63,7 +57,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Used with Custom Dark Stain (Stancraft Smith Lake)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-30421TF",
@@ -75,7 +69,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Pairs with RC White Oak veneer / NATURAL stain (Pritchette)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-8677",
@@ -87,7 +81,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Pairs with GIMLET stain on RC White Oak (Bush Legacy)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-2416KTF",
@@ -99,7 +93,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Pairs with painted-black (SW Tricorn Black) veneer cabs (Vulpine)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-30320YMTF",
@@ -111,7 +105,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Pairs with BELLINI stain on PS White Oak veneer (Vulpine Matterhorn)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-8306TF",
@@ -123,7 +117,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Pairs with Knotty Alder / Amaretto stain (Bissell)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-20229",
@@ -135,7 +129,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Pairs with SW Iron Ore painted island (Bissell)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-4905",
@@ -147,7 +141,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Standard interior edgeband \u2014 adjustable shelves and unfinished bottoms. Used in nearly every job.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-AGT-P723",
@@ -159,7 +153,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Matches AGT Pearl Black 3010 melamine (Pritchette)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-AGT-3002",
@@ -171,7 +165,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Matches AGT Dark Grey Matte Soft Touch 3002 (Kenny Debaene)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAFISA-L583K",
@@ -183,7 +177,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Matches Tafisa First Class L583 (Atlas Plant 6549)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAFISA-L582K",
@@ -195,7 +189,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Matches Tafisa Fashionista L582 (Kenny, Woolridge)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-UNIBOARD-K15",
@@ -207,7 +201,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Matches Uniboard K15 Cannes Riviera Oak melamine (Stancraft Smith Lake)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-SW-G86",
@@ -219,7 +213,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Matches Stevenswood G86 Grigio Notte melamine (Spivey)",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-SW-0065-PTM",
@@ -231,7 +225,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Edgeband painted to match door color \u2014 Bissell Bar",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-HMmaple",
@@ -243,7 +237,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Standard interior shelves and unfinished ends \u2014 stock. Used in virtually every job for I and U positions.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-PFMAPLE-DRAWER",
@@ -255,7 +249,7 @@
     "thickness_mm": "0.018in",
     "width_in": "15/16",
     "notes": "Standard B and C positions (drawer box sides and F&B) \u2014 stock in every job",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L763",
@@ -267,7 +261,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L763. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L115",
@@ -279,7 +273,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L115. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L767",
@@ -291,7 +285,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L767. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-PM100",
@@ -303,7 +297,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code PM100. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-PM775",
@@ -315,7 +309,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code PM775. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2015",
@@ -327,7 +321,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2015. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2003",
@@ -339,7 +333,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2003. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-557",
@@ -351,7 +345,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 557. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-493",
@@ -363,7 +357,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 493. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-080",
@@ -375,7 +369,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 080. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2055",
@@ -387,7 +381,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2055. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2053",
@@ -399,7 +393,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2053. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2052",
@@ -411,7 +405,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2052. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2051",
@@ -423,7 +417,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2051. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2034",
@@ -435,7 +429,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2034. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2031",
@@ -447,7 +441,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2031. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2021",
@@ -459,7 +453,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2021. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-2000",
@@ -471,7 +465,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 2000. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-835",
@@ -483,7 +477,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 835. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-833",
@@ -495,7 +489,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 833. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-784",
@@ -507,7 +501,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 784. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-783",
@@ -519,7 +513,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 783. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-781",
@@ -531,7 +525,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 781. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-776",
@@ -543,7 +537,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 776. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-775",
@@ -555,7 +549,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 775. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-774",
@@ -567,7 +561,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 774. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-771",
@@ -579,7 +573,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 771. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-769",
@@ -591,7 +585,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 769. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-666",
@@ -603,7 +597,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 666. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-657",
@@ -615,7 +609,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 657. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-593",
@@ -627,7 +621,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 593. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-592",
@@ -639,7 +633,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 592. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-589",
@@ -651,7 +645,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 589. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-588",
@@ -663,7 +657,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 588. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-587",
@@ -675,7 +669,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 587. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-586",
@@ -687,7 +681,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 586. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-566",
@@ -699,7 +693,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 566. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-565",
@@ -711,7 +705,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 565. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-563",
@@ -723,7 +717,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 563. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-561",
@@ -735,7 +729,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 561. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-551",
@@ -747,7 +741,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 551. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-550",
@@ -759,7 +753,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 550. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-545",
@@ -771,7 +765,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 545. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-533",
@@ -783,7 +777,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 533. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-531",
@@ -795,7 +789,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 531. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-521",
@@ -807,7 +801,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 521. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-495",
@@ -819,7 +813,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 495. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-494",
@@ -831,7 +825,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 494. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-489",
@@ -843,7 +837,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 489. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-478",
@@ -855,7 +849,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 478. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-476",
@@ -867,7 +861,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 476. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-475",
@@ -879,7 +873,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 475. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-469",
@@ -891,7 +885,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 469. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-458",
@@ -903,7 +897,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 458. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-456",
@@ -915,7 +909,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 456. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-449",
@@ -927,7 +921,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 449. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-445",
@@ -939,7 +933,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 445. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-258",
@@ -951,7 +945,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 258. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-228",
@@ -963,7 +957,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 228. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-217",
@@ -975,7 +969,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 217. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-215",
@@ -987,7 +981,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 215. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-175",
@@ -999,7 +993,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 175. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-120",
@@ -1011,7 +1005,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 120. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-115",
@@ -1023,7 +1017,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 115. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-100",
@@ -1035,7 +1029,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code 100. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L105",
@@ -1047,7 +1041,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L105. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-T4000",
@@ -1059,7 +1053,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code T4000. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2031",
@@ -1071,7 +1065,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2031. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2013",
@@ -1083,7 +1077,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2013. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2011",
@@ -1095,7 +1089,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2011. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2010",
@@ -1107,7 +1101,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2010. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2007",
@@ -1119,7 +1113,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2007. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2006",
@@ -1131,7 +1125,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2006. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2005",
@@ -1143,7 +1137,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2005. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2004",
@@ -1155,7 +1149,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2004. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2002Y",
@@ -1167,7 +1161,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2002Y. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2001",
@@ -1179,7 +1173,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2001. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L080",
@@ -1191,7 +1185,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L080. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-M2034",
@@ -1203,7 +1197,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code M2034. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L823",
@@ -1215,7 +1209,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L823. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L202",
@@ -1227,7 +1221,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L202. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-PM772",
@@ -1239,7 +1233,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code PM772. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-TAF-L178",
@@ -1251,7 +1245,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Tafisa panel code L178. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-U702",
@@ -1263,7 +1257,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code U702. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3078",
@@ -1275,7 +1269,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3078. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1701",
@@ -1287,7 +1281,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1701. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1399",
@@ -1299,7 +1293,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1399. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1331",
@@ -1311,7 +1305,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1331. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3325",
@@ -1323,7 +1317,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3325. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3197",
@@ -1335,7 +1329,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3197. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3157",
@@ -1347,7 +1341,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3157. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3090",
@@ -1359,7 +1353,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3090. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3042",
@@ -1371,7 +1365,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3042. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1180",
@@ -1383,7 +1377,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1180. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-F638-CHROMIX",
@@ -1395,7 +1389,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-F422-WHITE-L",
@@ -1407,7 +1401,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-U7081",
@@ -1419,7 +1413,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code U7081. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-U599",
@@ -1431,7 +1425,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code U599. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-U201",
@@ -1443,7 +1437,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code U201. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3790",
@@ -1455,7 +1449,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3790. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3702",
@@ -1467,7 +1461,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3702. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3702B",
@@ -1479,7 +1473,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3702. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3453",
@@ -1491,7 +1485,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3453. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3420",
@@ -1503,7 +1497,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3420. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3406",
@@ -1515,7 +1509,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3406. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3403",
@@ -1527,7 +1521,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3403. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3326",
@@ -1539,7 +1533,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3326. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3195",
@@ -1551,7 +1545,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3195. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3180",
@@ -1563,7 +1557,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3180. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3176",
@@ -1575,7 +1569,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3176. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3083",
@@ -1587,7 +1581,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3083. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3043",
@@ -1599,7 +1593,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3043. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3058",
@@ -1611,7 +1605,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3058. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3012",
@@ -1623,7 +1617,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3012. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H3006",
@@ -1635,7 +1629,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H3006. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1959",
@@ -1647,7 +1641,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1959. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1958",
@@ -1659,7 +1653,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1958. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1815",
@@ -1671,7 +1665,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1815. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1733",
@@ -1683,7 +1677,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1733. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1615",
@@ -1695,7 +1689,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1615. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1487",
@@ -1707,7 +1701,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1487. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1486",
@@ -1719,7 +1713,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1486. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1424",
@@ -1731,7 +1725,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1424. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1379",
@@ -1743,7 +1737,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1379. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1292",
@@ -1755,7 +1749,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1292. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1290",
@@ -1767,7 +1761,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1290. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1277",
@@ -1779,7 +1773,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1277. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1210",
@@ -1791,7 +1785,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1210. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1176",
@@ -1803,7 +1797,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1176. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1151",
@@ -1815,7 +1809,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1151. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1146",
@@ -1827,7 +1821,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1146. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1137",
@@ -1839,7 +1833,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1137. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-H1122",
@@ -1851,7 +1845,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code H1122. LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-BRUSHED-BRAS",
@@ -1863,7 +1857,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-BRUSHED-ALUM",
@@ -1875,7 +1869,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-ANTHRACITE-L",
@@ -1887,7 +1881,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-F425-BEIGE-L",
@@ -1899,7 +1893,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-BROWN-LINEN-",
@@ -1911,7 +1905,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-F416-BEIGE-T",
@@ -1923,7 +1917,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-EGG-F275-DARK-CO",
@@ -1935,7 +1929,7 @@
     "thickness_mm": "1.0",
     "width_in": "15/16",
     "notes": "Egger panel code . LEDGEBAND-verified match.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P20200VF24",
@@ -1947,7 +1941,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-20200VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P30255UTF24",
@@ -1959,7 +1953,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-30255UTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P30517YF24",
@@ -1971,7 +1965,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-30517YF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P30614UF24",
@@ -1983,7 +1977,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-30614UF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8229VF24",
@@ -1995,7 +1989,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8229VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8231L24",
@@ -2007,7 +2001,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8231L-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8232F24",
@@ -2019,7 +2013,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8232F-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8232VF24",
@@ -2031,7 +2025,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8232VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8351VTF24",
@@ -2043,7 +2037,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8351VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P859524",
@@ -2055,7 +2049,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8595-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8843L24",
@@ -2067,7 +2061,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8843L-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P8854AAMF24",
@@ -2079,7 +2073,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-8854AAMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-PSTE574VF24",
@@ -2091,7 +2085,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-STE574VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-PSTEVENS589V24",
@@ -2103,7 +2097,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-STEVENS589V-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-PSW7008TF24",
@@ -2115,7 +2109,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P-SW7008TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P12410CP010824",
@@ -2127,7 +2121,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-2410CP0108-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130135AA24",
@@ -2139,7 +2133,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30135AA-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130255UTF24",
@@ -2151,7 +2145,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30255UTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130256U24",
@@ -2163,7 +2157,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30256U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130257U24",
@@ -2175,7 +2169,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30257U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130258U24",
@@ -2187,7 +2181,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30258U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130259UTF24",
@@ -2199,7 +2193,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30259UTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130329YTF24",
@@ -2211,7 +2205,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30329YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130330YF41",
@@ -2223,7 +2217,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30330YF-41. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130331YTF24",
@@ -2235,7 +2229,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30331YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130333YTF24",
@@ -2247,7 +2241,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30333YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130336YTF24",
@@ -2259,7 +2253,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30336YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130337Y24",
@@ -2271,7 +2265,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30337Y-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130337YTF24",
@@ -2283,7 +2277,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30337YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130451YMTF24",
@@ -2295,7 +2289,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30451YMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130452YM24",
@@ -2307,7 +2301,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30452YM-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130616U24",
@@ -2319,7 +2313,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30616U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130782S24",
@@ -2331,7 +2325,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30782S-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130922VTF24",
@@ -2343,7 +2337,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30922VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130923VTF24",
@@ -2355,7 +2349,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30923VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130924VTF24",
@@ -2367,7 +2361,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30924VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P130925VTF24",
@@ -2379,7 +2373,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-30925VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131170UMTF24",
@@ -2391,7 +2385,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31170UMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131301EVMTF24",
@@ -2403,7 +2397,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31301EVMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131302EVMF24",
@@ -2415,7 +2409,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31302EVMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131306EVMTF24",
@@ -2427,7 +2421,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31306EVMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131308EVMF24",
@@ -2439,7 +2433,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31308EVMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131499YMF41",
@@ -2451,7 +2445,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31499YMF-41. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P131519EBMF24",
@@ -2463,7 +2457,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-31519EBMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18196VTF24",
@@ -2475,7 +2469,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8196VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18198AA24",
@@ -2487,7 +2481,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8198AA-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18212LTF24",
@@ -2499,7 +2493,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8212LTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18213F41",
@@ -2511,7 +2505,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8213F-41. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18233VTF24",
@@ -2523,7 +2517,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8233VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18234FT24",
@@ -2535,7 +2529,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8234FT-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18236VTF24",
@@ -2547,7 +2541,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8236VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18239VTF24",
@@ -2559,7 +2553,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8239VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18253VTF24",
@@ -2571,7 +2565,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8253VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18351LF24",
@@ -2583,7 +2577,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8351LF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18351TF24",
@@ -2595,7 +2589,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8351TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18351VF38",
@@ -2607,7 +2601,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8351VF-38. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18434V24",
@@ -2619,7 +2613,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8434V-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18589YTF24",
@@ -2631,7 +2625,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8589YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18596Y24",
@@ -2643,7 +2637,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8596Y-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18597Y24",
@@ -2655,7 +2649,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8597Y-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18830AA24",
@@ -2667,7 +2661,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8830AA-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P18871AAMF24",
@@ -2679,7 +2673,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-8871AAMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P1STE388TF24",
@@ -2691,7 +2685,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-STE388TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P1STEL14TF24",
@@ -2703,7 +2697,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-STEL14TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P1STEL40YTF24",
@@ -2715,7 +2709,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-STEL40YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P1STEWB4TF24",
@@ -2727,7 +2721,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P1-STEWB4TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P28196VTF32",
@@ -2739,7 +2733,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P2-8196VTF-32. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P2EGGH1210TF44",
@@ -2751,7 +2745,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P2-EGGH1210TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P2EGGH1221TF44",
@@ -2763,7 +2757,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P2-EGGH1221TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P2EGGH3309TF44",
@@ -2775,7 +2769,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P2-EGGH3309TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P2EGGH3325TF44",
@@ -2787,7 +2781,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P2-EGGH3325TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-STE-P2EGGH3794TF44",
@@ -2799,7 +2793,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI item P2-EGGH3794TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P200113",
@@ -2811,7 +2805,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 1/2\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20212MM24",
@@ -2823,7 +2817,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P30149F24",
@@ -2835,7 +2829,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P575124",
@@ -2847,7 +2841,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P60103MTF24",
@@ -2859,7 +2853,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PFOR4923YF32",
@@ -2871,7 +2865,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 1-1/4\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PFOR9477F24",
@@ -2883,7 +2877,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PLABWX400F24",
@@ -2895,7 +2889,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PLABWXC07F24",
@@ -2907,7 +2901,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PUNI763TF24",
@@ -2919,7 +2913,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20112MMF24",
@@ -2931,7 +2925,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20113M24",
@@ -2943,7 +2937,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20519MTF24",
@@ -2955,7 +2949,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2406F41",
@@ -2967,7 +2961,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-5/8\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P242224",
@@ -2979,7 +2973,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2422335",
@@ -2991,7 +2985,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-5/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2425AA24",
@@ -3003,7 +2997,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2425TF24",
@@ -3015,7 +3009,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P242624",
@@ -3027,7 +3021,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2145VF24",
@@ -3039,7 +3033,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2368F41",
@@ -3051,7 +3045,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-5/8\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2406F24",
@@ -3063,7 +3057,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2425335",
@@ -3075,7 +3069,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-5/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P30259F24",
@@ -3087,7 +3081,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P31387E5MTF24",
@@ -3099,7 +3093,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P1430TF24",
@@ -3111,7 +3105,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P1916F32",
@@ -3123,7 +3117,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-1/4\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20144T24",
@@ -3135,7 +3129,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20215M24",
@@ -3147,7 +3141,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P211416",
@@ -3159,7 +3153,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 5/8\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P30144TF24",
@@ -3171,7 +3165,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P412124",
@@ -3183,7 +3177,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P640124",
@@ -3195,7 +3189,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PFOR726F24",
@@ -3207,7 +3201,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2147335",
@@ -3219,7 +3213,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-5/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P31148M24",
@@ -3231,7 +3225,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P31374F24",
@@ -3243,7 +3237,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P6662F24",
@@ -3255,7 +3249,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P727124",
@@ -3267,7 +3261,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PFOR6226F24",
@@ -3279,7 +3273,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PLABPW035F24",
@@ -3291,7 +3285,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PSHINIVINWOF24",
@@ -3303,7 +3297,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-PSHINIVOAKF24",
@@ -3315,7 +3309,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20435MF24",
@@ -3327,7 +3321,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P20609MTF24",
@@ -3339,7 +3333,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2116F335",
@@ -3351,7 +3345,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .020\" x 1-5/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P213324",
@@ -3363,7 +3357,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P220924",
@@ -3375,7 +3369,7 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
   },
   {
     "id": "EB-ESI-S-P2257F24",
@@ -3387,6 +3381,1458 @@
     "thickness_mm": "0.018",
     "width_in": "15/16",
     "notes": "ESI solid color PVC for painted cabinets. .018\" x 15/16\" x 600'",
-    "placeholder": false
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-W960",
+    "product_name": "Egger W960 Classic White",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Classic White",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger W960 ST7. Everyday Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1816",
+    "product_name": "Egger H1816 Natural Maple",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Natural Maple",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1816 ST7. Everyday Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U216",
+    "product_name": "Egger U216 Came Beige",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Came Beige",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U216 ST9. Classic Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U220",
+    "product_name": "Egger U220 Soft Beige",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Soft Beige",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U220 ST9. Classic Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U732",
+    "product_name": "Egger U732 Dust Grey",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Dust Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U732 ST9. Classic Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U779",
+    "product_name": "Egger U779 Fog Grey",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Fog Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U779 ST7. Classic Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U705",
+    "product_name": "Egger U705 Angora Grey",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Angora Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U705 ST9. Essential Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U750",
+    "product_name": "Egger U750 Taupe Grey",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Taupe Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U750 ST9. Essential Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U963",
+    "product_name": "Egger U963 Diamond Grey",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Diamond Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U963 ST9. Essential Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U502",
+    "product_name": "Egger U502 Misty Blue",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Misty Blue",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U502 ST9. Inspired Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U604",
+    "product_name": "Egger U604 Reed Green",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Reed Green",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U604 ST9. Inspired Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U780",
+    "product_name": "Egger U780 Monument Grey",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Monument Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U780 ST9. Inspired Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-W1100",
+    "product_name": "Egger W1100 Alpine White",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Alpine White",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger W1100 ST9. Inspired Collection. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U250",
+    "product_name": "Egger U250 Caramel Beige",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Caramel Beige",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U250 ST9. Inspired Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U444",
+    "product_name": "Egger U444 Cassis",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Cassis",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U444 ST9. Inspired Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U665",
+    "product_name": "Egger U665 Stone Green",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Stone Green",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U665 ST9. Inspired Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1247",
+    "product_name": "Egger H1247 Graphite Sheffield Acacia",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Graphite Sheffield Acacia",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1247 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1708",
+    "product_name": "Egger H1708 Brighton Chestnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Brighton Chestnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1708 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3322",
+    "product_name": "Egger H3322 Light Natural Rovato Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Light Natural Rovato Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3322 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H7604",
+    "product_name": "Egger H7604 Natural Dimaro Walnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Natural Dimaro Walnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H7604 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-F417",
+    "product_name": "Egger F417 Grey Textile",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Grey Textile",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger F417 ST10. Next Level Collection. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1222",
+    "product_name": "Egger H1222 Fox Grey Tossini Elm",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Fox Grey Tossini Elm",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1222 ST12. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1225",
+    "product_name": "Egger H1225 Trondhelm Ash",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Trondhelm Ash",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1225 ST12. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1715",
+    "product_name": "Egger H1715 Parona Walnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Parona Walnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1715 ST12. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3041",
+    "product_name": "Egger H3041 Natural Eucalyptus",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Natural Eucalyptus",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3041 ST12. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3165",
+    "product_name": "Egger H3165 Light Vicenza Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Light Vicenza Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3165 ST12. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3171",
+    "product_name": "Egger H3171 Oiled Kendal Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Oiled Kendal Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3171 ST12. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3860",
+    "product_name": "Egger H3860 Champagne Hard Maple",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Champagne Hard Maple",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3860 ST9. Next Level. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1288",
+    "product_name": "Egger H1288 Stone Grey Frozen Wood",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Stone Grey Frozen Wood",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1288 ST19. Essence Collection. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1307",
+    "product_name": "Egger H1307 Brown Warmla Walnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Brown Warmla Walnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1307 ST19. Essence. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3158",
+    "product_name": "Egger H3158 Grey Vicenza Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Grey Vicenza Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3158 ST19. Essence. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3198",
+    "product_name": "Egger H3198 Dark Grey Fineline",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Dark Grey Fineline",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3198 ST19. Essence. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3710",
+    "product_name": "Egger H3710 Natural Carini Walnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Natural Carini Walnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3710 ST12. Essence. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3791",
+    "product_name": "Egger H3791 Auburn Carini Walnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Auburn Carini Walnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3791 ST12. Essence. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3794",
+    "product_name": "Egger H3794 Chocolate Carini Walnut",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Chocolate Carini Walnut",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3794 ST12. Essence. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3786",
+    "product_name": "Egger H3786 Natural Bolivar Wood",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Natural Bolivar Wood",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3786 ST19. Essence \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H3787",
+    "product_name": "Egger H3787 Brown Bolivar Wood",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Brown Bolivar Wood",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H3787 ST19. Essence \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1181",
+    "product_name": "Egger H1181 Tobacco Halifax",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Tobacco Halifax",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1181 ST37. Exclusive Collection. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1384",
+    "product_name": "Egger H1384 White Casella Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "White Casella Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1384 ST40. Exclusive. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1385",
+    "product_name": "Egger H1385 Natural Casella Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Natural Casella Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1385 ST40. Exclusive. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1386",
+    "product_name": "Egger H1386 Brown Casella Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Brown Casella Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1386 ST40. Exclusive. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1367",
+    "product_name": "Egger H1367 Light Natural Casella Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Light Natural Casella Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1367 ST40. Exclusive. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1369",
+    "product_name": "Egger H1369 Marone Casella Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Marone Casella Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1369 ST40. Exclusive \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-H1388",
+    "product_name": "Egger H1388 Sand Casella Oak",
+    "supplier": "Egger",
+    "type": "melamine",
+    "color_match": "Sand Casella Oak",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger H1388 ST40. Exclusive \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-W1100-PS",
+    "product_name": "Egger W1100 Alpine White (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Alpine White (Perfect Sense)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger W1100 TM. Perfect Sense Collection \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U999-PS",
+    "product_name": "Egger U999 Black (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Black (Perfect Sense)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U999 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U398-PS",
+    "product_name": "Egger U398 Dark Berry (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Dark Berry",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U398 TM. Perfect Sense \u2014 NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U590-PS",
+    "product_name": "Egger U590 Deep Blue (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Deep Blue",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U590 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U665-PS",
+    "product_name": "Egger U665 Stone Green (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Stone Green (Perfect Sense)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U665 TM. Perfect Sense \u2014 NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U702-PS",
+    "product_name": "Egger U702 Cashmere Grey (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Cashmere Grey (Perfect Sense)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U702 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U708-PS",
+    "product_name": "Egger U708 Light Grey (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Light Grey (Perfect Sense)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U708 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U755-PS",
+    "product_name": "Egger U755 Havanna Grey (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Havanna Grey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U755 TM. Perfect Sense \u2014 NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-EGG-U961-PS",
+    "product_name": "Egger U961 Graphite Grey (Perfect Sense)",
+    "supplier": "Egger",
+    "type": "abs",
+    "color_match": "Graphite Grey (Perfect Sense)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Egger U961 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L420C",
+    "product_name": "Tafisa L420C Summer Flame",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Summer Flame",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L420C. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L421C",
+    "product_name": "Tafisa L421C Candlelight",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Candlelight",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L421C. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L444C",
+    "product_name": "Tafisa L444C Chocolate Pear Tree",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Chocolate Pear Tree",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L444C. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L474C",
+    "product_name": "Tafisa L474C Brushed Aluminum",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Brushed Aluminum (L474C)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L474C. 2026 TFL. See also T4000 (same colorway, prior code).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L481S",
+    "product_name": "Tafisa L481S Nutmeg",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Nutmeg",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L481S. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L492R",
+    "product_name": "Tafisa L492R White Chocolate",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "White Chocolate",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L492R. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L530A",
+    "product_name": "Tafisa L530A Latitude North",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Latitude North",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L530A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L532A",
+    "product_name": "Tafisa L532A Latitude West",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Latitude West",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L532A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L535A",
+    "product_name": "Tafisa L535A Southwester",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Southwester",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L535A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L538A",
+    "product_name": "Tafisa L538A River Rock",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "River Rock",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L538A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L540A",
+    "product_name": "Tafisa L540A Summer Breeze",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Summer Breeze",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L540A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L543A",
+    "product_name": "Tafisa L543A Spring Blossom",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Spring Blossom",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L543A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L544A",
+    "product_name": "Tafisa L544A Niagara",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Niagara",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L544A. 2026 West Coast TFL Stocking Collection.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L546A",
+    "product_name": "Tafisa L546A Mojave",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Mojave (L546A)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L546A. 2026 TFL. See also 456 Mojave (prior code).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L580K",
+    "product_name": "Tafisa L580K Free Spirit",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Free Spirit",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L580K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L581K",
+    "product_name": "Tafisa L581K Sheer Beauty",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Sheer Beauty (L581K)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L581K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L584K",
+    "product_name": "Tafisa L584K Chameleon",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Chameleon",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L584K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L585K",
+    "product_name": "Tafisa L585K Rhapsody",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Rhapsody",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L585K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L590K",
+    "product_name": "Tafisa L590K Love at First Sight",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Love at First Sight",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L590K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L591K",
+    "product_name": "Tafisa L591K Acacia Honey",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Acacia Honey",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L591K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L830K",
+    "product_name": "Tafisa L830K Force of Nature",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Force of Nature",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L830K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L831K",
+    "product_name": "Tafisa L831K Rock Solid",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Rock Solid (L831K)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L831K. 2026 TFL. See also 531 Rock Solid (prior code).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L832K",
+    "product_name": "Tafisa L832K Urban Vibe",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Urban Vibe (L832K)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L832K. 2026 West Coast TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L175M",
+    "product_name": "Tafisa L175M White (Materia)",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "White (Materia)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L175M. Materia line \u2014 NEW 2026 TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L761M",
+    "product_name": "Tafisa L761M Moonlight",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Moonlight",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L761M. Materia line \u2014 NEW 2026 TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-L782M",
+    "product_name": "Tafisa L782M Sand Castle",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Sand Castle (L782M)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code L782M. Materia line \u2014 NEW 2026 TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2014Y",
+    "product_name": "Tafisa M2014Y Sugar on Ice",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Sugar on Ice",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2014Y. Lummia line \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M203Q",
+    "product_name": "Tafisa M203Q Black Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Black Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M203Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M763Q",
+    "product_name": "Tafisa M763Q Morning Dew Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Morning Dew Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M763Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2061Q",
+    "product_name": "Tafisa M2061Q Muse Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Muse Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2061Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2062Q",
+    "product_name": "Tafisa M2062Q Masterpiece Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Masterpiece Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2062Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2063Q",
+    "product_name": "Tafisa M2063Q Emblem Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Emblem Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2063Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2064Q",
+    "product_name": "Tafisa M2064Q Prodigy Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Prodigy Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2064Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2065Q",
+    "product_name": "Tafisa M2065Q Maestro Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Maestro Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2065Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M2066Q",
+    "product_name": "Tafisa M2066Q Pioneer Iconiq",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Pioneer Iconiq",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M2066Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M175B",
+    "product_name": "Tafisa M175B White Brava",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "White Brava",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M175B. Brava line \u2014 2026 TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-M203B",
+    "product_name": "Tafisa M203B Black Brava",
+    "supplier": "Tafisa",
+    "type": "melamine",
+    "color_match": "Black Brava",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa panel code M203B. Brava line \u2014 2026 TFL. LEDGEBAND match.",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM115",
+    "product_name": "Tafisa PM115 Carte Blanche (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Carte Blanche (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM203",
+    "product_name": "Tafisa PM203 Black (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Black (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM763",
+    "product_name": "Tafisa PM763 Morning Dew (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Morning Dew (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM765",
+    "product_name": "Tafisa PM765 Midnight Sun (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Midnight Sun (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM771",
+    "product_name": "Tafisa PM771 North Wind (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "North Wind (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM773",
+    "product_name": "Tafisa PM773 Eucalyptus (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Eucalyptus (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM776",
+    "product_name": "Tafisa PM776 Cashmere (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Cashmere (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM777",
+    "product_name": "Tafisa PM777 Winter Horizon (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Winter Horizon",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM778",
+    "product_name": "Tafisa PM778 Steel Blue (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Steel Blue",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM779",
+    "product_name": "Tafisa PM779 Sage Leaf (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Sage Leaf",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM780",
+    "product_name": "Tafisa PM780 Terrarossa (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Terrarossa",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM581",
+    "product_name": "Tafisa PM581 Sheer Beauty (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Sheer Beauty (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM592",
+    "product_name": "Tafisa PM592 Kiss Curl (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Kiss Curl (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM832",
+    "product_name": "Tafisa PM832 Urban Vibe (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Urban Vibe (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM835",
+    "product_name": "Tafisa PM835 Camera Obscura (Perfect Matt)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Camera Obscura (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM781",
+    "product_name": "Tafisa PM781 Cream Puff (Perfect Matt NC)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Cream Puff (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026). New Color (NC).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM782",
+    "product_name": "Tafisa PM782 Sand Castle (Perfect Matt NC)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Sand Castle (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026). New Color (NC).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM783",
+    "product_name": "Tafisa PM783 Tiramisu (Perfect Matt NC)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Tiramisu (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026). New Color (NC).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-PM784",
+    "product_name": "Tafisa PM784 Secret Garden (Perfect Matt NC)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Secret Garden (PM)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia Perfect Matt. ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West sell sheet June 2026). New Color (NC).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG100",
+    "product_name": "Tafisa HG100 Vanilla Orchid (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Vanilla Orchid (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG115",
+    "product_name": "Tafisa HG115 Carte Blanche (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Carte Blanche (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG202",
+    "product_name": "Tafisa HG202 Summer Drops (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Summer Drops (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG203",
+    "product_name": "Tafisa HG203 Black (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Black (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 1 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG763",
+    "product_name": "Tafisa HG763 Morning Dew (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Morning Dew (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG765",
+    "product_name": "Tafisa HG765 Midnight Sun (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Midnight Sun (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG771",
+    "product_name": "Tafisa HG771 North Wind (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "North Wind (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG776",
+    "product_name": "Tafisa HG776 Cashmere (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Cashmere (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG582",
+    "product_name": "Tafisa HG582 Fashionista (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Fashionista (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG833",
+    "product_name": "Tafisa HG833 Steampunk (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Steampunk (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG834",
+    "product_name": "Tafisa HG834 Iron Horse (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Iron Horse (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
+  },
+  {
+    "id": "EB-TAF-HG2004",
+    "product_name": "Tafisa HG2004 Winter Fun (High Gloss)",
+    "supplier": "Tafisa",
+    "type": "abs",
+    "color_match": "Winter Fun (HG)",
+    "compatible_finish_type": "[\"melamine\"]",
+    "thickness_mm": "1.0",
+    "width_in": "15/16",
+    "notes": "Tafisa Lummia High Gloss (now on MDF). ABS 1mm x 15/16\" x 300' = $129/roll Group 2 (HW West June 2026).",
+    "placeholder": "False"
   }
 ]
