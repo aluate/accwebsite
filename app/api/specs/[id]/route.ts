@@ -13,6 +13,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     SELECT * FROM finish_groups WHERE spec_id = ${id} ORDER BY sort_order
   `;
 
+  const fgIds = (finish_groups as { id: string }[]).map((g) => g.id);
+  const fg_edgebands = fgIds.length
+    ? await sql`SELECT * FROM finish_group_edgebands WHERE finish_group_id IN ${sql(fgIds)} ORDER BY sort_order`
+    : [];
+
   const rooms = await sql`
     SELECT * FROM rooms WHERE spec_id = ${id} ORDER BY sort_order
   `;
@@ -22,7 +27,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     ? await sql`SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}`
     : [];
 
-  return NextResponse.json({ spec, finish_groups, rooms, accessories });
+  return NextResponse.json({ spec, finish_groups, fg_edgebands, rooms, accessories });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

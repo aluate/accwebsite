@@ -958,6 +958,11 @@ async function main() {
     `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS source       TEXT NOT NULL DEFAULT 'manual'`,
     `ALTER TABLE bug_reports ADD COLUMN IF NOT EXISTS dedup_hash   TEXT`,
     `CREATE INDEX IF NOT EXISTS idx_bug_reports_dedup ON bug_reports(dedup_hash, created_at DESC)`,
+    // finish_group_edgebands free-text override columns (BUG-004)
+    `ALTER TABLE finish_group_edgebands ADD COLUMN IF NOT EXISTS thick       TEXT`,
+    `ALTER TABLE finish_group_edgebands ADD COLUMN IF NOT EXISTS mfr         TEXT`,
+    `ALTER TABLE finish_group_edgebands ADD COLUMN IF NOT EXISTS part_no     TEXT`,
+    `ALTER TABLE finish_group_edgebands ADD COLUMN IF NOT EXISTS description TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* column/table already exists */ }
   }

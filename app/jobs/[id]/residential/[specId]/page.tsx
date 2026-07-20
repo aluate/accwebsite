@@ -36,6 +36,7 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 // per-finish state. Material is the first sub-section to land — others follow
 // the same pattern (door fronts, drawers, edgebands, hardware, countertops).
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
+type FgEdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string|null; where_used: string|null; notes: string|null; thick: string|null; mfr: string|null; part_no: string|null; description: string|null; sort_order: number };
 
 export default async function SpecEditorPage({
   params,
@@ -93,6 +94,7 @@ export default async function SpecEditorPage({
   let specApplianceRows: SpecApplianceRow[] = [];
   let specAccessoryRows2: SpecAccessoryRow2[] = [];
   let specHardwareRows: SpecHardwareRow[] = [];
+  let fgEdgebandRows: FgEdgebandRow[] = [];
   try {
     fgPullRows = fgIds.length
       ? await sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FGPullRow[]
@@ -103,6 +105,9 @@ export default async function SpecEditorPage({
     specApplianceRows = await sql`SELECT * FROM spec_appliances WHERE spec_id = ${specId} ORDER BY sort_order` as SpecApplianceRow[];
     specAccessoryRows2 = await sql`SELECT * FROM spec_accessories WHERE spec_id = ${specId} ORDER BY sort_order` as SpecAccessoryRow2[];
     specHardwareRows = await sql`SELECT * FROM spec_hardware WHERE spec_id = ${specId} ORDER BY sort_order` as SpecHardwareRow[];
+    fgEdgebandRows = fgIds.length
+      ? await sql`SELECT * FROM finish_group_edgebands WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FgEdgebandRow[]
+      : [];
   } catch {
     // Tables not yet created — will be created on first db-push
   }
@@ -299,6 +304,7 @@ export default async function SpecEditorPage({
         initialAppliances={initialAppliances}
         initialAccessories2={initialAccessories2}
         initialHardware={initialHardware}
+        initialFgEdgebands={fgEdgebandRows}
         catalogs={catalogData}
         lastSaved={spec.updated_at}
       />

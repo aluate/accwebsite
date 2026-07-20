@@ -45,6 +45,10 @@ export default async function LibrariesPage() {
       </Link>
 
       <h1 className="font-heading text-3xl uppercase tracking-wide text-white mb-2">Libraries</h1>
+      <div className="mb-4 rounded bg-yellow-400/10 border border-yellow-400/30 px-4 py-3 text-yellow-300 text-xs font-condensed">
+        ⚠ Catalog editing is <strong>not available on Vercel</strong> — the filesystem is read-only in production.
+        To update a catalog: edit the CSV locally in <code className="text-white/70">data/catalogs/</code>, run <code className="text-white/70">npm run sync-catalogs</code>, then commit and deploy.
+      </div>
       <p className="text-white/40 text-sm mb-10 max-w-2xl">
         Edit catalog CSVs in-place. Changes save to <code className="text-white/60">data/catalogs/</code> and
         regenerate the matching JSON via <code className="text-white/60">sync-catalogs</code>.

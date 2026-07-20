@@ -109,6 +109,12 @@ export type SpecHardwareItem = {
   room: string; qty: number; notes: string; sort_order: number;
 };
 
+export type FgEdgebandRow = {
+  finish_group_id: string; code: string;
+  thick: string|null; mfr: string|null; part_no: string|null; description: string|null;
+  where_used: string|null; notes: string|null;
+};
+
 export type Room = {
   id: string; name: string;
   finish_group_id: string;
@@ -132,6 +138,7 @@ type Props = {
   initialAppliances: ApplianceRow[];
   initialAccessories2?: SpecAccessoryItem[];
   initialHardware?: SpecHardwareItem[];
+  initialFgEdgebands: FgEdgebandRow[];
   catalogs: CatalogData;
   lastSaved: string;
 };
@@ -141,6 +148,18 @@ const INPUT  = "w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 tex
 const SELECT = INPUT;
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
+
+function parseArith(raw: string): number | null {
+  const cleaned = raw.replace(/[^0-9+\-*/. ()]/g, "").trim();
+  if (!cleaned) return null;
+  try {
+    // Only allow safe arithmetic characters
+    if (!/^[0-9+\-*/. ()]+$/.test(cleaned)) return null;
+    // eslint-disable-next-line no-eval
+    const result = Function(`"use strict"; return (${cleaned})`)();
+    return typeof result === "number" && isFinite(result) ? Math.max(0, Math.round(result)) : null;
+  } catch { return null; }
+}
 
 type Violation = { tag: string; field: string };
 
@@ -649,7 +668,7 @@ function AccessoryPickerRow({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, catalogs, lastSaved }: Props) {
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, initialFgEdgebands, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
@@ -659,6 +678,14 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [appliances, setAppliances] = useState<ApplianceRow[]>(initialAppliances);
   const [specAccs, setSpecAccs] = useState<SpecAccessoryItem[]>(initialAccessories2 ?? []);
   const [specHW, setSpecHW] = useState<SpecHardwareItem[]>(initialHardware ?? []);
+  // keyed by "${fgId}::${code}"
+  const [ebOverrides, setEbOverrides] = useState<Record<string, FgEdgebandRow>>(() => {
+    const map: Record<string, FgEdgebandRow> = {};
+    for (const row of initialFgEdgebands) {
+      map[`${row.finish_group_id}::${row.code}`] = row;
+    }
+    return map;
+  });
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -666,6 +693,18 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [genState, setGenState] = useState<"idle" | "generating" | "done" | "error">("idle");
 
   function markDirty() { setDirty(true); setSaveState("idle"); }
+
+  async function saveEbCell(fgId: string, code: string, patch: Partial<FgEdgebandRow>) {
+    const key = `${fgId}::${code}`;
+    const existing = ebOverrides[key] ?? { finish_group_id: fgId, code, thick: null, mfr: null, part_no: null, description: null, where_used: null, notes: null };
+    const updated = { ...existing, ...patch };
+    setEbOverrides((prev) => ({ ...prev, [key]: updated }));
+    await fetch(`/api/specs/${specId}/finish-groups/${fgId}/edgebands/${code}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    });
+  }
 
   // 2026-05-06 — "Save All" coordinator. The Schedules tab (SpecSchedulesPanel)
   // owns its own save state and POSTs to /api/specs/[id]/schedules. The legacy
@@ -1506,11 +1545,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   <div>
                     <label className={LABEL}>Box Count <span className="text-white/30 normal-case font-normal">(est. — planning only)</span></label>
                     <input
-                      type="number" min="0" step="1"
+                      type="text"
+                      inputMode="numeric"
+                      min="0"
                       value={g.box_count ?? ""}
-                      onChange={(e) => updateGroup(g.id, { box_count: e.target.value === "" ? null : Number(e.target.value) })}
-                      placeholder="e.g. 42"
+                      placeholder="0"
                       className={INPUT}
+                      onChange={(e) => updateGroup(g.id, { box_count: e.target.value === "" ? null : (Number(e.target.value) || null) })}
+                      onBlur={(e) => {
+                        const parsed = parseArith(e.target.value);
+                        if (parsed !== null) updateGroup(g.id, { box_count: parsed });
+                      }}
                     />
                   </div>
                   <div>
@@ -1735,7 +1780,18 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <div>
                           <label className={LABEL}>Qty</label>
                           <div className="flex gap-1">
-                            <input type="number" min={0} value={p.qty} onChange={(e) => updatePull(g.id, pi, { qty: parseInt(e.target.value) || 0 })} className={INPUT + " w-20"} />
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              min={0}
+                              value={p.qty ?? ""}
+                              className={INPUT + " w-20"}
+                              onChange={(e) => updatePull(g.id, pi, { qty: parseInt(e.target.value) || 0 })}
+                              onBlur={(e) => {
+                                const parsed = parseArith(e.target.value);
+                                if (parsed !== null) updatePull(g.id, pi, { qty: parsed });
+                              }}
+                            />
                             <button onClick={() => removePull(g.id, pi)} className="text-white/20 hover:text-red-400 transition-colors px-2 shrink-0">×</button>
                           </div>
                         </div>
@@ -2273,7 +2329,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           <div className="pt-6 border-t border-white/10">
             <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-1">Edgeband Schedule</p>
             <p className="text-white/20 text-[10px] font-condensed mb-4">
-              Auto-derived from finish group selections. These rows print on the Work Order sheets (W.1, W.2…). Verify before generating the PDF.
+              Auto-derived from finish group. Click any cell to override. Saves on blur. Prints on W.n Work Order sheets.
             </p>
             {groups.map((g) => {
               const eb   = catalogs.edgebands.find((e) => e.id === g.edgeband_id);
@@ -2338,17 +2394,49 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         </tr>
                       </thead>
                       <tbody>
-                        {ebRows.map((row, ri) => (
-                          <tr key={row.code} className={ri % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"}>
-                            <td className="px-2 py-1.5 font-bold text-[#f08122]">{row.code}</td>
-                            <td className="px-2 py-1.5 text-white/50">{row.thick || "—"}</td>
-                            <td className="px-2 py-1.5 text-white/60">{row.mfr || "—"}</td>
-                            <td className="px-2 py-1.5 text-white/60">{row.part || "—"}</td>
-                            <td className="px-2 py-1.5 font-bold text-white/80">{row.desc || <span className="text-white/20 italic font-normal">blank</span>}</td>
-                            <td className="px-2 py-1.5 text-white/40">{row.where}</td>
-                            <td className="px-2 py-1.5 text-white/20 italic">—</td>
-                          </tr>
-                        ))}
+                        {ebRows.map((row, ri) => {
+                          const key = `${g.id}::${row.code}`;
+                          const ov = ebOverrides[key];
+                          const thick = ov?.thick ?? row.thick;
+                          const mfr   = ov?.mfr   ?? row.mfr;
+                          const part  = ov?.part_no ?? row.part;
+                          const desc  = ov?.description ?? row.desc;
+                          const notes = ov?.notes ?? "";
+
+                          const cellCls = "w-full bg-transparent text-white/70 text-[10px] font-condensed focus:outline-none focus:bg-[#1a1a1a] focus:text-white rounded px-1 py-0.5 border border-transparent focus:border-[#f08122] transition-colors placeholder:text-white/20";
+
+                          return (
+                            <tr key={row.code} className={ri % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"}>
+                              <td className="px-2 py-1 font-bold text-[#f08122] text-[10px] font-condensed">{row.code}</td>
+                              <td className="px-1 py-1">
+                                <input className={cellCls} value={thick || ""} placeholder="—"
+                                  onChange={(e) => setEbOverrides((p) => ({ ...p, [key]: { ...(p[key] ?? { finish_group_id: g.id, code: row.code, mfr: null, part_no: null, description: null, where_used: null, notes: null }), thick: e.target.value } }))}
+                                  onBlur={(e) => saveEbCell(g.id, row.code, { thick: e.target.value || null })} />
+                              </td>
+                              <td className="px-1 py-1">
+                                <input className={cellCls} value={mfr || ""} placeholder="—"
+                                  onChange={(e) => setEbOverrides((p) => ({ ...p, [key]: { ...(p[key] ?? { finish_group_id: g.id, code: row.code, thick: null, part_no: null, description: null, where_used: null, notes: null }), mfr: e.target.value } }))}
+                                  onBlur={(e) => saveEbCell(g.id, row.code, { mfr: e.target.value || null })} />
+                              </td>
+                              <td className="px-1 py-1">
+                                <input className={cellCls} value={part || ""} placeholder="—"
+                                  onChange={(e) => setEbOverrides((p) => ({ ...p, [key]: { ...(p[key] ?? { finish_group_id: g.id, code: row.code, thick: null, mfr: null, description: null, where_used: null, notes: null }), part_no: e.target.value } }))}
+                                  onBlur={(e) => saveEbCell(g.id, row.code, { part_no: e.target.value || null })} />
+                              </td>
+                              <td className="px-1 py-1">
+                                <input className={cellCls} value={desc || ""} placeholder="—"
+                                  onChange={(e) => setEbOverrides((p) => ({ ...p, [key]: { ...(p[key] ?? { finish_group_id: g.id, code: row.code, thick: null, mfr: null, part_no: null, where_used: null, notes: null }), description: e.target.value } }))}
+                                  onBlur={(e) => saveEbCell(g.id, row.code, { description: e.target.value || null })} />
+                              </td>
+                              <td className="px-2 py-1 text-white/40 text-[10px] font-condensed">{row.where}</td>
+                              <td className="px-1 py-1">
+                                <input className={cellCls} value={notes} placeholder="—"
+                                  onChange={(e) => setEbOverrides((p) => ({ ...p, [key]: { ...(p[key] ?? { finish_group_id: g.id, code: row.code, thick: null, mfr: null, part_no: null, description: null, where_used: null }), notes: e.target.value } }))}
+                                  onBlur={(e) => saveEbCell(g.id, row.code, { notes: e.target.value || null })} />
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
