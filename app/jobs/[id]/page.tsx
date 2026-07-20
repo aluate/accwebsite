@@ -15,6 +15,7 @@ import { EngineeringReleasePanel } from "@/components/EngineeringReleasePanel";
 import { ReadyToScheduleButton } from "@/components/ReadyToScheduleButton";
 import { JobInlineEditClient } from "@/components/JobInlineEditClient";
 import { WorkOrdersPanel } from "@/components/WorkOrdersPanel";
+import { JobConstraintsPanel } from "@/components/JobConstraintsPanel";
 import { JobActionButtons } from "@/components/JobActionButtons";
 import { InvoicePanel } from "@/components/InvoicePanel";
 import { requireBuilder } from "@/lib/auth";
@@ -236,6 +237,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               delivery_date:  job.delivery_date,
               notes:          job.notes,
             }}
+          />
+
+          <JobConstraintsPanel
+            jobId={internalId}
+            canEdit={isAdmin || (session.role === "pm" && session.email === job.pm)}
           />
         </div>
 

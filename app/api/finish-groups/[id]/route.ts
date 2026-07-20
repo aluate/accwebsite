@@ -14,11 +14,22 @@ export async function PATCH(
 ) {
   const session = await requireBuilderApi();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (session.role !== "karl" && session.role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   const { id } = await params;
+
+  // PM role: verify they own the parent job
+  const isPrivileged = session.role === "karl" || session.role === "admin";
+  if (!isPrivileged) {
+    if (session.role !== "pm") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    const [ownership] = await sql`
+      SELECT 1 FROM finish_groups fg
+      JOIN residential_specs rs ON rs.id = fg.spec_id
+      JOIN jobs j ON j.id = rs.job_id
+      WHERE fg.id = ${id} AND j.pm = ${session.email}
+    `;
+    if (!ownership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json() as { box_count?: number | null; wo_count?: number | null; pm_complexity?: number | null };
 
   const allowed = ["box_count", "wo_count", "pm_complexity"];
