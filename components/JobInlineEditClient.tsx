@@ -239,7 +239,10 @@ export function JobInlineEditClient({ jobId, initialValues }: Props) {
       {/* Builder */}
       <div className="bg-[#1e1e1e] rounded-lg border border-white/8 p-4">
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Builder</p>
-        {row("Builder", "builder")}
+        {row("Company",  "builder_company")}
+        {row("Contact",  "builder_name")}
+        {row("Email",    "builder_email",   "mailto:")}
+        {row("Phone",    "builder_phone",   "tel:")}
       </div>
     </div>
   );
