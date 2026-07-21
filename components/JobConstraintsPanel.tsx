@@ -298,12 +298,12 @@ function FGRow({
               value={fg.fg_complexity ?? 1}
               onChange={(e) => onSave({ fg_complexity: Number(e.target.value) })}
             >
-              {[0.5, 0.75, 1, 1.25, 1.5, 2].map((v) => (
-                <option key={v} value={v}>{v}×</option>
-              ))}
+              <option value={0}>0 — Std</option>
+              <option value={1}>1 — Mod</option>
+              <option value={2}>2 — Complex</option>
             </select>
           ) : (
-            <p className="text-white/50 text-xs">{fg.fg_complexity ?? 1}×</p>
+            <p className="text-white/50 text-xs">{fg.fg_complexity === 0 ? "0 — Std" : fg.fg_complexity === 2 ? "2 — Complex" : "1 — Mod"}</p>
           )}
         </div>
       </div>
