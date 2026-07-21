@@ -7,7 +7,7 @@ type JobRow = { id: string; client_name: string; client_email: string | null; bu
 type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
-type AccRow = { room_id: string; acc_id: string; qty: number; size: string | null; handed: string | null };
+type AccRow = { room_id: string; acc_id: string; qty: number; size: string | null; handed: string | null; notes: string | null };
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type DoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; style_id: string | null; material_id: string | null; oe_id: string | null; ie_id: string | null; panel_id: string | null; grain: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type DrawerRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; drawer_box_id: string | null; slides_id: string | null; notes: string | null; sort_order: number };
@@ -158,7 +158,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const roomViews: RoomView[] = rooms.map((r) => {
     const finishes=rfs.filter(f=>f.room_id===r.id).map(f=>({finish_group_id:f.finish_group_id,finish_label:fgLabelIdx.get(f.finish_group_id)??f.finish_group_id,zone:f.zone??""}));
     const seeded=finishes.length===0&&r.finish_group_id?[{finish_group_id:r.finish_group_id,finish_label:fgLabelIdx.get(r.finish_group_id)??r.finish_group_id,zone:""}]:finishes;
-    return{id:r.id,name:r.name,notes:r.notes??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>({...(accIdx.get(a.acc_id)??{name:a.acc_id,brand:"",series:"",category:""}),qty:a.qty,size:a.size??"",handed:a.handed??"N/A"}))};
+    return{id:r.id,name:r.name,notes:r.notes??"",finishes:seeded,accessories:accs.filter(a=>a.room_id===r.id).map(a=>{const cat=accIdx.get(a.acc_id)??{name:a.acc_id,brand:"",series:"",category:""};return{...cat,name:a.notes||cat.name,qty:a.qty,size:a.size??"",handed:a.handed??"N/A"};})};
   });
 
   const accRollupMap=new Map<string,AccessoryRollupRow>();
