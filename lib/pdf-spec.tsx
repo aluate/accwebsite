@@ -238,9 +238,9 @@ export function deriveWOEdgebands(fg: FinishGroupView): WOEbRow[] {
   let faceThick: string, faceMfr: string, facePart: string, faceDesc: string;
 
   if (isPaint) {
-    faceThick = "3.0";  faceMfr = "Internal";  facePart = "STOCK";  faceDesc = "Paint to Match";
+    faceThick = "";  faceMfr = "Internal";  facePart = "STOCK";  faceDesc = "Paint to Match";
   } else if (isStain) {
-    faceThick = "3.0";  faceMfr = "Internal";  facePart = "STOCK";  faceDesc = "Stain to Match";
+    faceThick = "";  faceMfr = "Internal";  facePart = "STOCK";  faceDesc = "Stain to Match";
   } else {
     // Melamine: use selected edgeband
     faceThick = faceEb?.thickness || "1MM";
@@ -414,7 +414,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
               <View key={room.id} style={ri % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
                 <Text style={[S.cell, { flex: 2, fontFamily: "Helvetica-Bold" }]}>{room.name || "—"}</Text>
                 <Text style={[S.cell, { flex: 0.8, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fgText}</Text>
-                <Text style={[S.cellMu, { flex: 4.7 }]}>{zones || "—"}</Text>
+                <Text style={[S.cellMu, { flex: 4.7 }]}>{[zones, room.notes].filter(Boolean).join("  ·  ") || "—"}</Text>
               </View>
             );
           })}
@@ -672,7 +672,29 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
   const colorName   = fg.finish.paint_name || fg.finish.stain_name || "";
   const fgPulls     = (data.finish_group_pulls ?? {})[fg.id] ?? [];
   const hw          = data.spec_hardware ?? [];
-  const ebRows      = deriveWOEdgebands(fg);
+  // Task #55 — prefer stored WO edgeband rows over re-derived defaults.
+  // If finish_group_edgebands has rows with standard WO codes (D/E/I/V/U/B/C/X),
+  // those reflect user edits and take priority. Otherwise derive fresh.
+  const STANDARD_EB_CODES = ["D","E","I","V","U","B","C","X"];
+  const hasStoredWORows = fg.edgebands.some(eb => STANDARD_EB_CODES.includes(eb.code));
+  const derivedRows = deriveWOEdgebands(fg);
+  const ebRows: WOEbRow[] = hasStoredWORows
+    ? STANDARD_EB_CODES.map(code => {
+        const stored = fg.edgebands.find(eb => eb.code === code);
+        if (stored) {
+          return {
+            code: stored.code,
+            thickness: stored.thickness || "",
+            manufacturer: stored.supplier || "",
+            part_no: stored.edgeband_name ? extractEbPartNo(stored.supplier, stored.edgeband_name) : "",
+            description: stored.edgeband_name || "",
+            where_used: stored.where_used_label || (derivedRows.find(r => r.code === code)?.where_used ?? ""),
+            notes: stored.notes || "",
+          } as WOEbRow;
+        }
+        return derivedRows.find(r => r.code === code) ?? { code, thickness: "", manufacturer: "", part_no: "", description: "", where_used: "", notes: "" };
+      })
+    : derivedRows;
   const moldings    = fg.moldings.filter(m => m.qty_lf || m.type_label);
 
   // Spec summary values
@@ -725,8 +747,15 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         </View>
         <View style={WS.hdrRight}>
           <View style={WS.notesBox}>
-            <Text style={WS.notesLbl}>JOB NOTES</Text>
-            <Text style={WS.notesBody}>{cleanNotes(data.job_notes) || "—"}</Text>
+            <Text style={WS.notesLbl}>ROOM NOTES</Text>
+            {fgRooms.filter(r => r.notes).length > 0
+              ? fgRooms.filter(r => r.notes).map(r => (
+                  <Text key={r.id} style={[WS.notesBody, { marginBottom: 2 }]}>
+                    <Text style={{ fontFamily: "Helvetica-Bold" }}>{r.name}: </Text>{r.notes}
+                  </Text>
+                ))
+              : <Text style={WS.notesBody}>{cleanNotes(data.job_notes) || "—"}</Text>
+            }
           </View>
         </View>
       </View>
@@ -835,6 +864,35 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
       </View>
 
       {/* ── MOLDINGS ──────────────────────────────────────────────────── */}
+      {/* ── ACCESSORIES ──────────────────────────────────────────────── */}
+      {(() => {
+        const fgAccs = fgRooms.flatMap(r => r.accessories.map(a => ({ ...a, roomName: r.name })));
+        if (fgAccs.length === 0) return null;
+        return (
+          <View style={{ marginBottom: 4 }}>
+            <Text style={WS.fullSecHead}>ACCESSORIES</Text>
+            <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+              <Text style={[WS.th, { flex: 1.5 }]}>Room</Text>
+              <Text style={[WS.th, { flex: 2.5 }]}>Item</Text>
+              <Text style={[WS.th, { flex: 1 }]}>Series</Text>
+              <Text style={[WS.th, { flex: 0.6 }]}>Size</Text>
+              <Text style={[WS.th, { flex: 0.6 }]}>Hand</Text>
+              <Text style={[WS.th, { flex: 0.5 }]}>Qty</Text>
+            </View>
+            {fgAccs.map((a, i) => (
+              <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{a.roomName}</Text>
+                <Text style={[WS.tdBold, { flex: 2.5 }]}>{d(a.name)}</Text>
+                <Text style={[WS.td, { flex: 1 }]}>{d(a.series)}</Text>
+                <Text style={[WS.td, { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+                <Text style={[WS.td, { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+                <Text style={[WS.td, { flex: 0.5 }]}>{String(a.qty)}</Text>
+              </View>
+            ))}
+          </View>
+        );
+      })()}
+
       {moldings.length > 0 && (
         <View style={{ marginBottom: 4 }}>
           <Text style={WS.fullSecHead}>MOLDINGS</Text>
