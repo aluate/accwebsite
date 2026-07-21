@@ -335,31 +335,46 @@ The repo is mounted at `C:\dev\repos\acc-website` (NTFS). The Linux sandbox cann
 
 **Branch:** Vercel deploys from `main`. The `master` branch is a stale preview branch — never push there.
 
-**Setup at the start of any session that needs to push:**
+---
+⚠️ **CRITICAL — READ BEFORE ANY GIT OPERATION:**
+
+The NTFS repo (`C:\dev\repos\acc-website`) is **always** on branch `feature/estimating` and will always show staged/modified files. This is **normal and expected** — it is a known artifact of how the NTFS mount persists across sessions.
+
+**NEVER:**
+- Run `git add`, `git commit`, `git push`, or `git pull` from the NTFS repo
+- Create a fresh clone with a different name (e.g. `/tmp/acc-repo-push`, `/tmp/my-clone`) — always use `/tmp/acc-repo`
+- Copy only the last file you edited — always audit ALL files changed this session and push them together
+- Deviate from the push.sh workflow below — ad-hoc manual git commands in /tmp have caused regressions
+
+**ALWAYS:**
+- Use `/tmp/acc-repo` as the clone path (consistent across sessions)
+- Use `push.sh` which does `git reset --hard origin/main` before copying — this prevents stale-state pushes
+- Before committing, diff ALL modified NTFS files against the clone to catch anything missed
+---
+
+**Setup at the start of any session that needs to push** (re-run every new conversation — `/tmp/` is wiped between sessions):
 ```bash
-TOKEN=$(grep -o 'ghp_[A-Za-z0-9]*' /sessions/*/mnt/repos/acc-website/.git/config | head -1)
+TOKEN=$(grep -o 'ghp_[A-Za-z0-9]*' /sessions/*/mnt/repos/acc-website/.git/config 2>/dev/null | head -1)
+# (token is stored in .git/config on the NTFS mount; never hardcode it here)
+rm -rf /tmp/acc-repo
 git clone "https://${TOKEN}@github.com/aluate/accwebsite.git" /tmp/acc-repo
-cd /tmp/acc-repo && git checkout main
-git config --global user.email "karlv@advancedcabinets.net"
-git config --global user.name "Karl V"
+cd /tmp/acc-repo
+git config user.email "karlv@advancedcabinets.net"
+git config user.name "Karl V"
 ```
 
-**If `/tmp/acc-repo` already exists from the same session, skip the clone and just verify:**
-```bash
-cd /tmp/acc-repo && git branch --show-current   # should say "main"
-```
-
-**Push script (`/tmp/push.sh`):**
+**Push script — create once per session, then use for every commit:**
 ```bash
 cat > /tmp/push.sh << 'SCRIPT'
 #!/bin/bash
 # Usage: bash /tmp/push.sh "commit message" path/to/file1 path/to/file2 ...
+# ALWAYS list every file changed this session, not just the last one.
 MSG="$1"; shift
 MOUNT=$(ls -d /sessions/*/mnt/repos/acc-website 2>/dev/null | head -1)
 REPO="/tmp/acc-repo"
 cd "$REPO"
 git fetch origin -q
-git reset --hard origin/main -q
+git reset --hard origin/main -q   # ← ensures we're on latest main before copying
 for f in "$@"; do
   mkdir -p "$(dirname "$REPO/$f")"
   cp "$MOUNT/$f" "$REPO/$f"
@@ -371,14 +386,27 @@ SCRIPT
 chmod +x /tmp/push.sh
 ```
 
-**Then push any changed files:**
+**Audit + push — do this once at the end of each work block:**
 ```bash
-bash /tmp/push.sh "fix: description" app/api/some/route.ts lib/some-file.ts
+# 1. Find all files modified on NTFS vs current main:
+MOUNT=$(ls -d /sessions/*/mnt/repos/acc-website 2>/dev/null | head -1)
+cd /tmp/acc-repo && git fetch -q && git reset --hard origin/main -q
+git diff --name-only HEAD -- $(git ls-files) | head -30   # files that differ
+
+# 2. Diff specific files to confirm what changed:
+diff "$MOUNT/lib/pdf-spec.tsx" /tmp/acc-repo/lib/pdf-spec.tsx
+
+# 3. Push ALL changed files in one commit (don't split into multiple pushes unless logical):
+bash /tmp/push.sh "fix: description of all changes" \
+  lib/pdf-spec.tsx \
+  components/SomeOtherFile.tsx
 ```
 
-Vercel auto-deploys on every push to `main`. Watch `vercel.com/aluates-projects/accwebsite-cd58/deployments`.
-
-**Note:** `/tmp/` is wiped between sandbox sessions. Re-run the setup block at the start of each new conversation that needs to push.
+**Verify deploy:**
+```
+vercel.com/aluates-projects/accwebsite-cd58/deployments
+```
+Both commit SHA and status "Ready" must appear before testing on the live site.
 
 ### Running Scripts Against the Live Database
 
