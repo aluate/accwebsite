@@ -775,19 +775,7 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
             </Text>
           )}
         </View>
-        <View style={WS.hdrRight}>
-          <View style={WS.notesBox}>
-            <Text style={WS.notesLbl}>ROOM NOTES</Text>
-            {fgRooms.filter(r => r.notes).length > 0
-              ? fgRooms.filter(r => r.notes).map(r => (
-                  <Text key={r.id} style={[WS.notesBody, { marginBottom: 2 }]}>
-                    <Text style={{ fontFamily: "Helvetica-Bold" }}>{r.name}: </Text>{r.notes}
-                  </Text>
-                ))
-              : <Text style={WS.notesBody}>{cleanNotes(data.job_notes) || "—"}</Text>
-            }
-          </View>
-        </View>
+
       </View>
 
       {/* ── Meta bar ────────────────────────────────────────────────────── */}
@@ -841,23 +829,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
             ))}
           </View>
 
-          {fgRooms.length > 0 && (
-            <View style={{ marginTop: 6 }}>
-              <Text style={WS.secHead}>ROOMS ({fgRooms.length})</Text>
-              <View style={WS.roomPillRow}>
-                {fgRooms.map(r => (
-                  <View key={r.id} style={WS.roomPill}>
-                    <Text style={WS.roomPillTx}>{r.name}</Text>
-                  </View>
-                ))}
-              </View>
-              {fgRooms.filter(r => r.notes).map(r => (
-                <Text key={r.id} style={WS.roomNote}>
-                  {r.name}: {r.notes}
-                </Text>
-              ))}
-            </View>
-          )}
         </View>
 
         {/* RIGHT: Work Order Hardware */}
@@ -978,7 +949,55 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         ))}
       </View>
 
-      <View style={WS.footer} fixed>
+
+      {/* ── ROOMS TABLE ──────────────────────────────────────────────────── */}
+      {fgRooms.length > 0 && (
+        <View style={{ marginTop: 6, marginBottom: 4 }}>
+          <Text style={WS.fullSecHead}>ROOMS ({fgRooms.length})</Text>
+          <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+            <Text style={[WS.th, { flex: 2 }]}>Room</Text>
+            <Text style={[WS.th, { flex: 1.2 }]}>Zone / FG</Text>
+            <Text style={[WS.th, { flex: 4 }]}>Notes</Text>
+          </View>
+          {fgRooms.map((r, ri) => {
+            const zones = r.finishes.map(f => f.zone).filter(Boolean).join("; ");
+            const fgLabels = r.finishes.map(f => f.finish_label || "").filter(Boolean).join(", ");
+            const zoneCell = [zones, fgLabels].filter(Boolean).join("  ·  ");
+            return (
+              <View key={r.id} style={ri % 2 === 0 ? WS.tableRow : WS.tableRowAlt} wrap={false}>
+                <Text style={[WS.tdBold, { flex: 2 }]}>{r.name || "—"}</Text>
+                <Text style={[WS.td,     { flex: 1.2 }]}>{zoneCell || "—"}</Text>
+                <Text style={[WS.tdMu,   { flex: 4 }]}>{r.notes || "—"}</Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+
+      {/* ── JOB NOTES ────────────────────────────────────────────────────── */}
+      {(() => {
+        const noteRows = [
+          { label: "Shop Notes",      body: cleanNotes(data.notes_shop) },
+          { label: "Install Notes",   body: cleanNotes(data.notes_install) },
+          { label: "Finishing Notes", body: cleanNotes(data.notes_finishing) },
+          { label: "Client Notes",    body: cleanNotes(data.notes_client) },
+          { label: "General Notes",   body: cleanNotes(data.job_notes) },
+        ].filter(n => n.body);
+        if (noteRows.length === 0) return null;
+        return (
+          <View style={{ marginTop: 4, marginBottom: 4 }}>
+            <Text style={WS.fullSecHead}>NOTES</Text>
+            {noteRows.map((n, ni) => (
+              <View key={ni} style={ni % 2 === 0 ? WS.tableRow : WS.tableRowAlt} wrap={false}>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{n.label}</Text>
+                <Text style={[WS.tdMu,   { flex: 6 }]}>{n.body}</Text>
+              </View>
+            ))}
+          </View>
+        );
+      })()}
+
+            <View style={WS.footer} fixed>
         <Text style={WS.footerTxt}>
           {[data.spec_name, data.job_id, fg.label, "Work Order Spec"].filter(Boolean).join("  ·  ")}
         </Text>
