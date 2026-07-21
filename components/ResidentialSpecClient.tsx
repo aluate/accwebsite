@@ -835,7 +835,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     } catch {
       setGenState("error");
     }
-  }, [specId, dirty, violations.length, save]);
+  }, [specId, dirty, violations.length, save, specAccs, specHW, appliances]);
 
   const [combineState, setCombineState] = useState<"idle"|"working"|"done"|"error">("idle");
   const [combineErr, setCombineErr] = useState<string>("");
