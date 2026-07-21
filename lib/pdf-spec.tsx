@@ -907,26 +907,64 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         );
       })()}
 
-      {moldings.length > 0 && (
-        <View style={{ marginBottom: 4 }}>
-          <Text style={WS.fullSecHead}>MOLDINGS</Text>
-          <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
-            {[{ l: "Type", w: 1.5 }, { l: "Profile", w: 1.5 }, { l: "Size", w: 0.7 }, { l: "Material", w: 1.5 }, { l: "Qty (LF)", w: 0.8 }, { l: "Notes", w: 2 }].map((h, i) => (
-              <Text key={i} style={[WS.th, { flex: h.w }]}>{h.l}</Text>
-            ))}
-          </View>
-          {moldings.map((m, i) => (
-            <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
-              <Text style={[WS.tdBold, { flex: 1.5 }]}>{m.type_label}</Text>
-              <Text style={[WS.td, { flex: 1.5 }]}>{d(m.profile_name)}</Text>
-              <Text style={[WS.td, { flex: 0.7 }]}>{m.size_in ? `${m.size_in}"` : "—"}</Text>
-              <Text style={[WS.td, { flex: 1.5 }]}>{d(m.material_name)}</Text>
-              <Text style={[WS.td, { flex: 0.8 }]}>{m.qty_lf ?? "—"}</Text>
-              <Text style={[WS.tdMu, { flex: 2 }]}>{d(m.notes)}</Text>
+      {moldings.length > 0 && (() => {
+        // Build rollup: group by type_label + profile_name + size_in, sum LF
+        const rollupMap = new Map<string, { type_label: string; profile_name: string; size_in: number | null; material_name: string; total_lf: number }>();
+        for (const m of moldings) {
+          const key = `${m.type_label}||${m.profile_name}||${m.size_in ?? ""}`;
+          const cur = rollupMap.get(key) ?? { type_label: m.type_label, profile_name: m.profile_name, size_in: m.size_in, material_name: m.material_name, total_lf: 0 };
+          cur.total_lf += m.qty_lf ?? 0;
+          rollupMap.set(key, cur);
+        }
+        const rollupRows = Array.from(rollupMap.values());
+        const grandTotal = rollupRows.reduce((s, r) => s + r.total_lf, 0);
+        return (
+          <View style={{ marginBottom: 4 }}>
+            <Text style={WS.fullSecHead}>MOLDINGS</Text>
+            {/* Line items */}
+            <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+              {[{ l: "Type", w: 1.5 }, { l: "Profile", w: 1.5 }, { l: "Size", w: 0.7 }, { l: "Material", w: 1.5 }, { l: "Qty (LF)", w: 0.8 }, { l: "Notes", w: 2 }].map((h, i) => (
+                <Text key={i} style={[WS.th, { flex: h.w }]}>{h.l}</Text>
+              ))}
             </View>
-          ))}
-        </View>
-      )}
+            {moldings.map((m, i) => (
+              <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{m.type_label}</Text>
+                <Text style={[WS.td, { flex: 1.5 }]}>{d(m.profile_name)}</Text>
+                <Text style={[WS.td, { flex: 0.7 }]}>{m.size_in ? `${m.size_in}"` : "—"}</Text>
+                <Text style={[WS.td, { flex: 1.5 }]}>{d(m.material_name)}</Text>
+                <Text style={[WS.td, { flex: 0.8 }]}>{m.qty_lf ?? "—"}</Text>
+                <Text style={[WS.tdMu, { flex: 2 }]}>{d(m.notes)}</Text>
+              </View>
+            ))}
+            {/* Rollup / totals */}
+            <View style={{ flexDirection: "row", backgroundColor: HEAD_BG, marginTop: 3 }}>
+              <Text style={[WS.th, { flex: 1.5 }]}>ROLLUP — TYPE</Text>
+              <Text style={[WS.th, { flex: 1.5 }]}>Profile</Text>
+              <Text style={[WS.th, { flex: 0.7 }]}>Size</Text>
+              <Text style={[WS.th, { flex: 1.5 }]}>Material</Text>
+              <Text style={[WS.th, { flex: 0.8 }]}>Total LF</Text>
+              <Text style={[WS.th, { flex: 2 }]}></Text>
+            </View>
+            {rollupRows.map((r, ri) => (
+              <View key={ri} style={ri % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{r.type_label}</Text>
+                <Text style={[WS.td,     { flex: 1.5 }]}>{d(r.profile_name)}</Text>
+                <Text style={[WS.td,     { flex: 0.7 }]}>{r.size_in ? `${r.size_in}"` : "—"}</Text>
+                <Text style={[WS.td,     { flex: 1.5 }]}>{d(r.material_name)}</Text>
+                <Text style={[WS.tdBold, { flex: 0.8 }]}>{r.total_lf > 0 ? r.total_lf.toFixed(1) : "—"}</Text>
+                <Text style={[WS.td,     { flex: 2 }]}></Text>
+              </View>
+            ))}
+            {/* Grand total row */}
+            <View style={[WS.tableRow, { backgroundColor: "#f08122" + "22" }]}>
+              <Text style={[WS.tdBold, { flex: 5.2, color: "#f08122" }]}>GRAND TOTAL</Text>
+              <Text style={[WS.tdBold, { flex: 0.8, color: "#f08122" }]}>{grandTotal > 0 ? grandTotal.toFixed(1) : "—"} LF</Text>
+              <Text style={[WS.td,     { flex: 2 }]}></Text>
+            </View>
+          </View>
+        );
+      })()}
 
       {/* ── EDGEBAND SCHEDULE ─────────────────────────────────────────── */}
       <View>
