@@ -6,7 +6,21 @@ import { useRouter } from "next/navigation";
 type EditableField =
   | "client_name" | "client_email" | "client_phone" | "site_address" | "city"
   | "pm" | "builder_name" | "builder_company" | "builder_email" | "builder_phone"
-  | "delivery_date" | "notes" | "job_number";
+  | "delivery_date" | "notes" | "job_number" | "install_type";
+
+const INSTALL_TYPE_OPTIONS = [
+  { value: "",              label: "— Not Set" },
+  { value: "acc",          label: "ACC Crew" },
+  { value: "sub",          label: "Sub" },
+  { value: "delivery_only", label: "Delivery Only" },
+];
+
+function installTypeDisplay(v: string) {
+  if (v === "acc" || v === "In House") return "ACC Crew";
+  if (v === "sub" || v === "Sub")      return "Sub";
+  if (v === "delivery_only")           return "Delivery Only";
+  return "—";
+}
 
 // ── EditableRow must live OUTSIDE the parent so React doesn't treat it as a
 //    new component on every keystroke (which would unmount the input mid-type).
@@ -85,6 +99,52 @@ function EditableRow({
         )}
         <span className="opacity-0 group-hover:opacity-100 text-white/30 text-[10px] ml-1 transition-opacity">✎</span>
       </div>
+    </div>
+  );
+}
+
+// ── InstallTypeRow — immediate-save select, no "editing" state needed ─────────
+interface InstallTypeRowProps {
+  jobId: string;
+  value: string;
+  onSaved: (v: string) => void;
+}
+
+function InstallTypeRow({ jobId, value, onSaved }: InstallTypeRowProps) {
+  const [saving, setSaving] = useState(false);
+
+  async function change(newVal: string) {
+    setSaving(true);
+    try {
+      await fetch(`/api/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ install_type: newVal || null }),
+      });
+      onSaved(newVal);
+    } catch {
+      alert("Failed to save install type.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="py-2 border-b border-white/5 last:border-0">
+      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-1">Install Type</p>
+      <select
+        value={value}
+        onChange={(e) => change(e.target.value)}
+        disabled={saving}
+        className="bg-[#111] border border-white/15 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-[#f08122]/60 cursor-pointer disabled:opacity-50 w-full"
+      >
+        {INSTALL_TYPE_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+      {value && (
+        <p className="text-white/30 text-[10px] mt-0.5">{installTypeDisplay(value)}</p>
+      )}
     </div>
   );
 }
@@ -169,6 +229,11 @@ export function JobInlineEditClient({ jobId, initialValues }: Props) {
         {row("PM",       "pm")}
         {row("Job #",    "job_number")}
         {row("Delivery", "delivery_date")}
+        <InstallTypeRow
+          jobId={jobId}
+          value={values["install_type"] ?? ""}
+          onSaved={(v) => setValues((prev) => ({ ...prev, install_type: v }))}
+        />
       </div>
 
       {/* Builder */}

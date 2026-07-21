@@ -228,6 +228,7 @@ function InlineInstallTypeCell({
       <option value="">—</option>
       <option value="acc">ACC Crew</option>
       <option value="sub">Sub</option>
+      <option value="delivery_only">Delivery Only</option>
     </select>
   );
 }
@@ -539,6 +540,7 @@ export function PmDashboardClient({
             <option value="all">All</option>
             <option value="acc">ACC Crew</option>
             <option value="sub">Sub</option>
+            <option value="delivery_only">Delivery Only</option>
             <option value="__none__">Not Set</option>
           </select>
         </div>

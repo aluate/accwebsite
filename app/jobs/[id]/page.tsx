@@ -235,6 +235,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               builder_email:  job.builder_email,
               builder_phone:  job.builder_phone,
               delivery_date:  job.delivery_date,
+              install_type:   job.install_type,
               notes:          job.notes,
             }}
           />

@@ -59,8 +59,9 @@ function distinctValues(jobs: EngJob[], key: keyof EngJob): string[] {
 }
 
 const installTypeLabel = (t: string | null) => {
-  if (t === "acc") return "ACC";
-  if (t === "sub") return "Sub";
+  if (t === "acc" || t === "In House") return "ACC";
+  if (t === "sub" || t === "Sub")      return "Sub";
+  if (t === "delivery_only")           return "Del Only";
   return "—";
 };
 
