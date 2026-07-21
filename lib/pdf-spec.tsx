@@ -896,27 +896,40 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
       {/* ── MOLDINGS ──────────────────────────────────────────────────── */}
       {/* ── ACCESSORIES ──────────────────────────────────────────────── */}
       {(() => {
+        // Room-level accessories for rooms in this FG
         const fgAccs = fgRooms.flatMap(r => r.accessories.map(a => ({ ...a, roomName: r.name })));
-        if (fgAccs.length === 0) return null;
+        // Spec-level accessories (from Spec Details tab) — show all on every WO sheet
+        const specAccs = data.spec_accessories ?? [];
+        if (fgAccs.length === 0 && specAccs.length === 0) return null;
         return (
           <View style={{ marginBottom: 4 }}>
             <Text style={WS.fullSecHead}>ACCESSORIES</Text>
             <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
               <Text style={[WS.th, { flex: 1.5 }]}>Room</Text>
               <Text style={[WS.th, { flex: 2.5 }]}>Item</Text>
-              <Text style={[WS.th, { flex: 1 }]}>Series</Text>
+              <Text style={[WS.th, { flex: 1 }]}>Part #</Text>
               <Text style={[WS.th, { flex: 0.6 }]}>Size</Text>
               <Text style={[WS.th, { flex: 0.6 }]}>Hand</Text>
               <Text style={[WS.th, { flex: 0.5 }]}>Qty</Text>
             </View>
             {fgAccs.map((a, i) => (
-              <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+              <View key={`r-${i}`} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
                 <Text style={[WS.tdBold, { flex: 1.5 }]}>{a.roomName}</Text>
                 <Text style={[WS.tdBold, { flex: 2.5 }]}>{d(a.name)}</Text>
-                <Text style={[WS.td, { flex: 1 }]}>{d(a.series)}</Text>
-                <Text style={[WS.td, { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
-                <Text style={[WS.td, { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
-                <Text style={[WS.td, { flex: 0.5 }]}>{String(a.qty)}</Text>
+                <Text style={[WS.td,     { flex: 1 }]}>{d(a.series)}</Text>
+                <Text style={[WS.td,     { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+                <Text style={[WS.td,     { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+                <Text style={[WS.td,     { flex: 0.5 }]}>{String(a.qty)}</Text>
+              </View>
+            ))}
+            {specAccs.map((a, i) => (
+              <View key={`s-${i}`} style={(fgAccs.length + i) % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{d(a.room) || "—"}</Text>
+                <Text style={[WS.tdBold, { flex: 2.5 }]}>{d(a.description || a.type)}</Text>
+                <Text style={[WS.td,     { flex: 1 }]}>{d(a.part_number)}</Text>
+                <Text style={[WS.td,     { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+                <Text style={[WS.td,     { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+                <Text style={[WS.td,     { flex: 0.5 }]}>{String(a.qty)}</Text>
               </View>
             ))}
           </View>
