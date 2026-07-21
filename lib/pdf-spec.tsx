@@ -699,11 +699,14 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
   const colorName   = fg.finish.paint_name || fg.finish.stain_name || "";
   const fgPulls     = (data.finish_group_pulls ?? {})[fg.id] ?? [];
   const hw          = data.spec_hardware ?? [];
-  // Task #55 — prefer stored WO edgeband rows over re-derived defaults.
-  // If finish_group_edgebands has rows with standard WO codes (D/E/I/V/U/B/C/X),
-  // those reflect user edits and take priority. Otherwise derive fresh.
+  // Task #55 — prefer stored WO edgeband rows over re-derived defaults, BUT:
+  //   - Paint/stain FGs: ALWAYS use derivedRows so Task #50 thickness fix ("" not "3.0") applies.
+  //     Stored rows for paint/stain may have been saved with old values and would bypass the fix.
+  //   - MEL FGs: use stored rows when they have standard WO codes (D/E/I/V/U/B/C/X), preserving
+  //     any user edits made via the BUG-004 editable edgeband table.
   const STANDARD_EB_CODES = ["D","E","I","V","U","B","C","X"];
-  const hasStoredWORows = fg.edgebands.some(eb => STANDARD_EB_CODES.includes(eb.code));
+  const isPaintOrStain = fg.finish_type === "paint" || fg.finish_type === "stain";
+  const hasStoredWORows = !isPaintOrStain && fg.edgebands.some(eb => STANDARD_EB_CODES.includes(eb.code));
   const derivedRows = deriveWOEdgebands(fg);
   const ebRows: WOEbRow[] = hasStoredWORows
     ? STANDARD_EB_CODES.map(code => {
