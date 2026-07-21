@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   }
 
   const now = new Date().toISOString();
-  const { id: job_id } = await nextJobId();
+  const { id: job_id, seq: job_seq } = await nextJobId();
 
   // ── Create job ────────────────────────────────────────────────────────────
   await sql`
@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
 
   // ── PDF ───────────────────────────────────────────────────────────────────
   const orderData: OrderData = {
-    job_id,
+    job_id: String(job_seq).padStart(5, '0'),
     submitted_at: now,
     builder_name: builder.name,
     builder_company: builder.company ?? null,

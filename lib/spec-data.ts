@@ -3,7 +3,7 @@ import { catalogs } from "@/lib/catalogs";
 import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry } from "@/lib/pdf-spec";
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
-type JobRow = { id: string; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
+type JobRow = { id: string; job_number: string | null; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
 type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
@@ -241,7 +241,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   }));
 
   return {
-    job_id: spec.job_id, spec_name: spec.name,
+    job_id: job.job_number ?? spec.job_id, spec_name: spec.name,
     generated_at: new Date().toISOString(),
     client_name: job.client_name, client_email: job.client_email,
     builder_name: job.builder_name, builder_company: job.builder_company,
