@@ -798,9 +798,28 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   const generateSpec = useCallback(async () => {
     if (violations.length > 0) { setShowViolations(true); }  // flag but don't block — DRAFT watermark will show
-    if (dirty) {
-      const ok = await save();
+    // Always save ALL sections before generating — prevents stale DB state
+    // (spec_accessories, spec_hardware, appliances are NOT part of the main save payload)
+    {
+      const ok = await save(undefined, true);  // force=true so violations don't block
       if (!ok) return;
+      await Promise.all([
+        fetch(`/api/specs/${specId}/accessories`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pulls: [], accessories: specAccs }),
+        }),
+        fetch(`/api/specs/${specId}/hardware`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hardware: specHW }),
+        }),
+        fetch(`/api/specs/${specId}/appliances`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ appliances }),
+        }),
+      ]);
     }
     setGenState("generating");
     try {
