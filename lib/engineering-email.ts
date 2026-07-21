@@ -6,6 +6,7 @@
  */
 
 import { sql } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 import { EVENT_TYPE_LABELS } from "@/lib/schedule-types";
 
 type JobRow = {
@@ -18,6 +19,15 @@ type JobRow = {
   install_type?: string | null;
   delivery_date?: string | null;
 };
+
+const STORAGE_BUCKET = "job-files";
+
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const CATEGORY_LABELS: Record<number, string> = {
   1: "Casework",
@@ -46,7 +56,7 @@ export async function buildEngineeringEmail(
   job: JobRow,
   internalId: string,
   note?: string
-): Promise<{ subject: string; text: string; html: string }> {
+): Promise<{ subject: string; text: string; html: string; attachments: Array<{ filename: string; content: Buffer }> }> {
   const jobRef = `Job ${job.job_number ?? job.id} — ${job.client_name}`;
   const jobAddress = [job.site_address, job.city].filter(Boolean).join(", ") || "—";
   const subject = `${jobRef} — Released to Engineering`;
@@ -98,14 +108,29 @@ export async function buildEngineeringEmail(
   `;
 
   // ── Files ──────────────────────────────────────────────────────────────
-  const files = await sql<{ kind: string; filename: string }[]>`
-    SELECT kind, filename FROM job_files
+  const files = await sql<{ kind: string; filename: string; storage_path: string }[]>`
+    SELECT kind, filename, storage_path FROM job_files
     WHERE job_id = ${internalId}
     AND kind IN ('05_drawings', '16_eng_drawings', '14_wo_pdfs', '14_shoppack')
     ORDER BY uploaded_at DESC
   `;
   const drawingFiles  = files.filter((f) => ["05_drawings", "16_eng_drawings"].includes(f.kind));
   const shopPackFiles = files.filter((f) => ["14_wo_pdfs", "14_shoppack"].includes(f.kind));
+
+  // Download drawing files for email attachments
+  const attachments: Array<{ filename: string; content: Buffer }> = [];
+  for (const f of drawingFiles) {
+    try {
+      const { data, error } = await getSupabaseAdmin().storage
+        .from(STORAGE_BUCKET)
+        .download(f.storage_path);
+      if (!error && data) {
+        attachments.push({ filename: f.filename, content: Buffer.from(await data.arrayBuffer()) });
+      }
+    } catch {
+      // non-fatal: skip files that fail to download
+    }
+  }
 
   // ── Group WOs by category ──────────────────────────────────────────────
   const woByCat = new Map<number, typeof workOrders>();
@@ -243,5 +268,5 @@ ${noteHtml}${specHtml}${woHtml}${msHtml}${filesHtml}
 </div>
 </body></html>`;
 
-  return { subject, text, html };
+  return { subject, text, html, attachments };
 }

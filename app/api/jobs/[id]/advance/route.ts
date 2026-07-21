@@ -179,8 +179,8 @@ export async function POST(
       let emailOpts: Parameters<typeof sendEmail>[0];
 
       if (toStatus === "engineering") {
-        const { subject, text, html } = await buildEngineeringEmail(job, internalId, note);
-        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html };
+        const { subject, text, html, attachments } = await buildEngineeringEmail(job, internalId, note);
+        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html, attachments: attachments.length ? attachments : undefined };
       } else {
         const subject = gate.subject(job);
         const text    = gate.body(job, note);
