@@ -816,18 +816,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
             </View>
           ))}
 
-          <View style={{ marginTop: 6 }}>
-            <Text style={WS.secHead}>FINISH SCHED.</Text>
-            {[
-              { label: "Touchup Kit", value: touchupKit },
-              { label: "Fastcaps",    value: "TO MATCH" },
-            ].map(({ label, value }, i) => (
-              <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
-                <Text style={WS.specLabel}>{label}</Text>
-                <Text style={WS.specValue}>{value}</Text>
-              </View>
-            ))}
-          </View>
 
         </View>
 
@@ -1019,7 +1007,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
           { label: "Install Notes",   body: cleanNotes(data.notes_install) },
           { label: "Finishing Notes", body: cleanNotes(data.notes_finishing) },
           { label: "Client Notes",    body: cleanNotes(data.notes_client) },
-          { label: "General Notes",   body: cleanNotes(data.job_notes) },
         ].filter(n => n.body);
         if (noteRows.length === 0) return null;
         return (

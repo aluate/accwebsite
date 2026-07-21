@@ -154,6 +154,26 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     };
   });
 
+  // Populate fg.moldings from DB rows (required for WO moldings table)
+  {
+    const fgViewIdx = new Map(fgViews.map(v => [v.id, v]));
+    for (const m of moldings) {
+      const fgView = fgViewIdx.get(m.finish_group_id);
+      if (!fgView) continue;
+      const roomsForMolding = moldingRooms.filter(mr => mr.molding_id === m.id).map(mr => roomNameIdx.get(mr.room_id) ?? "");
+      fgView.moldings.push({
+        molding_type: m.molding_type,
+        type_label: MOLDING_TYPE_LABEL[m.molding_type] ?? m.molding_type,
+        profile_name: m.molding_profile_id ? (moldingProfIdx.get(m.molding_profile_id) ?? "") : "",
+        size_in: m.size_in ?? null,
+        material_name: m.material_id ? (moldingMatIdx.get(m.material_id) ?? "") : "",
+        qty_lf: m.qty_lf ?? null,
+        where_used: roomsForMolding,
+        notes: m.notes ?? "",
+      });
+    }
+  }
+
   const fgLabelIdx=new Map(fgViews.map(v=>[v.id,v.label]));
   const roomViews: RoomView[] = rooms.map((r) => {
     const finishes=rfs.filter(f=>f.room_id===r.id).map(f=>({finish_group_id:f.finish_group_id,finish_label:fgLabelIdx.get(f.finish_group_id)??f.finish_group_id,zone:f.zone??""}));
@@ -198,9 +218,9 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
       { id:"def-shelf",   type:"Shelf Clips",    part_no:"5mm Nickel",                             room:"", qty:0, notes:"" },
        { id:"def-closet",  type:"Closet Rod",     part_no:"",                                       room:"", qty:0, notes:"" },
     ];
-    const specHwTypes = new Set(spec_hardware_list.map(h => h.type.toLowerCase()));
-    const activeDefaults = HW_DEFAULTS.filter(d => d.type === "Closet Rod" || !specHwTypes.has(d.type.toLowerCase()));
-    spec_hardware_list = [...activeDefaults, ...spec_hardware_list];
+    // Always include all 5 defaults; only show user rows with real content (part_no or notes)
+    const meaningfulUserRows = spec_hardware_list.filter(h => h.part_no || h.notes);
+    spec_hardware_list = [...HW_DEFAULTS, ...meaningfulUserRows];
     fg_pulls_list = fgPullsRows;
     room_trim_list = trimRows;
     db_appliances = appRows;
