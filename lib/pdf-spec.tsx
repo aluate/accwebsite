@@ -525,6 +525,33 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
         </View>
       )}
 
+      {/* SPEC-LEVEL ACCESSORIES — from Spec Details tab */}
+      {(data.spec_accessories?.length ?? 0) > 0 && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={[S.secHead, { marginTop: 8 }]}>SPEC ACCESSORIES</Text>
+          <View style={S.colHdr}>
+            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Item</Text>
+            <Text style={[S.colHdrTx, { flex: 1 }]}>Part #</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Size</Text>
+            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Hand</Text>
+            <Text style={[S.colHdrTx, { flex: 0.5 }]}>Qty</Text>
+            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
+            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
+          </View>
+          {(data.spec_accessories ?? []).map((a, ai) => (
+            <View key={ai} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
+              <Text style={[S.cell, { flex: 2.5, fontFamily: "Helvetica-Bold" }]}>{d(a.description || a.type)}</Text>
+              <Text style={[S.cell, { flex: 1 }]}>{d(a.part_number)}</Text>
+              <Text style={[S.cell, { flex: 0.7 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+              <Text style={[S.cell, { flex: 0.7 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+              <Text style={[S.cell, { flex: 0.5 }]}>{String(a.qty)}</Text>
+              <Text style={[S.cellMu, { flex: 1.5 }]}>{d(a.room)}</Text>
+              <Text style={[S.cellMu, { flex: 2 }]}>{d(a.notes)}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
       {/* MOLDINGS */}
       {moldingsByFG.size > 0 && (
         <>
