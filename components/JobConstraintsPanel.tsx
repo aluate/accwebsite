@@ -72,6 +72,7 @@ export function JobConstraintsPanel({ jobId, canEdit }: { jobId: string; canEdit
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         box_count: patch.box_count,
+        wo_count: patch.wo_count,
         pm_complexity: patch.fg_complexity,
       }),
     });
@@ -86,10 +87,10 @@ export function JobConstraintsPanel({ jobId, canEdit }: { jobId: string; canEdit
         fetch(`/api/finish-groups/${fg.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ box_count: null }),
+          body: JSON.stringify({ box_count: null, wo_count: null }),
         })
       ));
-      setFgs((prev) => prev.map((f) => ({ ...f, box_count: null })));
+      setFgs((prev) => prev.map((f) => ({ ...f, box_count: null, wo_count: null })));
     } finally { setRestoring(false); }
   }, [fgs]);
 
@@ -101,7 +102,7 @@ export function JobConstraintsPanel({ jobId, canEdit }: { jobId: string; canEdit
 
   if (error || !job) return null;
 
-  const hasOverrides = fgs.some((f) => f.box_count != null);
+  const hasOverrides = fgs.some((f) => f.box_count != null || f.wo_count != null);
   const totalBoxes = fgs.length > 0
     ? fgs.reduce((s, f) => s + (f.box_count ?? 0), 0)
     : (job.box_count ?? 0);
@@ -214,6 +215,7 @@ function FGRow({
   fg, canEdit, onSave,
 }: { fg: FG; canEdit: boolean; onSave: (patch: Partial<FG>) => void }) {
   const [boxDraft, setBoxDraft] = useState<string | null>(null);
+  const [woDraft, setWoDraft] = useState<string | null>(null);
   const woCalc = calcWO(fg.box_count);
   const badge = FINISH_COLOR[fg.finish_type] ?? "text-white/40 bg-white/5 border-white/10";
   const hasBoxes = fg.box_count != null;
@@ -223,6 +225,15 @@ function FGRow({
     const n = parseArith(boxDraft);
     onSave({ box_count: n });
     setBoxDraft(null);
+  };
+
+  const commitWOs = () => {
+    if (woDraft === null) return;
+    const raw = woDraft.trim();
+    const n = raw === "" ? null : parseArith(raw);
+    // Only save if it differs from derived value (empty = clear override)
+    onSave({ wo_count: n });
+    setWoDraft(null);
   };
 
   return (
@@ -256,12 +267,26 @@ function FGRow({
           )}
         </div>
 
-        {/* WOs (derived) */}
+        {/* WOs (editable override; falls back to derived) */}
         <div>
           <p className="text-white/20 text-[8px] font-condensed uppercase tracking-widest mb-0.5">WOs</p>
-          <p className={"text-xs tabular-nums py-1 " + (hasBoxes ? "text-white/60" : "text-white/20")}>
-            {hasBoxes ? woCalc : "—"}
-          </p>
+          {canEdit ? (
+            <input
+              type="text"
+              inputMode="numeric"
+              className={fg.wo_count != null ? INPUT : INPUT_EMPTY}
+              value={woDraft ?? (fg.wo_count != null ? String(fg.wo_count) : hasBoxes ? String(woCalc) : "")}
+              placeholder={hasBoxes ? String(woCalc) : "—"}
+              onChange={(e) => setWoDraft(e.target.value)}
+              onFocus={() => setWoDraft(fg.wo_count != null ? String(fg.wo_count) : hasBoxes ? String(woCalc) : "")}
+              onBlur={commitWOs}
+              onKeyDown={(e) => { if (e.key === "Enter") commitWOs(); }}
+            />
+          ) : (
+            <p className={"text-xs tabular-nums py-1 " + (hasBoxes || fg.wo_count != null ? "text-white/60" : "text-white/20")}>
+              {fg.wo_count ?? (hasBoxes ? woCalc : "—")}
+            </p>
+          )}
         </div>
 
         {/* Complexity */}
