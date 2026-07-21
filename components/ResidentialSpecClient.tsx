@@ -2459,7 +2459,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               if (!g.door_style_id) issues.push(`${g.label}: no door style selected`);
               if (!g.carcass_id) issues.push(`${g.label}: no carcass material selected`);
               if (!g.drawer_box_id) issues.push(`${g.label}: no drawer box selected`);
-              if (!g.edgeband_id) issues.push(`${g.label}: no edgeband selected`);
+              if ((g.finish_type === "paint" || g.finish_type === "stain") && !g.edgeband_id) issues.push(`${g.label}: no edgeband selected`);
             });
             rooms.forEach((r) => {
               const hasFinish = (r.finishes ?? []).some((f) => f.finish_group_id) || r.finish_group_id;
