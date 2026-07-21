@@ -8,7 +8,8 @@ type FinishGroup = {
   label: string | null;
   finish_type: string | null;
   box_count: number | null;
-  fg_complexity: number | null; // per-FG override; null = inherit from job
+  wo_count: number | null;       // manual WO override
+  fg_complexity: number | null;  // per-FG override; null = inherit from job
 };
 
 type ConstraintJob = {
@@ -20,7 +21,7 @@ type ConstraintJob = {
   status: string;
   delivery_date: string | null;
   estimated_value: number | null;
-  pm_complexity: number | null; // job-level default
+  pm_complexity: number | null;
   job_box_count: number | null;
   job_wo_count: number | null;
   install_start_date: string | null;
@@ -29,6 +30,82 @@ type ConstraintJob = {
 };
 
 type Pm = { id: string; name: string };
+
+// ─── ENG Hours formula ────────────────────────────────────────────────────────
+export type EngConfig = {
+  break1: number;      // 1st value-tier break ($)
+  break2: number;      // 2nd value-tier break ($)
+  rate1: number;       // hrs/$ for tier 1  (e.g. 0.001 = 1 hr / $1000)
+  rate2: number;       // hrs/$ for tier 2  (e.g. 0.00025)
+  rate3: number;       // hrs/$ for tier 3  (e.g. 0.0001)
+  mult0: number;       // complexity-0 value multiplier
+  mult1: number;       // complexity-1 multiplier (anchor = 1.0)
+  mult2: number;       // complexity-2 multiplier
+  fixedFloor: number;  // fixed hrs per WO (output-to-floor overhead)
+};
+
+const DEFAULT_ENG_CONFIG: EngConfig = {
+  break1: 25000, break2: 45000,
+  rate1: 0.001, rate2: 0.00025, rate3: 0.0001,
+  mult0: 0.5, mult1: 1.0, mult2: 1.75,
+  fixedFloor: 2,
+};
+
+function loadEngConfig(): EngConfig {
+  try {
+    const s = localStorage.getItem("acc_eng_config");
+    if (s) return { ...DEFAULT_ENG_CONFIG, ...JSON.parse(s) };
+  } catch {}
+  return { ...DEFAULT_ENG_CONFIG };
+}
+function saveEngConfig(cfg: EngConfig) {
+  try { localStorage.setItem("acc_eng_config", JSON.stringify(cfg)); } catch {}
+}
+
+/** Hours for ONE WO given its adjusted base value (runs through the bracket table) */
+function calcWOEngHours(baseValue: number, complexity: number | null, cfg: EngConfig): number {
+  const c = complexity ?? 1;
+  const mult = c === 0 ? cfg.mult0 : c === 2 ? cfg.mult2 : cfg.mult1;
+  const adj = baseValue * mult;
+  let h = 0;
+  if (adj <= cfg.break1) {
+    h = adj * cfg.rate1;
+  } else if (adj <= cfg.break2) {
+    h = cfg.break1 * cfg.rate1 + (adj - cfg.break1) * cfg.rate2;
+  } else {
+    h = cfg.break1 * cfg.rate1 + (cfg.break2 - cfg.break1) * cfg.rate2 + (adj - cfg.break2) * cfg.rate3;
+  }
+  return h + cfg.fixedFloor;
+}
+
+/** Effective WO count for a finish group (manual override > derived) */
+function fgWOs(fg: FinishGroup): number {
+  if (fg.wo_count != null && fg.wo_count > 0) return fg.wo_count;
+  if (!fg.box_count || fg.box_count <= 0) return 1;
+  return Math.max(1, Math.ceil(fg.box_count / 65));
+}
+
+/** Total ENG hours for a job. Returns null if est_value is missing. */
+function calcJobEngHours(job: ConstraintJob, cfg: EngConfig): number | null {
+  if (!job.estimated_value) return null;
+  const hasFgs = job.finish_groups.length > 0;
+  if (hasFgs) {
+    const totalWOs = job.finish_groups.reduce((s, fg) => s + fgWOs(fg), 0);
+    if (totalWOs === 0) return null;
+    const base = job.estimated_value / totalWOs;
+    const total = job.finish_groups.reduce((sum, fg) => {
+      const wos = fgWOs(fg);
+      const hpw = calcWOEngHours(base, fg.fg_complexity ?? job.pm_complexity, cfg);
+      return sum + hpw * wos;
+    }, 0);
+    return Math.round(total * 10) / 10;
+  } else {
+    const totalWOs = job.job_box_count ? Math.ceil(job.job_box_count / 65) : 1;
+    const base = job.estimated_value / totalWOs;
+    const hrs = calcWOEngHours(base, job.pm_complexity, cfg) * totalWOs;
+    return Math.round(hrs * 10) / 10;
+  }
+}
 
 // ─── Status config ────────────────────────────────────────────────────────────
 const ALL_STATUSES = [
@@ -54,13 +131,83 @@ const ACTIVE_STATUSES = [
   "intake","bid","design","field_dims","engineering","procurement",
   "production","delivery","install","punch",
 ];
-
 const COMPLEXITY_LABEL: Record<number,string> = { 0:"0 Std", 1:"1 Mod", 2:"2 Cmplx" };
 
-// WO per FG: each FG is at minimum 1 WO; +1 per additional 65 boxes
 function calcFgWO(boxes: number | null): number {
-  if (!boxes || boxes <= 0) return 1; // bare minimum — FG exists = 1 WO
+  if (!boxes || boxes <= 0) return 1;
   return Math.max(1, Math.ceil(boxes / 65));
+}
+
+// ─── Formula config panel ─────────────────────────────────────────────────────
+function FormulaConfigPanel({ cfg, onChange }: { cfg: EngConfig; onChange: (c: EngConfig) => void }) {
+  const [open, setOpen] = useState(false);
+
+  function set(key: keyof EngConfig, raw: string) {
+    const n = parseFloat(raw);
+    if (isNaN(n)) return;
+    const next = { ...cfg, [key]: n };
+    onChange(next);
+    saveEngConfig(next);
+  }
+
+  const Knob = ({ k, label, step = 0.0001 }: { k: keyof EngConfig; label: string; step?: number }) => (
+    <label className="flex flex-col gap-0.5">
+      <span className="text-[8px] text-white/30 uppercase tracking-widest font-condensed">{label}</span>
+      <input type="number" step={step} value={cfg[k]}
+        onChange={e => set(k, e.target.value)}
+        className="w-20 bg-[#1a1a1a] border border-white/15 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none focus:border-[#f08122]/60 tabular-nums" />
+    </label>
+  );
+
+  return (
+    <div className="mb-4 bg-[#111213] border border-white/10 rounded-xl overflow-hidden">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-[10px] font-condensed uppercase tracking-widest text-white/40 hover:text-white/70 transition-colors">
+        <span>⚙ ENG Hours Formula — levers</span>
+        <span className="text-[8px]">{open ? "▲ hide" : "▼ show"}</span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 border-t border-white/5 space-y-4 pt-3">
+          <p className="text-white/25 text-[10px] font-condensed leading-relaxed">
+            <span className="text-white/50">Formula per WO:</span> base = est_value ÷ total_WOs → × complexity_mult → bracket table (hrs/$) → + fixed floor = eng hrs
+          </p>
+          <div className="flex flex-wrap gap-6">
+            <div>
+              <p className="text-[9px] text-[#f08122] uppercase tracking-widest font-condensed mb-1.5">Value Breaks <span className="text-white/20 normal-case">(uncertain)</span></p>
+              <div className="flex gap-3">
+                <Knob k="break1" label="Break 1 ($)" step={1000} />
+                <Knob k="break2" label="Break 2 ($)" step={1000} />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] text-[#f08122] uppercase tracking-widest font-condensed mb-1.5">Rates <span className="text-white/40 normal-case">(confident)</span></p>
+              <div className="flex gap-3">
+                <Knob k="rate1" label="Tier 1 (1/1000)" />
+                <Knob k="rate2" label="Tier 2 (1/4000)" />
+                <Knob k="rate3" label="Tier 3 (1/10000)" />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] text-[#f08122] uppercase tracking-widest font-condensed mb-1.5">Complexity Multipliers <span className="text-white/20 normal-case">(uncertain)</span></p>
+              <div className="flex gap-3">
+                <Knob k="mult0" label="0 – Std" />
+                <Knob k="mult1" label="1 – Mod (anchor)" />
+                <Knob k="mult2" label="2 – Complex" />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] text-[#f08122] uppercase tracking-widest font-condensed mb-1.5">Fixed Floor <span className="text-white/40 normal-case">(confident)</span></p>
+              <Knob k="fixedFloor" label="hrs/WO" step={0.5} />
+            </div>
+          </div>
+          <button onClick={() => { onChange({ ...DEFAULT_ENG_CONFIG }); saveEngConfig(DEFAULT_ENG_CONFIG); }}
+            className="text-[9px] text-white/20 hover:text-white/50 font-condensed uppercase tracking-widest transition-colors">
+            ↺ Reset all to defaults
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── Inline edit primitives ───────────────────────────────────────────────────
@@ -84,8 +231,6 @@ function EditableComplexity({ value, inherited, onSave }: {
   onSave: (v: number | null) => Promise<void>;
 }) {
   const [saving, setSaving] = useState(false);
-  // display the effective value; dimmed if inherited
-  const effective = value ?? inherited ?? 1;
   const isInherited = value === null || value === undefined;
   return (
     <select
@@ -176,7 +321,6 @@ function EditableDollar({ value, onSave }: { value: number | null; onSave: (v: n
   );
 }
 
-
 function EditableNumber({ value, unit, min, onSave }: {
   value: number | null; unit: string; min?: number;
   onSave: (v: number | null) => Promise<void>;
@@ -208,7 +352,6 @@ function EditableNumber({ value, unit, min, onSave }: {
   );
 }
 
-// Job-level box/WO — only shown when job has NO finish groups
 function EditableBoxes({ boxes, onSaveBoxes }: {
   boxes: number | null;
   onSaveBoxes: (v: number | null) => Promise<void>;
@@ -249,13 +392,15 @@ function EditableBoxes({ boxes, onSaveBoxes }: {
   );
 }
 
-// ─── FG row: box count editable, WO auto, complexity overridable ──────────────
-function FgRow({ fg, jobComplexity, onSaveFg }: {
+// ─── FG row ───────────────────────────────────────────────────────────────────
+function FgRow({ fg, jobComplexity, baseValue, engConfig, onSaveFg }: {
   fg: FinishGroup;
   jobComplexity: number | null;
+  baseValue: number | null;
+  engConfig: EngConfig;
   onSaveFg: (fgId: string, updates: Partial<FinishGroup & { pm_complexity: number | null }>) => Promise<void>;
 }) {
-  const woCount = calcFgWO(fg.box_count);
+  const woCount = fgWOs(fg);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(fg.box_count != null ? String(fg.box_count) : "");
   const [saving, setSaving] = useState(false);
@@ -267,12 +412,16 @@ function FgRow({ fg, jobComplexity, onSaveFg }: {
     setSaving(false); setEditing(false);
   }
 
+  const complexity = fg.fg_complexity ?? jobComplexity;
+  const fgEngHrs = baseValue != null
+    ? Math.round(calcWOEngHours(baseValue, complexity, engConfig) * woCount * 10) / 10
+    : null;
+
   const finishTag = fg.finish_type?.toUpperCase() ?? "FG";
   const displayLabel = fg.label ?? finishTag;
 
   return (
     <tr className="border-b border-white/[0.03] bg-[#111213]/60">
-      {/* FG label — indented */}
       <td className="pl-12 pr-2 py-2">
         <span className="inline-flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0" />
@@ -280,14 +429,8 @@ function FgRow({ fg, jobComplexity, onSaveFg }: {
           <span className="text-[9px] text-white/20 uppercase">{finishTag}</span>
         </span>
       </td>
-
-      {/* Status — empty cell (status is job-level only) */}
       <td className="px-2 py-2" />
-
-      {/* Est. Value — empty */}
       <td className="px-2 py-2" />
-
-      {/* Complexity — per FG, inherits from job */}
       <td className="px-2 py-2">
         <EditableComplexity
           value={fg.fg_complexity}
@@ -295,23 +438,13 @@ function FgRow({ fg, jobComplexity, onSaveFg }: {
           onSave={v => onSaveFg(fg.id, { pm_complexity: v })}
         />
       </td>
-
-      {/* PM — empty */}
       <td className="px-2 py-2" />
-
-      {/* Delivery — empty */}
       <td className="px-2 py-2" />
-
-      {/* Install Start — empty on FG rows */}
       <td className="px-2 py-2" />
-
-      {/* Install Duration — empty on FG rows */}
       <td className="px-2 py-2" />
-
-      {/* Box count + WO */}
-      <td className="px-2 py-2 text-right" colSpan={2}>
+      {/* Boxes → WO */}
+      <td className="px-2 py-2 text-right">
         <div className="flex items-center gap-2 justify-end">
-          {/* boxes */}
           {editing ? (
             <input autoFocus type="number" min="0" step="1" value={draft}
               onChange={e => setDraft(e.target.value)}
@@ -327,32 +460,43 @@ function FgRow({ fg, jobComplexity, onSaveFg }: {
             </button>
           )}
           <span className="text-[10px] text-white/20">→</span>
-          {/* WO: auto-computed, at least 1 */}
-          <span className="text-xs tabular-nums text-white/60 font-medium">
-            {woCount} WO
-          </span>
+          <span className="text-xs tabular-nums text-white/60 font-medium">{woCount} WO</span>
         </div>
+      </td>
+      {/* ENG Hrs — per FG contribution */}
+      <td className="px-2 py-2 text-right">
+        {fgEngHrs != null ? (
+          <span className="text-xs tabular-nums text-violet-300/70">{fgEngHrs} hr</span>
+        ) : (
+          <span className="text-white/15 text-xs">—</span>
+        )}
       </td>
     </tr>
   );
 }
 
 // ─── Job row ──────────────────────────────────────────────────────────────────
-function JobRow({ job, pms, onSaveJob, onSaveFg }: {
-  job: ConstraintJob; pms: Pm[];
+function JobRow({ job, pms, engConfig, onSaveJob, onSaveFg }: {
+  job: ConstraintJob; pms: Pm[]; engConfig: EngConfig;
   onSaveJob: (id: string, updates: Partial<ConstraintJob>) => Promise<void>;
   onSaveFg: (fgId: string, updates: Partial<FinishGroup & { pm_complexity: number | null }>) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasFgs = job.finish_groups.length > 0;
 
-  // Total WOs: sum of per-FG WOs (each FG ≥ 1 WO)
   const totalWOs = hasFgs
-    ? job.finish_groups.reduce((s, fg) => s + calcFgWO(fg.box_count), 0)
+    ? job.finish_groups.reduce((s, fg) => s + fgWOs(fg), 0)
     : null;
   const totalBoxes = hasFgs
     ? job.finish_groups.reduce((s, fg) => s + (fg.box_count ?? 0), 0)
     : null;
+
+  // Base value per WO (for passing to FgRow)
+  const baseValue = (job.estimated_value && totalWOs)
+    ? job.estimated_value / totalWOs
+    : null;
+
+  const engHrs = calcJobEngHours(job, engConfig);
 
   return (
     <>
@@ -374,18 +518,12 @@ function JobRow({ job, pms, onSaveJob, onSaveFg }: {
             </div>
           </div>
         </td>
-
-        {/* Status */}
         <td className="px-2 py-2.5">
           <EditableStatus value={job.status} onSave={v => onSaveJob(job.id, { status: v })} />
         </td>
-
-        {/* Est. Value */}
         <td className="px-2 py-2.5">
           <EditableDollar value={job.estimated_value} onSave={v => onSaveJob(job.id, { estimated_value: v })} />
         </td>
-
-        {/* Complexity — job-level default (FGs inherit this) */}
         <td className="px-2 py-2.5">
           <div className="flex flex-col gap-0.5">
             <EditableComplexity
@@ -396,31 +534,22 @@ function JobRow({ job, pms, onSaveJob, onSaveFg }: {
             {hasFgs && <span className="text-[9px] text-white/20 pl-1">default for FGs</span>}
           </div>
         </td>
-
-        {/* PM */}
         <td className="px-2 py-2.5 min-w-[110px]">
           <EditableSelect value={job.pm} options={pms} placeholder="Assign PM"
             onSave={v => onSaveJob(job.id, { pm: v ?? null })} />
         </td>
-
-        {/* Delivery */}
         <td className="px-2 py-2.5">
           <EditableDate value={job.delivery_date} onSave={v => onSaveJob(job.id, { delivery_date: v })} />
         </td>
-
-        {/* Install Start */}
         <td className="px-2 py-2.5">
           <EditableDate value={job.install_start_date} onSave={v => onSaveJob(job.id, { install_start_date: v })} />
         </td>
-
-        {/* Install Duration (days) */}
         <td className="px-2 py-2.5">
           <EditableNumber value={job.install_duration_days} unit="days" min={1}
             onSave={v => onSaveJob(job.id, { install_duration_days: v })} />
         </td>
-
-        {/* Boxes + WO summary */}
-        <td className="px-2 py-2.5 text-right" colSpan={2}>
+        {/* Boxes → WO */}
+        <td className="px-2 py-2.5 text-right">
           {hasFgs ? (
             <button onClick={() => setExpanded(e => !e)}
               className="text-xs text-white/50 hover:text-white transition-colors tabular-nums flex items-center gap-2 ml-auto">
@@ -437,14 +566,23 @@ function JobRow({ job, pms, onSaveJob, onSaveFg }: {
             />
           )}
         </td>
+        {/* ENG Hrs */}
+        <td className="px-3 py-2.5 text-right">
+          {engHrs != null ? (
+            <span className="text-sm tabular-nums font-medium text-violet-300">{engHrs} hr</span>
+          ) : (
+            <span className="text-white/15 text-xs">no value</span>
+          )}
+        </td>
       </tr>
 
-      {/* FG sub-rows — always expanded when open */}
       {expanded && job.finish_groups.map(fg => (
         <FgRow
           key={fg.id}
           fg={fg}
           jobComplexity={job.pm_complexity}
+          baseValue={baseValue}
+          engConfig={engConfig}
           onSaveFg={onSaveFg}
         />
       ))}
@@ -459,6 +597,10 @@ export default function ConstraintsClient() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("active");
   const [search, setSearch] = useState("");
+  const [engConfig, setEngConfig] = useState<EngConfig>(DEFAULT_ENG_CONFIG);
+
+  // Load EngConfig from localStorage on mount (client only)
+  useEffect(() => { setEngConfig(loadEngConfig()); }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -494,7 +636,6 @@ export default function ConstraintsClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
-    // merge into local state; map pm_complexity → fg_complexity for display
     const stateUpdate: Partial<FinishGroup> = { ...updates };
     if ("pm_complexity" in updates) {
       stateUpdate.fg_complexity = updates.pm_complexity ?? null;
@@ -529,6 +670,7 @@ export default function ConstraintsClient() {
     if (j.finish_groups.length > 0) return j.finish_groups.some(fg => fg.box_count != null);
     return j.job_box_count != null;
   }).length;
+  const hasEngHrs   = visible.filter(j => calcJobEngHours(j, engConfig) != null).length;
   const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
 
   const statusCounts = ALL_STATUSES.reduce<Record<string,number>>((acc, s) => {
@@ -543,7 +685,7 @@ export default function ConstraintsClient() {
         <div>
           <div className="text-white/40 text-xs font-condensed uppercase tracking-widest mb-1">Admin</div>
           <h1 className="font-heading text-3xl uppercase tracking-wide text-[#f08122]">Constraints Data</h1>
-          <p className="text-white/30 text-xs mt-1">Per-FG box counts, auto WO calc, complexity overrides — feeds the shop model</p>
+          <p className="text-white/30 text-xs mt-1">Per-FG box counts, WO calc, complexity → ENG hours estimate</p>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={load} className="text-white/40 hover:text-white text-xs font-condensed uppercase tracking-widest transition-colors">
@@ -554,12 +696,13 @@ export default function ConstraintsClient() {
       </div>
 
       {/* Completeness bars */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-5 gap-3 mb-6">
         {[
           { label: "Est. Value", n: hasValue },
           { label: "PM Assigned", n: hasPm },
           { label: "Delivery Date", n: hasDelivery },
           { label: "Box Counts", n: hasBoxes },
+          { label: "ENG Hrs Ready", n: hasEngHrs },
         ].map(({ label, n }) => (
           <div key={label} className="bg-[#1a1b1c] border border-white/10 rounded-xl p-3">
             <div className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">{label}</div>
@@ -571,6 +714,9 @@ export default function ConstraintsClient() {
           </div>
         ))}
       </div>
+
+      {/* Formula config panel */}
+      <FormulaConfigPanel cfg={engConfig} onChange={setEngConfig} />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -609,15 +755,16 @@ export default function ConstraintsClient() {
                 <th className="text-left px-2 py-3">Delivery &#9999;</th>
                 <th className="text-left px-2 py-3">Install Start &#9999;</th>
                 <th className="text-left px-2 py-3">Duration &#9999;</th>
-                <th className="text-right px-2 py-3" colSpan={2}>Boxes &#9999; → WO (auto)</th>
+                <th className="text-right px-2 py-3">Boxes &#9999; → WO</th>
+                <th className="text-right px-3 py-3 text-violet-300/70">ENG Hrs</th>
               </tr>
             </thead>
             <tbody>
               {visible.map(job => (
-                <JobRow key={job.id} job={job} pms={pms} onSaveJob={onSaveJob} onSaveFg={onSaveFg} />
+                <JobRow key={job.id} job={job} pms={pms} engConfig={engConfig} onSaveJob={onSaveJob} onSaveFg={onSaveFg} />
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={8} className="text-center text-white/20 py-12 text-sm">
+                <tr><td colSpan={10} className="text-center text-white/20 py-12 text-sm">
                   {search ? "No jobs match" : "No active jobs"}
                 </td></tr>
               )}
@@ -627,7 +774,7 @@ export default function ConstraintsClient() {
       )}
 
       <p className="text-white/20 text-[10px] font-condensed mt-4">
-        Each finish group = minimum 1 WO; +1 per 65 boxes. Complexity on FG row inherits job default (shown as ↑) — click to override per FG.
+        Each FG = minimum 1 WO; +1 per 65 boxes. Complexity on FG row inherits job default (shown as ↑). ENG Hrs = value-per-WO through bracket table × complexity mult + {engConfig.fixedFloor} hr floor.
       </p>
     </div>
   );
