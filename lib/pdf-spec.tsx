@@ -958,29 +958,27 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
       {(() => {
         const fgTrimRows = fgRooms.flatMap(r => (data.room_trim[r.id] ?? []).map(t => ({ ...t, roomName: r.name })));
         if (fgTrimRows.length === 0) return null;
-        const trimGrandTotal = fgTrimRows.reduce((s, t) => s + (t.qty_lf ?? 0), 0);
+        // Roll up by trim_type, summing LF
+        const rollupMap = new Map<string, number>();
+        for (const t of fgTrimRows) { rollupMap.set(t.trim_type, (rollupMap.get(t.trim_type) ?? 0) + (t.qty_lf ?? 0)); }
+        const rollupRows = Array.from(rollupMap.entries()).map(([type, lf]) => ({ type, lf }));
+        const grandTotal = rollupRows.reduce((s, r) => s + r.lf, 0);
         return (
           <View style={{ marginBottom: 4 }}>
             <Text style={WS.fullSecHead}>TRIM MOLDING</Text>
             <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
-              {[{ l: "Room", w: 1.5 }, { l: "Type", w: 1.5 }, { l: "Size / Profile", w: 1.2 }, { l: "Material", w: 1.5 }, { l: "Qty (LF)", w: 0.8 }, { l: "Notes", w: 2 }].map((h, i) => (
-                <Text key={i} style={[WS.th, { flex: h.w }]}>{h.l}</Text>
-              ))}
+              <Text style={[WS.th, { flex: 3 }]}>Type</Text>
+              <Text style={[WS.th, { flex: 1 }]}>Total (LF)</Text>
             </View>
-            {fgTrimRows.map((t, i) => (
+            {rollupRows.map((r, i) => (
               <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
-                <Text style={[WS.tdBold, { flex: 1.5 }]}>{t.roomName}</Text>
-                <Text style={[WS.tdBold, { flex: 1.5 }]}>{t.trim_type}</Text>
-                <Text style={[WS.td,     { flex: 1.2 }]}>{d(t.size_desc)}</Text>
-                <Text style={[WS.td,     { flex: 1.5 }]}>{d(t.material)}</Text>
-                <Text style={[WS.td,     { flex: 0.8 }]}>{t.qty_lf ?? "—"}</Text>
-                <Text style={[WS.tdMu,   { flex: 2 }]}>{d(t.notes)}</Text>
+                <Text style={[WS.tdBold, { flex: 3 }]}>{r.type}</Text>
+                <Text style={[WS.td,     { flex: 1 }]}>{r.lf > 0 ? r.lf.toFixed(1) : "—"}</Text>
               </View>
             ))}
             <View style={[WS.tableRow, { backgroundColor: "#f08122" + "22" }]}>
-              <Text style={[WS.tdBold, { flex: 6.7, color: "#f08122" }]}>GRAND TOTAL</Text>
-              <Text style={[WS.tdBold, { flex: 0.8, color: "#f08122" }]}>{trimGrandTotal > 0 ? trimGrandTotal.toFixed(1) : "—"} LF</Text>
-              <Text style={[WS.td,     { flex: 2 }]}></Text>
+              <Text style={[WS.tdBold, { flex: 3, color: "#f08122" }]}>GRAND TOTAL</Text>
+              <Text style={[WS.tdBold, { flex: 1, color: "#f08122" }]}>{grandTotal > 0 ? grandTotal.toFixed(1) : "—"} LF</Text>
             </View>
           </View>
         );
