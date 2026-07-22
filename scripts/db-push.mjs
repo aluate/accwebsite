@@ -1131,6 +1131,8 @@ async function main() {
   try { await sql`ALTER TABLE finish_groups ADD COLUMN wo_count INTEGER`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN state TEXT`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN zip_code TEXT`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN shop_hrs NUMERIC`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN install_hrs NUMERIC`; } catch {}
   await sql`CREATE INDEX IF NOT EXISTS idx_jobs_innergy_opportunity_id ON jobs (innergy_opportunity_id) WHERE innergy_opportunity_id IS NOT NULL`;
   console.log("jobs innergy columns OK");
 

@@ -29,6 +29,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     "mod_residential", "mod_commercial", "mod_trim", "mod_doors",
     "install_type", "install_start_date", "install_duration_days",
     "bid_number", "estimated_value", "pm_complexity", "box_count", "wo_count",
+    "shop_hrs", "install_hrs",
   ];
 
   const fields = Object.keys(body).filter((k) => allowed.includes(k));
