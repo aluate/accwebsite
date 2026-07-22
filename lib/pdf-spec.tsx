@@ -954,6 +954,38 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         );
       })()}
 
+      {/* ── TRIM MOLDING ─────────────────────────────────────────────── */}
+      {(() => {
+        const fgTrimRows = fgRooms.flatMap(r => (data.room_trim[r.id] ?? []).map(t => ({ ...t, roomName: r.name })));
+        if (fgTrimRows.length === 0) return null;
+        const trimGrandTotal = fgTrimRows.reduce((s, t) => s + (t.qty_lf ?? 0), 0);
+        return (
+          <View style={{ marginBottom: 4 }}>
+            <Text style={WS.fullSecHead}>TRIM MOLDING</Text>
+            <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+              {[{ l: "Room", w: 1.5 }, { l: "Type", w: 1.5 }, { l: "Size / Profile", w: 1.2 }, { l: "Material", w: 1.5 }, { l: "Qty (LF)", w: 0.8 }, { l: "Notes", w: 2 }].map((h, i) => (
+                <Text key={i} style={[WS.th, { flex: h.w }]}>{h.l}</Text>
+              ))}
+            </View>
+            {fgTrimRows.map((t, i) => (
+              <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{t.roomName}</Text>
+                <Text style={[WS.tdBold, { flex: 1.5 }]}>{t.trim_type}</Text>
+                <Text style={[WS.td,     { flex: 1.2 }]}>{d(t.size_desc)}</Text>
+                <Text style={[WS.td,     { flex: 1.5 }]}>{d(t.material)}</Text>
+                <Text style={[WS.td,     { flex: 0.8 }]}>{t.qty_lf ?? "—"}</Text>
+                <Text style={[WS.tdMu,   { flex: 2 }]}>{d(t.notes)}</Text>
+              </View>
+            ))}
+            <View style={[WS.tableRow, { backgroundColor: "#f08122" + "22" }]}>
+              <Text style={[WS.tdBold, { flex: 6.7, color: "#f08122" }]}>GRAND TOTAL</Text>
+              <Text style={[WS.tdBold, { flex: 0.8, color: "#f08122" }]}>{trimGrandTotal > 0 ? trimGrandTotal.toFixed(1) : "—"} LF</Text>
+              <Text style={[WS.td,     { flex: 2 }]}></Text>
+            </View>
+          </View>
+        );
+      })()}
+
       {/* ── EDGEBAND SCHEDULE ─────────────────────────────────────────── */}
       <View>
         <Text style={WS.fullSecHead}>WORK ORDER EDGEBAND SCHEDULE</Text>
