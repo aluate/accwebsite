@@ -82,14 +82,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "No drawings or specs uploaded. Upload files to the Drawings (05) or Job Specs (03) folders before releasing." }, { status: 422 });
   }
 
-  // "Newest version is canon" — deduplicate by base filename within each folder
+  // Canon set: newest per base filename from 05_drawings + single newest from 03_job_specs
   const seen = new Set<string>();
   const canonDrawings = allFileRows.filter((r) => {
-    const base = r.kind + "|" + r.filename.replace(/^\d+-/, "");
+    if (r.kind === "03_job_specs") return false; // handled below
+    const base = r.filename.replace(/^\d+-/, "");
     if (seen.has(base)) return false;
     seen.add(base);
     return true;
   });
+  const latestSpec = allFileRows.find((r) => r.kind === "03_job_specs");
+  if (latestSpec) canonDrawings.push(latestSpec);
 
   // ── 4. Fetch drawing bytes from Supabase storage ─────────────────────────
   const supabase = supabaseAdmin();

@@ -206,13 +206,18 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   const pct          = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
   const autoCount    = keys.filter((k) => isAuto(k)).length;
 
+  // Drawings (05_drawings): newest per base filename
+  // Spec PDFs (03_job_specs): only the single newest — they're all unique timestamped names
   const seen = new Set<string>();
   const canonDrawings = drawings.filter((d) => {
+    if (d.kind === "03_job_specs") return false; // handled separately below
     const base = d.filename.replace(/^\d+-/, "");
     if (seen.has(base)) return false;
     seen.add(base);
     return true;
   });
+  const latestSpec = drawings.find((d) => d.kind === "03_job_specs") ?? null;
+  if (latestSpec) canonDrawings.push(latestSpec);
 
   function fmtSize(bytes: number) {
     if (bytes < 1024) return bytes + " B";
