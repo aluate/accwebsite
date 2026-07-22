@@ -108,6 +108,7 @@ async function main() {
     -- Add size + handed columns for accessory picker (2026-07-14)
     ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS size TEXT;
     ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS handed TEXT DEFAULT 'N/A';
+    ALTER TABLE room_accessories ADD COLUMN IF NOT EXISTS custom_type TEXT;
 
     CREATE TABLE IF NOT EXISTS finish_group_materials (
       id TEXT PRIMARY KEY,

@@ -124,7 +124,7 @@ export type Room = {
   ceiling_height: string;
   soffit: string;
   backsplash: string;
-  accessories: { acc_id: string; qty: number; custom_note?: string; size?: string; handed?: string }[];
+  accessories: { acc_id: string; qty: number; custom_note?: string; custom_type?: string; size?: string; handed?: string }[];
   cabinets: CabinetItem[];
   trim: TrimRow[];
 };
@@ -502,9 +502,9 @@ function AccessoryPickerRow({
   onUpdate,
   onRemove,
 }: {
-  acc: { acc_id: string; qty: number; custom_note?: string; size?: string; handed?: string };
+  acc: { acc_id: string; qty: number; custom_note?: string; custom_type?: string; size?: string; handed?: string };
   revaAccessories: RevaAccessory[];
-  onUpdate: (patch: { acc_id?: string; qty?: number; custom_note?: string; size?: string; handed?: string }) => void;
+  onUpdate: (patch: { acc_id?: string; qty?: number; custom_note?: string; custom_type?: string; size?: string; handed?: string }) => void;
   onRemove: () => void;
 }) {
   const selectedItem = revaAccessories.find((x) => x.id === acc.acc_id);
@@ -655,13 +655,39 @@ function AccessoryPickerRow({
         </div>
       )}
 
-      {/* Row 3: custom notes */}
-      {(isCustom || acc.custom_note) && (
+      {/* Row 3: custom fields — three structured inputs */}
+      {isCustom && (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={acc.custom_type ?? ""}
+            onChange={(e) => onUpdate({ custom_type: e.target.value })}
+            placeholder="Type (e.g. Knife Block)"
+            className="flex-1 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
+          />
+          <input
+            type="text"
+            value={acc.size ?? ""}
+            onChange={(e) => onUpdate({ size: e.target.value })}
+            placeholder='Size (e.g. 18")'
+            className="w-24 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
+          />
+          <input
+            type="text"
+            value={acc.custom_note ?? ""}
+            onChange={(e) => onUpdate({ custom_note: e.target.value })}
+            placeholder="Item / Part # (e.g. 448KB-BCSC-8C)"
+            className="flex-[2] bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
+          />
+        </div>
+      )}
+      {/* Notes for catalog items */}
+      {!isCustom && acc.custom_note && (
         <input
           type="text"
           value={acc.custom_note ?? ""}
           onChange={(e) => onUpdate({ custom_note: e.target.value })}
-          placeholder={isCustom ? "Brand, model, description…" : "Notes (optional)"}
+          placeholder="Notes (optional)"
           className="w-full bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
         />
       )}
@@ -1130,10 +1156,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   // ── Accessories ───────────────────────────────────────────────────────────
   function addAccessory(roomId: string) {
-    setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, accessories: [...r.accessories, { acc_id: "", qty: 1, size: "", handed: "N/A" }] }));
+    setRooms(rooms.map((r) => r.id !== roomId ? r : { ...r, accessories: [...r.accessories, { acc_id: "", qty: 1, size: "", handed: "N/A", custom_type: "", custom_note: "" }] }));
     markDirty();
   }
-  function updateAccessory(roomId: string, idx: number, patch: { acc_id?: string; qty?: number; custom_note?: string; size?: string; handed?: string }) {
+  function updateAccessory(roomId: string, idx: number, patch: { acc_id?: string; qty?: number; custom_note?: string; custom_type?: string; size?: string; handed?: string }) {
     setRooms(rooms.map((r) => {
       if (r.id !== roomId) return r;
       const acc = [...r.accessories]; acc[idx] = { ...acc[idx], ...patch };
