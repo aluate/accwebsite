@@ -2393,6 +2393,55 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             </div>
           </div>
 
+          {/* ── Trim Molding Schedule (per FG rollup) ──────────────────── */}
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-1">Trim Molding Schedule</p>
+            <p className="text-white/20 text-[10px] font-condensed mb-4">
+              Totals by type per finish group — derived from room trim entries. Add or edit trim in the Rooms tab.
+            </p>
+            {groups.map((g) => {
+              const fgRooms = rooms.filter((r) => r.finish_group_id === g.id);
+              const rollupMap = new Map<string, number>();
+              for (const r of fgRooms) {
+                for (const t of (r.trim ?? [])) {
+                  rollupMap.set(t.trim_type, (rollupMap.get(t.trim_type) ?? 0) + (Number(t.qty_lf) ?? 0));
+                }
+              }
+              const rollupRows = Array.from(rollupMap.entries()).map(([type, lf]) => ({ type, lf }));
+              return (
+                <div key={g.id} className="mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[#f08122] font-condensed font-bold text-xs uppercase tracking-widest">{g.label}</span>
+                    {g.color_name && <span className="text-white/40 text-[10px] font-condensed">· {g.color_name}</span>}
+                    <span className="text-white/20 text-[10px] font-condensed uppercase tracking-wider">({g.finish_type})</span>
+                  </div>
+                  {rollupRows.length === 0 ? (
+                    <p className="text-white/20 text-[10px] font-condensed italic pl-1">No trim entered for this finish group yet.</p>
+                  ) : (
+                    <div className="overflow-x-auto rounded">
+                      <table className="w-full text-[10px] font-condensed border-collapse">
+                        <thead>
+                          <tr className="bg-[#3d3d3d] text-white">
+                            <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px]">Trim Type</th>
+                            <th className="text-right px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-24">Total (LF)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rollupRows.map((row, ri) => (
+                            <tr key={row.type} className={ri % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"}>
+                              <td className="px-2 py-1.5 text-white/70">{row.type}</td>
+                              <td className="px-2 py-1.5 text-right text-white tabular-nums font-semibold">{row.lf > 0 ? row.lf.toFixed(1) : "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           {/* ── Edgeband Schedule (preview, per FG) ──────────────────────── */}
           <div className="pt-6 border-t border-white/10">
             <p className="text-white/30 text-xs font-condensed uppercase tracking-widest mb-1">Edgeband Schedule</p>
