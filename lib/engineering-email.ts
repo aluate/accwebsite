@@ -111,11 +111,11 @@ export async function buildEngineeringEmail(
   const files = await sql<{ kind: string; filename: string; storage_path: string }[]>`
     SELECT kind, filename, storage_path FROM job_files
     WHERE job_id = ${internalId}
-    AND kind IN ('05_drawings', '16_eng_drawings', '14_wo_pdfs', '14_shoppack')
+    AND kind IN ('05_drawings', '03_job_specs', '14_wo_pdfs', '14_prod_docs')
     ORDER BY uploaded_at DESC
   `;
   const drawingFiles  = files.filter((f) => ["05_drawings", "16_eng_drawings"].includes(f.kind));
-  const shopPackFiles = files.filter((f) => ["14_wo_pdfs", "14_shoppack"].includes(f.kind));
+  const shopPackFiles = files.filter((f) => ["14_wo_pdfs", "14_prod_docs"].includes(f.kind));
 
   // Download drawing files for email attachments
   const attachments: Array<{ filename: string; content: Buffer }> = [];

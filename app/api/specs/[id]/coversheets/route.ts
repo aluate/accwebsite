@@ -138,7 +138,7 @@ export async function POST(
     await sql`
       INSERT INTO job_files (id, job_id, kind, filename, storage_path, size, uploaded_at)
       VALUES (
-        ${fileId}, ${jobId}, ${"00_drawings"}, ${filename},
+        ${fileId}, ${jobId}, ${"05_drawings"}, ${filename},
         ${storagePath}, ${pdfBuffer.length}, ${new Date().toISOString()}
       )
       ON CONFLICT DO NOTHING

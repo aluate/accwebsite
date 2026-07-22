@@ -15,12 +15,13 @@ export async function GET() {
         e.sell_price_snapshot,
         e.shop_labor_hrs_snapshot,
         e.install_labor_hrs_snapshot,
-        -- Box count: prefer spec finish_groups sum, fall back to estimate line items
+        -- Box count: prefer spec FG sum, then jobs.box_count manual, then estimate line items
         COALESCE(
-          (SELECT NULLIF(SUM(fg.box_count), 0)
+          NULLIF((SELECT SUM(fg.box_count)
            FROM finish_groups fg
            JOIN residential_specs rs ON rs.id = fg.spec_id
-           WHERE rs.job_id = j.id),
+           WHERE rs.job_id = j.id), 0),
+          NULLIF(j.box_count, 0),
           (SELECT COALESCE(SUM(eli.qty), 0)
            FROM estimate_line_items eli
            JOIN estimate_rooms er ON er.id = eli.room_id
@@ -28,11 +29,15 @@ export async function GET() {
              AND eli.item_type = 'cabinet'
              AND eli.manual_unit_cost IS NULL)
         ) AS box_count,
-        -- FG breakdown: label + box count per finish group
-        (SELECT JSON_AGG(JSON_BUILD_OBJECT('label', fg.label, 'boxes', fg.box_count) ORDER BY fg.sort_order)
+        j.box_count AS job_box_count,
+        j.wo_count  AS job_wo_count,
+        j.pm_complexity,
+        j.install_duration_days,
+        -- FG breakdown: label + box count + wo count per finish group
+        (SELECT JSON_AGG(JSON_BUILD_OBJECT('label', fg.label, 'boxes', fg.box_count, 'wos', fg.wo_count, 'complexity', fg.pm_complexity) ORDER BY fg.sort_order)
          FROM finish_groups fg
          JOIN residential_specs rs ON rs.id = fg.spec_id
-         WHERE rs.job_id = j.id AND fg.box_count > 0
+         WHERE rs.job_id = j.id AND (fg.box_count > 0 OR fg.wo_count > 0)
         ) AS fg_boxes,
         -- Anticipated delivery: prefer schedule install event start date, then jobs.delivery_date
         COALESCE(

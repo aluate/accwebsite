@@ -102,10 +102,10 @@ export function AdminScheduleClient({ crews: initialCrews, pto: initialPto, chan
 
   // ── Change request review ─────────────────────────────────────────────────
   async function reviewRequest(id: string, action: "approve" | "deny") {
-    await fetch(`/api/schedule/change-requests/${id}`, {
+    await fetch(`/api/schedule/change-requests`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({ id, action }),
     });
     setChangeRequests((prev) => prev.filter((r) => r.id !== id));
   }

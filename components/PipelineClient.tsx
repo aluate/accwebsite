@@ -17,7 +17,54 @@ const STATUS_COLOR: Record<string,string> = {
   cancelled:   "bg-red-500/20 text-red-300",
 };
 
-type FgBox = { label: string; boxes: number };
+type EngConfig = {
+  break1: number; break2: number;
+  rate1: number; rate2: number; rate3: number;
+  mult0: number; mult1: number; mult2: number;
+  fixedFloor: number;
+};
+const DEFAULT_ENG_CFG: EngConfig = {
+  break1: 25000, break2: 45000,
+  rate1: 0.001, rate2: 0.00025, rate3: 0.0001,
+  mult0: 0.5, mult1: 1.0, mult2: 1.75,
+  fixedFloor: 2,
+};
+function calcWOEng(baseValue: number, complexity: number | null, cfg: EngConfig): number {
+  const c = complexity ?? 1;
+  const mult = c === 0 ? cfg.mult0 : c === 2 ? cfg.mult2 : cfg.mult1;
+  const adj = baseValue * mult;
+  let h = 0;
+  if (adj <= cfg.break1) h = adj * cfg.rate1;
+  else if (adj <= cfg.break2) h = cfg.break1 * cfg.rate1 + (adj - cfg.break1) * cfg.rate2;
+  else h = cfg.break1 * cfg.rate1 + (cfg.break2 - cfg.break1) * cfg.rate2 + (adj - cfg.break2) * cfg.rate3;
+  return h + cfg.fixedFloor;
+}
+function fgEffWOs(fg: FgBox): number {
+  if (fg.wos != null && fg.wos > 0) return fg.wos;
+  if (!fg.boxes || fg.boxes <= 0) return 1;
+  return Math.max(1, Math.ceil(fg.boxes / 65));
+}
+function calcEngHrs(job: PipelineJob, cfg: EngConfig): number | null {
+  if (!job.estimated_value) return null;
+  const fgs = job.fg_boxes;
+  if (fgs && fgs.length > 0) {
+    const totalWOs = fgs.reduce((s, fg) => s + fgEffWOs(fg), 0);
+    if (totalWOs === 0) return null;
+    const base = job.estimated_value / totalWOs;
+    const total = fgs.reduce((sum, fg) => {
+      const wos = fgEffWOs(fg);
+      return sum + calcWOEng(base, fg.complexity ?? job.pm_complexity, cfg) * wos;
+    }, 0);
+    return Math.round(total * 10) / 10;
+  } else {
+    const boxes = job.job_box_count;
+    const totalWOs = boxes ? Math.ceil(boxes / 65) : 1;
+    const base = job.estimated_value / totalWOs;
+    return Math.round(calcWOEng(base, job.pm_complexity, cfg) * totalWOs * 10) / 10;
+  }
+}
+
+type FgBox = { label: string; boxes: number; wos?: number | null; complexity?: number | null };
 type PipelineJob = {
   id: string; client_name: string; site_address: string; city: string;
   status: string; job_number: string; pm: string | null;
@@ -28,6 +75,9 @@ type PipelineJob = {
   shop_labor_hrs_snapshot: number | null;
   install_labor_hrs_snapshot: number | null;
   box_count: number | null;
+  job_box_count: number | null;
+  job_wo_count: number | null;
+  pm_complexity: number | null;
   fg_boxes: FgBox[] | null;
 };
 type Pm = { id: string; name: string };
@@ -203,6 +253,7 @@ export default function PipelineClient() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [editingCapacity, setEditingCapacity] = useState(false);
   const [capDraft, setCapDraft] = useState<Capacity>({ shop_capacity_hrs_per_week: 40, install_capacity_hrs_per_week: 32 });
+  const [engCfg, setEngCfg] = useState<EngConfig>(DEFAULT_ENG_CFG);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -217,6 +268,12 @@ export default function PipelineClient() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem("acc_eng_config");
+      if (s) setEngCfg(cfg => ({ ...cfg, ...JSON.parse(s) }));
+    } catch {}
+  }, []);
 
   async function patchJob(jobId: string, updates: Record<string, string | null>) {
     await fetch(`/api/jobs/${jobId}`, {
@@ -250,7 +307,7 @@ export default function PipelineClient() {
 
   function exportCSV() {
     const rows = [
-      ["Job#", "Client", "Address", "Status", "PM", "Quoted $", "Est Value $", "Boxes", "FG Breakdown", "Shop Hrs", "Install Hrs", "Delivery"],
+      ["Job#", "Client", "Address", "Status", "PM", "Quoted $", "Est Value $", "Boxes", "FG Breakdown", "ENG Hrs", "Shop Hrs", "Install Hrs", "Delivery"],
       ...visible.map(j => [
         j.job_number ?? "",
         j.client_name,
@@ -261,6 +318,7 @@ export default function PipelineClient() {
         j.estimated_value != null ? String(Math.round(j.estimated_value)) : "",
         j.box_count != null ? String(j.box_count) : "",
         j.fg_boxes ? j.fg_boxes.map(fg => `${fg.label}: ${fg.boxes}`).join(" | ") : "",
+        (() => { const h = calcEngHrs(j, engCfg); return h != null ? String(h) : ""; })(),
         j.shop_labor_hrs_snapshot != null ? String(j.shop_labor_hrs_snapshot) : "",
         j.install_labor_hrs_snapshot != null ? String(j.install_labor_hrs_snapshot) : "",
         j.anticipated_delivery ?? j.delivery_date ?? "",
@@ -275,6 +333,7 @@ export default function PipelineClient() {
 
   const totalShop    = visible.reduce((s, j) => s + (j.shop_labor_hrs_snapshot ?? 0), 0);
   const totalInstall = visible.reduce((s, j) => s + (j.install_labor_hrs_snapshot ?? 0), 0);
+  const totalEng     = visible.reduce((s, j) => s + (calcEngHrs(j, engCfg) ?? 0), 0);
   const totalValue   = visible.reduce((s, j) => s + (j.sell_price_snapshot ?? j.estimated_value ?? 0), 0);
   const totalBoxes   = visible.reduce((s, j) => s + (j.box_count ?? 0), 0);
 
@@ -384,6 +443,7 @@ export default function PipelineClient() {
                 <th className="text-left px-4 py-3">Status <span className="text-white/20 normal-case font-normal">✎</span></th>
                 <th className="text-right px-4 py-3" title="Quoted price from estimate engine — see Constraints for PM's estimated value">Quoted $</th>
                 <th className="text-right px-4 py-3">Boxes</th>
+                <th className="text-right px-4 py-3" title="ENG hours — same formula as Constraints page (est value × complexity through bracket table). Uses your saved config from Constraints.">ENG hrs</th>
                 <th className="text-right px-4 py-3">Shop hrs</th>
                 <th className="text-right px-4 py-3">Install hrs</th>
                 <th className="text-left px-4 py-3">PM <span className="text-white/20 normal-case font-normal">✎</span></th>
@@ -434,6 +494,9 @@ export default function PipelineClient() {
                       </span>
                     ) : "—"}
                   </td>
+                  <td className="px-4 py-3 text-right tabular-nums text-xs text-white/60">
+                    {(() => { const h = calcEngHrs(job, engCfg); return h != null ? <span>{h.toFixed(1)} <span className="text-white/25">hrs</span></span> : <span className="text-white/20">—</span>; })()}
+                  </td>
                   <td className="px-4 py-2 text-right">
                     {job.estimate_id ? (
                       <EditableNumber value={job.shop_labor_hrs_snapshot} suffix=" hrs"
@@ -465,7 +528,7 @@ export default function PipelineClient() {
                 </tr>
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={8} className="text-center text-white/20 py-12 text-sm">No active jobs</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/20 py-12 text-sm">No active jobs</td></tr>
               )}
             </tbody>
             {visible.length > 0 && (
@@ -474,6 +537,7 @@ export default function PipelineClient() {
                   <td className="px-4 py-2" colSpan={2}>Totals ({visible.length} jobs)</td>
                   <td className="px-4 py-2 text-right tabular-nums font-semibold text-white">{fmt$(totalValue)}</td>
                   <td className="px-4 py-2 text-right tabular-nums">{totalBoxes}</td>
+                  <td className="px-4 py-2 text-right tabular-nums">{totalEng > 0 ? totalEng.toFixed(1) : "—"}</td>
                   <td className="px-4 py-2 text-right tabular-nums">{totalShop.toFixed(1)}</td>
                   <td className="px-4 py-2 text-right tabular-nums">{totalInstall.toFixed(1)}</td>
                   <td colSpan={2} />

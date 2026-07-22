@@ -4,12 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const jobIdFilter = searchParams.get("job_id");
   await requireRole("admin");
   const estimates = await sql`
     SELECT e.*, j.client_name, j.site_address
     FROM estimates e
     LEFT JOIN jobs j ON j.id = e.job_id
+    ${jobIdFilter ? sql`WHERE e.job_id = ${jobIdFilter}` : sql``}
     ORDER BY e.created_at DESC
   `;
   return NextResponse.json({ estimates });
