@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 
 const STATUS_ORDER = ["intake","design","engineering","shop","install","complete"];
@@ -361,12 +361,33 @@ export default function PipelineClient() {
 
   useEffect(() => { load(); }, [load]);
 
+  const [saveFlash, setSaveFlash] = useState<string | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   async function patchJob(jobId: string, updates: Record<string, unknown>) {
-    await fetch(`/api/jobs/${jobId}`, {
-      method:"PATCH", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({...updates, _actor:"admin", _actorRole:"admin"}),
-    });
+    // Optimistic update
     setJobs(prev => prev.map(j => j.id === jobId ? {...j, ...updates} : j));
+    try {
+      const r = await fetch(`/api/jobs/${jobId}`, {
+        method:"PATCH", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({...updates, _actor:"admin", _actorRole:"admin"}),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        // Revert optimistic update on failure
+        setSaveFlash("⚠ Save failed: " + (err.error ?? r.status));
+        setJobs(prev => prev.map(j => j.id === jobId ? {...j, ...Object.fromEntries(Object.keys(updates).map(k => [k, j[k as keyof typeof j]]))} : j));
+        // Reload to get true DB state
+        load();
+      } else {
+        setSaveFlash("Saved ✓");
+      }
+    } catch {
+      setSaveFlash("⚠ Network error — not saved");
+      load();
+    }
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
   }
 
   // Month buckets based on anticipated delivery
@@ -586,9 +607,16 @@ export default function PipelineClient() {
           </table>
         </div>
       )}
-      <p className="text-white/15 text-[9px] font-condensed mt-3">
-        Click any month card to filter. Click a cell to edit inline. Shop/install hrs feed the month totals.
-      </p>
+      <div className="flex items-center justify-between mt-3">
+        <p className="text-white/15 text-[9px] font-condensed">
+          Click any month card to filter. Click a cell to edit inline. Shop/install hrs feed the month totals.
+        </p>
+        {saveFlash && (
+          <span className={`text-[10px] font-condensed px-2 py-0.5 rounded transition-opacity ${saveFlash.startsWith("⚠") ? "text-red-400 bg-red-500/10" : "text-green-400 bg-green-500/10"}`}>
+            {saveFlash}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
