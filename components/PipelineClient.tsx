@@ -17,15 +17,18 @@ const STATUS_COLOR: Record<string,string> = {
   cancelled:   "bg-red-500/20 text-red-300",
 };
 
+type FgBox = { label: string; boxes: number };
 type PipelineJob = {
   id: string; client_name: string; site_address: string; city: string;
   status: string; job_number: string; pm: string | null;
-  delivery_date: string | null; seq: number;
+  delivery_date: string | null; anticipated_delivery: string | null; seq: number;
   estimate_id: string | null;
+  estimated_value: number | null;
   sell_price_snapshot: number | null;
   shop_labor_hrs_snapshot: number | null;
   install_labor_hrs_snapshot: number | null;
   box_count: number | null;
+  fg_boxes: FgBox[] | null;
 };
 type Pm = { id: string; name: string };
 type Capacity = { shop_capacity_hrs_per_week: number; install_capacity_hrs_per_week: number };
@@ -245,9 +248,34 @@ export default function PipelineClient() {
 
   const visible = filterStatus === "all" ? jobs : jobs.filter(j => j.status === filterStatus);
 
+  function exportCSV() {
+    const rows = [
+      ["Job#", "Client", "Address", "Status", "PM", "Quoted $", "Est Value $", "Boxes", "FG Breakdown", "Shop Hrs", "Install Hrs", "Delivery"],
+      ...visible.map(j => [
+        j.job_number ?? "",
+        j.client_name,
+        [j.site_address, j.city].filter(Boolean).join(", "),
+        j.status,
+        j.pm ?? "",
+        j.sell_price_snapshot != null ? String(Math.round(j.sell_price_snapshot)) : "",
+        j.estimated_value != null ? String(Math.round(j.estimated_value)) : "",
+        j.box_count != null ? String(j.box_count) : "",
+        j.fg_boxes ? j.fg_boxes.map(fg => `${fg.label}: ${fg.boxes}`).join(" | ") : "",
+        j.shop_labor_hrs_snapshot != null ? String(j.shop_labor_hrs_snapshot) : "",
+        j.install_labor_hrs_snapshot != null ? String(j.install_labor_hrs_snapshot) : "",
+        j.anticipated_delivery ?? j.delivery_date ?? "",
+      ])
+    ];
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `pipeline-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
+
   const totalShop    = visible.reduce((s, j) => s + (j.shop_labor_hrs_snapshot ?? 0), 0);
   const totalInstall = visible.reduce((s, j) => s + (j.install_labor_hrs_snapshot ?? 0), 0);
-  const totalValue   = visible.reduce((s, j) => s + (j.sell_price_snapshot ?? 0), 0);
+  const totalValue   = visible.reduce((s, j) => s + (j.sell_price_snapshot ?? j.estimated_value ?? 0), 0);
   const totalBoxes   = visible.reduce((s, j) => s + (j.box_count ?? 0), 0);
 
   const shopWeeks    = capacity.shop_capacity_hrs_per_week > 0 ? totalShop / capacity.shop_capacity_hrs_per_week : 0;
@@ -267,7 +295,10 @@ export default function PipelineClient() {
           <div className="text-white/40 text-xs font-condensed uppercase tracking-widest mb-1">Admin</div>
           <h1 className="font-heading text-3xl uppercase tracking-wide text-[#f08122]">Pipeline</h1>
         </div>
-        <Link href="/admin" className="text-white/40 hover:text-white text-sm transition-colors">← Admin</Link>
+        <div className="flex items-center gap-3">
+          <button onClick={exportCSV} className="text-white/40 hover:text-[#f08122] text-xs font-condensed uppercase tracking-widest border border-white/15 hover:border-[#f08122]/40 rounded px-3 py-1.5 transition-colors">Export CSV</button>
+          <Link href="/admin" className="text-white/40 hover:text-white text-sm transition-colors">← Admin</Link>
+        </div>
       </div>
 
       {/* Summary cards */}
@@ -276,6 +307,7 @@ export default function PipelineClient() {
           <div className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">Pipeline Value</div>
           <div className="text-2xl font-semibold tabular-nums">{fmt$(totalValue)}</div>
           <div className="text-white/30 text-xs mt-1">{visible.length} active jobs · {totalBoxes} boxes</div>
+          <div className="text-white/20 text-[10px] mt-0.5">quoted + PM est</div>
         </div>
         <div className="bg-[#1a1b1c] border border-white/10 rounded-xl p-4">
           <div className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-1">Shop Hours</div>
@@ -381,11 +413,27 @@ export default function PipelineClient() {
                   </td>
                   <td className="px-4 py-2 text-right">
                     {job.estimate_id ? (
-                      <EditableNumber value={job.sell_price_snapshot} prefix="$"
-                        onSave={v => patchSnapshot(job.estimate_id!, { sell_price_snapshot: v })} />
+                      <div>
+                        <EditableNumber value={job.sell_price_snapshot} prefix="$"
+                          onSave={v => patchSnapshot(job.estimate_id!, { sell_price_snapshot: v })} />
+                        {!job.sell_price_snapshot && job.estimated_value &&
+                          <div className="text-white/30 text-[10px]">est: {fmt$(job.estimated_value)}</div>}
+                      </div>
+                    ) : job.estimated_value ? (
+                      <div className="text-right">
+                        <span className="text-white/50 tabular-nums text-xs">{fmt$(job.estimated_value)}</span>
+                        <div className="text-white/20 text-[10px]">PM est</div>
+                      </div>
                     ) : <span className="text-white/20 text-xs">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-xs text-white/60">{job.box_count ? job.box_count : "—"}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-xs text-white/60">
+                    {job.box_count ? (
+                      <span title={job.fg_boxes ? job.fg_boxes.map(fg => `${fg.label}: ${fg.boxes}`).join("\n") : ""}>
+                        {job.box_count}
+                        {job.fg_boxes && job.fg_boxes.length > 1 && <span className="text-white/30 ml-1">({job.fg_boxes.length} FGs)</span>}
+                      </span>
+                    ) : "—"}
+                  </td>
                   <td className="px-4 py-2 text-right">
                     {job.estimate_id ? (
                       <EditableNumber value={job.shop_labor_hrs_snapshot} suffix=" hrs"
@@ -408,9 +456,11 @@ export default function PipelineClient() {
                   </td>
                   <td className="px-4 py-2 min-w-[110px]">
                     <EditableDate
-                      value={job.delivery_date}
+                      value={job.anticipated_delivery ?? job.delivery_date}
                       onSave={v => patchJob(job.id, { delivery_date: v || null })}
                     />
+                    {job.anticipated_delivery && job.anticipated_delivery !== job.delivery_date &&
+                      <div className="text-white/20 text-[10px] px-1">from schedule</div>}
                   </td>
                 </tr>
               ))}
