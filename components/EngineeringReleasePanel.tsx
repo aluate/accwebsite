@@ -37,8 +37,11 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   const [sendSuccess, setSendSuccess]   = useState(false);
   const [open, setOpen]                 = useState(false);
   const [saving, setSaving]             = useState(false);
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const fileRef   = useRef<HTMLInputElement | null>(null);
+  const saveTimer    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileRef      = useRef<HTMLInputElement | null>(null);
+  // Ref mirrors checklist state so toggle/checkAll always read the latest value
+  // even during rapid clicks before React re-renders.
+  const checklistRef = useRef<Record<string, boolean>>({});
 
   // ── Effective check: auto OR manual ─────────────────────────────────────
   function isEffectivelyChecked(key: string): boolean {
@@ -62,7 +65,9 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
           checklist: Record<string, boolean>;
           autoChecked: Record<string, boolean>;
         };
-        setChecklist(d.checklist ?? {});
+        const cl = d.checklist ?? {};
+        checklistRef.current = cl;
+        setChecklist(cl);
         setAutoChecked(d.autoChecked ?? {});
       }
 
@@ -86,20 +91,25 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   }, [jobId]);
 
   // ── Auto-save checklist (debounced) ─────────────────────────────────────
-  const persistChecklist = useCallback((state: Record<string, boolean>) => {
+  // updateChecklist: single source of truth — updates ref (sync) + state (async) + debounces save
+  const updateChecklist = useCallback((next: Record<string, boolean>) => {
+    checklistRef.current = next;
+    setChecklist(next);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSaving(true);
     saveTimer.current = setTimeout(async () => {
       await fetch(`/api/jobs/${jobId}/engineering-checklist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ checklist: state }),
+        body: JSON.stringify({ checklist: checklistRef.current }),
       });
       setSaving(false);
-    }, 600);
+    }, 400);
   }, [jobId]);
 
-  const flushSave = useCallback(async (state: Record<string, boolean>) => {
+  const persistChecklist = updateChecklist; // alias kept for flushSave below
+
+  const flushSave = useCallback(async () => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
       saveTimer.current = null;
@@ -108,43 +118,46 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     await fetch(`/api/jobs/${jobId}/engineering-checklist`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checklist: state }),
+      body: JSON.stringify({ checklist: checklistRef.current }),
     });
     setSaving(false);
   }, [jobId]);
 
   function toggle(key: string) {
-    // Don't allow un-checking an auto-checked item manually
     if (autoChecked[key]) return;
-    const next = { ...checklist, [key]: !checklist[key] };
-    setChecklist(next);
-    persistChecklist(next);
+    // Read from ref — always current even on rapid clicks
+    const next = { ...checklistRef.current, [key]: !checklistRef.current[key] };
+    updateChecklist(next);
+  }
+
+  function checkAllItems() {
+    const next = { ...checklistRef.current };
+    for (const section of CHECKLIST_SECTIONS) {
+      for (const item of section.items) {
+        if (!autoChecked[item.key]) next[item.key] = true;
+      }
+    }
+    updateChecklist(next);
   }
 
   function checkAllInSection(sectionId: string) {
     const section = CHECKLIST_SECTIONS.find((s) => s.id === sectionId);
     if (!section) return;
-    const next = { ...checklist };
+    const next = { ...checklistRef.current };
     for (const item of section.items) {
-      if (!autoChecked[item.key]) {
-        next[item.key] = true;
-      }
+      if (!autoChecked[item.key]) next[item.key] = true;
     }
-    setChecklist(next);
-    persistChecklist(next);
+    updateChecklist(next);
   }
 
   function uncheckAllInSection(sectionId: string) {
     const section = CHECKLIST_SECTIONS.find((s) => s.id === sectionId);
     if (!section) return;
-    const next = { ...checklist };
+    const next = { ...checklistRef.current };
     for (const item of section.items) {
-      if (!autoChecked[item.key]) {
-        next[item.key] = false;
-      }
+      if (!autoChecked[item.key]) next[item.key] = false;
     }
-    setChecklist(next);
-    persistChecklist(next);
+    updateChecklist(next);
   }
 
   // ── File upload ─────────────────────────────────────────────────────────
@@ -173,7 +186,7 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
   async function sendRelease() {
     setSendError(null);
     setSending(true);
-    await flushSave(checklist);
+    await flushSave();
     const res = await fetch(`/api/jobs/${jobId}/engineering-release`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -312,10 +325,21 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
                   <span className="ml-2 text-sky-400/60">· {autoCount} auto from spec</span>
                 )}
                 {saving && <span className="ml-2 text-white/20">saving…</span>}
+                {!saving && checkedCount > 0 && <span className="ml-2 text-green-400/40">saved ✓</span>}
               </span>
-              {allDone && (
-                <span className="text-[10px] font-condensed uppercase tracking-widest text-green-400/80">All clear ✓</span>
-              )}
+              <div className="flex items-center gap-2">
+                {!allDone && (
+                  <button
+                    onClick={checkAllItems}
+                    className="text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-[#f08122] border border-white/10 hover:border-[#f08122]/40 px-3 py-1 rounded transition-colors"
+                  >
+                    Check All
+                  </button>
+                )}
+                {allDone && (
+                  <span className="text-[10px] font-condensed uppercase tracking-widest text-green-400/80">All clear ✓</span>
+                )}
+              </div>
             </div>
             <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
               <div
