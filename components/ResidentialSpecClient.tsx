@@ -2401,13 +2401,18 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             </p>
             {groups.map((g) => {
               const fgRooms = rooms.filter((r) => r.finish_group_id === g.id);
-              const rollupMap = new Map<string, number>();
+              type TrimRollup = { type: string; sizeDesc: string; notes: string[]; lf: number };
+              const rollupMap = new Map<string, TrimRollup>();
               for (const r of fgRooms) {
                 for (const t of (r.trim ?? [])) {
-                  rollupMap.set(t.trim_type, (rollupMap.get(t.trim_type) ?? 0) + (Number(t.qty_lf) ?? 0));
+                  const key = `${t.trim_type}::${t.size_desc ?? ""}`;
+                  const existing = rollupMap.get(key) ?? { type: t.trim_type, sizeDesc: t.size_desc ?? "", notes: [], lf: 0 };
+                  existing.lf += Number(t.qty_lf) || 0;
+                  if (t.notes?.trim()) existing.notes.push(t.notes.trim());
+                  rollupMap.set(key, existing);
                 }
               }
-              const rollupRows = Array.from(rollupMap.entries()).map(([type, lf]) => ({ type, lf }));
+              const rollupRows = Array.from(rollupMap.values());
               return (
                 <div key={g.id} className="mb-6">
                   <div className="flex items-center gap-2 mb-2">
@@ -2423,13 +2428,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <thead>
                           <tr className="bg-[#3d3d3d] text-white">
                             <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px]">Trim Type</th>
-                            <th className="text-right px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-24">Total (LF)</th>
+                            <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px]">Size / Profile</th>
+                            <th className="text-left px-2 py-1.5 font-bold uppercase tracking-wider text-[9px]">Notes</th>
+                            <th className="text-right px-2 py-1.5 font-bold uppercase tracking-wider text-[9px] w-20">Total (LF)</th>
                           </tr>
                         </thead>
                         <tbody>
                           {rollupRows.map((row, ri) => (
-                            <tr key={row.type} className={ri % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"}>
+                            <tr key={`${row.type}::${row.sizeDesc}`} className={ri % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"}>
                               <td className="px-2 py-1.5 text-white/70">{row.type}</td>
+                              <td className="px-2 py-1.5 text-white/70">{row.sizeDesc || "—"}</td>
+                              <td className="px-2 py-1.5 text-white/50">{[...new Set(row.notes)].join("; ") || "—"}</td>
                               <td className="px-2 py-1.5 text-right text-white tabular-nums font-semibold">{row.lf > 0 ? row.lf.toFixed(1) : "—"}</td>
                             </tr>
                           ))}
