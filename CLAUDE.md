@@ -445,3 +445,108 @@ On the residential spec, a "room" is a finish application location, not a physic
 - The room matrix maps finish groups to locations
 - Never group multiple finish types under one room entry
 This has been a recurring source of confusion — treat this as a hard rule.
+
+---
+
+## Project Hygiene — Rules That Keep This Codebase Clean
+
+These rules exist because subtle inconsistencies (duplicate fields, silent saves, stale closures) have already caused real production failures. Follow them without exception.
+
+---
+
+### INPUT_FIELD_MAP.md — The Law of Inputs
+
+**Before adding or changing any input field, read `INPUT_FIELD_MAP.md` first.**
+
+- Every user-visible input in the app is documented there: page, field label, component, DB column, and API route.
+- If you add a new field: add a row to the map BEFORE writing the code.
+- If you rename a field, relabel a column, or repurpose an existing value: update the map in the same commit.
+- If a field exists in two places under different names, they are the SAME field until proven otherwise. Verify before creating a second DB column.
+- No silent aliases. If two labels genuinely refer to different concepts, they must be explicitly documented as distinct in the map with a "WHY DISTINCT" note.
+
+**The map is the source of truth. The code is not the source of truth until the map agrees.**
+
+---
+
+### No Duplicate Fields
+
+- A concept gets one DB column. One label. One API field name.
+- Before adding a column, grep the schema for synonyms: value, amount, price, cost, total, estimate, quote.
+- If the same data appears in two places in the UI (e.g., pipeline and job sidebar), they must read/write the SAME column.
+- Exceptions: `estimated_value` (PM rough guess) vs `sell_price_snapshot` (estimate engine output) are intentionally distinct — see INPUT_FIELD_MAP.md for the formal distinction.
+
+---
+
+### PATCH/POST Routes — Explicit Allow Lists Only
+
+- Every PATCH and POST route that writes to `jobs` or any other shared table MUST have an explicit `allowed` array.
+- No wildcard spreads from `req.body` into SQL. Each field must be opted in.
+- When adding a new writable field, add it to the `allowed` array in the same commit. A field that isn't in `allowed` silently does nothing — this is how `bid_number` failed for months.
+
+---
+
+### PM/User Fields — Always a SELECT, Never Free Text
+
+- Any field that represents a user (PM, builder contact, assigned user) must be a `<select>` populated from `builder_accounts`.
+- Free-text user fields create orphaned values that can never be queried or filtered reliably.
+- If `builder_accounts` doesn't have the right scope, add a row — don't add a text input.
+
+---
+
+### React useCallback — Full Dependency Arrays
+
+- Every `useCallback` that closes over state MUST include all referenced state variables in its dependency array.
+- The stale closure bug (generate spec using page-load value of `specAccs`) is the canonical failure mode. It takes 10 minutes to write and days to debug.
+- Rule of thumb: if you reference a state variable inside `useCallback`, it goes in the array. No exceptions for "it probably won't change."
+
+---
+
+### Save Routes — Opt-In for Destructive Operations
+
+- Any save route that does DELETE + INSERT (full replace) must check whether the client explicitly sent that key.
+- Pattern: `const clientSentFoo = 'foo' in body` — skip the DELETE/INSERT when false.
+- A save from one tab must not silently wipe data entered from another tab or another field group.
+- Applied to: `finish_moldings`, `spec_accessories`, `spec_hardware`, `appliances`. Apply to any new replace-pattern route.
+
+---
+
+### DB Column Names Must Match UI Labels
+
+- If the UI shows "Quoted $" but the column is `estimated_value`, that mapping must be documented in INPUT_FIELD_MAP.md.
+- If a column is renamed or a UI label changes, update both the schema (migration) and the map in the same PR.
+- `pm_complexity` exists on both `jobs` and `finish_groups` — this is a known ambiguity. Do not add new columns with names that collide across tables.
+
+---
+
+### No Silent Failures
+
+- Every API route must return a meaningful HTTP status code and a JSON error body on failure.
+- `{ error: "..." }` with a 400/500 is the minimum. Never swallow exceptions and return 200.
+- Client-side: if a save fails, the user must see it. No "it felt like it saved" — fire a toast or set an error state.
+
+---
+
+### File Writes on NTFS Mount — Python/Bash Only
+
+- The Edit tool silently truncates files on the `C:\dev\repos\acc-website` NTFS mount.
+- **All file writes must use `python` or `bash cat`** — never the Edit tool on NTFS-mounted paths.
+- Use the Edit tool only for files in `/tmp/` or other non-NTFS paths.
+
+---
+
+### Git — Always via /tmp/acc-repo
+
+- Never push directly from the NTFS mount. Git lock files become NTFS ghosts and corrupt the index.
+- Clone pattern: `git clone "https://${TOKEN}@github.com/aluate/accwebsite.git" /tmp/acc-repo`
+- Token lives in `.git/config` on the NTFS mount — never hardcode it in any committed file.
+- Push script: `/tmp/push.sh` (see Git Operations section above). Always use it.
+
+---
+
+### What to Check Before Claiming a Feature is Built
+
+1. Confirm the DB column exists and is in the PATCH `allowed` array.
+2. Confirm the UI input saves on both blur/submit AND on "generate" (generateSpec must trigger save-all).
+3. Confirm the value appears correctly in the PDF/output if it's a spec field.
+4. Confirm INPUT_FIELD_MAP.md has been updated.
+5. Push to main, wait for Vercel deploy, verify on the live site — not in local dev.
