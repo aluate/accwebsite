@@ -498,59 +498,40 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
       {isDraftA && <DraftWatermark />}
       <TitleBlock data={data} code="A.1" />
 
-      {/* ACCESSORIES — from per-room catalog picker */}
-      <Text style={S.secHead}>ACCESSORIES</Text>
-      {(data.accessories_rollup?.length ?? 0) === 0 ? (
-        <Text style={[S.cellMu, { marginBottom: 12 }]}>No accessories specified.</Text>
-      ) : (
-        <View style={{ marginBottom: 16 }}>
-          <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Item</Text>
-            <Text style={[S.colHdrTx, { flex: 1 }]}>Series</Text>
-            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Size</Text>
-            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Hand</Text>
-            <Text style={[S.colHdrTx, { flex: 0.6 }]}>Qty</Text>
-            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Room(s)</Text>
-          </View>
-          {(data.accessories_rollup ?? []).map((a, ai) => (
-            <View key={ai} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-              <Text style={[S.cell, { flex: 2.5, fontFamily: "Helvetica-Bold" }]}>{d(a.name)}</Text>
-              <Text style={[S.cell, { flex: 1 }]}>{d(a.series)}</Text>
-              <Text style={[S.cell, { flex: 0.7 }]}>{a.size ? `${a.size}"` : "—"}</Text>
-              <Text style={[S.cell, { flex: 0.7 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
-              <Text style={[S.cell, { flex: 0.6 }]}>{String(a.total_qty)}</Text>
-              <Text style={[S.cellMu, { flex: 2.5 }]}>{a.rooms.join(", ")}</Text>
+      {/* ACCESSORIES — unified: Room | Item | QTY */}
+      {(() => {
+        type AccRow = { room: string; item: string; qty: number | string };
+        const rows: AccRow[] = [
+          ...(data.accessories_rollup ?? []).map(a => ({
+            room: a.rooms.join(", "),
+            item: a.name,
+            qty:  a.total_qty,
+          })),
+          ...(data.spec_accessories ?? []).map(a => ({
+            room: a.room || "—",
+            item: a.description || a.type,
+            qty:  a.qty,
+          })),
+        ];
+        if (rows.length === 0) return null;
+        return (
+          <View style={{ marginBottom: 16 }}>
+            <Text style={S.secHead}>ACCESSORIES</Text>
+            <View style={S.colHdr}>
+              <Text style={[S.colHdrTx, { flex: 2.5 }]}>Room</Text>
+              <Text style={[S.colHdrTx, { flex: 4.5 }]}>Item</Text>
+              <Text style={[S.colHdrTx, { flex: 0.8 }]}>QTY</Text>
             </View>
-          ))}
-        </View>
-      )}
-
-      {/* SPEC-LEVEL ACCESSORIES — from Spec Details tab */}
-      {(data.spec_accessories?.length ?? 0) > 0 && (
-        <View style={{ marginBottom: 16 }}>
-          <Text style={[S.secHead, { marginTop: 8 }]}>SPEC ACCESSORIES</Text>
-          <View style={S.colHdr}>
-            <Text style={[S.colHdrTx, { flex: 2.5 }]}>Item</Text>
-            <Text style={[S.colHdrTx, { flex: 1 }]}>Part #</Text>
-            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Size</Text>
-            <Text style={[S.colHdrTx, { flex: 0.7 }]}>Hand</Text>
-            <Text style={[S.colHdrTx, { flex: 0.5 }]}>Qty</Text>
-            <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
-            <Text style={[S.colHdrTx, { flex: 2 }]}>Notes</Text>
+            {rows.map((r, i) => (
+              <View key={i} style={i % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
+                <Text style={[S.cellMu, { flex: 2.5 }]}>{r.room}</Text>
+                <Text style={[S.cell,   { flex: 4.5, fontFamily: "Helvetica-Bold" }]}>{r.item}</Text>
+                <Text style={[S.cell,   { flex: 0.8 }]}>{String(r.qty)}</Text>
+              </View>
+            ))}
           </View>
-          {(data.spec_accessories ?? []).map((a, ai) => (
-            <View key={ai} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-              <Text style={[S.cell, { flex: 2.5, fontFamily: "Helvetica-Bold" }]}>{d(a.description || a.type)}</Text>
-              <Text style={[S.cell, { flex: 1 }]}>{d(a.part_number)}</Text>
-              <Text style={[S.cell, { flex: 0.7 }]}>{a.size ? `${a.size}"` : "—"}</Text>
-              <Text style={[S.cell, { flex: 0.7 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
-              <Text style={[S.cell, { flex: 0.5 }]}>{String(a.qty)}</Text>
-              <Text style={[S.cellMu, { flex: 1.5 }]}>{d(a.room)}</Text>
-              <Text style={[S.cellMu, { flex: 2 }]}>{d(a.notes)}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+        );
+      })()}
 
       {/* MOLDINGS */}
       {moldingsByFG.size > 0 && (
@@ -958,22 +939,32 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
       {(() => {
         const fgTrimRows = fgRooms.flatMap(r => (data.room_trim[r.id] ?? []).map(t => ({ ...t, roomName: r.name })));
         if (fgTrimRows.length === 0) return null;
-        // Roll up by trim_type, summing LF
-        const rollupMap = new Map<string, number>();
-        for (const t of fgTrimRows) { rollupMap.set(t.trim_type, (rollupMap.get(t.trim_type) ?? 0) + (t.qty_lf ?? 0)); }
-        const rollupRows = Array.from(rollupMap.entries()).map(([type, lf]) => ({ type, lf }));
-        const grandTotal = rollupRows.reduce((s, r) => s + r.lf, 0);
+        // Roll up by trim_type + size_desc — different sizes stay as separate rows
+        type TrimRollup = { type: string; size_desc: string; material: string; notes: string[]; lf: number };
+        const rollupMap = new Map<string, TrimRollup>();
+        for (const t of fgTrimRows) {
+          const key = `${t.trim_type}::${t.size_desc ?? ""}`;
+          const existing = rollupMap.get(key) ?? { type: t.trim_type, size_desc: t.size_desc ?? "", material: t.material ?? "", notes: [], lf: 0 };
+          existing.lf += (t.qty_lf ?? 0);
+          if (t.notes?.trim()) existing.notes.push(t.notes.trim());
+          rollupMap.set(key, existing);
+        }
+        const rollupRows = Array.from(rollupMap.values());
         return (
           <View style={{ marginBottom: 4 }}>
             <Text style={WS.fullSecHead}>TRIM MOLDING</Text>
             <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
-              <Text style={[WS.th, { flex: 3 }]}>Type</Text>
-              <Text style={[WS.th, { flex: 1 }]}>Total (LF)</Text>
+              <Text style={[WS.th, { flex: 2 }]}>Type</Text>
+              <Text style={[WS.th, { flex: 2 }]}>Size / Profile</Text>
+              <Text style={[WS.th, { flex: 2.5 }]}>Notes</Text>
+              <Text style={[WS.th, { flex: 0.8 }]}>Total (LF)</Text>
             </View>
             {rollupRows.map((r, i) => (
               <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
-                <Text style={[WS.tdBold, { flex: 3 }]}>{r.type}</Text>
-                <Text style={[WS.td,     { flex: 1 }]}>{r.lf > 0 ? r.lf.toFixed(1) : "—"}</Text>
+                <Text style={[WS.tdBold, { flex: 2 }]}>{r.type}</Text>
+                <Text style={[WS.td,     { flex: 2 }]}>{r.size_desc || "—"}</Text>
+                <Text style={[WS.td,     { flex: 2.5 }]}>{[...new Set(r.notes)].join("; ") || "—"}</Text>
+                <Text style={[WS.td,     { flex: 0.8 }]}>{r.lf > 0 ? r.lf.toFixed(1) : "—"}</Text>
               </View>
             ))}
           </View>
