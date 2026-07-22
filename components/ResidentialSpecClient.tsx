@@ -733,7 +733,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       const res = await fetch(`/api/specs/${specId}/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ finish_groups: groups, rooms: roomsForSave, moldings, materials }),
+        body: JSON.stringify({ finish_groups: groups, rooms: roomsForSave, materials }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -819,6 +819,22 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ appliances }),
         }),
+        // Save pulls for every finish group
+        ...Object.entries(pulls).map(([fgId, rows]) =>
+          fetch(`/api/specs/${specId}/pulls`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
+          })
+        ),
+        // Save trim for every room that has trim rows
+        ...rooms.filter(r => (r.trim ?? []).length > 0).map(r =>
+          fetch(`/api/specs/${specId}/trim`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ room_id: r.id, trim: r.trim }),
+          })
+        ),
       ]);
     }
     setGenState("generating");
@@ -835,7 +851,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     } catch {
       setGenState("error");
     }
-  }, [specId, dirty, violations.length, save, specAccs, specHW, appliances]);
+  }, [specId, dirty, violations.length, save, specAccs, specHW, appliances, pulls, rooms]);
 
   const [combineState, setCombineState] = useState<"idle"|"working"|"done"|"error">("idle");
   const [combineErr, setCombineErr] = useState<string>("");

@@ -165,6 +165,7 @@ function validate(payload: SavePayload): Violation[] {
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = (await req.json()) as SavePayload;
+  const clientSentMoldings = 'moldings' in body;
   const { finish_groups, rooms, moldings = [], materials = [] } = body;
 
   const violations = validate(body);
@@ -185,21 +186,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // spec will be empty. The user can re-save from the UI -- acceptable.
   try {
     // Clear child tables in FK-safe order (each statement = its own mini-tx)
-    await sql`
-      DELETE FROM finish_molding_rooms
-      WHERE molding_id IN (
-        SELECT id FROM finish_moldings
+    // Only delete/re-insert moldings if the client explicitly sent a moldings array.
+    // When the moldings UI tab is absent, the client omits the key so existing DB
+    // moldings are preserved (prevents silent wipe of data that has no UI entry point).
+    if (clientSentMoldings) {
+      await sql`
+        DELETE FROM finish_molding_rooms
+        WHERE molding_id IN (
+          SELECT id FROM finish_moldings
+          WHERE finish_group_id IN (
+            SELECT id FROM finish_groups WHERE spec_id = ${id}
+          )
+        )
+      `;
+      await sql`
+        DELETE FROM finish_moldings
         WHERE finish_group_id IN (
           SELECT id FROM finish_groups WHERE spec_id = ${id}
         )
-      )
-    `;
-    await sql`
-      DELETE FROM finish_moldings
-      WHERE finish_group_id IN (
-        SELECT id FROM finish_groups WHERE spec_id = ${id}
-      )
-    `;
+      `;
+    }
     await sql`
       DELETE FROM finish_group_materials
       WHERE finish_group_id IN (
@@ -288,8 +294,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
     }
 
-    // Insert moldings + room links
-    for (const m of moldings) {
+    // Insert moldings + room links (only when client sent moldings array)
+    if (clientSentMoldings) for (const m of moldings) {
       await sql`
         INSERT INTO finish_moldings
           (id, finish_group_id, molding_type, molding_profile_id, qty_lf,
