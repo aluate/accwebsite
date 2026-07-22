@@ -456,6 +456,7 @@ function ColorPicker({
       {isCustom && (
         <input
           type="text"
+          value={valueName === "Other / Custom Match" || !valueName ? "" : valueName}
           placeholder="Type brand + code + name  (e.g. SW 7757 High Reflective White)"
           onChange={(e) => onChange(value, e.target.value || "Other / Custom Match")}
           className="w-full bg-[#1a1a1a] border border-[#f08122]/40 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors"
@@ -767,7 +768,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         setSaveAllState("error");
         return;
       }
-      // Also save appliances + hardware on Save All
+      // Save every section that is NOT part of the main save payload
       await Promise.all([
         fetch(`/api/specs/${specId}/appliances`, {
           method: "POST",
@@ -779,13 +780,34 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ hardware: specHW }),
         }),
+        fetch(`/api/specs/${specId}/accessories`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pulls: [], accessories: specAccs }),
+        }),
+        // Save pulls for every finish group
+        ...Object.entries(pulls).map(([fgId, rows]) =>
+          fetch(`/api/specs/${specId}/pulls`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
+          })
+        ),
+        // Save trim for every room that has trim rows
+        ...rooms.filter(r => (r.trim ?? []).length > 0).map(r =>
+          fetch(`/api/specs/${specId}/trim`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ room_id: r.id, trim: r.trim }),
+          })
+        ),
       ]);
       setSaveAllState("saved");
       setTimeout(() => setSaveAllState("idle"), 2000);
     } catch {
       setSaveAllState("error");
     }
-  }, [save, specId, appliances, specHW, violations.length]);
+  }, [save, specId, appliances, specHW, specAccs, pulls, rooms, violations.length]);
 
   // Dual-UI sync (2026-05-06): the Schedules · v2 tab and the inline Materials
   // sub-section both write to finish_group_materials via different endpoints.
