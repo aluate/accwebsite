@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { getBuilder } from "@/lib/auth";
+import { computeAutoChecked } from "@/lib/engineering-autocheck";
 
 export const runtime = "nodejs";
 
-type FGRow = {
-  carcass_id: string | null;
-  drawer_box_id: string | null;
-  finish_type: string;
-  color_id: string | null;
-  edgeband_id: string | null;
-  pull_id: string | null;
-};
-type HWRow = { role: string };
-type JobRow = { delivery_date: string | null };
-
-async function computeAutoChecked(jobId: string): Promise<Record<string, boolean>> {
+// computeAutoChecked is now in lib/engineering-autocheck.ts
+// kept here for reference only — remove after confirming import works
+async function _unused_computeAutoChecked(jobId: string): Promise<Record<string, boolean>> {
   const auto: Record<string, boolean> = {};
 
   // Find the job's primary residential spec

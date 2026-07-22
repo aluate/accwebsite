@@ -3,6 +3,7 @@ import { sql, uid } from "@/lib/db";
 import { getBuilder } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { isComplete } from "@/lib/engineering-release-checklist";
+import { computeAutoChecked, mergeChecklist } from "@/lib/engineering-autocheck";
 import { addWorkingDays } from "@/lib/schedule-utils";
 import { createClient } from "@supabase/supabase-js";
 
@@ -54,14 +55,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         FROM jobs WHERE id = ${id}`;
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
-  // ── 2. Validate checklist ────────────────────────────────────────────────
-  const [clRow] = await sql<{ checklist: Record<string, boolean> }[]>`
-    SELECT checklist FROM engineering_release_checklists WHERE job_id = ${id}
-  `;
-  const checklist = clRow?.checklist ?? {};
-  if (!isComplete(checklist)) {
-    return NextResponse.json({ error: "Checklist not complete — all items must be checked before releasing." }, { status: 422 });
-  }
+  // ── 2. Validate checklist (merge manual + auto-checked + drawings gate) ──
+  const [clRow, autoChecked] = await Promise.all([
+    sql<{ checklist: Record<string, boolean> }[]>`
+      SELECT checklist FROM engineering_release_checklists WHERE job_id = ${id}
+    `.then((r) => r[0]),
+    computeAutoChecked(id),
+  ]);
+  const manualChecklist = clRow?.checklist ?? {};
 
   // ── 3. Load files from 05_drawings and 03_job_specs — newest per base filename ───
   const allFileRows = await sql<{
@@ -72,7 +73,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     WHERE job_id = ${id} AND kind IN ('05_drawings', '03_job_specs')
     ORDER BY uploaded_at DESC
   `;
-  if (allFileRows.length === 0) {
+  const drawingsExist = allFileRows.length > 0;
+  const merged = mergeChecklist(manualChecklist, autoChecked, drawingsExist);
+  if (!isComplete(merged)) {
+    return NextResponse.json({ error: "Checklist not complete — all items must be checked before releasing." }, { status: 422 });
+  }
+  if (!drawingsExist) {
     return NextResponse.json({ error: "No drawings or specs uploaded. Upload files to the Drawings (05) or Job Specs (03) folders before releasing." }, { status: 422 });
   }
 

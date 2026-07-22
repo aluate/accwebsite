@@ -114,7 +114,7 @@ export async function buildEngineeringEmail(
     AND kind IN ('05_drawings', '03_job_specs', '14_wo_pdfs', '14_prod_docs')
     ORDER BY uploaded_at DESC
   `;
-  const drawingFiles  = files.filter((f) => ["05_drawings", "16_eng_drawings"].includes(f.kind));
+  const drawingFiles  = files.filter((f) => ["05_drawings", "03_job_specs"].includes(f.kind));
   const shopPackFiles = files.filter((f) => ["14_wo_pdfs", "14_prod_docs"].includes(f.kind));
 
   // Download drawing files for email attachments
