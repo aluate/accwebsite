@@ -217,13 +217,26 @@ export function JobInlineEditClient({ jobId, initialValues, pmOptions = [] }: Pr
   async function commitEdit(field: EditableField) {
     if (saving) return;
     setSaving(true);
+    const optimisticValue = values[field];
     try {
-      await fetch(`/api/jobs/${jobId}`, {
+      const res = await fetch(`/api/jobs/${jobId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: values[field] || null }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        const msg = body.error || `Save failed (${res.status})`;
+        alert(`Could not save ${field}: ${msg}`);
+        // Revert to pre-edit value
+        setValues((v) => ({ ...v, [field]: optimisticValue ?? "" }));
+        return;
+      }
+      // Optimistic update already in state — refresh server components
+      // without waiting (avoids race that can flash old value)
       router.refresh();
+    } catch {
+      alert(`Network error saving ${field} — check your connection.`);
     } finally {
       setSaving(false);
       setEditing(null);

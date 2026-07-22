@@ -768,6 +768,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         setSaveAllState("error");
         return;
       }
+      // Flush any in-progress edgeband cell edits (onBlur-only by default)
+      await Promise.all(
+        Object.entries(ebOverrides).map(([key, ov]) => {
+          const [fgId, code] = key.split("::");
+          return fetch(`/api/specs/${specId}/finish-groups/${fgId}/edgebands/${code}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ov),
+          });
+        })
+      );
       // Save every section that is NOT part of the main save payload
       await Promise.all([
         fetch(`/api/specs/${specId}/appliances`, {
@@ -793,12 +804,12 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
           })
         ),
-        // Save trim for every room that has trim rows
-        ...rooms.filter(r => (r.trim ?? []).length > 0).map(r =>
+        // Save trim for ALL rooms (empty array clears DB rows for that room)
+        ...rooms.map(r =>
           fetch(`/api/specs/${specId}/trim`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ room_id: r.id, trim: r.trim }),
+            body: JSON.stringify({ room_id: r.id, trim: r.trim ?? [] }),
           })
         ),
       ]);
@@ -807,7 +818,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     } catch {
       setSaveAllState("error");
     }
-  }, [save, specId, appliances, specHW, specAccs, pulls, rooms, violations.length]);
+  }, [save, specId, appliances, specHW, specAccs, pulls, rooms, ebOverrides, violations.length]);
 
   // Dual-UI sync (2026-05-06): the Schedules · v2 tab and the inline Materials
   // sub-section both write to finish_group_materials via different endpoints.
@@ -849,12 +860,12 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
           })
         ),
-        // Save trim for every room that has trim rows
-        ...rooms.filter(r => (r.trim ?? []).length > 0).map(r =>
+        // Save trim for ALL rooms (empty array clears DB rows for that room)
+        ...rooms.map(r =>
           fetch(`/api/specs/${specId}/trim`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ room_id: r.id, trim: r.trim }),
+            body: JSON.stringify({ room_id: r.id, trim: r.trim ?? [] }),
           })
         ),
       ]);
