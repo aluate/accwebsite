@@ -69,7 +69,7 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
       let loadedDrawings: DrawingFile[] = [];
       if (filesRes.ok) {
         const d = await filesRes.json() as { files: Record<string, DrawingFile[]> };
-        loadedDrawings = d.files?.["16_eng_drawings"] ?? [];
+        loadedDrawings = [...(d.files?.["05_drawings"] ?? []), ...(d.files?.["03_job_specs"] ?? [])];
         setDrawings(loadedDrawings);
         // Auto-check drawings_attached if drawings already exist
         if (loadedDrawings.length > 0) {
@@ -154,13 +154,13 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     for (const file of Array.from(files)) {
       const form = new FormData();
       form.append("file", file);
-      form.append("kind", "16_eng_drawings");
+      form.append("kind", "05_drawings");
       await fetch(`/api/jobs/${jobId}/files`, { method: "POST", body: form });
     }
     const res = await fetch(`/api/jobs/${jobId}/files`);
     if (res.ok) {
       const d = await res.json() as { files: Record<string, DrawingFile[]> };
-      const updated = d.files?.["16_eng_drawings"] ?? [];
+      const updated = [...(d.files?.["05_drawings"] ?? []), ...(d.files?.["03_job_specs"] ?? [])];
       setDrawings(updated);
       if (updated.length > 0) {
         setAutoChecked((prev) => ({ ...prev, drawings_attached: true }));
