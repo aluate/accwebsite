@@ -976,10 +976,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
                 <Text style={[WS.td,     { flex: 1 }]}>{r.lf > 0 ? r.lf.toFixed(1) : "—"}</Text>
               </View>
             ))}
-            <View style={[WS.tableRow, { backgroundColor: "#f08122" + "22" }]}>
-              <Text style={[WS.tdBold, { flex: 3, color: "#f08122" }]}>GRAND TOTAL</Text>
-              <Text style={[WS.tdBold, { flex: 1, color: "#f08122" }]}>{grandTotal > 0 ? grandTotal.toFixed(1) : "—"} LF</Text>
-            </View>
           </View>
         );
       })()}
