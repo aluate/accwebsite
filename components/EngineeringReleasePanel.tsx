@@ -130,14 +130,24 @@ export function EngineeringReleasePanel({ jobId }: { jobId: string }) {
     updateChecklist(next);
   }
 
-  function checkAllItems() {
+  async function checkAllItems() {
     const next = { ...checklistRef.current };
     for (const section of CHECKLIST_SECTIONS) {
       for (const item of section.items) {
-        if (!autoChecked[item.key]) next[item.key] = true;
+        next[item.key] = true; // set all including auto (no harm, server merges anyway)
       }
     }
-    updateChecklist(next);
+    // Flush immediately — don't debounce a bulk action
+    checklistRef.current = next;
+    setChecklist(next);
+    if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null; }
+    setSaving(true);
+    await fetch(`/api/jobs/${jobId}/engineering-checklist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checklist: next }),
+    });
+    setSaving(false);
   }
 
   function checkAllInSection(sectionId: string) {

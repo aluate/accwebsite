@@ -27,8 +27,6 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
-import { computeAutoChecked, mergeChecklist } from "@/lib/engineering-autocheck";
-import { allKeys } from "@/lib/engineering-release-checklist";
 import { createDraftInvoice, invoiceExists } from "@/lib/invoices";
 
 type JobRow = JobMeta & {
@@ -111,29 +109,8 @@ export async function POST(
     );
   }
 
-  // ── Engineering checklist gate ─────────────────────────────────────────────
-  if (toStatus === "engineering") {
-    const [[clRow], autoChecked, drawingFiles] = await Promise.all([
-      sql<{ checklist: Record<string, boolean> }[]>`
-        SELECT checklist FROM engineering_release_checklists WHERE job_id = ${internalId}
-      `,
-      computeAutoChecked(internalId),
-      sql<{ id: string }[]>`
-        SELECT id FROM job_files
-        WHERE job_id = ${internalId} AND kind IN ('05_drawings', '03_job_specs')
-        LIMIT 1
-      `,
-    ]);
-    const merged = mergeChecklist(clRow?.checklist ?? {}, autoChecked, drawingFiles.length > 0);
-    const keys = allKeys();
-    const incomplete = keys.filter((k) => !merged[k]);
-    if (incomplete.length > 0) {
-      return NextResponse.json(
-        { error: `Engineering checklist not complete — ${incomplete.length} item${incomplete.length !== 1 ? "s" : ""} remaining. Complete the checklist on the job page before advancing.` },
-        { status: 422 }
-      );
-    }
-  }
+  // Engineering checklist is enforced by the Release to Engineering panel (EngineeringReleasePanel).
+  // The advance button just moves the status — the panel handles checklist + email.
 
   if (toStatus === "production") {
     const openCOs = await sql<Array<{ id: string; co_number: number; title: string }>>`
