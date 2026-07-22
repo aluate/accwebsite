@@ -89,6 +89,38 @@ function EditableNumber({ value, suffix, onSave }: {
   );
 }
 
+function EditableCurrency({ value, onSave }: {
+  value: number | null; onSave: (v: number | null) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value != null ? String(Math.round(value)) : "");
+  const [saving, setSaving] = useState(false);
+  async function commit() {
+    setSaving(true);
+    const raw = draft.replace(/[$,\s]/g, "");
+    const n = raw === "" ? null : parseFloat(raw);
+    await onSave(isNaN(n as number) ? null : n);
+    setSaving(false); setEditing(false);
+  }
+  if (editing) return (
+    <input autoFocus type="number" value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => { if (e.key==="Enter") commit(); if (e.key==="Escape") setEditing(false); }}
+      disabled={saving}
+      className="w-24 bg-white/10 border border-[#f08122]/60 rounded px-1 py-0.5 text-xs text-white text-right focus:outline-none" />
+  );
+  return (
+    <button onClick={() => { setDraft(value != null ? String(Math.round(value)) : ""); setEditing(true); }}
+      className="text-xs text-right w-full text-white/50 hover:text-white group tabular-nums">
+      {value != null
+        ? <>{fmt$(value)}<span className="text-white/25 text-[8px] ml-0.5">e</span></>
+        : <span className="text-white/20 group-hover:text-white/40">—</span>}
+      <span className="ml-0.5 opacity-0 group-hover:opacity-30 text-[8px]">✎</span>
+    </button>
+  );
+}
+
 function EditableDate({ value, placeholder="Set date", onSave }: {
   value: string | null; placeholder?: string; onSave: (v: string | null) => Promise<void>;
 }) {
@@ -505,15 +537,13 @@ export default function PipelineClient() {
                   </td>
                   <td className="px-3 py-2 text-right">
                     {job.sell_price_snapshot != null
-                      ? <span className="text-white text-xs tabular-nums">{fmt$(job.sell_price_snapshot)}</span>
-                      : job.estimated_value != null
-                      ? <span className="text-white/50 text-xs tabular-nums" title="PM estimate">{fmt$(job.estimated_value)}<span className="text-white/25 text-[8px] ml-0.5">e</span></span>
-                      : <span className="text-white/20 text-xs">—</span>}
+                      ? <span className="text-white text-xs tabular-nums" title="Locked — set from constraints page">{fmt$(job.sell_price_snapshot)}<span className="text-white/25 text-[8px] ml-0.5">c</span></span>
+                      : <EditableCurrency value={job.estimated_value} onSave={v => patchJob(job.id, {estimated_value:v})} />}
                   </td>
-                  <td className="px-2 py-2 text-right tabular-nums text-xs text-white/60">
-                    {job.box_count
-                      ? <span title={job.fg_boxes?.map(f=>`${f.label}: ${f.boxes}`).join("\n") ?? ""}>{job.box_count}</span>
-                      : "—"}
+                  <td className="px-2 py-2 text-right tabular-nums text-xs">
+                    {job.fg_boxes && job.fg_boxes.length > 0
+                      ? <span className="text-white/60" title={job.fg_boxes.map(f=>`${f.label}: ${f.boxes}`).join("\n") + "\n(from spec — edit on constraints page)"}>{job.box_count}<span className="text-white/25 text-[8px] ml-0.5">c</span></span>
+                      : <EditableNumber value={job.box_count} onSave={v => patchJob(job.id, {box_count:v})} />}
                   </td>
                   <td className="px-2 py-2 text-right">
                     <EditableNumber value={job.shop_hrs} suffix="h" onSave={v => patchJob(job.id, {shop_hrs:v})} />
