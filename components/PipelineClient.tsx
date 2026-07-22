@@ -315,7 +315,14 @@ export default function PipelineClient() {
     try {
       const r = await fetch("/api/admin/pipeline");
       const d = await r.json();
-      setJobs(d.jobs ?? []);
+      setJobs((d.jobs ?? []).map((j: PipelineJob) => ({
+        ...j,
+        sell_price_snapshot: j.sell_price_snapshot != null ? Number(j.sell_price_snapshot) : null,
+        estimated_value:     j.estimated_value     != null ? Number(j.estimated_value)     : null,
+        shop_hrs:            j.shop_hrs            != null ? Number(j.shop_hrs)            : null,
+        install_hrs:         j.install_hrs         != null ? Number(j.install_hrs)         : null,
+        box_count:           j.box_count           != null ? Number(j.box_count)           : null,
+      })));
       setPms(d.pms ?? []);
     } finally { setLoading(false); }
   }, []);
