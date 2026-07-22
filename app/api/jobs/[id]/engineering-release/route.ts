@@ -63,23 +63,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Checklist not complete — all items must be checked before releasing." }, { status: 422 });
   }
 
-  // ── 3. Load eng_drawings files (newest upload per filename, then all) ───
-  const drawingRows = await sql<{
-    id: string; filename: string; storage_path: string; uploaded_at: string;
+  // ── 3. Load files from 05_drawings and 03_job_specs — newest per base filename ───
+  const allFileRows = await sql<{
+    id: string; filename: string; storage_path: string; uploaded_at: string; kind: string;
   }[]>`
-    SELECT id, filename, storage_path, uploaded_at
+    SELECT id, filename, storage_path, uploaded_at, kind
     FROM job_files
-    WHERE job_id = ${id} AND kind = '16_eng_drawings'
+    WHERE job_id = ${id} AND kind IN ('05_drawings', '03_job_specs')
     ORDER BY uploaded_at DESC
   `;
-  if (drawingRows.length === 0) {
-    return NextResponse.json({ error: "No approved drawings uploaded. Upload drawings before releasing." }, { status: 422 });
+  if (allFileRows.length === 0) {
+    return NextResponse.json({ error: "No drawings or specs uploaded. Upload files to the Drawings (05) or Job Specs (03) folders before releasing." }, { status: 422 });
   }
 
-  // "Newest version is canon" — deduplicate by base filename (strip leading timestamp)
+  // "Newest version is canon" — deduplicate by base filename within each folder
   const seen = new Set<string>();
-  const canonDrawings = drawingRows.filter((r) => {
-    const base = r.filename.replace(/^\d+-/, ""); // strip ts prefix added by storagePath()
+  const canonDrawings = allFileRows.filter((r) => {
+    const base = r.kind + "|" + r.filename.replace(/^\d+-/, "");
     if (seen.has(base)) return false;
     seen.add(base);
     return true;
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   if (attachments.length === 0) {
-    return NextResponse.json({ error: "Could not fetch drawing files from storage." }, { status: 500 });
+    return NextResponse.json({ error: "Could not fetch files from storage. Check that drawings and specs are uploaded." }, { status: 500 });
   }
 
   // ── 5. Parse request body ────────────────────────────────────────────────
