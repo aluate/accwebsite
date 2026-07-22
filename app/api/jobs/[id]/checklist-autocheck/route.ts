@@ -66,7 +66,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     sql`SELECT id FROM residential_specs WHERE job_id = ${jid} LIMIT 1`.catch(() => []),
 
     // Engineering drawings uploaded
-    sql`SELECT id FROM job_files WHERE job_id = ${jid} AND kind = '16_eng_drawings' LIMIT 1`.catch(() => []),
+    sql`SELECT id FROM job_files WHERE job_id = ${jid} AND kind IN ('05_drawings', '03_job_specs') LIMIT 1`.catch(() => []),
   ]);
 
   const auto: Record<string, boolean> = {};
