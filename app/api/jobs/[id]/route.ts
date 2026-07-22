@@ -106,3 +106,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getBuilder();
+  if (!session || !["karl", "admin"].includes(session.role ?? "")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+  const { id } = await params;
+  const [row] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; client_name: string }>;
+  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  await sql`DELETE FROM jobs WHERE id = ${row.id}`;
+  return NextResponse.json({ ok: true, deleted: row.id });
+}

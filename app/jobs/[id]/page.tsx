@@ -18,6 +18,7 @@ import { WorkOrdersPanel } from "@/components/WorkOrdersPanel";
 import { JobConstraintsPanel } from "@/components/JobConstraintsPanel";
 import { JobActionButtons } from "@/components/JobActionButtons";
 import { InvoicePanel } from "@/components/InvoicePanel";
+import { DeleteJobButton } from "@/components/DeleteJobButton";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -122,12 +123,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
-      <Link
-        href="/jobs"
-        className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors mb-6 block"
-      >
-        ← All Jobs
-      </Link>
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href="/jobs"
+          className="font-condensed uppercase tracking-widest text-xs text-white/30 hover:text-[#f08122] transition-colors"
+        >
+          ← All Jobs
+        </Link>
+        {isAdmin && <DeleteJobButton jobId={internalId} jobName={job.client_name} />}
+      </div>
 
       {/* B.2 — Engineering in-app indicator */}
       {(job.status === "engineering" || job.status === "procurement") && (
@@ -234,7 +238,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               site_address:        job.site_address,
               city:                job.city,
               pm:                  job.pm,
-              job_number:          job.job_number,
               builder_name:        job.builder_name,
               builder_company:     job.builder_company,
               builder_email:       job.builder_email,
