@@ -115,6 +115,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const activeModules = MODULE_DEFS.filter((m) => job[m.key]);
   const inactiveModules = MODULE_DEFS.filter((m) => !job[m.key]);
 
+  // PM names for the sidebar dropdown
+  const pmRows = await sql`SELECT name FROM builder_accounts WHERE role IN ('pm','admin','karl') AND active = 1 ORDER BY name` as Array<{ name: string }>;
+  const pmNames = pmRows.map((r) => r.name);
+
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
@@ -222,21 +226,23 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <div className="md:col-span-1 space-y-6">
           <JobInlineEditClient
             jobId={internalId}
+            pmOptions={pmNames}
             initialValues={{
-              client_name:    job.client_name,
-              client_email:   job.client_email,
-              client_phone:   job.client_phone,
-              site_address:   job.site_address,
-              city:           job.city,
-              pm:             job.pm,
-              job_number:     job.job_number,
-              builder_name:   job.builder_name,
-              builder_company: job.builder_company,
-              builder_email:  job.builder_email,
-              builder_phone:  job.builder_phone,
-              delivery_date:  job.delivery_date,
-              install_type:   job.install_type,
-              notes:          job.notes,
+              client_name:         job.client_name,
+              client_email:        job.client_email,
+              client_phone:        job.client_phone,
+              site_address:        job.site_address,
+              city:                job.city,
+              pm:                  job.pm,
+              job_number:          job.job_number,
+              builder_name:        job.builder_name,
+              builder_company:     job.builder_company,
+              builder_email:       job.builder_email,
+              builder_phone:       job.builder_phone,
+              delivery_date:       job.delivery_date,
+              install_start_date:  job.install_start_date,
+              install_type:        job.install_type,
+              notes:               job.notes,
             }}
           />
 

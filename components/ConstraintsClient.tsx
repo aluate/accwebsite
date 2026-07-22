@@ -749,7 +749,7 @@ export default function ConstraintsClient() {
               <tr className="border-b border-white/10 text-white/40 text-[10px] font-condensed uppercase tracking-widest bg-[#111213]">
                 <th className="text-left px-4 py-3">Job / Finish Group</th>
                 <th className="text-left px-2 py-3">Status</th>
-                <th className="text-right px-2 py-3">Est. Value &#9999;</th>
+                <th className="text-right px-2 py-3" title="PM's estimated project value — see Pipeline for quoted price">Est. Value &#9999;</th>
                 <th className="text-left px-2 py-3">Complexity &#9999;</th>
                 <th className="text-left px-2 py-3">PM</th>
                 <th className="text-left px-2 py-3">Delivery &#9999;</th>

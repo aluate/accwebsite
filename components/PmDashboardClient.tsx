@@ -376,6 +376,56 @@ function InlineTextCell({
   );
 }
 
+// ── Inline PM select cell ─────────────────────────────────────────────────────────────────────────────
+
+function InlinePmCell({
+  jobId,
+  field,
+  value,
+  pmOptions,
+  onSaved,
+}: {
+  jobId: string;
+  field: string;
+  value: string | null;
+  pmOptions: string[];
+  onSaved: (jobId: string, field: string, newValue: string | null) => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  async function change(newVal: string) {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: newVal || null }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      onSaved(jobId, field, newVal || null);
+    } catch {
+      alert("Failed to save. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <select
+      value={value ?? ""}
+      onChange={(e) => change(e.target.value)}
+      disabled={saving}
+      onClick={(e) => e.stopPropagation()}
+      className="bg-[#1c1c1c] border border-white/15 rounded px-2 py-0.5 text-white text-xs font-condensed focus:outline-none focus:border-[#f08122]/60 cursor-pointer disabled:opacity-50 max-w-[120px]"
+    >
+      <option value="">— PM</option>
+      {pmOptions.map((name) => (
+        <option key={name} value={name}>{name}</option>
+      ))}
+    </select>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────────────────────
 
 type JobState = PmJob & { _conflicts?: string[] };
@@ -613,7 +663,7 @@ export function PmDashboardClient({
                   </button>
                 </th>
                 <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 hidden sm:table-cell w-28">PM</th>
-                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 hidden md:table-cell">Builder</th>
+                <th className="pb-3 pr-4 font-condensed uppercase tracking-widest text-[10px] text-white/40 hidden md:table-cell">Builder Contact</th>
                 <th className="pb-3 pr-4">
                   {sortHeader("Delivery", "delivery_asc", "delivery_desc")}
                 </th>
@@ -682,11 +732,11 @@ export function PmDashboardClient({
 
                     {/* PM */}
                     <td className="py-3 pr-4 hidden sm:table-cell">
-                      <InlineTextCell
+                      <InlinePmCell
                         jobId={job.id}
                         field="pm"
                         value={job.pm}
-                        placeholder="PM"
+                        pmOptions={pms}
                         onSaved={handleSaved}
                       />
                     </td>

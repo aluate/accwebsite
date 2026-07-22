@@ -350,7 +350,7 @@ export default function PipelineClient() {
               <tr className="border-b border-white/10 text-white/40 text-[10px] font-condensed uppercase tracking-widest">
                 <th className="text-left px-4 py-3">Job</th>
                 <th className="text-left px-4 py-3">Status <span className="text-white/20 normal-case font-normal">✎</span></th>
-                <th className="text-right px-4 py-3">Value</th>
+                <th className="text-right px-4 py-3" title="Quoted price from estimate engine — see Constraints for PM's estimated value">Quoted $</th>
                 <th className="text-right px-4 py-3">Boxes</th>
                 <th className="text-right px-4 py-3">Shop hrs</th>
                 <th className="text-right px-4 py-3">Install hrs</th>

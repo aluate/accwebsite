@@ -28,7 +28,9 @@ export async function POST(req: NextRequest) {
       pm, builder_name, builder_email, builder_phone, builder_company,
       delivery_date, notes,
       mod_residential, mod_commercial, mod_trim, mod_doors,
-      job_number
+      job_number,
+      estimated_value, pm_complexity,
+      notes_install, notes_finishing, notes_shop, notes_client
     ) VALUES (
       ${id},
       (SELECT val FROM seq WHERE id = 1),
@@ -40,7 +42,9 @@ export async function POST(req: NextRequest) {
       ${body.delivery_date ?? ""}, ${body.notes ?? ""},
       ${body.mod_residential ? 1 : 0}, ${body.mod_commercial ? 1 : 0},
       ${body.mod_trim ? 1 : 0}, ${body.mod_doors ? 1 : 0},
-      ${jobNumber}
+      ${jobNumber},
+      ${body.estimated_value ?? null}, ${body.pm_complexity ?? 0},
+      ${body.notes_install ?? ""}, ${body.notes_finishing ?? ""}, ${body.notes_shop ?? ""}, ${body.notes_client ?? ""}
     )
   `;
 

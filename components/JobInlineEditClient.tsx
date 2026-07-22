@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type EditableField =
   | "client_name" | "client_email" | "client_phone" | "site_address" | "city"
   | "pm" | "builder_name" | "builder_company" | "builder_email" | "builder_phone"
-  | "delivery_date" | "notes" | "job_number" | "install_type";
+  | "delivery_date" | "install_start_date" | "notes" | "job_number" | "install_type";
 
 const INSTALL_TYPE_OPTIONS = [
   { value: "",              label: "— Not Set" },
@@ -60,7 +60,7 @@ function EditableRow({
           <input
             ref={inputRef as React.RefObject<HTMLInputElement>}
             value={val}
-            type={field === "delivery_date" ? "date" : field.includes("email") ? "email" : field.includes("phone") ? "tel" : "text"}
+            type={(field === "delivery_date" || field === "install_start_date") ? "date" : field.includes("email") ? "email" : field.includes("phone") ? "tel" : "text"}
             onChange={(e) => onChange(field, e.target.value)}
             onBlur={() => onCommit(field)}
             onKeyDown={(e) => {
@@ -149,14 +149,61 @@ function InstallTypeRow({ jobId, value, onSaved }: InstallTypeRowProps) {
   );
 }
 
+
+// ── PmRow — immediate-save select for PM field ────────────────────────────────
+interface PmRowProps {
+  jobId: string;
+  value: string;
+  pmOptions: string[];
+  onSaved: (v: string) => void;
+}
+
+function PmRow({ jobId, value, pmOptions, onSaved }: PmRowProps) {
+  const [saving, setSaving] = useState(false);
+
+  async function change(newVal: string) {
+    setSaving(true);
+    try {
+      await fetch(`/api/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pm: newVal || null }),
+      });
+      onSaved(newVal);
+    } catch {
+      alert("Failed to save PM.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="py-2 border-b border-white/5 last:border-0">
+      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-1">PM</p>
+      <select
+        value={value}
+        onChange={(e) => change(e.target.value)}
+        disabled={saving}
+        className="bg-[#111] border border-white/15 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-[#f08122]/60 cursor-pointer disabled:opacity-50 w-full"
+      >
+        <option value="">— Not Assigned</option>
+        {pmOptions.map((name) => (
+          <option key={name} value={name}>{name}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface Props {
   jobId: string;
   initialValues: Partial<Record<EditableField, string | null>>;
+  pmOptions?: string[];
 }
 
-export function JobInlineEditClient({ jobId, initialValues }: Props) {
+export function JobInlineEditClient({ jobId, initialValues, pmOptions = [] }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState<EditableField | null>(null);
   const [values, setValues] = useState<Partial<Record<EditableField, string>>>(
@@ -226,14 +273,21 @@ export function JobInlineEditClient({ jobId, initialValues }: Props) {
       {/* Project Info */}
       <div className="bg-[#1e1e1e] rounded-lg border border-white/8 p-4">
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-[10px] mb-3">Project Info</p>
-        {row("PM",       "pm")}
+        <PmRow
+          jobId={jobId}
+          value={values["pm"] ?? ""}
+          pmOptions={pmOptions}
+          onSaved={(v) => setValues((prev) => ({ ...prev, pm: v }))}
+        />
         {row("Job #",    "job_number")}
         {row("Delivery", "delivery_date")}
+        {row("Install Start", "install_start_date")}
         <InstallTypeRow
           jobId={jobId}
           value={values["install_type"] ?? ""}
           onSaved={(v) => setValues((prev) => ({ ...prev, install_type: v }))}
         />
+        {row("Intake Notes", "notes", undefined, true)}
       </div>
 
       {/* Builder */}
