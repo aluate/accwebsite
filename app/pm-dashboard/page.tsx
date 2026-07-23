@@ -43,7 +43,7 @@ export default async function PmDashboardPage() {
       bid_number,
       notes
     FROM jobs
-    WHERE status NOT IN ('complete')
+    WHERE status NOT IN ('cancelled')
     ORDER BY
       CASE WHEN delivery_date IS NULL THEN 1 ELSE 0 END,
       delivery_date ASC,
