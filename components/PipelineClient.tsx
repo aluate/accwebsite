@@ -614,9 +614,8 @@ export default function PipelineClient() {
 
       {/* Status filter */}
       <div className="flex flex-wrap gap-1.5 mb-4">
-        {["all",...STATUS_ORDER.filter(s=>s!=="complete"&&s!=="cancelled")].map(s => {
+        {["all",...STATUS_ORDER].map(s => {
           const count = s === "all" ? visible.length : statusCounts[s];
-          if (s !== "all" && count === 0) return null;
           return (
             <button key={s} onClick={() => setFilterStatus(s === filterStatus ? "all" : s)}
               className={`px-2.5 py-1 rounded-full text-[9px] font-condensed uppercase tracking-widest transition-colors ${filterStatus===s ? "bg-[#f08122] text-white" : "bg-white/5 text-white/40 hover:text-white"}`}>
