@@ -370,6 +370,8 @@ export default function PipelineClient() {
 
   const [saveFlash, setSaveFlash] = useState<string | null>(null);
   const [view, setView] = useState<"bubbles"|"table">("bubbles");
+  const [shopCutoff, setShopCutoff]       = useState("production");
+  const [installCutoff, setInstallCutoff] = useState("install");
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function patchJob(jobId: string, updates: Record<string, unknown>) {
@@ -412,6 +414,10 @@ export default function PipelineClient() {
   }
 
   // Month buckets based on anticipated delivery
+  const phaseIndex = (s: string) => STATUS_ORDER.indexOf(s);
+  const countShop    = (j: PipelineJob) => phaseIndex(j.status) <= phaseIndex(shopCutoff);
+  const countInstall = (j: PipelineJob) => phaseIndex(j.status) <= phaseIndex(installCutoff);
+
   type MonthBucket = { key: string; value: number; boxes: number; shopHrs: number; installHrs: number; count: number };
   const monthBuckets = (() => {
     const map = new Map<string, MonthBucket>();
@@ -420,8 +426,8 @@ export default function PipelineClient() {
       const existing = map.get(key) ?? { key, value:0, boxes:0, shopHrs:0, installHrs:0, count:0 };
       existing.value    += j.sell_price_snapshot ?? j.estimated_value ?? 0;
       existing.boxes    += j.box_count ?? 0;
-      existing.shopHrs  += j.shop_hrs ?? 0;
-      existing.installHrs += j.install_hrs ?? 0;
+      existing.shopHrs  += countShop(j) ? (j.shop_hrs ?? 0) : 0;
+      existing.installHrs += countInstall(j) ? (j.install_hrs ?? 0) : 0;
       existing.count    += 1;
       map.set(key, existing);
     }
@@ -439,8 +445,8 @@ export default function PipelineClient() {
 
   const totalValue   = visible.reduce((s,j) => s + (j.sell_price_snapshot ?? j.estimated_value ?? 0), 0);
   const totalBoxes   = visible.reduce((s,j) => s + (j.box_count ?? 0), 0);
-  const totalShop    = visible.reduce((s,j) => s + (j.shop_hrs ?? 0), 0);
-  const totalInstall = visible.reduce((s,j) => s + (j.install_hrs ?? 0), 0);
+  const totalShop    = visible.reduce((s,j) => s + (countShop(j) ? (j.shop_hrs ?? 0) : 0), 0);
+  const totalInstall = visible.reduce((s,j) => s + (countInstall(j) ? (j.install_hrs ?? 0) : 0), 0);
 
   const statusCounts = STATUS_ORDER.reduce<Record<string,number>>((acc,s) => {
     acc[s] = visible.filter(j => j.status === s).length; return acc;
@@ -499,6 +505,30 @@ export default function PipelineClient() {
           className={`text-[10px] font-condensed uppercase tracking-widest px-3 py-1 rounded transition-colors ${view==="table" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60"}`}>
           Summary table
         </button>
+      </div>
+
+      {/* Capacity cutoff controls */}
+      <div className="flex items-center gap-4 mb-3 text-[10px] text-white/40 font-condensed">
+        <span className="uppercase tracking-widest">Count hours through:</span>
+        <label className="flex items-center gap-1.5">
+          <span className="text-amber-400/70 uppercase tracking-widest">Shop</span>
+          <select value={shopCutoff} onChange={e => setShopCutoff(e.target.value)}
+            className="bg-white/5 border border-white/10 text-white/70 text-[10px] rounded px-2 py-0.5 cursor-pointer focus:outline-none focus:border-[#f08122]/40">
+            {STATUS_ORDER.filter(s=>s!=="cancelled").map(s =>
+              <option key={s} value={s} className="bg-[#1a1a1a]">{STATUS_LABEL[s]}</option>
+            )}
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5">
+          <span className="text-blue-400/70 uppercase tracking-widest">Install</span>
+          <select value={installCutoff} onChange={e => setInstallCutoff(e.target.value)}
+            className="bg-white/5 border border-white/10 text-white/70 text-[10px] rounded px-2 py-0.5 cursor-pointer focus:outline-none focus:border-[#f08122]/40">
+            {STATUS_ORDER.filter(s=>s!=="cancelled").map(s =>
+              <option key={s} value={s} className="bg-[#1a1a1a]">{STATUS_LABEL[s]}</option>
+            )}
+          </select>
+        </label>
+        <span className="text-white/20">· jobs past cutoff show hours in table but excluded from totals</span>
       </div>
 
       {/* Summary table view */}
@@ -642,7 +672,9 @@ export default function PipelineClient() {
                       : <EditableNumber value={job.box_count} onSave={v => patchJob(job.id, {box_count:v})} />}
                   </td>
                   <td className="px-2 py-2 text-right">
-                    <EditableNumber value={job.shop_hrs} suffix="h" onSave={v => patchJob(job.id, {shop_hrs:v})} />
+                    <span className={countShop(job) ? "" : "opacity-30 line-through"}>
+                      <EditableNumber value={job.shop_hrs} suffix="h" onSave={v => patchJob(job.id, {shop_hrs:v})} />
+                    </span>
                   </td>
                   <td className="px-2 py-2 min-w-[90px]">
                     <EditableSelect value={job.install_type} options={INSTALL_TYPE_OPTIONS} onSave={v => patchJob(job.id, {install_type:v})} />
@@ -650,7 +682,7 @@ export default function PipelineClient() {
                   <td className="px-2 py-2 text-right">
                     {job.install_type === "delivery_only"
                       ? <span className="text-white/20 text-[9px]">n/a</span>
-                      : <EditableNumber value={job.install_hrs} suffix="h" onSave={v => patchJob(job.id, {install_hrs:v})} />}
+                      : <span className={countInstall(job) ? "" : "opacity-30 line-through"}><EditableNumber value={job.install_hrs} suffix="h" onSave={v => patchJob(job.id, {install_hrs:v})} /></span>}
                   </td>
                   <td className="px-2 py-2 min-w-[90px]">
                     <EditableDate value={job.anticipated_delivery ?? job.delivery_date} onSave={v => patchJob(job.id, {delivery_date:v})} />
