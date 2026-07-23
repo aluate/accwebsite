@@ -609,18 +609,33 @@ export default function PipelineClient() {
             <span className="text-amber-400/80">{jobs.reduce((s,j)=>s+(j.shop_hrs??0),0) > 0 ? jobs.reduce((s,j)=>s+(j.shop_hrs??0),0).toFixed(0)+"h shop" : <span className="text-white/20">no shop hrs</span>}</span>
           </div>
         </button>
-        {monthBuckets.map(b => (
-          <button key={b.key} onClick={() => setFilterMonth(b.key === filterMonth ? "all" : b.key)}
-            className={`rounded-xl px-4 py-3 text-left transition-all border ${filterMonth===b.key ? "border-[#f08122]/60 bg-[#f08122]/10" : "border-white/10 bg-[#1a1b1c] hover:border-white/25"}`}>
-            <div className="text-[9px] font-condensed uppercase tracking-widest text-white/40 mb-1">{b.key} · {b.count}</div>
-            <div className="flex gap-3 text-xs tabular-nums flex-wrap">
-              <span className="text-white font-semibold">{fmt$(b.value)}</span>
-              <span className="text-white/50">{b.boxes} <span className="text-white/25">box</span></span>
-              {b.shopHrs > 0 && <span className="text-amber-400/70">{b.shopHrs.toFixed(0)}h shop</span>}
-              {b.installHrs > 0 && <span className="text-blue-400/70">{b.installHrs.toFixed(0)}h inst</span>}
-            </div>
-          </button>
-        ))}
+        {monthBuckets.map(b => {
+          const shopOver3k = b.shopHrs > 3000;
+          const shopOver2100 = b.shopHrs > 2100;
+          const shopOver1800 = b.shopHrs >= 1800;
+          const shopCls = shopOver2100 ? "text-red-400" : shopOver1800 ? "text-amber-400" : "text-amber-400/70";
+          const borderCls = filterMonth===b.key ? "border-[#f08122]/60 bg-[#f08122]/10"
+            : shopOver2100 ? "border-red-500/40 bg-red-950/20 hover:border-red-500/60"
+            : shopOver1800 ? "border-amber-500/40 bg-amber-950/20 hover:border-amber-500/60"
+            : "border-white/10 bg-[#1a1b1c] hover:border-white/25";
+          return (
+            <button key={b.key} onClick={() => setFilterMonth(b.key === filterMonth ? "all" : b.key)}
+              className={`rounded-xl px-4 py-3 text-left transition-all border ${borderCls}`}>
+              <div className="text-[9px] font-condensed uppercase tracking-widest text-white/40 mb-1">{b.key} · {b.count}</div>
+              <div className="flex gap-3 text-xs tabular-nums flex-wrap">
+                <span className="text-white font-semibold">{fmt$(b.value)}</span>
+                <span className="text-white/50">{b.boxes} <span className="text-white/25">box</span></span>
+                {b.shopHrs > 0 && (
+                  <span className={`${shopCls} ${shopOver3k ? "font-bold" : ""}`}>
+                    {b.shopHrs.toFixed(0)}h shop
+                    {shopOver3k && <span className="ml-1 text-[9px]">— verify w/ commercial</span>}
+                  </span>
+                )}
+                {b.installHrs > 0 && <span className="text-blue-400/70">{b.installHrs.toFixed(0)}h inst</span>}
+              </div>
+            </button>
+          );
+        })}
       </div>}
 
       {/* Totals bar for filtered view */}
