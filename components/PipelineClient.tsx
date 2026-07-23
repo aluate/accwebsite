@@ -35,6 +35,15 @@ function installTypeLabel(v: string | null) {
 function fmt$(n: number) {
   return "$" + Math.round(n).toLocaleString();
 }
+const PRE_ENG = new Set(["intake","bid","design","field_dims"]);
+function engWarnWeeks(deliveryDate: string | null, status: string): number | null {
+  if (!deliveryDate || !PRE_ENG.has(status)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const delivery = new Date(deliveryDate + "T12:00:00Z");
+  const w = Math.ceil((delivery.getTime() - today.getTime()) / (7 * 86400000));
+  return w <= 8 ? w : null;
+}
+
 function monthKey(dateStr: string | null): string {
   if (!dateStr) return "No date";
   const d = new Date(dateStr + "T12:00:00");
@@ -449,6 +458,8 @@ export default function PipelineClient() {
   const totalShop    = visible.reduce((s,j) => s + (countShop(j) ? (j.shop_hrs ?? 0) : 0), 0);
   const totalInstall = visible.reduce((s,j) => s + (countInstall(j) ? (j.install_hrs ?? 0) : 0), 0);
 
+  const engWarnJobs = jobs.filter(j => engWarnWeeks(j.anticipated_delivery ?? j.delivery_date, j.status) !== null);
+
   const statusCounts = STATUS_ORDER.reduce<Record<string,number>>((acc,s) => {
     const base = filterMonth !== "all" ? jobs.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth) : jobs;
     acc[s] = base.filter(j => j.status === s).length; return acc;
@@ -532,6 +543,17 @@ export default function PipelineClient() {
         </label>
         <span className="text-white/20">· jobs past cutoff show hours in table but excluded from totals</span>
       </div>
+
+      {/* ENG timing alert banner */}
+      {engWarnJobs.length > 0 && (
+        <div className="mb-3 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-3">
+          <span className="text-amber-400">⚠</span>
+          <span className="text-amber-300 text-[10px] font-condensed uppercase tracking-widest">
+            {engWarnJobs.length} job{engWarnJobs.length !== 1 ? "s" : ""} shipping within 8 weeks — not yet at Engineering
+          </span>
+          <span className="text-amber-400/50 text-[9px]">{engWarnJobs.map(j => j.client_name).join(" · ")}</span>
+        </div>
+      )}
 
       {/* Summary table view */}
       {view === "table" && (
@@ -661,6 +683,7 @@ export default function PipelineClient() {
                     <Link href={`/jobs/${job.id}`} className="hover:text-[#f08122] transition-colors">
                       <div className="font-medium text-white text-xs">{job.client_name}</div>
                       <div className="text-white/30 text-[9px]">{[job.job_number, job.city].filter(Boolean).join(" · ")}</div>
+                      {(() => { const w = engWarnWeeks(job.anticipated_delivery ?? job.delivery_date, job.status); return w !== null ? <div className="text-amber-400 text-[9px] mt-0.5">⚠ Ships in {w}w — needs ENG</div> : null; })()}
                     </Link>
                   </td>
                   <td className="px-2 py-2">

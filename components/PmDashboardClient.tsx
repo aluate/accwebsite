@@ -426,6 +426,18 @@ function InlinePmCell({
   );
 }
 
+const PRE_ENG_STATUSES = new Set(["intake", "bid", "design", "field_dims"]);
+const ENG_WARN_WEEKS = 8;
+
+function engWarnWeeks(deliveryDate: string | null, status: string): number | null {
+  if (!deliveryDate || !PRE_ENG_STATUSES.has(status)) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const delivery = new Date(deliveryDate + "T12:00:00Z");
+  const weeksOut = Math.ceil((delivery.getTime() - today.getTime()) / (7 * 86400000));
+  return weeksOut <= ENG_WARN_WEEKS ? weeksOut : null;
+}
+
 // ── Main component ────────────────────────────────────────────────────────────────────────────
 
 type JobState = PmJob & { _conflicts?: string[] };
@@ -460,6 +472,15 @@ export function PmDashboardClient({
 
   // Conflict map (all jobs, not just filtered)
   const conflictMap = useMemo(() => buildConflictMap(jobs), [jobs]);
+  const engWarnMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const j of jobs) {
+      const w = engWarnWeeks(j.delivery_date, j.status);
+      if (w !== null) m.set(j.id, w);
+    }
+    return m;
+  }, [jobs]);
+  const engWarnCount = useMemo(() => [...engWarnMap.values()].length, [engWarnMap]);
 
   // Filtered + sorted jobs
   const filtered = useMemo(() => {
@@ -686,7 +707,7 @@ export function PmDashboardClient({
                     key={job.id}
                     className={
                       "border-b border-white/5 hover:bg-white/[0.03] transition-colors " +
-                      (hasConflict ? "bg-red-950/20" : "")
+                      (hasConflict ? "bg-red-950/20" : engWarnMap.has(job.id) ? "bg-amber-950/20" : "")
                     }
                   >
                     {/* Job # */}
@@ -725,6 +746,11 @@ export function PmDashboardClient({
                         {hasConflict && (
                           <p className="text-red-400 text-[10px] font-condensed mt-0.5">
                             ⚠ Conflicts with {conflicts.map((c) => `#${c}`).join(", ")}
+                          </p>
+                        )}
+                        {engWarnMap.has(job.id) && (
+                          <p className="text-amber-400 text-[10px] font-condensed mt-0.5">
+                            ⚠ Ships in {engWarnMap.get(job.id)}w — needs ENG release
                           </p>
                         )}
                       </div>
