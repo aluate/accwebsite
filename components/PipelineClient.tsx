@@ -346,7 +346,7 @@ export default function PipelineClient() {
   const [pms, setPms]         = useState<Pm[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterMonth, setFilterMonth] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatuses, setFilterStatuses] = useState<string[]>([]);
   const [showAdd, setShowAdd] = useState(false);
 
   const load = useCallback(async () => {
@@ -421,7 +421,8 @@ export default function PipelineClient() {
   type MonthBucket = { key: string; value: number; boxes: number; shopHrs: number; installHrs: number; count: number };
   const monthBuckets = (() => {
     const map = new Map<string, MonthBucket>();
-    for (const j of jobs) {
+    const bucketJobs = filterStatuses.length > 0 ? jobs.filter(j => filterStatuses.includes(j.status)) : jobs;
+    for (const j of bucketJobs) {
       const key = monthKey(j.anticipated_delivery ?? j.delivery_date);
       const existing = map.get(key) ?? { key, value:0, boxes:0, shopHrs:0, installHrs:0, count:0 };
       existing.value    += j.sell_price_snapshot ?? j.estimated_value ?? 0;
@@ -439,8 +440,8 @@ export default function PipelineClient() {
   if (filterMonth !== "all") {
     visible = visible.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth);
   }
-  if (filterStatus !== "all") {
-    visible = visible.filter(j => j.status === filterStatus);
+  if (filterStatuses.length > 0) {
+    visible = visible.filter(j => filterStatuses.includes(j.status));
   }
 
   const totalValue   = visible.reduce((s,j) => s + (j.sell_price_snapshot ?? j.estimated_value ?? 0), 0);
@@ -449,7 +450,8 @@ export default function PipelineClient() {
   const totalInstall = visible.reduce((s,j) => s + (countInstall(j) ? (j.install_hrs ?? 0) : 0), 0);
 
   const statusCounts = STATUS_ORDER.reduce<Record<string,number>>((acc,s) => {
-    acc[s] = visible.filter(j => j.status === s).length; return acc;
+    const base = filterMonth !== "all" ? jobs.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth) : jobs;
+    acc[s] = base.filter(j => j.status === s).length; return acc;
   }, {});
 
   function exportCSV() {
@@ -600,14 +602,14 @@ export default function PipelineClient() {
       </div>}
 
       {/* Totals bar for filtered view */}
-      {(filterMonth !== "all" || filterStatus !== "all") && (
+      {(filterMonth !== "all" || filterStatuses.length > 0) && (
         <div className="flex gap-6 mb-4 px-4 py-2 bg-white/[0.03] rounded-lg text-xs tabular-nums border border-white/5">
           <span className="text-white/40 font-condensed uppercase tracking-widest text-[9px] mr-2 self-center">Showing {visible.length} jobs</span>
           <span className="text-white font-semibold">{fmt$(totalValue)}</span>
           <span className="text-white/60">{totalBoxes} boxes</span>
           {totalShop > 0 && <span className="text-amber-400/80">{totalShop.toFixed(0)}h shop</span>}
           {totalInstall > 0 && <span className="text-blue-400/80">{totalInstall.toFixed(0)}h install</span>}
-          <button onClick={() => { setFilterMonth("all"); setFilterStatus("all"); }}
+          <button onClick={() => { setFilterMonth("all"); setFilterStatuses([]); }}
             className="ml-auto text-white/30 hover:text-white text-[9px] font-condensed uppercase tracking-widest">Clear ✕</button>
         </div>
       )}
@@ -615,11 +617,18 @@ export default function PipelineClient() {
       {/* Status filter */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {["all",...STATUS_ORDER].map(s => {
-          const count = s === "all" ? visible.length : statusCounts[s];
+          const isAll = s === "all";
+          const active = isAll ? filterStatuses.length === 0 : filterStatuses.includes(s);
+          const count = isAll
+            ? (filterMonth !== "all" ? jobs.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth) : jobs).length
+            : statusCounts[s];
           return (
-            <button key={s} onClick={() => setFilterStatus(s === filterStatus ? "all" : s)}
-              className={`px-2.5 py-1 rounded-full text-[9px] font-condensed uppercase tracking-widest transition-colors ${filterStatus===s ? "bg-[#f08122] text-white" : "bg-white/5 text-white/40 hover:text-white"}`}>
-              {s === "all" ? `All (${count})` : `${STATUS_LABEL[s]} (${count})`}
+            <button key={s} onClick={() => {
+              if (isAll) { setFilterStatuses([]); return; }
+              setFilterStatuses(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+            }}
+              className={`px-2.5 py-1 rounded-full text-[9px] font-condensed uppercase tracking-widest transition-colors ${active ? "bg-[#f08122] text-white" : "bg-white/5 text-white/40 hover:text-white"}`}>
+              {isAll ? `All (${count})` : `${STATUS_LABEL[s]} (${count})`}
             </button>
           );
         })}
