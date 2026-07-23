@@ -2,17 +2,24 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 
-const STATUS_ORDER = ["intake","design","engineering","shop","install","complete","cancelled"];
+const STATUS_ORDER = ["intake","bid","design","field_dims","engineering","procurement","production","delivery","install","punch","complete","cancelled"];
 const STATUS_LABEL: Record<string,string> = {
-  intake:"Intake", design:"Design", engineering:"Engineering",
-  shop:"Shop", install:"Install", complete:"Complete", cancelled:"Cancelled",
+  intake:"Intake", bid:"Bid", design:"Design", field_dims:"Field Dims",
+  engineering:"Engineering", procurement:"Procurement",
+  production:"Production", delivery:"Delivery",
+  install:"Install", punch:"Punch", complete:"Complete", cancelled:"Cancelled",
 };
 const STATUS_COLOR: Record<string,string> = {
   intake:      "bg-white/10 text-white/50",
+  bid:         "bg-sky-500/20 text-sky-300",
   design:      "bg-blue-500/20 text-blue-300",
+  field_dims:  "bg-cyan-500/20 text-cyan-300",
   engineering: "bg-violet-500/20 text-violet-300",
-  shop:        "bg-amber-500/20 text-amber-300",
+  procurement: "bg-purple-500/20 text-purple-300",
+  production:  "bg-amber-500/20 text-amber-300",
+  delivery:    "bg-yellow-500/20 text-yellow-300",
   install:     "bg-orange-500/20 text-orange-300",
+  punch:       "bg-rose-500/20 text-rose-300",
   complete:    "bg-green-500/20 text-green-300",
   cancelled:   "bg-red-500/20 text-red-300",
 };
@@ -577,7 +584,7 @@ export default function PipelineClient() {
 
       {/* Status filter */}
       <div className="flex flex-wrap gap-1.5 mb-4">
-        {["all",...STATUS_ORDER.filter(s=>s!=="complete")].map(s => {
+        {["all",...STATUS_ORDER.filter(s=>s!=="complete"&&s!=="cancelled")].map(s => {
           const count = s === "all" ? visible.length : statusCounts[s];
           if (s !== "all" && count === 0) return null;
           return (
