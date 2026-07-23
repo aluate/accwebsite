@@ -46,7 +46,7 @@ async function fetchPipelineJobs(): Promise<PipelineJob[]> {
       ORDER BY occurred_at DESC
       LIMIT 1
     ) al ON true
-    WHERE j.status NOT IN ('complete')
+    WHERE j.status NOT IN ('cancelled')
     ORDER BY
       CASE j.status
         WHEN 'punch'       THEN 1
