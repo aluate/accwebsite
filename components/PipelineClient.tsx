@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 
-const STATUS_ORDER = ["intake","design","engineering","shop","install","complete"];
+const STATUS_ORDER = ["intake","design","engineering","shop","install","complete","cancelled"];
 const STATUS_LABEL: Record<string,string> = {
   intake:"Intake", design:"Design", engineering:"Engineering",
   shop:"Shop", install:"Install", complete:"Complete", cancelled:"Cancelled",
@@ -362,6 +362,7 @@ export default function PipelineClient() {
   useEffect(() => { load(); }, [load]);
 
   const [saveFlash, setSaveFlash] = useState<string | null>(null);
+  const [view, setView] = useState<"bubbles"|"table">("bubbles");
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function patchJob(jobId: string, updates: Record<string, unknown>) {
@@ -388,6 +389,19 @@ export default function PipelineClient() {
     }
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
+  }
+
+  async function deleteJob(jobId: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const r = await fetch(`/api/jobs/${jobId}`, { method: "DELETE" });
+    if (r.ok) {
+      setJobs(prev => prev.filter(j => j.id !== jobId));
+      setSaveFlash("Deleted");
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+      flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
+    } else {
+      setSaveFlash("⚠ Delete failed");
+    }
   }
 
   // Month buckets based on anticipated delivery
@@ -468,8 +482,62 @@ export default function PipelineClient() {
         </div>
       </div>
 
+      {/* View toggle */}
+      <div className="flex items-center gap-2 mb-3">
+        <button onClick={() => setView("bubbles")}
+          className={`text-[10px] font-condensed uppercase tracking-widest px-3 py-1 rounded transition-colors ${view==="bubbles" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60"}`}>
+          Bubbles
+        </button>
+        <button onClick={() => setView("table")}
+          className={`text-[10px] font-condensed uppercase tracking-widest px-3 py-1 rounded transition-colors ${view==="table" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60"}`}>
+          Summary table
+        </button>
+      </div>
+
+      {/* Summary table view */}
+      {view === "table" && (
+        <div className="mb-4 overflow-x-auto rounded-xl border border-white/10">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-white/10 text-white/40 font-condensed uppercase tracking-widest text-[9px] bg-white/[0.02]">
+                <th className="px-4 py-2.5 text-left">Month</th>
+                <th className="px-3 py-2.5 text-right">Jobs</th>
+                <th className="px-3 py-2.5 text-right">Value</th>
+                <th className="px-3 py-2.5 text-right">Boxes</th>
+                <th className="px-3 py-2.5 text-right">Shop hrs</th>
+                <th className="px-3 py-2.5 text-right">Install hrs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthBuckets.map(b => (
+                <tr key={b.key}
+                  onClick={() => setFilterMonth(filterMonth === b.key ? "all" : b.key)}
+                  className={`border-b border-white/5 cursor-pointer transition-colors hover:bg-white/[0.02] ${filterMonth===b.key ? "bg-[#f08122]/5" : ""}`}>
+                  <td className={`px-4 py-2.5 font-medium ${filterMonth===b.key ? "text-[#f08122]" : "text-white"}`}>{b.key}</td>
+                  <td className="px-3 py-2.5 text-right text-white/50 tabular-nums">{b.count}</td>
+                  <td className="px-3 py-2.5 text-right text-white font-semibold tabular-nums">{fmt$(b.value)}</td>
+                  <td className="px-3 py-2.5 text-right text-white/50 tabular-nums">{b.boxes || "—"}</td>
+                  <td className="px-3 py-2.5 text-right text-white/50 tabular-nums">{b.shopHrs > 0 ? b.shopHrs.toFixed(0)+"h" : "—"}</td>
+                  <td className="px-3 py-2.5 text-right text-white/50 tabular-nums">{b.installHrs > 0 ? b.installHrs.toFixed(0)+"h" : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-white/10 bg-white/[0.02] text-white/60 text-[10px] font-condensed">
+                <td className="px-4 py-2 font-semibold text-white">Total</td>
+                <td className="px-3 py-2 text-right">{jobs.length}</td>
+                <td className="px-3 py-2 text-right text-white font-semibold tabular-nums">{fmt$(jobs.reduce((s,j)=>s+(j.sell_price_snapshot??j.estimated_value??0),0))}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+(j.box_count??0),0)||"—"}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+(j.shop_hrs??0),0)>0 ? jobs.reduce((s,j)=>s+(j.shop_hrs??0),0).toFixed(0)+"h" : "—"}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+(j.install_hrs??0),0)>0 ? jobs.reduce((s,j)=>s+(j.install_hrs??0),0).toFixed(0)+"h" : "—"}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
+
       {/* Monthly summary strips */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      {view === "bubbles" && <div className="flex flex-wrap gap-2 mb-4">
         {/* All total */}
         <button onClick={() => setFilterMonth("all")}
           className={`rounded-xl px-4 py-3 text-left transition-all border ${filterMonth==="all" ? "border-[#f08122]/60 bg-[#f08122]/10" : "border-white/10 bg-[#1a1b1c] hover:border-white/25"}`}>
@@ -492,7 +560,7 @@ export default function PipelineClient() {
             </div>
           </button>
         ))}
-      </div>
+      </div>}
 
       {/* Totals bar for filtered view */}
       {(filterMonth !== "all" || filterStatus !== "all") && (
@@ -543,7 +611,7 @@ export default function PipelineClient() {
             </thead>
             <tbody>
               {visible.map(job => (
-                <tr key={job.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                <tr key={job.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group/row">
                   <td className="px-3 py-2.5">
                     <Link href={`/jobs/${job.id}`} className="hover:text-[#f08122] transition-colors">
                       <div className="font-medium text-white text-xs">{job.client_name}</div>
@@ -584,6 +652,11 @@ export default function PipelineClient() {
                   </td>
                   <td className="px-2 py-2 min-w-[90px]">
                     <EditableDate value={job.install_start_date} placeholder="Set start" onSave={v => patchJob(job.id, {install_start_date:v})} />
+                  </td>
+                  <td className="px-1 py-2 w-6">
+                    <button onClick={() => deleteJob(job.id, job.client_name)}
+                      className="opacity-0 group-hover/row:opacity-40 hover:!opacity-100 text-red-400 text-[11px] transition-opacity"
+                      title="Delete job">✕</button>
                   </td>
                 </tr>
               ))}
