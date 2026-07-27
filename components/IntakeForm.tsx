@@ -35,6 +35,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
   const [builderEmail, setBuilderEmail] = useState(initial?.builder_email ?? "");
   const [builderPhone, setBuilderPhone] = useState(initial?.builder_phone ?? "");
   const [builderSuggestions, setBuilderSuggestions] = useState<BuilderOption[]>([]);
+  const [savingNewBuilder, setSavingNewBuilder] = useState(false);
   const [showBuilderDropdown, setShowBuilderDropdown] = useState(false);
   const builderDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const builderRef = useRef<HTMLDivElement>(null);
@@ -59,6 +60,19 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
     setBuilderEmail(b.email ?? "");
     setBuilderPhone(b.phone ?? "");
     setBuilderSuggestions([]);
+    setShowBuilderDropdown(false);
+  }
+
+  async function saveNewBuilder() {
+    if (!builderCompany.trim()) return;
+    setSavingNewBuilder(true);
+    const id = "BILD-" + builderCompany.trim().toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/, "").slice(0, 20);
+    await fetch("/api/builders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, company: builderCompany.trim(), contact_name: builderName, email: builderEmail, phone: builderPhone, notes: "" }),
+    });
+    setSavingNewBuilder(false);
     setShowBuilderDropdown(false);
   }
 
@@ -307,7 +321,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
                 autoComplete="off"
                 className={INPUT}
               />
-              {showBuilderDropdown && builderSuggestions.length > 0 && (
+              {showBuilderDropdown && (
                 <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#2d2d2d] border border-white/20 rounded shadow-xl max-h-48 overflow-y-auto">
                   {builderSuggestions.map((b) => (
                     <button
@@ -320,6 +334,17 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
                       {b.contact_name && <span className="text-white/40 text-xs ml-2">· {b.contact_name}</span>}
                     </button>
                   ))}
+                  {builderCompany.trim().length > 1 && builderSuggestions.length === 0 && (
+                    <button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); saveNewBuilder(); }}
+                      disabled={savingNewBuilder}
+                      className="w-full text-left px-4 py-2.5 hover:bg-[#3d3d3d] transition-colors border-t border-white/10"
+                    >
+                      <span className="text-[#f08122] text-sm font-medium">+ Save &quot;{builderCompany.trim()}&quot; as new builder</span>
+                      <div className="text-white/30 text-xs mt-0.5">Adds to your builder contacts list</div>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

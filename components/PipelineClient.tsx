@@ -447,6 +447,8 @@ export default function PipelineClient() {
   useEffect(() => { load(); }, [load]);
 
   const [saveFlash, setSaveFlash] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<"asc"|"desc">("asc");
   const [view, setView] = useState<"bubbles"|"table">("bubbles");
   const [shopCutoff, setShopCutoff]       = useState("production");
   const [installCutoff, setInstallCutoff] = useState("install");
@@ -491,6 +493,11 @@ export default function PipelineClient() {
     }
   }
 
+  function toggleSort(col: string) {
+    if (sortBy === col) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortBy(col); setSortDir("asc"); }
+  }
+
   // Month buckets based on anticipated delivery
   const phaseIndex = (s: string) => STATUS_ORDER.indexOf(s);
   const countShop    = (j: PipelineJob) => phaseIndex(j.status) <= phaseIndex(shopCutoff);
@@ -520,6 +527,15 @@ export default function PipelineClient() {
   }
   if (filterStatuses.length > 0) {
     visible = visible.filter(j => filterStatuses.includes(j.status));
+    if (sortBy) {
+      visible = [...visible].sort((a, b) => {
+        let av = "", bv = "";
+        if (sortBy === "builder") { av = a.builder_company ?? ""; bv = b.builder_company ?? ""; }
+        else if (sortBy === "pm") { av = a.pm ?? ""; bv = b.pm ?? ""; }
+        const cmp = av.localeCompare(bv);
+        return sortDir === "asc" ? cmp : -cmp;
+      });
+    }
   }
 
   const totalValue   = visible.reduce((s,j) => s + (j.sell_price_snapshot ?? j.estimated_value ?? 0), 0);
@@ -751,7 +767,7 @@ export default function PipelineClient() {
                 <th className="text-left px-3 py-2.5">Job</th>
                 <th className="text-left px-2 py-2.5">Status</th>
                 <th className="text-left px-2 py-2.5">PM</th>
-                <th className="text-left px-2 py-2.5">Builder</th>
+                <th className="text-left px-2 py-2.5 cursor-pointer select-none hover:text-white/70 transition-colors" onClick={() => toggleSort("builder")}>Builder {sortBy==="builder" ? (sortDir==="asc"?"↑":"↓") : <span className="opacity-20">↕</span>}</th>
                 <th className="text-right px-3 py-2.5">Value</th>
                 <th className="text-right px-2 py-2.5">Boxes</th>
                 <th className="text-right px-2 py-2.5">Shop h</th>
