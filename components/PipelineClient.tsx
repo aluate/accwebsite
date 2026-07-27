@@ -422,6 +422,19 @@ export default function PipelineClient() {
     }
   }
 
+  async function deleteJob(jobId: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const r = await fetch(`/api/jobs/${jobId}`, { method: "DELETE" });
+    if (r.ok) {
+      setJobs(prev => prev.filter(j => j.id !== jobId));
+      setSaveFlash("Deleted");
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+      flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
+    } else {
+      setSaveFlash("⚠ Delete failed");
+    }
+  }
+
   // Month buckets based on anticipated delivery
   const phaseIndex = (s: string) => STATUS_ORDER.indexOf(s);
   const countShop    = (j: PipelineJob) => phaseIndex(j.status) <= phaseIndex(shopCutoff);
