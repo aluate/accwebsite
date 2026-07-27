@@ -70,6 +70,8 @@ type PipelineJob = {
   install_type: string | null;
   box_count: number | null;
   fg_boxes: FgBox[] | null;
+  builder_company: string | null;
+  builder_name: string | null;
 };
 type Pm = { id: string; name: string };
 
@@ -160,6 +162,73 @@ function EditableDate({ value, placeholder="Set date", onSave }: {
       {value || <span className="text-white/20 group-hover:text-white/40">{placeholder}</span>}
       <span className="ml-0.5 opacity-0 group-hover:opacity-30 text-[8px]">✎</span>
     </button>
+  );
+}
+
+
+function EditableBuilder({ company, name, onSave }: {
+  company: string | null; name: string | null;
+  onSave: (company: string, contactName: string) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<{company:string;contact_name:string;typical_pm:string|null}[]>([]);
+  const [saving, setSaving] = useState(false);
+  const debounce = useRef<ReturnType<typeof setTimeout>|null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!editing) return;
+    function handle(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setEditing(false); }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [editing]);
+
+  function search(val: string) {
+    setQ(val);
+    if (debounce.current) clearTimeout(debounce.current);
+    debounce.current = setTimeout(async () => {
+      const res = await fetch(`/api/builders?q=${encodeURIComponent(val)}`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+    }, 200);
+  }
+
+  async function pick(b: {company:string;contact_name:string;typical_pm:string|null}) {
+    setSaving(true);
+    await onSave(b.company, b.contact_name ?? "");
+    setSaving(false);
+    setEditing(false);
+    setQ("");
+    setResults([]);
+  }
+
+  if (!editing) return (
+    <button onClick={() => { setQ(company ?? ""); setEditing(true); }}
+      className="text-left text-[10px] text-white/60 hover:text-white group w-full truncate max-w-[110px]">
+      {company || <span className="text-white/20 group-hover:text-white/40">Set builder</span>}
+      <span className="ml-0.5 opacity-0 group-hover:opacity-30 text-[8px]">✎</span>
+    </button>
+  );
+
+  return (
+    <div ref={ref} className="relative min-w-[120px]">
+      <input autoFocus value={q} onChange={e => search(e.target.value)}
+        disabled={saving}
+        placeholder="Search builders…"
+        className="bg-white/10 border border-[#f08122]/60 rounded px-1 py-0.5 text-[10px] text-white focus:outline-none w-full" />
+      {results.length > 0 && (
+        <div className="absolute z-50 top-full left-0 mt-0.5 bg-[#1e1f20] border border-white/15 rounded shadow-xl w-48 max-h-48 overflow-y-auto">
+          {results.map(b => (
+            <button key={b.company} onClick={() => pick(b)}
+              className="w-full text-left px-2 py-1.5 text-[10px] text-white hover:bg-white/10 transition-colors">
+              <div className="font-medium">{b.company}</div>
+              {b.contact_name && <div className="text-white/40">{b.contact_name}</div>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -407,19 +476,6 @@ export default function PipelineClient() {
     }
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
-  }
-
-  async function deleteJob(jobId: string, name: string) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    const r = await fetch(`/api/jobs/${jobId}`, { method: "DELETE" });
-    if (r.ok) {
-      setJobs(prev => prev.filter(j => j.id !== jobId));
-      setSaveFlash("Deleted");
-      if (flashTimer.current) clearTimeout(flashTimer.current);
-      flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
-    } else {
-      setSaveFlash("⚠ Delete failed");
-    }
   }
 
   async function deleteJob(jobId: string, name: string) {
@@ -695,6 +751,7 @@ export default function PipelineClient() {
                 <th className="text-left px-3 py-2.5">Job</th>
                 <th className="text-left px-2 py-2.5">Status</th>
                 <th className="text-left px-2 py-2.5">PM</th>
+                <th className="text-left px-2 py-2.5">Builder</th>
                 <th className="text-right px-3 py-2.5">Value</th>
                 <th className="text-right px-2 py-2.5">Boxes</th>
                 <th className="text-right px-2 py-2.5">Shop h</th>
@@ -719,6 +776,12 @@ export default function PipelineClient() {
                   </td>
                   <td className="px-2 py-2 min-w-[90px]">
                     <EditablePm value={job.pm} pms={pms} onSave={v => patchJob(job.id, {pm:v})} />
+                  </td>
+                  <td className="px-2 py-2 min-w-[110px]">
+                    <EditableBuilder company={job.builder_company} name={job.builder_name}
+                      onSave={async (company, contactName) => {
+                        await patchJob(job.id, {builder_company: company, builder_name: contactName});
+                      }} />
                   </td>
                   <td className="px-3 py-2 text-right">
                     {job.sell_price_snapshot != null
@@ -759,13 +822,13 @@ export default function PipelineClient() {
                 </tr>
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={10} className="text-center text-white/20 py-10 text-sm">No jobs</td></tr>
+                <tr><td colSpan={11} className="text-center text-white/20 py-10 text-sm">No jobs</td></tr>
               )}
             </tbody>
             {visible.length > 0 && (
               <tfoot>
                 <tr className="border-t border-white/10 text-white/50 text-[10px] font-condensed bg-white/[0.01]">
-                  <td className="px-3 py-2" colSpan={3}>Totals — {visible.length} jobs</td>
+                  <td className="px-3 py-2" colSpan={4}>Totals — {visible.length} jobs</td>
                   <td className="px-3 py-2 text-right tabular-nums font-semibold text-white">{fmt$(totalValue)}</td>
                   <td className="px-2 py-2 text-right tabular-nums">{totalBoxes || "—"}</td>
                   <td className="px-2 py-2 text-right tabular-nums">{totalShop > 0 ? totalShop.toFixed(0)+"h" : "—"}</td>
