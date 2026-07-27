@@ -1,5 +1,31 @@
 import path from "path";
 import fs from "fs";
+import { sql } from "@/lib/db";
+
+// Catalogs stored in DB (editable from admin). Falls back to JSON file if not in DB yet.
+const DB_CATALOG_NAMES = new Set([
+  "door_styles","colors_carcass","drawer_box","hardware_pulls","edgeband",
+  "appliances","species","rooms","molding_types","molding_profiles","molding_materials",
+  "door_materials","sheens","drawer_slides","glazes","topcoats",
+  "countertop_styles","countertop_edges","countertop_materials",
+  "hardware_hinges","hardware_drawer_slides","hardware_rollout_slides",
+  "hardware_closet_rods","hardware_trash_pullouts","hardware_base_pullouts",
+  "hardware_blind_corners","hardware_shelf_clips","hardware_door_pulls",
+  "hardware_drawer_pulls","hardware_misc",
+]);
+
+/** Load a catalog from DB, falling back to the JSON file. */
+export async function loadCatalog<T>(name: string): Promise<T[]> {
+  if (DB_CATALOG_NAMES.has(name)) {
+    try {
+      const [row] = await sql<{ data: T[] }[]>`
+        SELECT data FROM catalog_libraries WHERE name = ${name}
+      `;
+      if (row?.data) return row.data as T[];
+    } catch { /* fall through to file */ }
+  }
+  return load<T>(name);
+}
 
 const DIR = path.join(process.cwd(), "data/catalogs");
 

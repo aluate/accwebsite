@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
+import { catalogs, loadCatalog } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
 
 type SpecRow    = { id: string; job_id: string; name: string; status: string; updated_at: string };
@@ -249,35 +249,54 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
+  const [
+    doorStylesData, hardwarePullsData, carcassMaterialsData, drawerBoxesData,
+    edgebandsData, roomsData, moldingTypesData, moldingProfilesData,
+    moldingMaterialsData, speciesData,
+  ] = await Promise.all([
+    loadCatalog("door_styles"),
+    loadCatalog("hardware_pulls"),
+    loadCatalog("colors_carcass"),
+    loadCatalog("drawer_box"),
+    loadCatalog("edgeband"),
+    loadCatalog("rooms"),
+    loadCatalog("molding_types"),
+    loadCatalog("molding_profiles"),
+    loadCatalog("molding_materials"),
+    loadCatalog("species"),
+  ]);
+
+  const revaAccessories = await (async () => {
+    const rows = await sql<{id:string;name:string;brand:string;series:string|null;category:string;width_options:string|null;finish_opts:string|null;hand:string|null;image_url:string|null;price_slp:number|null;price_date:string|null;notes:string|null;active:boolean}[]>`
+      SELECT * FROM accessories_catalog WHERE active = true ORDER BY category, name
+    `;
+    return rows.map(r => ({
+      id: r.id, name: r.name, brand: r.brand, series: r.series ?? "",
+      category: r.category, width_options_in: r.width_options,
+      finish_options: r.finish_opts, hand: r.hand,
+      image_url: r.image_url ?? "", price_slp: r.price_slp != null ? String(r.price_slp) : "",
+      price_date: r.price_date != null ? String(r.price_date).slice(0, 10) : "", notes: r.notes ?? "",
+    }));
+  })();
+
   const catalogData = {
     paintColors:      catalogs.paintColors(),
     stainColors:      catalogs.stainColors(),
     melamineColors:   catalogs.melamineColors(),
-    doorStyles:       catalogs.doorStyles(),
-    hardwarePulls:    catalogs.hardwarePulls(),
-    revaAccessories:  await (async () => {
-      const rows = await sql<{id:string;name:string;brand:string;series:string|null;category:string;width_options:string|null;finish_opts:string|null;hand:string|null;image_url:string|null;price_slp:number|null;price_date:string|null;notes:string|null;active:boolean}[]>`
-        SELECT * FROM accessories_catalog WHERE active = true ORDER BY category, name
-      `;
-      return rows.map(r => ({
-        id: r.id, name: r.name, brand: r.brand, series: r.series ?? "",
-        category: r.category, width_options_in: r.width_options,
-        finish_options: r.finish_opts, hand: r.hand,
-        image_url: r.image_url ?? "", price_slp: r.price_slp != null ? String(r.price_slp) : "",
-        price_date: r.price_date != null ? String(r.price_date).slice(0, 10) : "", notes: r.notes ?? "",
-      }));
-    })(),
+    doorStyles:       doorStylesData,
+    hardwarePulls:    hardwarePullsData,
+    revaAccessories,
     cabinetFamilies:  catalogs.cabinetFamilies(),
-    carcassMaterials: catalogs.carcassMaterials(),
-    drawerBoxes:      catalogs.drawerBoxes(),
-    edgebands:        catalogs.edgebands(),
-    rooms:            catalogs.rooms(),
-    moldingTypes:     catalogs.moldingTypes(),
-    moldingProfiles:  catalogs.moldingProfiles(),
-    moldingMaterials: catalogs.moldingMaterials(),
+    carcassMaterials: carcassMaterialsData,
+    drawerBoxes:      drawerBoxesData,
+    edgebands:        edgebandsData,
+    rooms:            roomsData,
+    moldingTypes:     moldingTypesData,
+    moldingProfiles:  moldingProfilesData,
+    moldingMaterials: moldingMaterialsData,
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
     cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
-    species:          catalogs.species(),
+    species:          speciesData,
     cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 
