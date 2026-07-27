@@ -744,7 +744,7 @@ export default function PipelineClient() {
                       : <span className={countInstall(job) ? "" : "opacity-30 line-through"}><EditableNumber value={job.install_hrs} suffix="h" onSave={v => patchJob(job.id, {install_hrs:v})} /></span>}
                   </td>
                   <td className="px-2 py-2 min-w-[90px]">
-                    <EditableDate value={job.anticipated_delivery ?? job.delivery_date} onSave={v => patchJob(job.id, {delivery_date:v})} />
+                    <EditableDate value={job.anticipated_delivery ?? job.delivery_date} onSave={v => patchJob(job.id, {anticipated_delivery:v})} />
                     {job.anticipated_delivery && job.anticipated_delivery !== job.delivery_date &&
                       <div className="text-white/20 text-[8px]">sched</div>}
                   </td>
