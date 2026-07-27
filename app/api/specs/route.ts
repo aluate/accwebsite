@@ -33,9 +33,17 @@ export async function POST(req: NextRequest) {
       default_carcass_id: string | null; default_drawer_box_id: string | null;
       default_pull_id: string | null;
     }[]>`
-      SELECT id, builder_name, default_finish_type, default_carcass_id,
+      SELECT id,
+             COALESCE(company, builder_name) AS builder_name,
+             default_finish_type, default_carcass_id,
+             default_drawer_box_id, default_pull_id
+      FROM builders WHERE id = ${profileId} AND active = 1
+      UNION ALL
+      SELECT id, builder_name,
+             default_finish_type, default_carcass_id,
              default_drawer_box_id, default_pull_id
       FROM catalog_builder_profiles WHERE id = ${profileId}
+      LIMIT 1
     `;
     if (profile) {
       const fgId = uid();

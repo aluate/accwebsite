@@ -12,7 +12,7 @@ export async function GET() {
         j.job_number, j.pm, j.delivery_date, j.install_start_date,
         j.install_type, j.created_at, j.seq,
         j.estimated_value,
-        j.builder_company, j.builder_name,
+        j.builder_id, j.builder_company, j.builder_name,
         j.shop_hrs, j.install_hrs,
         e.id                       AS estimate_id,
         e.sell_price_snapshot,

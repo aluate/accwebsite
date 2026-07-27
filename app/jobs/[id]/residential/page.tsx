@@ -27,25 +27,49 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
   // Always use the canonical internal id for subsequent queries
   const jobId = job.id;
 
-  // Look up builder profile from DB — match by builder_company or fall back to walk-in default
+  // Look up builder from unified builders table
+  // Priority: builder_id FK → company name match → residential default
   type BPRow = { id: string; builder_name: string; is_residential_default: boolean };
   let builderProfile: BPRow | null = null;
   try {
-    if (job.builder_company?.trim()) {
-      const wanted = job.builder_company.trim().toLowerCase();
+    if ((job as Record<string,unknown>).builder_id) {
       const [match] = await sql<BPRow[]>`
-        SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
-        WHERE LOWER(COALESCE(builder_company, '')) = ${wanted}
-        LIMIT 1
+        SELECT id, company AS builder_name, is_residential_default FROM builders
+        WHERE id = ${(job as Record<string,unknown>).builder_id as string} LIMIT 1
       `;
       builderProfile = match ?? null;
     }
+    if (!builderProfile && job.builder_company?.trim()) {
+      const wanted = job.builder_company.trim().toLowerCase();
+      const [match] = await sql<BPRow[]>`
+        SELECT id, company AS builder_name, is_residential_default FROM builders
+        WHERE LOWER(company) = ${wanted} AND active = 1 LIMIT 1
+      `;
+      // fallback to catalog_builder_profiles for legacy data
+      if (!match) {
+        const [legacy] = await sql<BPRow[]>`
+          SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
+          WHERE LOWER(COALESCE(builder_company, '')) = ${wanted} LIMIT 1
+        `;
+        builderProfile = legacy ?? null;
+      } else {
+        builderProfile = match;
+      }
+    }
     if (!builderProfile) {
       const [def] = await sql<BPRow[]>`
-        SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
-        WHERE is_residential_default = true LIMIT 1
+        SELECT id, company AS builder_name, is_residential_default FROM builders
+        WHERE is_residential_default = 1 AND active = 1 LIMIT 1
       `;
-      builderProfile = def ?? null;
+      if (!def) {
+        const [legacy] = await sql<BPRow[]>`
+          SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
+          WHERE is_residential_default = true LIMIT 1
+        `;
+        builderProfile = legacy ?? null;
+      } else {
+        builderProfile = def;
+      }
     }
   } catch { /* table may not exist yet */ }
   const builderProfileId = builderProfile?.id ?? null;

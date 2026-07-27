@@ -36,6 +36,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
   const [builderPhone, setBuilderPhone] = useState(initial?.builder_phone ?? "");
   const [builderSuggestions, setBuilderSuggestions] = useState<BuilderOption[]>([]);
   const [savingNewBuilder, setSavingNewBuilder] = useState(false);
+  const [builderId, setBuilderId] = useState<string | null>(initial?.builder_id as string ?? null);
   const [showBuilderDropdown, setShowBuilderDropdown] = useState(false);
   const builderDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const builderRef = useRef<HTMLDivElement>(null);
@@ -55,6 +56,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
   }, []);
 
   function applyBuilder(b: BuilderOption) {
+    setBuilderId(b.id);
     setBuilderCompany(b.company);
     setBuilderName(b.contact_name ?? "");
     setBuilderEmail(b.email ?? "");
@@ -164,6 +166,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       site_address:     addressValue || fd.get("site_address"),
       city:             cityValue || fd.get("city"),
       pm:               fd.get("pm"),
+      builder_id:       builderId,
       builder_name:     builderName,
       builder_email:    builderEmail,
       builder_phone:    builderPhone,

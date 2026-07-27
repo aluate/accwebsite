@@ -72,6 +72,7 @@ type PipelineJob = {
   fg_boxes: FgBox[] | null;
   builder_company: string | null;
   builder_name: string | null;
+  builder_id: string | null;
 };
 type Pm = { id: string; name: string };
 
@@ -166,9 +167,9 @@ function EditableDate({ value, placeholder="Set date", onSave }: {
 }
 
 
-function EditableBuilder({ company, name, onSave }: {
-  company: string | null; name: string | null;
-  onSave: (company: string, contactName: string) => Promise<void>;
+function EditableBuilder({ company, name, builderId, onSave }: {
+  company: string | null; name: string | null; builderId: string | null;
+  onSave: (id: string, company: string, contactName: string) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [q, setQ] = useState("");
@@ -194,9 +195,9 @@ function EditableBuilder({ company, name, onSave }: {
     }, 200);
   }
 
-  async function pick(b: {company:string;contact_name:string;typical_pm:string|null}) {
+  async function pick(b: {id:string;company:string;contact_name:string;typical_pm:string|null}) {
     setSaving(true);
-    await onSave(b.company, b.contact_name ?? "");
+    await onSave(b.id, b.company, b.contact_name ?? "");
     setSaving(false);
     setEditing(false);
     setQ("");
@@ -794,9 +795,9 @@ export default function PipelineClient() {
                     <EditablePm value={job.pm} pms={pms} onSave={v => patchJob(job.id, {pm:v})} />
                   </td>
                   <td className="px-2 py-2 min-w-[110px]">
-                    <EditableBuilder company={job.builder_company} name={job.builder_name}
-                      onSave={async (company, contactName) => {
-                        await patchJob(job.id, {builder_company: company, builder_name: contactName});
+                    <EditableBuilder company={job.builder_company} name={job.builder_name} builderId={job.builder_id}
+                      onSave={async (id, company, contactName) => {
+                        await patchJob(job.id, {builder_id: id, builder_company: company, builder_name: contactName});
                       }} />
                   </td>
                   <td className="px-3 py-2 text-right">
