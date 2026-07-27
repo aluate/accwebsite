@@ -3,19 +3,10 @@
  * Seeds the `builders` contacts table from `catalog_builder_profiles`.
  * Safe to run multiple times — uses ON CONFLICT DO NOTHING.
  *
- * Usage:
+ * Usage (from acc-website folder):
  *   node scripts/seed-builders-from-profiles.mjs
- *
- * Requires DATABASE_URL in .env or environment.
  */
-import { config } from "dotenv";
-import postgres from "postgres";
-import { randomBytes } from "crypto";
-
-config({ path: ".env" });
-config({ path: ".env.local" });
-
-const sql = postgres(process.env.DATABASE_URL, { ssl: "require" });
+import { sql } from "./_db.mjs";
 
 const profiles = await sql`
   SELECT builder_name, builder_company, notes
