@@ -9,6 +9,7 @@ import { AddEventForm } from "@/components/AddEventForm";
 
 type JobMini = {
   id: string;
+  job_number?: string | null;
   client_name: string;
   site_address: string;
   city: string | null;
@@ -1232,12 +1233,18 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         <div className="h-1.5 w-full" style={{ background: col.bar }} />
         <div className="p-5 space-y-4">
           <div>
-            <p className="text-[#f08122] text-xs font-condensed uppercase tracking-widest mb-0.5">{ev.job_id}</p>
+            <p className="text-[#f08122] text-xs font-condensed uppercase tracking-widest mb-0.5">{job?.job_number ? `#${job.job_number}` : ev.job_id}</p>
             <p className="text-white text-xl font-heading uppercase tracking-wide leading-tight">
               {ev.job_client_name ?? ev.job_id}
             </p>
             {ev.description && (
               <p className="text-white/50 text-xs font-condensed mt-1 italic">{ev.description}</p>
+            )}
+            {ev.note && (
+              <div className="mt-2 bg-[#f08122]/10 border border-[#f08122]/20 rounded px-3 py-2">
+                <p className="text-[10px] font-condensed uppercase tracking-widest text-[#f08122]/70 mb-0.5">Note</p>
+                <p className="text-white/80 text-sm leading-snug">{ev.note}</p>
+              </div>
             )}
           </div>
           <div className="bg-[#111] rounded-lg px-4 py-3 space-y-1.5">

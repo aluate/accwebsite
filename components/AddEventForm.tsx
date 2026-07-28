@@ -173,6 +173,7 @@ export function AddEventForm({
   const [deleteState,  setDeleteState]  = useState<"idle" | "confirm" | "deleting">("idle");
   const [errorMsg,     setErrorMsg]     = useState("");
   const [conflicts,    setConflicts]    = useState<JobEventWithJoins[]>([]);
+  const [savedEvent,   setSavedEvent]   = useState<JobEventWithJoins | null>(null);
 
   // When event type changes in add mode, suggest a duration.
   // For installs: if the selected job has an estimate snapshot, derive duration
@@ -268,6 +269,7 @@ export function AddEventForm({
         return;
       }
       setConflicts(body.conflicts ?? []);
+      if (body.event) setSavedEvent(body.event);
       setSubmitState("ok");
       if ((body.conflicts ?? []).length === 0) {
         if (mode === "edit") {
@@ -304,7 +306,7 @@ export function AddEventForm({
   }
 
   function acceptWithWarnings() {
-    onCreated({} as JobEventWithJoins);
+    if (savedEvent) onCreated(savedEvent);
     onClose();
   }
 
