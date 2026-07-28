@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PunchListPanel } from "@/components/PunchListPanel";
 import Link from "next/link";
 import { getBuilder } from "@/lib/auth";
 import { sql } from "@/lib/db";
@@ -182,33 +183,9 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
         )}
       </section>
 
-      {/* Punch items */}
+      {/* Punch items — interactive: installers can add + complete */}
       <section>
-        <h2 className="text-white/30 font-condensed uppercase tracking-[0.2em] text-xs mb-3">
-          Punch List {punchItems.length > 0 && `(${openPunch.length} open)`}
-        </h2>
-        {punchItems.length === 0 ? (
-          <p className="text-white/20 text-sm italic">No punch items.</p>
-        ) : (
-          <div className="space-y-2">
-            {openPunch.map((p) => (
-              <div key={p.id} className="bg-red-900/20 border border-red-700/30 rounded-xl p-3">
-                <div className="flex items-start gap-2">
-                  <span className="text-red-400 text-xs font-condensed uppercase tracking-wider shrink-0 mt-0.5">Open</span>
-                  <p className="text-white text-sm">{p.description}</p>
-                </div>
-              </div>
-            ))}
-            {resolvedPunch.map((p) => (
-              <div key={p.id} className="bg-white/5 border border-white/5 rounded-xl p-3 opacity-50">
-                <div className="flex items-start gap-2">
-                  <span className="text-green-400 text-xs font-condensed uppercase tracking-wider shrink-0 mt-0.5">Done</span>
-                  <p className="text-white/60 text-sm line-through">{p.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <PunchListPanel jobId={job.id} role="installer" />
       </section>
 
 

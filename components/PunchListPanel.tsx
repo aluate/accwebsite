@@ -470,7 +470,7 @@ export function PunchListPanel({
   role,
 }: {
   jobId: string;
-  role: "admin" | "pm" | "engineer" | "shop" | "installer";
+  role: "admin" | "karl" | "pm" | "engineer" | "shop" | "installer";
 }) {
   const [items, setItems] = useState<PunchItem[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -478,7 +478,8 @@ export function PunchListPanel({
   const [error, setError] = useState("");
 
   const isInstaller = role === "installer";
-  const canEdit = role === "admin" || role === "pm";
+  const canManage = role === "admin" || role === "karl" || role === "pm";
+  const canAdd = true; // all internal roles can create punch items
 
   const refresh = useCallback(async () => {
     try {
@@ -525,8 +526,8 @@ export function PunchListPanel({
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
-      {/* Add item (PM/admin only) */}
-      {canEdit && (
+      {/* Add item (all roles) */}
+      {canAdd && (
         <AddItemForm jobId={jobId} rooms={rooms} onAdded={refresh} />
       )}
 
@@ -534,7 +535,7 @@ export function PunchListPanel({
       {items.length === 0 && (
         <div className="text-center py-8 text-white/15 text-sm">
           No punch items yet.
-          {canEdit && " Add the first one above."}
+          {" Add the first one above."}
         </div>
       )}
 
@@ -552,7 +553,7 @@ export function PunchListPanel({
                     key={item.id}
                     item={item}
                     isInstaller={isInstaller}
-                    canEdit={canEdit}
+                    canEdit={canManage}
                     onRefresh={refresh}
                   />
                 ))}
@@ -581,7 +582,7 @@ export function PunchListPanel({
                       key={item.id}
                       item={item}
                       isInstaller={isInstaller}
-                      canEdit={canEdit}
+                      canEdit={canManage}
                       onRefresh={refresh}
                     />
                   ))}
