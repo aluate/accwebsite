@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   EVENT_TYPES,
   EVENT_TYPE_LABELS,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/schedule-types";
 import { calculateEndDate, calculateDuration, DEFAULT_DURATION } from "@/lib/schedule-utils";
 
-type JobMini = { id: string; client_name: string; site_address: string; install_labor_hrs_snapshot?: number | null };
+type JobMini = { id: string; job_number?: string | null; client_name: string; site_address: string; install_labor_hrs_snapshot?: number | null };
 
 export type AddEventFormProps = {
   crews: Crew[];
@@ -30,6 +30,106 @@ export type AddEventFormProps = {
 const LABEL  = "block text-xs font-condensed uppercase tracking-widest text-white/50 mb-1.5";
 const INPUT  = "w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors";
 const SELECT = INPUT;
+
+function jobLabel(j: JobMini) {
+  const num = j.job_number ? `#${j.job_number}` : "";
+  const addr = j.site_address?.replace(/,.*/, "").trim() || "";
+  return [num, j.client_name, addr].filter(Boolean).join(" · ");
+}
+
+function JobPicker({ jobs, value, onChange }: {
+  jobs: JobMini[];
+  value: string;
+  onChange: (id: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const selected = jobs.find(j => j.id === value);
+
+  const filtered = query.trim()
+    ? jobs.filter(j => jobLabel(j).toLowerCase().includes(query.toLowerCase()))
+    : jobs;
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  function select(id: string) {
+    onChange(id);
+    setQuery("");
+    setOpen(false);
+  }
+
+  function handleFocus() {
+    setOpen(true);
+    setQuery("");
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      {selected && !open ? (
+        <button
+          type="button"
+          onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 0); }}
+          className="w-full text-left bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white hover:border-[#f08122]/50 transition-colors flex items-center gap-2"
+        >
+          <span className="text-[#f08122] font-condensed text-xs shrink-0">
+            {selected.job_number ? `#${selected.job_number}` : ""}
+          </span>
+          <span className="flex-1 truncate">{selected.client_name}</span>
+          {selected.site_address && (
+            <span className="text-white/30 text-xs truncate max-w-[140px]">
+              {selected.site_address.replace(/,.*/, "").trim()}
+            </span>
+          )}
+          <span className="text-white/20 text-xs ml-auto shrink-0">▼</span>
+        </button>
+      ) : (
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          placeholder={selected ? jobLabel(selected) : "Type job # or name…"}
+          onFocus={handleFocus}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          className={INPUT + " placeholder:text-white/25"}
+          autoComplete="off"
+        />
+      )}
+      {open && (
+        <div className="absolute z-50 w-full mt-1 bg-[#111] border border-white/15 rounded shadow-xl max-h-60 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-xs text-white/30">No matches</div>
+          ) : filtered.map(j => (
+            <button
+              key={j.id}
+              type="button"
+              onMouseDown={() => select(j.id)}
+              className={`w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-[#f08122]/10 transition-colors ${j.id === value ? "bg-[#f08122]/10" : ""}`}
+            >
+              <span className="text-[#f08122] font-condensed text-xs w-14 shrink-0">
+                {j.job_number ? `#${j.job_number}` : ""}
+              </span>
+              <span className="text-sm text-white flex-1 truncate">{j.client_name}</span>
+              {j.site_address && (
+                <span className="text-white/30 text-xs truncate max-w-[160px]">
+                  {j.site_address.replace(/,.*/, "").trim()}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AddEventForm({
   crews, jobs, onClose, onCreated,
@@ -231,15 +331,13 @@ export function AddEventForm({
               <label className={LABEL}>Job *</label>
               {isEdit ? (
                 <p className="px-3 py-2 text-sm text-white/70 bg-[#111] border border-white/10 rounded">
-                  {initialEvent?.job_id} — {jobs.find(j => j.id === initialEvent?.job_id)?.client_name ?? initialEvent?.job_client_name ?? ""}
+                  {(() => {
+                    const j = jobs.find(j => j.id === initialEvent?.job_id);
+                    return j ? jobLabel(j) : (initialEvent?.job_client_name ?? initialEvent?.job_id ?? "—");
+                  })()}
                 </p>
               ) : (
-                <select value={jobId} onChange={(e) => setJobId(e.target.value)} className={SELECT}>
-                  <option value="">— Select Job —</option>
-                  {jobs.map((j) => (
-                    <option key={j.id} value={j.id}>{j.id} — {j.client_name}{j.site_address ? ` (${j.site_address})` : ""}</option>
-                  ))}
-                </select>
+                <JobPicker jobs={jobs} value={jobId} onChange={setJobId} />
               )}
             </div>
             <div>

@@ -21,6 +21,7 @@ import type { CrewPto } from "@/lib/schedule-types";
 
 type JobMini = {
   id: string;
+  job_number: string | null;
   client_name: string;
   site_address: string;
   install_labor_hrs_snapshot?: number | null;
@@ -59,7 +60,7 @@ export async function GET() {
     checkTime("onDeckEvents");
 
     const jobs = await sql<JobMini[]>`
-      SELECT j.id, j.client_name, j.site_address, j.city, j.client_phone, j.client_email,
+      SELECT j.id, j.job_number, j.client_name, j.site_address, j.city, j.client_phone, j.client_email,
              e.install_labor_hrs_snapshot
       FROM jobs j
       LEFT JOIN LATERAL (
