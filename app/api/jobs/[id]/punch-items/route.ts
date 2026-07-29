@@ -76,19 +76,22 @@ export async function GET(
       p.created_at
   `;
 
-  // Fetch all photos for these items in one query
+  // Fetch all photos (fault-tolerant: table may not exist yet)
   const itemIds = items.map((i) => i.id);
-  const allPhotos = itemIds.length > 0
-    ? await sql<Array<{
-        id: string; punch_item_id: string; storage_path: string;
-        media_type: string; label: string | null; sort_order: number;
-      }>>`
+  let allPhotos: Array<{
+    id: string; punch_item_id: string; storage_path: string;
+    media_type: string; label: string | null; sort_order: number;
+  }> = [];
+  if (itemIds.length > 0) {
+    try {
+      allPhotos = await sql`
         SELECT id, punch_item_id, storage_path, media_type, label, sort_order
         FROM punch_item_photos
         WHERE punch_item_id = ANY(${itemIds})
         ORDER BY sort_order, uploaded_at
-      `
-    : [];
+      `;
+    } catch { /* punch_item_photos table not yet created — legacy columns used below */ }
+  }
 
   // Generate signed URLs for all photos
   const signedPhotos = await Promise.all(
