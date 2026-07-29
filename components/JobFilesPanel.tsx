@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 
 type FileEntry = {
+  id: string;
   filename: string;
   size: number;
   uploaded_at: string;
@@ -52,14 +53,13 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  async function onDelete(fileKind: string, filename: string) {
+  async function onDelete(fileId: string, filename: string) {
     if (!isAdmin) return;
     if (!window.confirm(`Delete "${filename}"? This cannot be undone.`)) return;
     setErr("");
     setDeleting(filename);
     try {
-      const qs = `kind=${encodeURIComponent(fileKind)}&file=${encodeURIComponent(filename)}`;
-      const res = await fetch(`/api/jobs/${jobId}/files?${qs}`, { method: "DELETE" });
+      const res = await fetch(`/api/jobs/${jobId}/files?file_id=${encodeURIComponent(fileId)}`, { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         setErr(body.error ?? "Delete failed");
@@ -187,7 +187,7 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
                       {isAdmin && (
                         <button
                           type="button"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(k.key, f.filename); }}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(f.id, f.filename); }}
                           disabled={deleting === f.filename}
                           title="Delete file (admin only)"
                           className="ml-3 text-red-400/40 hover:text-red-400 text-[10px] font-condensed uppercase tracking-widest shrink-0 disabled:opacity-30"

@@ -480,6 +480,16 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_punch_items_job    ON punch_list_items(job_id);
     CREATE INDEX IF NOT EXISTS idx_punch_items_room   ON punch_list_items(room_id);
     CREATE INDEX IF NOT EXISTS idx_punch_items_status ON punch_list_items(job_id, status);
+    CREATE TABLE IF NOT EXISTS punch_item_photos (
+      id              TEXT PRIMARY KEY,
+      punch_item_id   TEXT NOT NULL REFERENCES punch_list_items(id) ON DELETE CASCADE,
+      storage_path    TEXT NOT NULL,
+      media_type      TEXT NOT NULL DEFAULT 'photo',
+      label           TEXT,
+      sort_order      INTEGER NOT NULL DEFAULT 0,
+      uploaded_at     TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_punch_photos_item ON punch_item_photos(punch_item_id);
   `);
 
   // ── Transition emails table (idempotent) ───────────────────────────────────
