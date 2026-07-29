@@ -365,6 +365,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const [filterCrewId, setFilterCrewId] = useState<string | null>(null);
   const [selectedEvent,  setSelectedEvent]  = useState<JobEventWithJoins | null>(null);
   const [editingEvent,   setEditingEvent]   = useState<JobEventWithJoins | null>(null);
+  const [duplicatingEvent, setDuplicatingEvent] = useState<JobEventWithJoins | null>(null);
   const [mobileWeekStart, setMobileWeekStart] = useState<string>(() => isoWeekStart(initialToday));
 
   const [draggingId,    setDraggingId]    = useState<string | null>(null);
@@ -1215,6 +1216,25 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
           }}
         />
       )}
+
+      {/* Duplicate event form — same job/type/crew/duration, blank dates */}
+      {duplicatingEvent && isAdmin && (
+        <AddEventForm
+          mode="add"
+          initialEvent={{ ...duplicatingEvent, id: "", date_start: null, date_end: null }}
+          crews={crews}
+          jobs={jobs}
+          onClose={() => setDuplicatingEvent(null)}
+          onCreated={(ev) => {
+            if (ev.date_start) {
+              setForwardEvents((prev) => [...prev, ev]);
+            } else {
+              setOnDeckEvents((prev) => [...prev, ev]);
+            }
+            setDuplicatingEvent(null);
+          }}
+        />
+      )}
 {/* ── Job detail modal ─────────────────────────────────────────────── */}
 {selectedEvent && (() => {
   const ev  = selectedEvent;
@@ -1310,12 +1330,18 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
             </div>
           )}
           {isAdmin && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => { setEditingEvent(ev); setSelectedEvent(null); }}
                 className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white font-condensed uppercase tracking-widest text-xs py-2.5 rounded-lg transition-colors"
               >
                 ✏ Edit
+              </button>
+              <button
+                onClick={() => { setDuplicatingEvent(ev); setSelectedEvent(null); }}
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white font-condensed uppercase tracking-widest text-xs py-2.5 rounded-lg transition-colors"
+              >
+                ⧉ Copy
               </button>
               <button
                 onClick={async () => {
