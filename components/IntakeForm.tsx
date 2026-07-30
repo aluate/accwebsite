@@ -37,6 +37,8 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
   const [builderSuggestions, setBuilderSuggestions] = useState<BuilderOption[]>([]);
   const [savingNewBuilder, setSavingNewBuilder] = useState(false);
   const [builderId, setBuilderId] = useState<string | null>(initial?.builder_id as string ?? null);
+  const [openPlaceholders, setOpenPlaceholders] = useState<{id: string; client_name: string; placeholder_unit_count: number; placeholder_per_unit_value: number}[]>([]);
+  const [selectedPlaceholderId, setSelectedPlaceholderId] = useState<string | null>(null);
   const [showBuilderDropdown, setShowBuilderDropdown] = useState(false);
   const builderDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const builderRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,12 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
     setBuilderPhone(b.phone ?? "");
     setBuilderSuggestions([]);
     setShowBuilderDropdown(false);
+    setSelectedPlaceholderId(null);
+    // Fetch open placeholders for this builder
+    fetch(`/api/jobs?builder_id=${encodeURIComponent(b.id)}&is_placeholder=true`)
+      .then(r => r.json())
+      .then(d => setOpenPlaceholders(Array.isArray(d.jobs) ? d.jobs.filter((j: {status: string}) => j.status !== "complete" && j.status !== "cancelled") : []))
+      .catch(() => setOpenPlaceholders([]));
   }
 
   async function saveNewBuilder() {
@@ -167,6 +175,7 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
       city:             cityValue || fd.get("city"),
       pm:               fd.get("pm"),
       builder_id:       builderId,
+      placeholder_id:   selectedPlaceholderId,
       builder_name:     builderName,
       builder_email:    builderEmail,
       builder_phone:    builderPhone,
@@ -366,6 +375,35 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
           </div>
         </div>
       </div>
+
+      {/* Placeholder link banner */}
+      {openPlaceholders.length > 0 && (
+        <div className="mb-8 p-4 bg-orange-950/30 border border-orange-500/30 rounded-lg">
+          <p className="text-orange-400 font-condensed uppercase tracking-widest text-xs mb-2">
+            ⬡ This builder has open placeholders — link this job?
+          </p>
+          <select
+            value={selectedPlaceholderId ?? ""}
+            onChange={e => setSelectedPlaceholderId(e.target.value || null)}
+            className="w-full bg-[#1d1d1d] border border-orange-500/30 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-400 transition-colors appearance-none"
+          >
+            <option value="">— No, don&apos;t link to a placeholder</option>
+            {openPlaceholders.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.client_name}
+                {p.placeholder_unit_count ? ` (${p.placeholder_unit_count} units` : ""}
+                {p.placeholder_per_unit_value ? `, $${Math.round(p.placeholder_per_unit_value).toLocaleString()}/unit` : ""}
+                {p.placeholder_unit_count ? ")" : ""}
+              </option>
+            ))}
+          </select>
+          {selectedPlaceholderId && (
+            <p className="text-orange-300/60 text-[10px] font-condensed mt-1.5">
+              This job will count against that placeholder&apos;s remaining units when saved.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Modules */}
       <div className={SECTION}>

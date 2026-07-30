@@ -19,6 +19,7 @@ import { JobConstraintsPanel } from "@/components/JobConstraintsPanel";
 import { JobActionButtons } from "@/components/JobActionButtons";
 import { InvoicePanel } from "@/components/InvoicePanel";
 import { DeleteJobButton } from "@/components/DeleteJobButton";
+import { PlaceholderLinkPanel } from "@/components/PlaceholderLinkPanel";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
@@ -76,6 +77,8 @@ type Job = {
   builder_phone: string; builder_company: string;
   delivery_date: string; notes: string;
   mod_residential: boolean; mod_commercial: boolean; mod_trim: boolean; mod_doors: boolean;
+  builder_id: string | null;
+  placeholder_id: string | null;
 };
 
 type JobEvent = {
@@ -253,6 +256,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             jobId={internalId}
             canEdit={isAdmin || (session.role === "pm" && session.email === job.pm)}
           />
+
+          {job.builder_id && (isAdmin || session.role === "pm") && (
+            <PlaceholderLinkPanel
+              jobId={internalId}
+              builderId={job.builder_id}
+              existingPlaceholderId={job.placeholder_id ?? null}
+            />
+          )}
         </div>
 
         <div className="md:col-span-2 space-y-4">

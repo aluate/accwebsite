@@ -1147,6 +1147,16 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_jobs_innergy_opportunity_id ON jobs (innergy_opportunity_id) WHERE innergy_opportunity_id IS NOT NULL`;
   console.log("jobs innergy columns OK");
 
+  // ── jobs: placeholder forecast columns ──────────────────────────────────────
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS is_placeholder BOOLEAN DEFAULT FALSE`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_unit_count INTEGER DEFAULT 1`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_per_unit_value NUMERIC DEFAULT 0`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_per_unit_boxes INTEGER DEFAULT 0`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_per_unit_shop_hrs NUMERIC DEFAULT 0`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_per_unit_install_hrs NUMERIC DEFAULT 0`; } catch {}
+  try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_id TEXT REFERENCES jobs(id) ON DELETE SET NULL`; } catch {}
+  console.log("jobs placeholder columns OK");
+
   console.log("Schema push complete.");
   await sql.end();
 }

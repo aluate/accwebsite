@@ -30,6 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     "install_type", "install_start_date", "install_duration_days",
     "bid_number", "estimated_value", "pm_complexity", "box_count", "wo_count",
     "shop_hrs", "install_hrs", "anticipated_delivery", "builder_id",
+    "placeholder_id",
   ];
 
   const fields = Object.keys(body).filter((k) => allowed.includes(k));
@@ -69,6 +70,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       actor, actorRole,
       payload: { fields },
     }).catch(() => {});
+  }
+
+  // Auto-complete placeholder when all units are consumed
+  if ("placeholder_id" in updates && updates.placeholder_id) {
+    const phId = updates.placeholder_id as string;
+    const [ph] = await sql`SELECT placeholder_unit_count FROM jobs WHERE id = ${phId}` as Array<{ placeholder_unit_count: number }>;
+    if (ph) {
+      const [{ linked_count }] = await sql`SELECT COUNT(*) AS linked_count FROM jobs WHERE placeholder_id = ${phId}` as Array<{ linked_count: string }>;
+      if (Number(linked_count) >= ph.placeholder_unit_count) {
+        await sql`UPDATE jobs SET status = 'complete' WHERE id = ${phId}`;
+      }
+    }
   }
 
   // On status change, re-sync win-probability to Innergy (fire-and-forget)

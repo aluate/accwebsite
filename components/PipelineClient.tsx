@@ -73,8 +73,18 @@ type PipelineJob = {
   builder_company: string | null;
   builder_name: string | null;
   builder_id: string | null;
+  // Placeholder fields
+  is_placeholder: boolean;
+  placeholder_unit_count: number | null;
+  placeholder_per_unit_value: number | null;
+  placeholder_per_unit_boxes: number | null;
+  placeholder_per_unit_shop_hrs: number | null;
+  placeholder_per_unit_install_hrs: number | null;
+  placeholder_id: string | null;
+  placeholder_linked_count: number;
 };
 type Pm = { id: string; name: string };
+type Builder = { id: string; company: string; contact_name: string; typical_pm: string | null };
 
 // ── Editable components ───────────────────────────────────────────────────────
 function EditableNumber({ value, suffix, onSave }: {
@@ -173,7 +183,7 @@ function EditableBuilder({ company, name, builderId, onSave }: {
 }) {
   const [editing, setEditing] = useState(false);
   const [q, setQ] = useState("");
-  const [results, setResults] = useState<{company:string;contact_name:string;typical_pm:string|null}[]>([]);
+  const [results, setResults] = useState<{id:string;company:string;contact_name:string;typical_pm:string|null}[]>([]);
   const [saving, setSaving] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout>|null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -305,7 +315,6 @@ function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => vo
       const r = await fetch("/api/jobs", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
       if (!r.ok) { const d = await r.json(); setError(d.error ?? "Save failed"); setSaving(false); return; }
 
-      // If shop_hrs or install_hrs set, PATCH them in (not in POST body currently)
       if (form.shop_hrs || form.install_hrs) {
         const job = await r.json();
         const jobId = job.id;
@@ -403,10 +412,170 @@ function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => vo
               className="flex-1 bg-[#f08122] hover:bg-[#d9711e] disabled:opacity-50 text-white text-xs font-condensed uppercase tracking-widest rounded-lg px-4 py-2.5 transition-colors">
               {saving ? "Saving…" : "Add Job"}
             </button>
-            <button type="submit"
-              className="px-4 py-2.5 border border-white/20 hover:border-white/40 text-white/60 text-xs font-condensed uppercase tracking-widest rounded-lg transition-colors"
-              onClick={() => { /* stays on form after save */ }}>
-              + Another
+            <button type="button" onClick={onClose}
+              className="px-4 py-2.5 border border-white/10 text-white/30 text-xs font-condensed uppercase tracking-widest rounded-lg hover:text-white/50 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── New Placeholder Modal ─────────────────────────────────────────────────────
+function NewPlaceholderModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => void; onAdded: () => void }) {
+  const blank = {
+    builder_q: "", builder_id: "", builder_company: "",
+    label: "", delivery_month: "",
+    unit_count: "1", per_unit_value: "", per_unit_boxes: "",
+    per_unit_shop_hrs: "", per_unit_install_hrs: "", pm: "",
+  };
+  const [form, setForm] = useState(blank);
+  const [builderResults, setBuilderResults] = useState<Builder[]>([]);
+  const [showBuilderDrop, setShowBuilderDrop] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const debounce = useRef<ReturnType<typeof setTimeout>|null>(null);
+  const builderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handle(e: MouseEvent) { if (builderRef.current && !builderRef.current.contains(e.target as Node)) setShowBuilderDrop(false); }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, []);
+
+  function set(k: string, v: string) { setForm(f => ({...f, [k]: v})); }
+
+  function searchBuilder(val: string) {
+    set("builder_q", val);
+    set("builder_id", "");
+    set("builder_company", "");
+    if (debounce.current) clearTimeout(debounce.current);
+    debounce.current = setTimeout(async () => {
+      if (!val) { setBuilderResults([]); setShowBuilderDrop(false); return; }
+      const res = await fetch(`/api/builders?q=${encodeURIComponent(val)}`);
+      const data = await res.json();
+      setBuilderResults(Array.isArray(data) ? data : []);
+      setShowBuilderDrop(true);
+    }, 200);
+  }
+
+  function pickBuilder(b: Builder) {
+    setForm(f => ({...f, builder_q: b.company, builder_id: b.id, builder_company: b.company, pm: b.typical_pm ?? f.pm}));
+    setBuilderResults([]);
+    setShowBuilderDrop(false);
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.label.trim()) { setError("Label is required"); return; }
+    if (!form.unit_count || Number(form.unit_count) < 1) { setError("Unit count must be ≥ 1"); return; }
+    setSaving(true); setError("");
+    try {
+      // delivery_month is stored as first of month
+      const deliveryDate = form.delivery_month ? form.delivery_month + "-01" : null;
+      const body = {
+        client_name: form.label.trim(),
+        site_address: "",
+        city: "",
+        pm: form.pm || null,
+        status: "intake",
+        is_placeholder: true,
+        builder_id: form.builder_id || null,
+        builder_company: form.builder_company || form.builder_q || null,
+        placeholder_unit_count: Number(form.unit_count),
+        placeholder_per_unit_value: form.per_unit_value ? Number(form.per_unit_value) : 0,
+        placeholder_per_unit_boxes: form.per_unit_boxes ? Number(form.per_unit_boxes) : 0,
+        placeholder_per_unit_shop_hrs: form.per_unit_shop_hrs ? Number(form.per_unit_shop_hrs) : 0,
+        placeholder_per_unit_install_hrs: form.per_unit_install_hrs ? Number(form.per_unit_install_hrs) : 0,
+        delivery_date: deliveryDate,
+      };
+      const r = await fetch("/api/jobs", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+      if (!r.ok) { const d = await r.json(); setError(d.error ?? "Save failed"); setSaving(false); return; }
+      onAdded();
+      onClose();
+    } catch { setError("Network error"); }
+    finally { setSaving(false); }
+  }
+
+  const inp = "w-full bg-white/10 border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]/60 placeholder-white/20";
+  const lbl = "block text-[9px] font-condensed uppercase tracking-widest text-white/40 mb-1";
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-50 pt-16 px-4" onClick={onClose}>
+      <div className="bg-[#1a1b1c] border border-orange-500/30 rounded-2xl w-full max-w-2xl p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="font-heading text-xl uppercase tracking-wide text-orange-400">New Placeholder</h2>
+            <p className="text-white/30 text-[10px] font-condensed mt-1">Forecast job — units × per-unit values = pipeline contribution</p>
+          </div>
+          <button onClick={onClose} className="text-white/30 hover:text-white text-lg">✕</button>
+        </div>
+        <form onSubmit={submit}>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div ref={builderRef} className="relative">
+              <label className={lbl}>Builder</label>
+              <input className={inp} placeholder="Search builders…" value={form.builder_q}
+                onChange={e => searchBuilder(e.target.value)}
+                onFocus={() => form.builder_q && builderResults.length > 0 && setShowBuilderDrop(true)} />
+              {showBuilderDrop && builderResults.length > 0 && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-0.5 bg-[#1e1f20] border border-white/15 rounded shadow-xl max-h-40 overflow-y-auto">
+                  {builderResults.map(b => (
+                    <button key={b.id} type="button" onClick={() => pickBuilder(b)}
+                      className="w-full text-left px-2 py-1.5 text-[10px] text-white hover:bg-white/10">
+                      {b.company}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div>
+              <label className={lbl}>Label / Name *</label>
+              <input className={inp} placeholder="Atlas – Riverstone" value={form.label} onChange={e=>set("label",e.target.value)} autoFocus />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className={lbl}>Delivery Month</label>
+              <input type="month" className={inp} value={form.delivery_month} onChange={e=>set("delivery_month",e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Unit Count</label>
+              <input type="number" min="1" className={inp} placeholder="12" value={form.unit_count} onChange={e=>set("unit_count",e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>PM</label>
+              <select value={form.pm} onChange={e=>set("pm",e.target.value)} className={inp + " cursor-pointer"}>
+                <option value="">— Assign</option>
+                {pms.map(p=><option key={p.id} value={p.name}>{p.name}</option>)}
+              </select>
+            </div>
+          </div>
+          <p className="text-[9px] font-condensed uppercase tracking-widest text-white/30 mb-2">Per-unit values (multiply by remaining units to get pipeline contribution)</p>
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            <div>
+              <label className={lbl}>Value $</label>
+              <input type="number" className={inp} placeholder="85000" value={form.per_unit_value} onChange={e=>set("per_unit_value",e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Boxes</label>
+              <input type="number" className={inp} placeholder="65" value={form.per_unit_boxes} onChange={e=>set("per_unit_boxes",e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Shop Hrs</label>
+              <input type="number" className={inp} placeholder="320" value={form.per_unit_shop_hrs} onChange={e=>set("per_unit_shop_hrs",e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Install Hrs</label>
+              <input type="number" className={inp} placeholder="80" value={form.per_unit_install_hrs} onChange={e=>set("per_unit_install_hrs",e.target.value)} />
+            </div>
+          </div>
+          {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
+          <div className="flex gap-3">
+            <button type="submit" disabled={saving}
+              className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-condensed uppercase tracking-widest rounded-lg px-4 py-2.5 transition-colors">
+              {saving ? "Creating…" : "Create Placeholder"}
             </button>
             <button type="button" onClick={onClose}
               className="px-4 py-2.5 border border-white/10 text-white/30 text-xs font-condensed uppercase tracking-widest rounded-lg hover:text-white/50 transition-colors">
@@ -419,6 +588,127 @@ function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => vo
   );
 }
 
+// ── Link Job Modal ────────────────────────────────────────────────────────────
+function LinkJobModal({
+  placeholder, allJobs, onLink, onClose
+}: {
+  placeholder: PipelineJob;
+  allJobs: PipelineJob[];
+  onLink: (jobId: string, placeholderId: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [selectedId, setSelectedId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const remaining = (placeholder.placeholder_unit_count ?? 1) - (placeholder.placeholder_linked_count ?? 0);
+  // Candidate jobs: same builder, not placeholder, no placeholder_id, not complete/cancelled
+  const candidates = allJobs.filter(j =>
+    !j.is_placeholder &&
+    !j.placeholder_id &&
+    j.builder_id === placeholder.builder_id &&
+    j.status !== "complete" &&
+    j.status !== "cancelled"
+  );
+
+  async function doLink() {
+    if (!selectedId) return;
+    setSaving(true);
+    await onLink(selectedId, placeholder.id);
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4" onClick={onClose}>
+      <div className="bg-[#1a1b1c] border border-orange-500/30 rounded-2xl w-full max-w-md p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-heading text-base uppercase tracking-wide text-orange-400">Link Job to Placeholder</h2>
+          <button onClick={onClose} className="text-white/30 hover:text-white">✕</button>
+        </div>
+        <p className="text-white/50 text-xs mb-4">
+          Placeholder: <span className="text-orange-300">{placeholder.client_name}</span> — {remaining} of {placeholder.placeholder_unit_count} units remaining
+        </p>
+        {candidates.length === 0 ? (
+          <p className="text-white/30 text-xs italic mb-4">No eligible jobs found for this builder. Jobs must have the same builder and no existing placeholder link.</p>
+        ) : (
+          <div className="mb-4">
+            <select value={selectedId} onChange={e => setSelectedId(e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded px-2 py-2 text-xs text-white focus:outline-none focus:border-[#f08122]/60">
+              <option value="">— Select a job —</option>
+              {candidates.map(j => (
+                <option key={j.id} value={j.id}>
+                  {j.client_name}{j.job_number ? ` (#${j.job_number})` : ""} — {j.city ?? ""} · {STATUS_LABEL[j.status] ?? j.status}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="flex gap-3">
+          <button onClick={doLink} disabled={!selectedId || saving}
+            className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white text-xs font-condensed uppercase tracking-widest rounded px-4 py-2 transition-colors">
+            {saving ? "Linking…" : "Link Job"}
+          </button>
+          <button onClick={onClose}
+            className="px-4 py-2 border border-white/10 text-white/30 text-xs font-condensed uppercase tracking-widest rounded hover:text-white/50 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Link to Placeholder (from regular job row) ────────────────────────────────
+function LinkToPlaceholderDropdown({
+  job, placeholders, onLink
+}: {
+  job: PipelineJob;
+  placeholders: PipelineJob[];
+  onLink: (jobId: string, phId: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function h(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); }
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  const opts = placeholders.filter(p =>
+    p.is_placeholder &&
+    p.builder_id === job.builder_id &&
+    p.status !== "complete" &&
+    p.status !== "cancelled"
+  );
+  if (opts.length === 0) return null;
+
+  return (
+    <div ref={ref} className="relative">
+      <button onClick={() => setOpen(o => !o)}
+        className="opacity-0 group-hover/row:opacity-60 hover:!opacity-100 text-orange-400 text-[9px] font-condensed uppercase tracking-widest transition-opacity ml-1"
+        title="Link to placeholder">
+        ⬡ Link
+      </button>
+      {open && (
+        <div className="absolute z-50 top-full right-0 mt-0.5 bg-[#1e1f20] border border-orange-500/30 rounded shadow-xl w-56 py-1">
+          <p className="text-[9px] font-condensed uppercase tracking-widest text-white/30 px-2 py-1">Link to placeholder</p>
+          {opts.map(p => {
+            const rem = (p.placeholder_unit_count ?? 1) - (p.placeholder_linked_count ?? 0);
+            return (
+              <button key={p.id} onClick={async () => { setSaving(true); await onLink(job.id, p.id); setSaving(false); setOpen(false); }}
+                disabled={saving}
+                className="w-full text-left px-2 py-1.5 text-[10px] text-white hover:bg-white/10 transition-colors">
+                <span className="text-orange-300">{p.client_name}</span>
+                <span className="text-white/40 ml-1">({rem} remaining)</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function PipelineClient() {
   const [jobs, setJobs]       = useState<PipelineJob[]>([]);
@@ -427,6 +717,8 @@ export default function PipelineClient() {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterStatuses, setFilterStatuses] = useState<string[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showPlaceholderAdd, setShowPlaceholderAdd] = useState(false);
+  const [linkModal, setLinkModal] = useState<PipelineJob | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -440,6 +732,13 @@ export default function PipelineClient() {
         shop_hrs:            j.shop_hrs            != null ? Number(j.shop_hrs)            : null,
         install_hrs:         j.install_hrs         != null ? Number(j.install_hrs)         : null,
         box_count:           j.box_count           != null ? Number(j.box_count)           : null,
+        placeholder_unit_count: j.placeholder_unit_count != null ? Number(j.placeholder_unit_count) : null,
+        placeholder_per_unit_value: j.placeholder_per_unit_value != null ? Number(j.placeholder_per_unit_value) : null,
+        placeholder_per_unit_boxes: j.placeholder_per_unit_boxes != null ? Number(j.placeholder_per_unit_boxes) : null,
+        placeholder_per_unit_shop_hrs: j.placeholder_per_unit_shop_hrs != null ? Number(j.placeholder_per_unit_shop_hrs) : null,
+        placeholder_per_unit_install_hrs: j.placeholder_per_unit_install_hrs != null ? Number(j.placeholder_per_unit_install_hrs) : null,
+        placeholder_linked_count: j.placeholder_linked_count != null ? Number(j.placeholder_linked_count) : 0,
+        is_placeholder: Boolean(j.is_placeholder),
       })));
       setPms(d.pms ?? []);
     } finally { setLoading(false); }
@@ -456,7 +755,6 @@ export default function PipelineClient() {
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function patchJob(jobId: string, updates: Record<string, unknown>) {
-    // Optimistic update
     setJobs(prev => prev.map(j => j.id === jobId ? {...j, ...updates} : j));
     try {
       const r = await fetch(`/api/jobs/${jobId}`, {
@@ -465,13 +763,12 @@ export default function PipelineClient() {
       });
       if (!r.ok) {
         const err = await r.json().catch(() => ({}));
-        // Revert optimistic update on failure
         setSaveFlash("⚠ Save failed: " + (err.error ?? r.status));
-        setJobs(prev => prev.map(j => j.id === jobId ? {...j, ...Object.fromEntries(Object.keys(updates).map(k => [k, j[k as keyof typeof j]]))} : j));
-        // Reload to get true DB state
         load();
       } else {
         setSaveFlash("Saved ✓");
+        // If we just linked a job to a placeholder, reload to get updated counts
+        if ("placeholder_id" in updates) load();
       }
     } catch {
       setSaveFlash("⚠ Network error — not saved");
@@ -479,6 +776,10 @@ export default function PipelineClient() {
     }
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
+  }
+
+  async function linkJobToPlaceholder(jobId: string, placeholderId: string) {
+    await patchJob(jobId, { placeholder_id: placeholderId });
   }
 
   async function deleteJob(jobId: string, name: string) {
@@ -499,10 +800,39 @@ export default function PipelineClient() {
     else { setSortBy(col); setSortDir("asc"); }
   }
 
-  // Month buckets based on anticipated delivery
   const phaseIndex = (s: string) => STATUS_ORDER.indexOf(s);
   const countShop    = (j: PipelineJob) => phaseIndex(j.status) <= phaseIndex(shopCutoff);
   const countInstall = (j: PipelineJob) => phaseIndex(j.status) <= phaseIndex(installCutoff);
+
+  // Helper: get effective value/boxes/hrs for a job (placeholder uses computed remaining)
+  function effectiveValue(j: PipelineJob) {
+    if (j.is_placeholder) {
+      const rem = Math.max(0, (j.placeholder_unit_count ?? 1) - (j.placeholder_linked_count ?? 0));
+      return (j.placeholder_per_unit_value ?? 0) * rem;
+    }
+    return j.sell_price_snapshot ?? j.estimated_value ?? 0;
+  }
+  function effectiveBoxes(j: PipelineJob) {
+    if (j.is_placeholder) {
+      const rem = Math.max(0, (j.placeholder_unit_count ?? 1) - (j.placeholder_linked_count ?? 0));
+      return (j.placeholder_per_unit_boxes ?? 0) * rem;
+    }
+    return j.box_count ?? 0;
+  }
+  function effectiveShopHrs(j: PipelineJob) {
+    if (j.is_placeholder) {
+      const rem = Math.max(0, (j.placeholder_unit_count ?? 1) - (j.placeholder_linked_count ?? 0));
+      return (j.placeholder_per_unit_shop_hrs ?? 0) * rem;
+    }
+    return j.shop_hrs ?? 0;
+  }
+  function effectiveInstallHrs(j: PipelineJob) {
+    if (j.is_placeholder) {
+      const rem = Math.max(0, (j.placeholder_unit_count ?? 1) - (j.placeholder_linked_count ?? 0));
+      return (j.placeholder_per_unit_install_hrs ?? 0) * rem;
+    }
+    return j.install_hrs ?? 0;
+  }
 
   type MonthBucket = { key: string; value: number; boxes: number; shopHrs: number; installHrs: number; count: number };
   const monthBuckets = (() => {
@@ -511,17 +841,16 @@ export default function PipelineClient() {
     for (const j of bucketJobs) {
       const key = monthKey(j.anticipated_delivery ?? j.delivery_date);
       const existing = map.get(key) ?? { key, value:0, boxes:0, shopHrs:0, installHrs:0, count:0 };
-      existing.value    += j.sell_price_snapshot ?? j.estimated_value ?? 0;
-      existing.boxes    += j.box_count ?? 0;
-      existing.shopHrs  += countShop(j) ? (j.shop_hrs ?? 0) : 0;
-      existing.installHrs += countInstall(j) ? (j.install_hrs ?? 0) : 0;
+      existing.value    += effectiveValue(j);
+      existing.boxes    += effectiveBoxes(j);
+      existing.shopHrs  += countShop(j) ? effectiveShopHrs(j) : 0;
+      existing.installHrs += countInstall(j) ? effectiveInstallHrs(j) : 0;
       existing.count    += 1;
       map.set(key, existing);
     }
     return Array.from(map.values()).sort((a,b) => monthSort(a.key) - monthSort(b.key));
   })();
 
-  // Apply filters
   let visible = jobs;
   if (filterMonth !== "all") {
     visible = visible.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth);
@@ -539,30 +868,34 @@ export default function PipelineClient() {
     }
   }
 
-  const totalValue   = visible.reduce((s,j) => s + (j.sell_price_snapshot ?? j.estimated_value ?? 0), 0);
-  const totalBoxes   = visible.reduce((s,j) => s + (j.box_count ?? 0), 0);
-  const totalShop    = visible.reduce((s,j) => s + (countShop(j) ? (j.shop_hrs ?? 0) : 0), 0);
-  const totalInstall = visible.reduce((s,j) => s + (countInstall(j) ? (j.install_hrs ?? 0) : 0), 0);
+  const totalValue   = visible.reduce((s,j) => s + effectiveValue(j), 0);
+  const totalBoxes   = visible.reduce((s,j) => s + effectiveBoxes(j), 0);
+  const totalShop    = visible.reduce((s,j) => s + (countShop(j) ? effectiveShopHrs(j) : 0), 0);
+  const totalInstall = visible.reduce((s,j) => s + (countInstall(j) ? effectiveInstallHrs(j) : 0), 0);
 
-  const engWarnJobs = jobs.filter(j => engWarnWeeks(j.anticipated_delivery ?? j.delivery_date, j.status) !== null);
+  const engWarnJobs = jobs.filter(j => !j.is_placeholder && engWarnWeeks(j.anticipated_delivery ?? j.delivery_date, j.status) !== null);
 
   const statusCounts = STATUS_ORDER.reduce<Record<string,number>>((acc,s) => {
     const base = filterMonth !== "all" ? jobs.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth) : jobs;
     acc[s] = base.filter(j => j.status === s).length; return acc;
   }, {});
 
+  // All open placeholders (for "link to" dropdowns on regular job rows)
+  const openPlaceholders = jobs.filter(j => j.is_placeholder && j.status !== "complete" && j.status !== "cancelled");
+
   function exportCSV() {
     const rows = [
-      ["Job#","Client","City","Status","PM","Value $","Boxes","Shop Hrs","Install Type","Install Hrs","Delivery","Install Start"],
+      ["Job#","Client","City","Status","PM","Value $","Boxes","Shop Hrs","Install Type","Install Hrs","Delivery","Install Start","Placeholder"],
       ...visible.map(j => [
         j.job_number ?? "", j.client_name, j.city ?? "", j.status, j.pm ?? "",
-        String(Math.round(j.sell_price_snapshot ?? j.estimated_value ?? 0)),
-        j.box_count != null ? String(j.box_count) : "",
-        j.shop_hrs != null ? String(j.shop_hrs) : "",
+        String(Math.round(effectiveValue(j))),
+        String(Math.round(effectiveBoxes(j))),
+        effectiveShopHrs(j) > 0 ? String(effectiveShopHrs(j)) : "",
         installTypeLabel(j.install_type),
-        j.install_hrs != null ? String(j.install_hrs) : "",
+        effectiveInstallHrs(j) > 0 ? String(effectiveInstallHrs(j)) : "",
         j.anticipated_delivery ?? j.delivery_date ?? "",
         j.install_start_date ?? "",
+        j.is_placeholder ? "YES" : "",
       ])
     ];
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
@@ -575,6 +908,15 @@ export default function PipelineClient() {
   return (
     <div className="min-h-screen bg-[#0d0e0f] text-white px-4 py-8 max-w-7xl mx-auto">
       {showAdd && <QuickAddModal pms={pms} onClose={() => setShowAdd(false)} onAdded={() => { load(); }} />}
+      {showPlaceholderAdd && <NewPlaceholderModal pms={pms} onClose={() => setShowPlaceholderAdd(false)} onAdded={() => { load(); }} />}
+      {linkModal && (
+        <LinkJobModal
+          placeholder={linkModal}
+          allJobs={jobs}
+          onLink={linkJobToPlaceholder}
+          onClose={() => setLinkModal(null)}
+        />
+      )}
 
       <div className="flex items-center justify-between mb-5">
         <div>
@@ -582,6 +924,10 @@ export default function PipelineClient() {
           <h1 className="font-heading text-3xl uppercase tracking-wide text-[#f08122]">Pipeline</h1>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => setShowPlaceholderAdd(true)}
+            className="bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-300 text-xs font-condensed uppercase tracking-widest rounded px-3 py-1.5 transition-colors">
+            ⬡ Placeholder
+          </button>
           <button onClick={() => setShowAdd(true)}
             className="bg-[#f08122] hover:bg-[#d9711e] text-white text-xs font-condensed uppercase tracking-widest rounded px-3 py-1.5 transition-colors">
             + Add Job
@@ -673,10 +1019,10 @@ export default function PipelineClient() {
               <tr className="border-t border-white/10 bg-white/[0.02] text-white/60 text-[10px] font-condensed">
                 <td className="px-4 py-2 font-semibold text-white">Total</td>
                 <td className="px-3 py-2 text-right">{jobs.length}</td>
-                <td className="px-3 py-2 text-right text-white font-semibold tabular-nums">{fmt$(jobs.reduce((s,j)=>s+(j.sell_price_snapshot??j.estimated_value??0),0))}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+(j.box_count??0),0)||"—"}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+(j.shop_hrs??0),0)>0 ? jobs.reduce((s,j)=>s+(j.shop_hrs??0),0).toFixed(0)+"h" : "—"}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+(j.install_hrs??0),0)>0 ? jobs.reduce((s,j)=>s+(j.install_hrs??0),0).toFixed(0)+"h" : "—"}</td>
+                <td className="px-3 py-2 text-right text-white font-semibold tabular-nums">{fmt$(jobs.reduce((s,j)=>s+effectiveValue(j),0))}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+effectiveBoxes(j),0)||"—"}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+effectiveShopHrs(j),0)>0 ? jobs.reduce((s,j)=>s+effectiveShopHrs(j),0).toFixed(0)+"h" : "—"}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{jobs.reduce((s,j)=>s+effectiveInstallHrs(j),0)>0 ? jobs.reduce((s,j)=>s+effectiveInstallHrs(j),0).toFixed(0)+"h" : "—"}</td>
               </tr>
             </tfoot>
           </table>
@@ -685,14 +1031,13 @@ export default function PipelineClient() {
 
       {/* Monthly summary strips */}
       {view === "bubbles" && <div className="flex flex-wrap gap-2 mb-4">
-        {/* All total */}
         <button onClick={() => setFilterMonth("all")}
           className={`rounded-xl px-4 py-3 text-left transition-all border ${filterMonth==="all" ? "border-[#f08122]/60 bg-[#f08122]/10" : "border-white/10 bg-[#1a1b1c] hover:border-white/25"}`}>
           <div className="text-[9px] font-condensed uppercase tracking-widest text-white/40 mb-1">All · {jobs.length} jobs</div>
           <div className="flex gap-4 text-xs tabular-nums">
-            <span className="text-white font-semibold">{fmt$(jobs.reduce((s,j)=>s+(j.sell_price_snapshot??j.estimated_value??0),0))}</span>
-            <span className="text-white/50">{jobs.reduce((s,j)=>s+(j.box_count??0),0)} <span className="text-white/25">box</span></span>
-            <span className="text-amber-400/80">{jobs.reduce((s,j)=>s+(j.shop_hrs??0),0) > 0 ? jobs.reduce((s,j)=>s+(j.shop_hrs??0),0).toFixed(0)+"h shop" : <span className="text-white/20">no shop hrs</span>}</span>
+            <span className="text-white font-semibold">{fmt$(jobs.reduce((s,j)=>s+effectiveValue(j),0))}</span>
+            <span className="text-white/50">{jobs.reduce((s,j)=>s+effectiveBoxes(j),0)} <span className="text-white/25">box</span></span>
+            <span className="text-amber-400/80">{jobs.reduce((s,j)=>s+effectiveShopHrs(j),0) > 0 ? jobs.reduce((s,j)=>s+effectiveShopHrs(j),0).toFixed(0)+"h shop" : <span className="text-white/20">no shop hrs</span>}</span>
           </div>
         </button>
         {monthBuckets.map(b => {
@@ -779,65 +1124,142 @@ export default function PipelineClient() {
               </tr>
             </thead>
             <tbody>
-              {visible.map(job => (
-                <tr key={job.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group/row">
-                  <td className="px-3 py-2.5">
-                    <Link href={`/jobs/${job.id}`} className="hover:text-[#f08122] transition-colors">
-                      <div className="font-medium text-white text-xs">{job.client_name}</div>
-                      <div className="text-white/30 text-[9px]">{[job.job_number, job.city].filter(Boolean).join(" · ")}</div>
-                      {(() => { const w = engWarnWeeks(job.anticipated_delivery ?? job.delivery_date, job.status); return w !== null ? <div className="text-amber-400 text-[9px] mt-0.5">⚠ Ships in {w}w — needs ENG</div> : null; })()}
-                    </Link>
-                  </td>
-                  <td className="px-2 py-2">
-                    <EditableStatus value={job.status} onSave={v => patchJob(job.id, {status:v})} />
-                  </td>
-                  <td className="px-2 py-2 min-w-[90px]">
-                    <EditablePm value={job.pm} pms={pms} onSave={v => patchJob(job.id, {pm:v})} />
-                  </td>
-                  <td className="px-2 py-2 min-w-[110px]">
-                    <EditableBuilder company={job.builder_company} name={job.builder_name} builderId={job.builder_id}
-                      onSave={async (id, company, contactName) => {
-                        await patchJob(job.id, {builder_id: id, builder_company: company, builder_name: contactName});
-                      }} />
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    {job.sell_price_snapshot != null
-                      ? <span className="text-white text-xs tabular-nums" title="Locked — set from constraints page">{fmt$(job.sell_price_snapshot)}<span className="text-white/25 text-[8px] ml-0.5">c</span></span>
-                      : <EditableCurrency value={job.estimated_value} onSave={v => patchJob(job.id, {estimated_value:v})} />}
-                  </td>
-                  <td className="px-2 py-2 text-right tabular-nums text-xs">
-                    {job.fg_boxes && job.fg_boxes.length > 0
-                      ? <span className="text-white/60" title={job.fg_boxes.map(f=>`${f.label}: ${f.boxes}`).join("\n") + "\n(from spec — edit on constraints page)"}>{job.box_count}<span className="text-white/25 text-[8px] ml-0.5">c</span></span>
-                      : <EditableNumber value={job.box_count} onSave={v => patchJob(job.id, {box_count:v})} />}
-                  </td>
-                  <td className="px-2 py-2 text-right">
-                    <span className={countShop(job) ? "" : "opacity-30 line-through"}>
-                      <EditableNumber value={job.shop_hrs} suffix="h" onSave={v => patchJob(job.id, {shop_hrs:v})} />
-                    </span>
-                  </td>
-                  <td className="px-2 py-2 min-w-[90px]">
-                    <EditableSelect value={job.install_type} options={INSTALL_TYPE_OPTIONS} onSave={v => patchJob(job.id, {install_type:v})} />
-                  </td>
-                  <td className="px-2 py-2 text-right">
-                    {job.install_type === "delivery_only"
-                      ? <span className="text-white/20 text-[9px]">n/a</span>
-                      : <span className={countInstall(job) ? "" : "opacity-30 line-through"}><EditableNumber value={job.install_hrs} suffix="h" onSave={v => patchJob(job.id, {install_hrs:v})} /></span>}
-                  </td>
-                  <td className="px-2 py-2 min-w-[90px]">
-                    <EditableDate value={job.anticipated_delivery ?? job.delivery_date} onSave={v => patchJob(job.id, {anticipated_delivery:v})} />
-                    {job.anticipated_delivery && job.anticipated_delivery !== job.delivery_date &&
-                      <div className="text-white/20 text-[8px]">sched</div>}
-                  </td>
-                  <td className="px-2 py-2 min-w-[90px]">
-                    <EditableDate value={job.install_start_date} placeholder="Set start" onSave={v => patchJob(job.id, {install_start_date:v})} />
-                  </td>
-                  <td className="px-1 py-2 w-6">
-                    <button onClick={() => deleteJob(job.id, job.client_name)}
-                      className="opacity-0 group-hover/row:opacity-40 hover:!opacity-100 text-red-400 text-[11px] transition-opacity"
-                      title="Delete job">✕</button>
-                  </td>
-                </tr>
-              ))}
+              {visible.map(job => {
+                const isPlh = job.is_placeholder;
+                const remaining = isPlh ? Math.max(0, (job.placeholder_unit_count ?? 1) - (job.placeholder_linked_count ?? 0)) : null;
+                const total = isPlh ? (job.placeholder_unit_count ?? 1) : null;
+                const perUnitValue = job.placeholder_per_unit_value ?? 0;
+                const perUnitBoxes = job.placeholder_per_unit_boxes ?? 0;
+                const perUnitShop = job.placeholder_per_unit_shop_hrs ?? 0;
+                const perUnitInstall = job.placeholder_per_unit_install_hrs ?? 0;
+
+                return (
+                  <tr key={job.id}
+                    className={`border-b transition-colors group/row ${isPlh
+                      ? "border-orange-500/20 bg-orange-950/10 hover:bg-orange-950/20"
+                      : "border-white/5 hover:bg-white/[0.02]"
+                    }`}
+                    style={isPlh ? { borderLeft: "3px solid rgb(249 115 22 / 0.6)" } : {}}>
+                    <td className="px-3 py-2.5">
+                      {isPlh ? (
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[8px] font-condensed uppercase tracking-widest bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded">Placeholder</span>
+                          </div>
+                          <div className="font-medium text-orange-200 text-xs mt-0.5">{job.client_name}</div>
+                          <div className="text-orange-400/60 text-[9px]">
+                            {remaining} remaining / {total} total
+                            {job.builder_company && <span className="ml-1 text-white/30">· {job.builder_company}</span>}
+                          </div>
+                        </div>
+                      ) : (
+                        <Link href={`/jobs/${job.id}`} className="hover:text-[#f08122] transition-colors">
+                          <div className="font-medium text-white text-xs">{job.client_name}</div>
+                          <div className="text-white/30 text-[9px]">{[job.job_number, job.city].filter(Boolean).join(" · ")}</div>
+                          {job.placeholder_id && (
+                            <div className="text-orange-400/50 text-[8px] mt-0.5">⬡ placeholder linked</div>
+                          )}
+                          {(() => { const w = engWarnWeeks(job.anticipated_delivery ?? job.delivery_date, job.status); return w !== null ? <div className="text-amber-400 text-[9px] mt-0.5">⚠ Ships in {w}w — needs ENG</div> : null; })()}
+                        </Link>
+                      )}
+                    </td>
+                    <td className="px-2 py-2">
+                      <EditableStatus value={job.status} onSave={v => patchJob(job.id, {status:v})} />
+                    </td>
+                    <td className="px-2 py-2 min-w-[90px]">
+                      <EditablePm value={job.pm} pms={pms} onSave={v => patchJob(job.id, {pm:v})} />
+                    </td>
+                    <td className="px-2 py-2 min-w-[110px]">
+                      <EditableBuilder company={job.builder_company} name={job.builder_name} builderId={job.builder_id}
+                        onSave={async (id, company, contactName) => {
+                          await patchJob(job.id, {builder_id: id, builder_company: company, builder_name: contactName});
+                        }} />
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {isPlh ? (
+                        <div className="text-xs tabular-nums text-orange-300/80 text-right">
+                          <div>{fmt$(perUnitValue)} × {remaining}</div>
+                          <div className="text-orange-400 font-semibold">{fmt$(perUnitValue * (remaining ?? 0))}</div>
+                        </div>
+                      ) : job.sell_price_snapshot != null ? (
+                        <span className="text-white text-xs tabular-nums" title="Locked — set from constraints page">{fmt$(job.sell_price_snapshot)}<span className="text-white/25 text-[8px] ml-0.5">c</span></span>
+                      ) : (
+                        <EditableCurrency value={job.estimated_value} onSave={v => patchJob(job.id, {estimated_value:v})} />
+                      )}
+                    </td>
+                    <td className="px-2 py-2 text-right tabular-nums text-xs">
+                      {isPlh ? (
+                        <span className="text-orange-300/70">{perUnitBoxes} × {remaining}</span>
+                      ) : job.fg_boxes && job.fg_boxes.length > 0 ? (
+                        <span className="text-white/60" title={job.fg_boxes.map(f=>`${f.label}: ${f.boxes}`).join("\n") + "\n(from spec — edit on constraints page)"}>{job.box_count}<span className="text-white/25 text-[8px] ml-0.5">c</span></span>
+                      ) : (
+                        <EditableNumber value={job.box_count} onSave={v => patchJob(job.id, {box_count:v})} />
+                      )}
+                    </td>
+                    <td className="px-2 py-2 text-right">
+                      {isPlh ? (
+                        <span className={`text-xs tabular-nums ${countShop(job) ? "text-orange-300/70" : "opacity-30 line-through text-white/40"}`}>
+                          {perUnitShop > 0 ? `${perUnitShop}×${remaining}` : "—"}
+                        </span>
+                      ) : (
+                        <span className={countShop(job) ? "" : "opacity-30 line-through"}>
+                          <EditableNumber value={job.shop_hrs} suffix="h" onSave={v => patchJob(job.id, {shop_hrs:v})} />
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-2 py-2 min-w-[90px]">
+                      {isPlh ? (
+                        <span className="text-orange-400/40 text-[9px]">forecast</span>
+                      ) : (
+                        <EditableSelect value={job.install_type} options={INSTALL_TYPE_OPTIONS} onSave={v => patchJob(job.id, {install_type:v})} />
+                      )}
+                    </td>
+                    <td className="px-2 py-2 text-right">
+                      {isPlh ? (
+                        <span className={`text-xs tabular-nums ${countInstall(job) ? "text-orange-300/70" : "opacity-30 line-through text-white/40"}`}>
+                          {perUnitInstall > 0 ? `${perUnitInstall}×${remaining}` : "—"}
+                        </span>
+                      ) : job.install_type === "delivery_only" ? (
+                        <span className="text-white/20 text-[9px]">n/a</span>
+                      ) : (
+                        <span className={countInstall(job) ? "" : "opacity-30 line-through"}><EditableNumber value={job.install_hrs} suffix="h" onSave={v => patchJob(job.id, {install_hrs:v})} /></span>
+                      )}
+                    </td>
+                    <td className="px-2 py-2 min-w-[90px]">
+                      <EditableDate value={job.anticipated_delivery ?? job.delivery_date} onSave={v => patchJob(job.id, {anticipated_delivery:v})} />
+                      {job.anticipated_delivery && job.anticipated_delivery !== job.delivery_date &&
+                        <div className="text-white/20 text-[8px]">sched</div>}
+                    </td>
+                    <td className="px-2 py-2 min-w-[90px]">
+                      {isPlh ? (
+                        <span className="text-white/20 text-[9px]">—</span>
+                      ) : (
+                        <EditableDate value={job.install_start_date} placeholder="Set start" onSave={v => patchJob(job.id, {install_start_date:v})} />
+                      )}
+                    </td>
+                    <td className="px-1 py-2 w-10">
+                      <div className="flex items-center gap-1">
+                        {isPlh ? (
+                          <button onClick={() => setLinkModal(job)}
+                            className="opacity-0 group-hover/row:opacity-70 hover:!opacity-100 text-orange-400 text-[9px] font-condensed uppercase tracking-widest transition-opacity whitespace-nowrap"
+                            title="Link a job to this placeholder">
+                            Link →
+                          </button>
+                        ) : (
+                          <>
+                            {job.builder_id && !job.placeholder_id && (
+                              <LinkToPlaceholderDropdown job={job} placeholders={openPlaceholders} onLink={linkJobToPlaceholder} />
+                            )}
+                            <button onClick={() => deleteJob(job.id, job.client_name)}
+                              className="opacity-0 group-hover/row:opacity-40 hover:!opacity-100 text-red-400 text-[11px] transition-opacity"
+                              title="Delete job">✕</button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {visible.length === 0 && (
                 <tr><td colSpan={11} className="text-center text-white/20 py-10 text-sm">No jobs</td></tr>
               )}
@@ -860,7 +1282,7 @@ export default function PipelineClient() {
       )}
       <div className="flex items-center justify-between mt-3">
         <p className="text-white/15 text-[9px] font-condensed">
-          Click any month card to filter. Click a cell to edit inline. Shop/install hrs feed the month totals.
+          Click any month card to filter · Click a cell to edit inline · ⬡ Placeholder rows use per-unit × remaining for pipeline totals
         </p>
         {saveFlash && (
           <span className={`text-[10px] font-condensed px-2 py-0.5 rounded transition-opacity ${saveFlash.startsWith("⚠") ? "text-red-400 bg-red-500/10" : "text-green-400 bg-green-500/10"}`}>
