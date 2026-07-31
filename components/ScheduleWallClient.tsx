@@ -6,6 +6,7 @@ import { EVENT_TYPE_LABELS, isoDateOffset, isoWeekStart } from "@/lib/schedule-t
 import { getHolidaysForYear, type Holiday } from "@/lib/schedule-holidays";
 import { calculateDuration, calculateEndDate, addWorkingDays, HOT_EVENT_TYPES, DEFAULT_DURATION } from "@/lib/schedule-utils";
 import { AddEventForm } from "@/components/AddEventForm";
+import { TimelineView } from "@/components/TimelineView";
 
 type JobMini = {
   id: string;
@@ -255,6 +256,9 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const [tvMode] = useState(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1"
   );
+
+  // View mode: wall (default) or timeline planning view
+  const [viewMode, setViewMode] = useState<"wall" | "timeline">("wall");
 
   // TV rotation: alternates between deliveries / installs every 60 s
   const [tvPhase, setTvPhase]       = useState<"deliveries" | "installs">("deliveries");
@@ -748,13 +752,42 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
                 ✓ Verify
               </a>
             )}
+
+            {/* View mode toggle */}
+            <div className="flex items-center rounded overflow-hidden border border-white/15">
+              <button
+                onClick={() => setViewMode("wall")}
+                className={`px-2.5 py-1.5 font-condensed uppercase tracking-widest text-[10px] transition-colors ${
+                  viewMode === "wall"
+                    ? "bg-white/10 text-white"
+                    : "text-white/30 hover:text-white/60"
+                }`}
+              >
+                ⊞ Wall
+              </button>
+              <button
+                onClick={() => setViewMode("timeline")}
+                className={`px-2.5 py-1.5 font-condensed uppercase tracking-widest text-[10px] transition-colors border-l border-white/10 ${
+                  viewMode === "timeline"
+                    ? "bg-white/10 text-white"
+                    : "text-white/30 hover:text-white/60"
+                }`}
+              >
+                ≡ Timeline
+              </button>
+            </div>
           </div>
         </header>
       )}
 
+      {/* Timeline view — replaces body when active */}
+      {viewMode === "timeline" && !tvMode && (
+        <TimelineView today={today} />
+      )}
+
       {/* Body */}
       <div
-        className={`hidden md:flex ${tvMode ? "min-h-screen" : ""}`}
+        className={`hidden md:flex ${tvMode ? "min-h-screen" : ""} ${viewMode === "timeline" && !tvMode ? "hidden" : ""}`}
         style={{ minHeight: tvMode ? undefined : "calc(100vh - 64px)" }}
       >
         {/* Calendar */}
