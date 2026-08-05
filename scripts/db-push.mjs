@@ -1136,6 +1136,7 @@ async function main() {
   try { await sql`ALTER TABLE jobs ADD COLUMN pm_complexity INTEGER NOT NULL DEFAULT 1`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_duration_days INTEGER`; } catch {}
   try { await sql`ALTER TABLE finish_groups ADD COLUMN pm_complexity INTEGER`; } catch {}
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS wo_number TEXT`; } catch {}
   try { await sql`ALTER TABLE finish_groups ADD COLUMN box_count INTEGER`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN box_count INTEGER`; } catch {}
   try { await sql`ALTER TABLE jobs ADD COLUMN wo_count INTEGER`; } catch {}

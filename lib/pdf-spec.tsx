@@ -9,8 +9,9 @@
  * Page W.n (per FG): Work Order sheet — Specs + Hardware + Moldings + EB Schedule
  */
 import React from "react";
+import path from "path";
 import {
-  Document, Page, View, Text, StyleSheet, renderToBuffer,
+  Document, Page, View, Text, Image, StyleSheet, renderToBuffer,
 } from "@react-pdf/renderer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -29,6 +30,7 @@ export type MoldingView = { molding_type: string; type_label: string; profile_na
 
 export type FinishGroupView = {
   id: string; label: string; finish_type: string; notes: string; species: string;
+  wo_number: string | null;
   applied_panels: string | null;
   rollout_box_name: string;
   finish: FinishView;
@@ -102,6 +104,7 @@ const HAIR    = "#e0e0e0";
 const HEAD_BG = "#3d3d3d";
 const STRIPE  = "#f7f7f5";
 const BAND_BG = "#f0ede8";
+const LOGO_PATH = path.join(process.cwd(), "public", "logo.png");
 const RED     = "#cc0000";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -158,12 +161,16 @@ const S = StyleSheet.create({
 const WS = StyleSheet.create({
   page:        { padding: 20, fontSize: 7, fontFamily: "Helvetica", color: DARK },
   header:      { flexDirection: "row", borderWidth: 1, borderColor: "#ccc", marginBottom: 5 },
-  hdrLeft:     { flex: 1, padding: 5, borderRightWidth: 0.5, borderRightColor: "#ccc" },
-  hdrRight:    { width: 175, padding: 5 },
+  hdrLogo:     { width: 90, padding: 6, borderRightWidth: 0.5, borderRightColor: "#ccc", justifyContent: "center", alignItems: "center" },
+  hdrLogoImg:  { width: 78 },
+  hdrLeft:     { flex: 1, padding: 6, borderRightWidth: 0.5, borderRightColor: "#ccc" },
+  hdrRight:    { flex: 1.4, padding: 6, justifyContent: "center" },
   hdrLabel:    { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8 },
-  hdrTitle:    { fontSize: 10, fontFamily: "Helvetica-Bold", color: DARK, marginTop: 1 },
-  hdrSub:      { fontSize: 7, color: "#444", marginTop: 1 },
-  hdrFinish:   { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: ORANGE, marginTop: 3 },
+  hdrTitle:    { fontSize: 13, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 3 },
+  hdrSub:      { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 2 },
+  hdrAddr:     { fontSize: 7, color: MUTED, marginTop: 2 },
+  hdrFinish:   { fontSize: 9.5, fontFamily: "Helvetica-Bold", color: ORANGE, marginTop: 2 },
+  hdrFgLabel:  { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 },
   notesBox:    { borderWidth: 1, borderColor: RED, padding: 4, minHeight: 36, flex: 1 },
   notesLbl:    { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: RED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 },
   notesBody:   { fontSize: 6.5, color: RED, lineHeight: 1.3 },
@@ -745,29 +752,37 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <View style={WS.header}>
+        {/* Logo */}
+        <View style={WS.hdrLogo}>
+          <Image src={LOGO_PATH} style={WS.hdrLogoImg} />
+        </View>
+
+        {/* Job # + Builder + Address */}
         <View style={WS.hdrLeft}>
-          <Text style={WS.hdrLabel}>RESIDENTIAL — WORK ORDER SPEC</Text>
           <Text style={WS.hdrTitle}>JOB # {data.job_id}</Text>
           <Text style={WS.hdrSub}>{projectName}</Text>
-          <Text style={WS.hdrFinish}>{fg.label} · {finishLabel}</Text>
           {(data.site_address || data.city) && (
-            <Text style={[WS.hdrSub, { marginTop: 4, color: MUTED }]}>
+            <Text style={WS.hdrAddr}>
               {[data.site_address, data.city].filter(Boolean).join(", ")}
             </Text>
           )}
         </View>
 
+        {/* Finish Group */}
+        <View style={WS.hdrRight}>
+          <Text style={WS.hdrFgLabel}>FINISH GROUP</Text>
+          <Text style={WS.hdrFinish}>{fg.label}</Text>
+          <Text style={[WS.hdrFinish, { fontSize: 8, marginTop: 2 }]}>{finishLabel}</Text>
+        </View>
       </View>
 
       {/* ── Meta bar ────────────────────────────────────────────────────── */}
       <View style={WS.metaBar}>
         {[
-          { label: "Job #",    value: data.job_id },
-          { label: "WO #",     value: "" },
+          { label: "WO #",     value: fg.wo_number || "" },
           { label: "PM",       value: data.pm || "—" },
           { label: "Engineer", value: "—" },
           { label: "Date",     value: new Date(data.generated_at).toLocaleDateString() },
-          { label: "Page",     value: pageCode },
         ].map(({ label, value }, i, arr) => (
           <View key={label} style={[WS.metaCell, i === arr.length - 1 ? { borderRightWidth: 0 } : {}]}>
             <Text style={WS.metaLbl}>{label}</Text>

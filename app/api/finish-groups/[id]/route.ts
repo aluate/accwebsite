@@ -30,12 +30,16 @@ export async function PATCH(
     `;
     if (!ownership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const body = await req.json() as { box_count?: number | null; wo_count?: number | null; pm_complexity?: number | null };
+  const body = await req.json() as { box_count?: number | null; wo_count?: number | null; pm_complexity?: number | null; wo_number?: string | null };
 
-  const allowed = ["box_count", "wo_count", "pm_complexity"];
-  const updates: Record<string, number | null> = {};
-  for (const k of allowed) {
+  const allowedNumeric = ["box_count", "wo_count", "pm_complexity"];
+  const allowedText = ["wo_number"];
+  const updates: Record<string, number | string | null> = {};
+  for (const k of allowedNumeric) {
     if (k in body) updates[k] = (body as Record<string, number | null>)[k] ?? null;
+  }
+  for (const k of allowedText) {
+    if (k in body) updates[k] = (body as Record<string, string | null>)[k] ?? null;
   }
 
   if (Object.keys(updates).length === 0) {
