@@ -260,28 +260,63 @@ function daysBadgeColor(days: number | null, status: string): string {
   return "text-white/30";
 }
 
-function PipelineCard({ job }: { job: PipelineJob }) {
+function PipelineCard({ job, engineerOptions }: { job: PipelineJob; engineerOptions: string[] }) {
   const stageCls   = STATUS_COLOR[job.status] ?? "text-white/40 bg-white/10";
   const stageLabel = STATUS_LABEL[job.status] ?? job.status;
   const location   = [job.site_address, job.city].filter(Boolean).join(", ");
   const daysCls    = daysBadgeColor(job.days_in_stage, job.status);
+  const [engineer, setEngineer] = useState<string | null>(job.engineer);
+  const [saving, setSaving] = useState(false);
+
+  async function handleEngineerChange(val: string) {
+    const newVal = val || null;
+    setEngineer(newVal);
+    setSaving(true);
+    try {
+      await fetch(`/api/jobs/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ engineer: newVal }),
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
-    <Link
-      href={"/jobs/" + (job.job_number ?? job.id)}
-      prefetch={false}
-      className="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-lg px-4 py-3 transition-colors"
-    >
-      <span className={"text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded shrink-0 " + stageCls}>
-        {stageLabel}
-      </span>
-      <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium truncate leading-tight">{location}</p>
-        {location && <p className="text-white/40 text-xs truncate">{job.client_name}</p>}
-      </div>
-      <span className="text-white/40 text-xs hidden md:block shrink-0 w-28 truncate text-right">
-        {job.pm ?? "—"}
-      </span>
+    <div className="flex items-center gap-3 bg-white/5 hover:bg-white/[0.08] border border-white/10 rounded-lg px-4 py-3 transition-colors">
+      <Link
+        href={"/jobs/" + (job.job_number ?? job.id)}
+        prefetch={false}
+        className="flex items-center gap-3 flex-1 min-w-0"
+      >
+        <span className={"text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded shrink-0 " + stageCls}>
+          {stageLabel}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-white text-sm font-medium truncate leading-tight">{location}</p>
+          {location && <p className="text-white/40 text-xs truncate">{job.client_name}</p>}
+        </div>
+        <span className="text-white/40 text-xs hidden lg:block shrink-0 w-24 truncate text-right">
+          {job.pm ?? "—"}
+        </span>
+      </Link>
+      {engineerOptions.length > 0 && (
+        <select
+          value={engineer ?? ""}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => handleEngineerChange(e.target.value)}
+          disabled={saving}
+          className={"hidden md:block text-[10px] font-condensed uppercase tracking-wide shrink-0 w-28 bg-white/5 border rounded px-2 py-1 focus:outline-none cursor-pointer transition-colors " +
+            (engineer ? "border-blue-700/40 text-blue-300" : "border-white/10 text-white/30") +
+            (saving ? " opacity-50" : "")}
+        >
+          <option value="">No Eng</option>
+          {engineerOptions.map((n) => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
+      )}
       {job.open_punch_count > 0 && (
         <span className="text-[10px] font-condensed text-pink-400 bg-pink-900/30 border border-pink-700/30 rounded px-1.5 py-0.5 shrink-0">
           {job.open_punch_count} punch
@@ -292,11 +327,11 @@ function PipelineCard({ job }: { job: PipelineJob }) {
           {daysLabel(job.days_in_stage)}
         </span>
       )}
-    </Link>
+    </div>
   );
 }
 
-function PipelineTab({ jobs }: { jobs: PipelineJob[] }) {
+function PipelineTab({ jobs, engineerOptions }: { jobs: PipelineJob[]; engineerOptions: string[] }) {
   const [pmFilter, setPmFilter] = useState("all");
 
   const pms = useMemo(() => distinctPMsPipeline(jobs), [jobs]);
@@ -373,7 +408,7 @@ function PipelineTab({ jobs }: { jobs: PipelineJob[] }) {
               <div className="flex-1 h-px bg-white/[0.08]" />
             </div>
             <div className="space-y-1.5">
-              {stageJobs.map((job) => <PipelineCard key={job.id} job={job} />)}
+              {stageJobs.map((job) => <PipelineCard key={job.id} job={job} engineerOptions={engineerOptions} />)}
             </div>
           </section>
         );
@@ -390,10 +425,12 @@ export function JobsClient({
   jobs,
   pipelineJobs,
   session,
+  engineerOptions = [],
 }: {
   jobs: Job[];
   pipelineJobs: PipelineJob[];
   session: BuilderSession | null;
+  engineerOptions?: string[];
 }) {
   const [tab, setTab] = useState<Tab>("all");
 
@@ -444,7 +481,7 @@ export function JobsClient({
       </div>
       {tab === "all"
         ? <AllJobsTab jobs={jobs} />
-        : <PipelineTab jobs={pipelineJobs} />
+        : <PipelineTab jobs={pipelineJobs} engineerOptions={engineerOptions} />
       }
     </>
    );

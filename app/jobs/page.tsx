@@ -14,6 +14,7 @@ export type PipelineJob = {
   site_address: string;
   city: string | null;
   pm: string | null;
+  engineer: string | null;
   status: string;
   open_punch_count: number;
   days_in_stage: number | null;
@@ -28,6 +29,7 @@ async function fetchPipelineJobs(): Promise<PipelineJob[]> {
       j.site_address,
       j.city,
       j.pm,
+      j.engineer,
       j.status,
       COALESCE(p.open_count, 0)::int AS open_punch_count,
       DATE_PART('day', NOW() - al.occurred_at::timestamptz)::int AS days_in_stage
@@ -68,11 +70,13 @@ async function fetchPipelineJobs(): Promise<PipelineJob[]> {
 }
 
 export default async function JobsPage() {
-  const [jobs, pipelineJobs, session] = await withDbTimeout(() => Promise.all([
+  const [jobs, pipelineJobs, session, engineerRows] = await withDbTimeout(() => Promise.all([
     sql`SELECT * FROM jobs ORDER BY seq DESC` as Promise<Job[]>,
     fetchPipelineJobs(),
     getBuilder(),
+    sql<{ name: string }[]>`SELECT name FROM builder_accounts WHERE role = 'engineer' AND active = 1 ORDER BY name`,
   ]));
+  const engineerOptions = engineerRows.map((r) => r.name);
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -163,7 +167,7 @@ export default async function JobsPage() {
         </div>
       </div>
 
-      <JobsClient jobs={jobs} pipelineJobs={pipelineJobs} session={session} />
+      <JobsClient jobs={jobs} pipelineJobs={pipelineJobs} session={session} engineerOptions={engineerOptions} />
     </section>
   );
 }
