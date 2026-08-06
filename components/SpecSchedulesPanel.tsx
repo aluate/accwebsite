@@ -367,6 +367,25 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       return [...others, ...updated];
     });
   }
+  function addDoorFrontSlot(role: string) {
+    const existing = fgDoorFronts.filter(d => d.role === role);
+    const slotNum  = existing.length + 1;
+    const template = existing[0] ?? { finish_group_id: activeFgId, role, slot_label: null, style_id: null, material_id: null, oe_id: null, ie_id: null, panel_id: null, grain: null, vendor: null, notes: null, sort_order: 0 };
+    const newRow: DoorFrontRow = { ...template, slot_label: `Slot ${slotNum}`, sort_order: existing.length };
+    setDoorFronts(all => [...all, newRow]);
+  }
+  function removeDoorFrontSlot(idx: number) {
+    setDoorFronts((all) => {
+      const fgRows = fgDoorFronts;
+      const target = fgRows[idx];
+      if (!target) return all;
+      const roleRows = fgRows.filter(r => r.role === target.role);
+      if (roleRows.length <= 1) return all; // never remove the last slot
+      const others = all.filter(d => d.finish_group_id !== activeFgId);
+      const updated = fgRows.filter((_, i) => i !== idx);
+      return [...others, ...updated];
+    });
+  }
   function updateDrawer(idx: number, patch: Partial<DrawerRow>) {
     setDrawers((all) => {
       const fgRows = fgDrawers;
@@ -374,6 +393,23 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
       if (!target) return all;
       const others = all.filter((d) => d.finish_group_id !== activeFgId);
       const updated = fgRows.map((r, i) => i === idx ? { ...r, ...patch } : r);
+      return [...others, ...updated];
+    });
+  }
+  function addDrawerSlot(role: string) {
+    const existing = fgDrawers.filter(d => d.role === role);
+    const slotNum  = existing.length + 1;
+    const template = existing[0] ?? { finish_group_id: activeFgId, role, slot_label: null, drawer_box_id: null, slides_id: null, notes: null, sort_order: 0 };
+    setDrawers(all => [...all, { ...template, slot_label: `Slot ${slotNum}`, sort_order: existing.length }]);
+  }
+  function removeDrawerSlot(idx: number) {
+    setDrawers((all) => {
+      const fgRows = fgDrawers;
+      const target = fgRows[idx];
+      if (!target) return all;
+      if (fgRows.filter(r => r.role === target.role).length <= 1) return all;
+      const others = all.filter(d => d.finish_group_id !== activeFgId);
+      const updated = fgRows.filter((_, i) => i !== idx);
       return [...others, ...updated];
     });
   }
@@ -656,35 +692,66 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
 
       {/* Door Schedule */}
       <div className={CARD}>
-        <div className={SECTION_HDR}>Door Schedule</div>
-        <div className="grid grid-cols-14 gap-2 text-[10px] uppercase tracking-widest text-white/40 mb-1.5 px-1" style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-          <div className="col-span-2">Role</div>
-          <div className="col-span-2">Style</div>
-          <div className="col-span-2">Material</div>
-          <div className="col-span-2">OE</div>
-          <div className="col-span-1">IE</div>
-          <div className="col-span-1">Panel</div>
-          <div className="col-span-1">Grain</div>
-          <div className="col-span-2">Vendor</div>
-          <div className="col-span-1">Notes</div>
+        <div className={SECTION_HDR}>Door &amp; DF Schedule</div>
+        <div className="grid gap-2 text-[10px] uppercase tracking-widest text-white/40 mb-1.5 px-1" style={{ gridTemplateColumns: "2fr 2fr 2fr 2fr 1fr 1fr 1fr 2fr 2fr 0.5fr" }}>
+          <div>Role / Slot</div>
+          <div>Style</div>
+          <div>Material</div>
+          <div>OE</div>
+          <div>IE</div>
+          <div>Panel</div>
+          <div>Grain</div>
+          <div>Vendor</div>
+          <div>Notes</div>
+          <div></div>
         </div>
-        {fgDoorFronts.map((d, idx) => {
-          const rolemeta = DOOR_FRONT_ROLES.find((r) => r.role === d.role);
+        {DOOR_FRONT_ROLES.map(({ role, label }) => {
+          const roleRows = fgDoorFronts.filter(d => d.role === role);
+          const isMulti  = roleRows.length > 1;
           return (
-            <div key={`${d.role}-${idx}`} className="grid gap-2 items-center mb-1.5 px-1" style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-              <div className="col-span-2 text-xs text-white/80">{rolemeta?.label ?? d.role}</div>
-              <div className="col-span-2"><CatalogSelect value={d.style_id} onChange={(v) => updateDoorFront(idx, { style_id: v })} options={doorStyleOpts} /></div>
-              <div className="col-span-2"><CatalogSelect value={d.material_id} onChange={(v) => updateDoorFront(idx, { material_id: v })} options={doorMatOpts} /></div>
-              <div className="col-span-2"><CatalogSelect value={d.oe_id} onChange={(v) => updateDoorFront(idx, { oe_id: v })} options={cbEdgeOpts} /></div>
-              <div className="col-span-1"><CatalogSelect value={d.ie_id} onChange={(v) => updateDoorFront(idx, { ie_id: v })} options={cbInsideOpts} /></div>
-              <div className="col-span-1"><CatalogSelect value={d.panel_id} onChange={(v) => updateDoorFront(idx, { panel_id: v })} options={cbPanelOpts} /></div>
-              <div className="col-span-1">
-                <select className={SELECT} value={d.grain ?? ""} onChange={(e) => updateDoorFront(idx, { grain: e.target.value || null })}>
-                  {GRAIN_OPTIONS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-                </select>
+            <div key={role} className="mb-1">
+              {roleRows.map((d, ri) => {
+                const globalIdx = fgDoorFronts.indexOf(d);
+                return (
+                  <div key={`${role}-${ri}`} className="grid gap-2 items-center mb-1 px-1" style={{ gridTemplateColumns: "2fr 2fr 2fr 2fr 1fr 1fr 1fr 2fr 2fr 0.5fr" }}>
+                    <div>
+                      {ri === 0
+                        ? <span className="text-xs text-white/80 font-medium">{label}</span>
+                        : null}
+                      {isMulti || d.slot_label
+                        ? <input
+                            className={`${INPUT} text-[10px] mt-0.5`}
+                            value={d.slot_label ?? ""}
+                            onChange={(e) => updateDoorFront(globalIdx, { slot_label: e.target.value || null })}
+                            placeholder="e.g. Island"
+                          />
+                        : null}
+                    </div>
+                    <div><CatalogSelect value={d.style_id} onChange={(v) => updateDoorFront(globalIdx, { style_id: v })} options={doorStyleOpts} /></div>
+                    <div><CatalogSelect value={d.material_id} onChange={(v) => updateDoorFront(globalIdx, { material_id: v })} options={doorMatOpts} /></div>
+                    <div><CatalogSelect value={d.oe_id} onChange={(v) => updateDoorFront(globalIdx, { oe_id: v })} options={cbEdgeOpts} /></div>
+                    <div><CatalogSelect value={d.ie_id} onChange={(v) => updateDoorFront(globalIdx, { ie_id: v })} options={cbInsideOpts} /></div>
+                    <div><CatalogSelect value={d.panel_id} onChange={(v) => updateDoorFront(globalIdx, { panel_id: v })} options={cbPanelOpts} /></div>
+                    <div>
+                      <select className={SELECT} value={d.grain ?? ""} onChange={(e) => updateDoorFront(globalIdx, { grain: e.target.value || null })}>
+                        {GRAIN_OPTIONS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                      </select>
+                    </div>
+                    <div><input className={INPUT} value={d.vendor ?? ""} onChange={(e) => updateDoorFront(globalIdx, { vendor: e.target.value || null })} placeholder="Cab Door" /></div>
+                    <div><input className={INPUT} value={d.notes ?? ""} onChange={(e) => updateDoorFront(globalIdx, { notes: e.target.value || null })} placeholder="—" /></div>
+                    <div className="flex items-center justify-center">
+                      {ri > 0
+                        ? <button onClick={() => removeDoorFrontSlot(globalIdx)} className="text-white/20 hover:text-red-400 text-sm leading-none" title="Remove slot">×</button>
+                        : null}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="px-1 pb-1">
+                <button onClick={() => addDoorFrontSlot(role)} className="text-[10px] font-condensed uppercase tracking-widest text-white/25 hover:text-[#f08122] transition-colors">
+                  + Add {label} Slot
+                </button>
               </div>
-              <div className="col-span-2"><input className={INPUT} value={d.vendor ?? ""} onChange={(e) => updateDoorFront(idx, { vendor: e.target.value || null })} placeholder="Cab Door" /></div>
-              <div className="col-span-1"><input className={INPUT} value={d.notes ?? ""} onChange={(e) => updateDoorFront(idx, { notes: e.target.value || null })} placeholder="—" /></div>
             </div>
           );
         })}
@@ -692,21 +759,52 @@ export function SpecSchedulesPanel({ specId, finishGroups, initial, catalogs, on
 
       {/* Drawer Schedule */}
       <div className={CARD}>
-        <div className={SECTION_HDR}>Drawer Schedule</div>
-        <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-widest text-white/40 mb-1.5 px-1">
-          <div className="col-span-2">Role</div>
-          <div className="col-span-4">Box / Style</div>
-          <div className="col-span-3">Slides</div>
-          <div className="col-span-3">Notes</div>
+        <div className={SECTION_HDR}>Drawer &amp; Rollout Schedule</div>
+        <div className="grid gap-2 text-[10px] uppercase tracking-widest text-white/40 mb-1.5 px-1" style={{ gridTemplateColumns: "2fr 4fr 3fr 3fr 0.5fr" }}>
+          <div>Role / Slot</div>
+          <div>Box / Style</div>
+          <div>Slides</div>
+          <div>Notes</div>
+          <div></div>
         </div>
-        {fgDrawers.map((d, idx) => {
-          const rolemeta = DRAWER_ROLES.find((r) => r.role === d.role);
+        {DRAWER_ROLES.map(({ role, label }) => {
+          const roleRows = fgDrawers.filter(d => d.role === role);
+          const isMulti  = roleRows.length > 1;
           return (
-            <div key={`${d.role}-${idx}`} className="grid grid-cols-12 gap-2 items-center mb-1.5 px-1">
-              <div className="col-span-2 text-xs text-white/80">{rolemeta?.label}</div>
-              <div className="col-span-4"><CatalogSelect value={d.drawer_box_id} onChange={(v) => updateDrawer(idx, { drawer_box_id: v })} options={drawerBoxOpts} /></div>
-              <div className="col-span-3"><CatalogSelect value={d.slides_id} onChange={(v) => updateDrawer(idx, { slides_id: v })} options={drawerSlideOpts} /></div>
-              <div className="col-span-3"><input className={INPUT} value={d.notes ?? ""} onChange={(e) => updateDrawer(idx, { notes: e.target.value || null })} placeholder="—" /></div>
+            <div key={role} className="mb-1">
+              {roleRows.map((d, ri) => {
+                const globalIdx = fgDrawers.indexOf(d);
+                return (
+                  <div key={`${role}-${ri}`} className="grid gap-2 items-center mb-1 px-1" style={{ gridTemplateColumns: "2fr 4fr 3fr 3fr 0.5fr" }}>
+                    <div>
+                      {ri === 0
+                        ? <span className="text-xs text-white/80 font-medium">{label}</span>
+                        : null}
+                      {isMulti || d.slot_label
+                        ? <input
+                            className={`${INPUT} text-[10px] mt-0.5`}
+                            value={d.slot_label ?? ""}
+                            onChange={(e) => updateDrawer(globalIdx, { slot_label: e.target.value || null })}
+                            placeholder="e.g. Island"
+                          />
+                        : null}
+                    </div>
+                    <div><CatalogSelect value={d.drawer_box_id} onChange={(v) => updateDrawer(globalIdx, { drawer_box_id: v })} options={drawerBoxOpts} /></div>
+                    <div><CatalogSelect value={d.slides_id} onChange={(v) => updateDrawer(globalIdx, { slides_id: v })} options={drawerSlideOpts} /></div>
+                    <div><input className={INPUT} value={d.notes ?? ""} onChange={(e) => updateDrawer(globalIdx, { notes: e.target.value || null })} placeholder="—" /></div>
+                    <div className="flex items-center justify-center">
+                      {ri > 0
+                        ? <button onClick={() => removeDrawerSlot(globalIdx)} className="text-white/20 hover:text-red-400 text-sm leading-none" title="Remove slot">×</button>
+                        : null}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="px-1 pb-1">
+                <button onClick={() => addDrawerSlot(role)} className="text-[10px] font-condensed uppercase tracking-widest text-white/25 hover:text-[#f08122] transition-colors">
+                  + Add {label} Slot
+                </button>
+              </div>
             </div>
           );
         })}
