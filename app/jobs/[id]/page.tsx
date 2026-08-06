@@ -121,7 +121,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   // PM names for the sidebar dropdown
   const pmRows = await sql`SELECT name FROM builder_accounts WHERE role IN ('pm','admin','karl') AND active = 1 ORDER BY name` as Array<{ name: string }>;
+  const engineerRows = await sql`SELECT name FROM builder_accounts WHERE role = 'engineer' AND active = 1 ORDER BY name` as Array<{ name: string }>;
   const pmNames = pmRows.map((r) => r.name);
+  const engineerNames = engineerRows.map((r) => r.name);
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
@@ -234,6 +236,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <JobInlineEditClient
             jobId={internalId}
             pmOptions={pmNames}
+            engineerOptions={engineerNames}
             initialValues={{
               client_name:         job.client_name,
               client_email:        job.client_email,
@@ -248,6 +251,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               delivery_date:       job.delivery_date,
               install_start_date:  job.install_start_date,
               install_type:        job.install_type,
+              engineer:            (job as Record<string, unknown>).engineer as string | null,
               notes:               job.notes,
             }}
           />

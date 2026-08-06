@@ -65,7 +65,7 @@ export type SpecPDFData = {
   job_id: string; spec_name: string; generated_at: string;
   client_name: string; client_email: string | null;
   builder_name: string | null; builder_company: string | null;
-  pm: string | null; site_address: string; city: string | null;
+  pm: string | null; engineer: string | null; site_address: string; city: string | null;
   delivery_date: string | null;
   notes_install: string | null; notes_finishing: string | null;
   notes_shop: string | null; notes_client: string | null;
@@ -781,7 +781,7 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         {[
           { label: "WO #",     value: fg.wo_number || "" },
           { label: "PM",       value: data.pm || "—" },
-          { label: "Engineer", value: "—" },
+          { label: "Engineer", value: data.engineer || "—" },
           { label: "Date",     value: new Date(data.generated_at).toLocaleDateString() },
         ].map(({ label, value }, i, arr) => (
           <View key={label} style={[WS.metaCell, i === arr.length - 1 ? { borderRightWidth: 0 } : {}]}>

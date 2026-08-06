@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type EditableField =
   | "client_name" | "client_email" | "client_phone" | "site_address" | "city"
   | "pm" | "builder_name" | "builder_company" | "builder_email" | "builder_phone"
-  | "delivery_date" | "install_start_date" | "notes" | "job_number" | "install_type";
+  | "delivery_date" | "install_start_date" | "notes" | "install_type";
 
 const INSTALL_TYPE_OPTIONS = [
   { value: "",              label: "— Not Set" },
@@ -195,21 +195,68 @@ function PmRow({ jobId, value, pmOptions, onSaved }: PmRowProps) {
   );
 }
 
+
+// ── EngineerRow — immediate-save select for Engineer field ────────────────────
+interface EngineerRowProps {
+  jobId: string;
+  value: string;
+  engineerOptions: string[];
+  onSaved: (v: string) => void;
+}
+
+function EngineerRow({ jobId, value, engineerOptions, onSaved }: EngineerRowProps) {
+  const [saving, setSaving] = useState(false);
+
+  async function change(newVal: string) {
+    setSaving(true);
+    try {
+      await fetch(`/api/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ engineer: newVal || null }),
+      });
+      onSaved(newVal);
+    } catch {
+      alert("Failed to save engineer.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="py-2 border-b border-white/5 last:border-0">
+      <p className="text-white/30 text-[10px] font-condensed uppercase tracking-widest mb-1">Engineer</p>
+      <select
+        value={value}
+        onChange={(e) => change(e.target.value)}
+        disabled={saving}
+        className="bg-[#111] border border-white/15 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-[#f08122]/60 cursor-pointer disabled:opacity-50 w-full"
+      >
+        <option value="">— Not Assigned</option>
+        {engineerOptions.map((name) => (
+          <option key={name} value={name}>{name}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface Props {
   jobId: string;
-  initialValues: Partial<Record<EditableField, string | null>>;
+  initialValues: Partial<Record<EditableField, string | null>> & { engineer?: string | null };
   pmOptions?: string[];
+  engineerOptions?: string[];
 }
 
-export function JobInlineEditClient({ jobId, initialValues, pmOptions = [] }: Props) {
+export function JobInlineEditClient({ jobId, initialValues, pmOptions = [], engineerOptions = [] }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState<EditableField | null>(null);
-  const [values, setValues] = useState<Partial<Record<EditableField, string>>>(
+  const [values, setValues] = useState<Partial<Record<EditableField, string>> & { engineer?: string }>(
     Object.fromEntries(
       Object.entries(initialValues).map(([k, v]) => [k, v ?? ""])
-    ) as Partial<Record<EditableField, string>>
+    ) as Partial<Record<EditableField, string>> & { engineer?: string }
   );
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -292,7 +339,12 @@ export function JobInlineEditClient({ jobId, initialValues, pmOptions = [] }: Pr
           pmOptions={pmOptions}
           onSaved={(v) => setValues((prev) => ({ ...prev, pm: v }))}
         />
-        {row("Job #",    "job_number")}
+        <EngineerRow
+          jobId={jobId}
+          value={values["engineer"] ?? ""}
+          engineerOptions={engineerOptions}
+          onSaved={(v) => setValues((prev) => ({ ...prev, engineer: v }))}
+        />
         {row("Delivery", "delivery_date")}
         {row("Install Start", "install_start_date")}
         <InstallTypeRow
