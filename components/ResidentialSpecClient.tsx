@@ -51,6 +51,20 @@ export type FinishGroup = {
   notes: string; sort_order: number;
   box_count: number | null; wo_count: number | null;
   wo_number: string | null;
+  ct_material: string | null;
+  ct_style: string | null;
+  ct_edge: string | null;
+  ct_splash: string | null;
+};
+
+export type FgTrimDefault = {
+  id: string;
+  finish_group_id: string;
+  trim_type: string;
+  species_material: string;
+  size_desc: string;
+  notes: string;
+  sort_order: number;
 };
 
 export type CabinetItem = {
@@ -140,6 +154,7 @@ type Props = {
   initialAccessories2?: SpecAccessoryItem[];
   initialHardware?: SpecHardwareItem[];
   initialFgEdgebands: FgEdgebandRow[];
+  initialFgTrimDefaults: FgTrimDefault[];
   catalogs: CatalogData;
   lastSaved: string;
 };
@@ -696,7 +711,7 @@ function AccessoryPickerRow({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, initialFgEdgebands, catalogs, lastSaved }: Props) {
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, initialFgEdgebands, initialFgTrimDefaults, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
@@ -714,6 +729,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     }
     return map;
   });
+  const [fgTrimDefaults, setFgTrimDefaults] = useState<FgTrimDefault[]>(initialFgTrimDefaults ?? []);
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -837,6 +853,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ room_id: r.id, trim: r.trim ?? [] }),
+          })
+        ),
+        // Save trim defaults for all finish groups
+        ...groups.map(g =>
+          fetch(`/api/specs/${specId}/trim-defaults`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              finish_group_id: g.id,
+              trim_defaults: fgTrimDefaults.filter(d => d.finish_group_id === g.id),
+            }),
           })
         ),
       ]);
@@ -997,6 +1024,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     box_count: null,
     wo_count: null,
     wo_number: null,
+    ct_material: null, ct_style: null, ct_edge: null, ct_splash: null,
       color_id: "", color_name: "",
       door_style_id: "", drawer_style_id: "",
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
@@ -1860,6 +1888,87 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
                 {/* MaterialsSubsection removed 2026-07-02 — materials are fully
                     covered in the Schedules · v2 tab. Keep file, stop rendering. */}
+
+                {/* ── Countertop fields ──────────────────────────────────────────── */}
+                <div className="pt-3 border-t border-white/5">
+                  <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">
+                    Countertop <span className="text-white/20 normal-case font-normal text-[9px]">(prints on WO spec)</span>
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {([
+                      { field: "ct_material" as const, label: "Material",     ph: "e.g. Quartz, Granite, Laminate" },
+                      { field: "ct_style"    as const, label: "Style / Color", ph: "e.g. Calacatta Gold" },
+                      { field: "ct_edge"     as const, label: "Edge Profile",  ph: "e.g. Eased, Ogee, Waterfall" },
+                      { field: "ct_splash"   as const, label: "Splash",        ph: "e.g. 4" matching, Full tile" },
+                    ] as { field: keyof FinishGroup; label: string; ph: string }[]).map(({ field, label, ph }) => (
+                      <div key={field}>
+                        <label className={LABEL}>{label}</label>
+                        <input
+                          type="text"
+                          value={(g[field] as string | null) ?? ""}
+                          onChange={(e) => updateGroup(g.id, { [field]: e.target.value || null })}
+                          placeholder={ph}
+                          className={INPUT}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── FG Trim Defaults ───────────────────────────────────────────── */}
+                <div className="pt-3 border-t border-white/5">
+                  <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">
+                    Trim Defaults <span className="text-white/20 normal-case font-normal text-[9px]">(pre-populates room trim rows — PM enters LF per room)</span>
+                  </p>
+                  {(() => {
+                    const FIXED_TYPES = ["Fillers", "Toekick", "Crown", "Light Valance"];
+                    const fgDefs = fgTrimDefaults.filter(d => d.finish_group_id === g.id);
+                    const allTypes = [...new Set([...FIXED_TYPES, ...fgDefs.map(d => d.trim_type)])];
+                    function getDefRow(type: string): FgTrimDefault {
+                      return fgDefs.find(d => d.trim_type === type) ?? { id: "", finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0 };
+                    }
+                    function patchTrimDefault(type: string, patch: Partial<FgTrimDefault>) {
+                      setFgTrimDefaults(prev => {
+                        const idx = prev.findIndex(d => d.finish_group_id === g.id && d.trim_type === type);
+                        if (idx >= 0) { const next = [...prev]; next[idx] = { ...next[idx], ...patch }; return next; }
+                        return [...prev, { id: uid(), finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0, ...patch }];
+                      });
+                      markDirty();
+                    }
+                    return (
+                      <>
+                        <div className="grid grid-cols-4 gap-1 text-[10px] font-condensed uppercase tracking-widest text-white/25 mb-1 px-0.5">
+                          <span>Type</span><span>Species / Material</span><span>Size / Desc</span><span>Notes</span>
+                        </div>
+                        {allTypes.map((type) => {
+                          const def = getDefRow(type);
+                          const isFixed = FIXED_TYPES.includes(type);
+                          return (
+                            <div key={type} className="grid grid-cols-4 gap-2 mb-1.5 items-center">
+                              <div className="flex items-center gap-1">
+                                {isFixed
+                                  ? <span className="text-white/70 text-xs font-condensed py-2">{type}</span>
+                                  : <input value={def.trim_type} onChange={(e) => patchTrimDefault(type, { trim_type: e.target.value })} className={INPUT + " text-xs"} />
+                                }
+                              </div>
+                              <input value={def.species_material} onChange={(e) => patchTrimDefault(type, { species_material: e.target.value })} placeholder="e.g. Alder" className={INPUT + " text-xs"} />
+                              <input value={def.size_desc} onChange={(e) => patchTrimDefault(type, { size_desc: e.target.value })} placeholder={`e.g. 3" × 96"`} className={INPUT + " text-xs"} />
+                              <div className="flex gap-1">
+                                <input value={def.notes} onChange={(e) => patchTrimDefault(type, { notes: e.target.value })} placeholder="Notes" className={INPUT + " text-xs flex-1"} />
+                                {!isFixed && (
+                                  <button onClick={() => setFgTrimDefaults(prev => prev.filter(d => !(d.finish_group_id === g.id && d.trim_type === type)))} className="text-white/20 hover:text-red-400 text-sm leading-none px-1 shrink-0">×</button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <button onClick={() => { setFgTrimDefaults(prev => [...prev, { id: uid(), finish_group_id: g.id, trim_type: "Custom", species_material: "", size_desc: "", notes: "", sort_order: fgDefs.length }]); markDirty(); }} className="text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-[#f08122] mt-1 transition-colors">
+                          + Add Custom Trim Type
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
 
                 {/* Pulls section (Phase 3c) */}
                 <div className="pt-3 border-t border-white/5">

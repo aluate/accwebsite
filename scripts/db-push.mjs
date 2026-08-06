@@ -1159,6 +1159,28 @@ async function main() {
   try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_id TEXT REFERENCES jobs(id) ON DELETE SET NULL`; } catch {}
   console.log("jobs placeholder columns OK");
 
+  // ── finish_groups: countertop free-entry columns ─────────────────────────
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS ct_material TEXT`; } catch (_) {}
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS ct_style    TEXT`; } catch (_) {}
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS ct_edge     TEXT`; } catch (_) {}
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS ct_splash   TEXT`; } catch (_) {}
+  console.log("finish_groups ct columns OK");
+
+  // ── finish_group_trim_defaults ────────────────────────────────────────────
+  await sql`
+    CREATE TABLE IF NOT EXISTS finish_group_trim_defaults (
+      id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      finish_group_id UUID NOT NULL REFERENCES finish_groups(id) ON DELETE CASCADE,
+      trim_type       TEXT NOT NULL,
+      species_material TEXT,
+      size_desc       TEXT,
+      notes           TEXT,
+      sort_order      INT NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_fgtrimdef_fg ON finish_group_trim_defaults (finish_group_id)`;
+  console.log("finish_group_trim_defaults OK");
+
   console.log("Schema push complete.");
   await sql.end();
 }

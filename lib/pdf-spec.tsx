@@ -716,14 +716,8 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
   const moldings    = fg.moldings.filter(m => m.qty_lf || m.type_label);
 
   // Spec summary values
-  const cabExt      = fg.materials.find(m => m.role === "cab_ext")?.name ?? "—";
-  const cabInt      = fg.materials.find(m => m.role === "cab_int")?.name ?? cabExt;
-  const doorStyle   = fg.door_fronts.find(df => df.role === "base")?.style_name
-                   ?? fg.door_fronts[0]?.style_name ?? "—";
-  const drawerFront = fg.door_fronts.find(df => df.role === "drawer_front")?.style_name ?? doorStyle;
-  const drawerBox   = fg.drawers.find(dr => dr.role === "drawer_box")?.drawer_box_name ?? "—";
-  const rolloutBox  = fg.rollout_box_name || drawerBox;
-  const appliedPnl  = fmtAppliedPanels(fg.applied_panels);
+  const cabInt      = fg.materials.find(m => m.role === "cab_int")?.name
+                   ?? fg.materials.find(m => m.role === "cab_ext")?.name ?? "—";
 
   // Finish type label for header
   const finishTypeLabel = fg.finish_type === "paint" ? "PAINT" : fg.finish_type === "stain" ? "STAIN" : "MELAMINE";
@@ -735,16 +729,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
 
   // Rooms assigned to this FG
   const fgRooms = data.rooms.filter(r => r.finishes.some(f => f.finish_group_id === fg.id));
-
-  const EBcols = [
-    { label: "ID",          w: 0.35 },
-    { label: "Thick.",      w: 0.55 },
-    { label: "Mfr.",        w: 1.1 },
-    { label: "#",           w: 0.65 },
-    { label: "Description", w: 1.4 },
-    { label: "Where Used",  w: 2.4 },
-    { label: "Notes",       w: 1.5 },
-  ];
 
   return (
     <Page size="LETTER" style={WS.page}>
@@ -791,26 +775,60 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         ))}
       </View>
 
+      {/* ── ROOMS TABLE (first) ─────────────────────────────────────────── */}
+      {fgRooms.length > 0 && (
+        <View style={{ marginBottom: 4 }}>
+          <Text style={WS.fullSecHead}>ROOMS ({fgRooms.length})</Text>
+          <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+            <Text style={[WS.th, { flex: 2 }]}>Room</Text>
+            <Text style={[WS.th, { flex: 1.2 }]}>Zone / FG</Text>
+            <Text style={[WS.th, { flex: 4 }]}>Notes</Text>
+          </View>
+          {fgRooms.map((r, ri) => {
+            const zones = r.finishes.map(f => f.zone).filter(Boolean).join("; ");
+            const fgLabels = r.finishes.map(f => f.finish_label || "").filter(Boolean).join(", ");
+            const zoneCell = [zones, fgLabels].filter(Boolean).join("  ·  ");
+            return (
+              <View key={r.id} style={ri % 2 === 0 ? WS.tableRow : WS.tableRowAlt} wrap={false}>
+                <Text style={[WS.tdBold, { flex: 2 }]}>{r.name || "—"}</Text>
+                <Text style={[WS.td,     { flex: 1.2 }]}>{zoneCell || "—"}</Text>
+                <Text style={[WS.tdMu,   { flex: 4 }]}>{r.notes || "—"}</Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+
       {/* ── Body: two columns ─────────────────────────────────────────── */}
       <View style={WS.body}>
 
         {/* LEFT: Work Order Specs + Finish Sched + Rooms */}
         <View style={WS.bodyLeft}>
           <Text style={WS.secHead}>WORK ORDER SPECS</Text>
-          {[
-            { label: "Cab Exterior",       value: cabExt },
-            { label: "Cab Interior",       value: cabInt },
-            { label: "Doors",              value: doorStyle },
-            { label: "Drawer Fronts",      value: drawerFront },
-            { label: "Applied End Panels", value: appliedPnl },
-            { label: "Drawer Box",         value: drawerBox },
-            { label: "Rollout Box",        value: rolloutBox },
-          ].map(({ label, value }, i) => (
-            <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
-              <Text style={WS.specLabel}>{label}</Text>
-              <Text style={WS.specValue}>{value}</Text>
-            </View>
-          ))}
+          {(() => {
+            const ebLine = fg.finish_type === "paint" ? "Paint to match"
+                         : fg.finish_type === "stain" ? "Stain to match"
+                         : fg.finish_type === "melamine" ? (colorName || "Matches carcass") : "—";
+            const rows: { label: string; value: string }[] = [
+              { label: "Carcass / Interior", value: cabInt },
+              { label: "Edgebanding",        value: ebLine },
+              { label: "Touchup Kit",        value: touchupKit },
+            ];
+            // Countertop rows (from free-entry ct_ fields)
+            const ct = fg.countertops[0];
+            if (ct) {
+              if (ct.material_name) rows.push({ label: "CT Material", value: ct.material_name });
+              if (ct.style_name)    rows.push({ label: "CT Style",    value: ct.style_name });
+              if (ct.edge_name)     rows.push({ label: "CT Edge",     value: ct.edge_name });
+              if (ct.splash_style)  rows.push({ label: "CT Splash",   value: ct.splash_style });
+            }
+            return rows.map(({ label, value }, i) => (
+              <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                <Text style={WS.specLabel}>{label}</Text>
+                <Text style={WS.specValue}>{value}</Text>
+              </View>
+            ));
+          })()}
 
 
         </View>
@@ -986,51 +1004,54 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         );
       })()}
 
-      {/* ── EDGEBAND SCHEDULE ─────────────────────────────────────────── */}
-      <View>
-        <Text style={WS.fullSecHead}>WORK ORDER EDGEBAND SCHEDULE</Text>
-        <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
-          {EBcols.map((c, i) => (
-            <Text key={i} style={[WS.th, { flex: c.w }]}>{c.label}</Text>
+      {/* ── DOOR & DF SCHEDULE ──────────────────────────────────────────── */}
+      {fg.door_fronts.filter(df => df.style_name || df.material_name || df.notes).length > 0 && (
+        <View style={{ marginBottom: 4 }}>
+          <Text style={WS.fullSecHead}>DOOR &amp; DRAWER FRONT SCHEDULE</Text>
+          <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
+            <Text style={[WS.th, { flex: 1.6 }]}>Type</Text>
+            <Text style={[WS.th, { flex: 1.8 }]}>Style</Text>
+            <Text style={[WS.th, { flex: 1.8 }]}>Material / Species</Text>
+            <Text style={[WS.th, { flex: 1 }]}>Grain</Text>
+            <Text style={[WS.th, { flex: 1.8 }]}>Notes</Text>
+          </View>
+          {fg.door_fronts.map((df, i) => (
+            <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+              <Text style={[WS.tdBold, { flex: 1.6 }]}>
+                {df.role_label}{df.slot_label ? ` — ${df.slot_label}` : ""}
+              </Text>
+              <Text style={[WS.td, { flex: 1.8 }]}>{d(df.style_name)}</Text>
+              <Text style={[WS.td, { flex: 1.8 }]}>{d(df.material_name)}</Text>
+              <Text style={[WS.td, { flex: 1 }]}>{d(df.grain)}</Text>
+              <Text style={[WS.tdMu, { flex: 1.8 }]}>{d(df.notes)}</Text>
+            </View>
           ))}
         </View>
-        {ebRows.map((row, i) => (
-          <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
-            <Text style={[WS.tdOrange, { flex: 0.35 }]}>{row.code}</Text>
-            <Text style={[WS.td, { flex: 0.55 }]}>{row.thickness || "—"}</Text>
-            <Text style={[WS.td, { flex: 1.1 }]}>{row.manufacturer || "—"}</Text>
-            <Text style={[WS.td, { flex: 0.65 }]}>{row.part_no || "—"}</Text>
-            <Text style={[row.description ? WS.tdBold : WS.tdMu, { flex: 1.4 }]}>{row.description || "—"}</Text>
-            <Text style={[WS.td, { flex: 2.4 }]}>{row.where_used}</Text>
-            <Text style={[WS.tdMu, { flex: 1.5 }]}>{row.notes || "—"}</Text>
-          </View>
-        ))}
-      </View>
+      )}
 
-
-      {/* ── ROOMS TABLE ──────────────────────────────────────────────────── */}
-      {fgRooms.length > 0 && (
-        <View style={{ marginTop: 6, marginBottom: 4 }}>
-          <Text style={WS.fullSecHead}>ROOMS ({fgRooms.length})</Text>
+      {/* ── DRAWER & ROLLOUT SCHEDULE ────────────────────────────────────── */}
+      {fg.drawers.filter(dr => dr.drawer_box_name || dr.notes).length > 0 && (
+        <View style={{ marginBottom: 4 }}>
+          <Text style={WS.fullSecHead}>DRAWER &amp; ROLLOUT SCHEDULE</Text>
           <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
-            <Text style={[WS.th, { flex: 2 }]}>Room</Text>
-            <Text style={[WS.th, { flex: 1.2 }]}>Zone / FG</Text>
-            <Text style={[WS.th, { flex: 4 }]}>Notes</Text>
+            <Text style={[WS.th, { flex: 1.6 }]}>Type</Text>
+            <Text style={[WS.th, { flex: 2.5 }]}>Box / Style</Text>
+            <Text style={[WS.th, { flex: 2.5 }]}>Slides</Text>
+            <Text style={[WS.th, { flex: 1.4 }]}>Notes</Text>
           </View>
-          {fgRooms.map((r, ri) => {
-            const zones = r.finishes.map(f => f.zone).filter(Boolean).join("; ");
-            const fgLabels = r.finishes.map(f => f.finish_label || "").filter(Boolean).join(", ");
-            const zoneCell = [zones, fgLabels].filter(Boolean).join("  ·  ");
-            return (
-              <View key={r.id} style={ri % 2 === 0 ? WS.tableRow : WS.tableRowAlt} wrap={false}>
-                <Text style={[WS.tdBold, { flex: 2 }]}>{r.name || "—"}</Text>
-                <Text style={[WS.td,     { flex: 1.2 }]}>{zoneCell || "—"}</Text>
-                <Text style={[WS.tdMu,   { flex: 4 }]}>{r.notes || "—"}</Text>
-              </View>
-            );
-          })}
+          {fg.drawers.map((dr, i) => (
+            <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
+              <Text style={[WS.tdBold, { flex: 1.6 }]}>
+                {dr.role_label}{dr.slot_label ? ` — ${dr.slot_label}` : ""}
+              </Text>
+              <Text style={[WS.td, { flex: 2.5 }]}>{d(dr.drawer_box_name)}</Text>
+              <Text style={[WS.td, { flex: 2.5 }]}>{d(dr.slides_name)}</Text>
+              <Text style={[WS.tdMu, { flex: 1.4 }]}>{d(dr.notes)}</Text>
+            </View>
+          ))}
         </View>
       )}
+
 
       {/* ── JOB NOTES ────────────────────────────────────────────────────── */}
       {(() => {

@@ -25,6 +25,10 @@ type FinishGroupPayload = {
   box_count: number | null;
   wo_count: number | null;
   wo_number: string | null;
+  ct_material: string | null;
+  ct_style: string | null;
+  ct_edge: string | null;
+  ct_splash: string | null;
 };
 
 type AccessoryPayload = { acc_id: string; qty: number; custom_note?: string; custom_type?: string; size?: string; handed?: string };
@@ -230,7 +234,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
            door_style_id, drawer_style_id, pull_id, box_material, carcass_id, drawer_box_id, edgeband_id,
            applied_panels, species, rollout_box_id,
            cabdoor_edge_id, cabdoor_profile_id, cabdoor_panel_id,
-           notes, sort_order, box_count, wo_count, wo_number)
+           notes, sort_order, box_count, wo_count, wo_number,
+           ct_material, ct_style, ct_edge, ct_splash)
         VALUES
           (${g.id}, ${id}, ${g.label}, ${g.finish_type || "paint"},
            ${g.color_id || null}, ${g.color_name || null},
@@ -245,7 +250,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
            ${(g as Record<string, unknown>).cabdoor_panel_id as string || null},
            ${g.notes || null}, ${g.sort_order ?? 0},
            ${g.box_count ?? null}, ${g.wo_count ?? null},
-           ${g.wo_number ?? null})
+           ${g.wo_number ?? null},
+           ${g.ct_material ?? null}, ${g.ct_style ?? null}, ${g.ct_edge ?? null}, ${g.ct_splash ?? null})
       `;
     }
 

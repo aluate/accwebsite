@@ -4,7 +4,7 @@ import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, Moldin
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; job_number: string | null; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; engineer: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
-type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number; wo_number: string | null; };
+type FGRow = { id: string; label: string; finish_type: string; notes: string | null; species: string | null; color_id: string | null; color_name: string | null; door_style_id: string | null; pull_id: string | null; carcass_id: string | null; drawer_box_id: string | null; rollout_box_id: string | null; edgeband_id: string | null; applied_panels: string | null; sort_order: number; wo_number: string | null; ct_material: string | null; ct_style: string | null; ct_edge: string | null; ct_splash: string | null; };
 type RoomRow = { id: string; name: string; finish_group_id: string | null; notes: string | null };
 type RoomFinishRow = { room_id: string; finish_group_id: string; zone: string | null };
 type AccRow = { room_id: string; acc_id: string; qty: number; size: string | null; handed: string | null; notes: string | null };
@@ -110,6 +110,20 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     ebRowsByFG.set(eb.finish_group_id, arr);
   }
 
+  // Group door_fronts and drawers by finish_group_id for fast lookup
+  const doorFrontsByFg = new Map<string, DoorFrontRow[]>();
+  for (const df of doorFronts) {
+    const arr = doorFrontsByFg.get(df.finish_group_id) ?? [];
+    arr.push(df);
+    doorFrontsByFg.set(df.finish_group_id, arr);
+  }
+  const drawersByFg = new Map<string, DrawerRow[]>();
+  for (const dr of drawers) {
+    const arr = drawersByFg.get(dr.finish_group_id) ?? [];
+    arr.push(dr);
+    drawersByFg.set(dr.finish_group_id, arr);
+  }
+
   const fgViews: FinishGroupView[] = fgs.map((g) => {
     // Color display: use stored color_name directly (handles both catalog and custom)
     const colorName = g.color_name ?? "";
@@ -146,12 +160,57 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
         paint_name: !isStain ? colorName : "",
         glaze_name: "", topcoat_name: "", sheen_name: "",
       },
-      // Populate sub-arrays from flat columns for PDF compat
-      materials: carcassName ? [{ role: "cab_ext", role_label: "Carcass", name: carcassName, where_used: "", notes: "" }] : [],
-      door_fronts: doorName ? [{ role: "base", role_label: "Base Doors", slot_label: "", style_name: doorName, material_name: "", oe_name: "", ie_name: "", panel_name: "", grain: "", vendor: "", notes: "" }] : [],
-      drawers: drawerBoxName ? [{ role: "drawer_box", role_label: "Drawer Box", slot_label: "", drawer_box_name: drawerBoxName, slides_name: "", notes: "" }] : [],
+      // Populate sub-arrays — prefer table rows, fall back to flat columns
+      materials: (() => {
+        const cabInt = g.carcass_id ? (carcassIdx.get(g.carcass_id) ?? g.carcass_id) : "";
+        return cabInt ? [{ role: "cab_int", role_label: "Carcass / Interior", name: cabInt, where_used: "", notes: "" }] : [];
+      })(),
+      door_fronts: (() => {
+        const tableDfs = doorFrontsByFg.get(g.id) ?? [];
+        if (tableDfs.length > 0) {
+          return tableDfs.map(df => ({
+            role: df.role,
+            role_label: DOOR_FRONT_ROLE_LABEL[df.role] ?? df.role,
+            slot_label: df.slot_label ?? "",
+            style_name: df.style_id ? (doorStyleIdx.get(df.style_id) ?? df.style_id) : "",
+            material_name: df.material_id ? (doorMatIdx.get(df.material_id) ?? df.material_id) : "",
+            oe_name: df.oe_id ? (cabdoorEdgeIdx.get(df.oe_id) ?? df.oe_id) : "",
+            ie_name: df.ie_id ? (cabdoorInsideIdx.get(df.ie_id) ?? df.ie_id) : "",
+            panel_name: df.panel_id ? (cabdoorPanelIdx.get(df.panel_id) ?? df.panel_id) : "",
+            grain: df.grain ?? "",
+            vendor: df.vendor ?? "",
+            notes: df.notes ?? "",
+          }));
+        }
+        // Legacy flat-column fallback
+        return doorName ? [{ role: "base", role_label: "Base Doors", slot_label: "", style_name: doorName, material_name: "", oe_name: "", ie_name: "", panel_name: "", grain: "", vendor: "", notes: "" }] : [];
+      })(),
+      drawers: (() => {
+        const tableDrs = drawersByFg.get(g.id) ?? [];
+        if (tableDrs.length > 0) {
+          return tableDrs.map(dr => ({
+            role: dr.role,
+            role_label: DRAWER_ROLE_LABEL[dr.role] ?? dr.role,
+            slot_label: dr.slot_label ?? "",
+            drawer_box_name: dr.drawer_box_id ? (drawerBoxIdx.get(dr.drawer_box_id) ?? dr.drawer_box_id) : "",
+            slides_name: dr.slides_id ? (drawerSlideIdx.get(dr.slides_id) ?? dr.slides_id) : "",
+            notes: dr.notes ?? "",
+          }));
+        }
+        // Legacy flat-column fallback: show both drawer_box and rollout if set
+        const rows = [];
+        if (drawerBoxName) rows.push({ role: "drawer_box", role_label: "Drawer Box", slot_label: "", drawer_box_name: drawerBoxName, slides_name: "", notes: "" });
+        if (rolloutBoxName) rows.push({ role: "rollout", role_label: "Rollout", slot_label: "", drawer_box_name: rolloutBoxName, slides_name: "", notes: "" });
+        return rows;
+      })(),
       edgebands: ebEntries,
-      hardware: [], countertops: [], moldings: [],
+      hardware: [],
+      countertops: (() => {
+        const hasCt = g.ct_material || g.ct_style || g.ct_edge || g.ct_splash;
+        if (!hasCt) return [];
+        return [{ location: "", style_name: g.ct_style ?? "", edge_name: g.ct_edge ?? "", splash_style: g.ct_splash ?? "", splash_edge_name: "", material_name: g.ct_material ?? "", buildup_in: null, core_substrate: "", brackets: "", notes: "" }];
+      })(),
+      moldings: [],
     };
   });
 
