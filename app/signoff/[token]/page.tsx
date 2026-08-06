@@ -4,8 +4,8 @@ export const dynamic = "force-dynamic";
  * /signoff/[token] — public client approval page.
  *
  * No auth required — the token IS the auth.
- * Fetches attached documents, generates signed URLs server-side,
- * then renders them inline for client review before signing.
+ * Fetches the combined unsigned contract PDF and renders it inline for review.
+ * The client must open/interact with the PDF before the signature canvas is enabled.
  */
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
@@ -21,41 +21,6 @@ function supabaseAdmin() {
   );
 }
 
-type AttachedDoc = { type: string; filename: string };
-type DocWithUrl  = AttachedDoc & { url: string };
-
-async function resolveDocUrls(jobId: string, docs: AttachedDoc[]): Promise<DocWithUrl[]> {
-  if (!docs.length) return [];
-  const supabase = supabaseAdmin();
-  const results: DocWithUrl[] = [];
-
-  for (const doc of docs) {
-    let storagePath: string | null = null;
-
-    if (doc.type === "disclosure") {
-      const [tmpl] = await sql<{ storage_path: string }[]>`
-        SELECT storage_path FROM template_documents
-        WHERE doc_type = 'residential_disclosure' AND storage_path IS NOT NULL
-        LIMIT 1
-      `.catch(() => []);
-      storagePath = tmpl?.storage_path ?? null;
-    } else {
-      const [file] = await sql<{ storage_path: string }[]>`
-        SELECT storage_path FROM job_files
-        WHERE job_id = ${jobId} AND filename = ${doc.filename}
-        LIMIT 1
-      `.catch(() => []);
-      storagePath = file?.storage_path ?? null;
-    }
-
-    if (!storagePath) continue;
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(storagePath, 7200);
-    if (data?.signedUrl) results.push({ ...doc, url: data.signedUrl });
-  }
-
-  return results;
-}
-
 type Signoff = {
   id: string;
   job_id: string;
@@ -64,7 +29,7 @@ type Signoff = {
   pm_note: string | null;
   signer_name: string | null;
   signed_at: string | null;
-  attached_docs_json: string | null;
+  combined_pdf_path: string | null;
   client_name: string;
   site_address: string;
   city: string | null;
@@ -77,7 +42,7 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
   try {
     const [row] = await sql`
       SELECT cs.id, cs.job_id, cs.status, cs.token_expires_at,
-             cs.pm_note, cs.signer_name, cs.signed_at, cs.attached_docs_json,
+             cs.pm_note, cs.signer_name, cs.signed_at, cs.combined_pdf_path,
              j.client_name, j.site_address, j.city
       FROM client_signoffs cs
       JOIN jobs j ON j.id = cs.job_id
@@ -90,15 +55,18 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
 
   if (!signoff) notFound();
 
-  const expired      = new Date(signoff.token_expires_at) < new Date();
+  const expired       = new Date(signoff.token_expires_at) < new Date();
   const alreadySigned = signoff.status === "signed";
-  const jobLabel     = [signoff.site_address, signoff.city].filter(Boolean).join(", ");
+  const jobLabel      = [signoff.site_address, signoff.city].filter(Boolean).join(", ");
 
-  // Resolve attached document URLs server-side
-  const rawDocs: AttachedDoc[] = (() => {
-    try { return JSON.parse(signoff.attached_docs_json ?? "[]"); } catch { return []; }
-  })();
-  const docs = (!expired && !alreadySigned) ? await resolveDocUrls(signoff.job_id, rawDocs) : [];
+  // Resolve signed URL for the combined PDF (7-hour window).
+  let combinedPdfUrl: string | null = null;
+  if (!expired && !alreadySigned && signoff.combined_pdf_path) {
+    const { data } = await supabaseAdmin()
+      .storage.from(BUCKET)
+      .createSignedUrl(signoff.combined_pdf_path, 25200);
+    combinedPdfUrl = data?.signedUrl ?? null;
+  }
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
@@ -153,14 +121,15 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
           </div>
         )}
 
-        {/* Active — show documents + signature form */}
+        {/* Active — show combined PDF + signature form */}
         {!expired && !alreadySigned && (
           <>
             <h1 className="font-heading text-2xl uppercase tracking-wide text-white mb-2">
               Specification Approval
             </h1>
             <p className="text-white/40 text-sm mb-6">
-              Please review each document below, then sign at the bottom to approve.
+              Review the complete contract below — including your cabinet specification,
+              project drawings, and disclosure documents — then sign at the bottom to approve.
             </p>
 
             {signoff.pm_note && (
@@ -172,7 +141,11 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
               </div>
             )}
 
-            <SignoffCanvas token={token} jobLabel={jobLabel} docs={docs} />
+            <SignoffCanvas
+              token={token}
+              jobLabel={jobLabel}
+              combinedPdfUrl={combinedPdfUrl}
+            />
           </>
         )}
       </main>

@@ -2513,22 +2513,28 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
               ))}
             </div>
             <div className="flex gap-3 mt-2 flex-wrap">
-              {specHW.length === 0 && (
-                <button
+              <button
                   onClick={() => {
                     const defaults: SpecHardwareItem[] = [
-                      { id: uid(), type: "Hinges", part_no: "", room: "All", qty: 1, notes: "", sort_order: 0 },
-                      { id: uid(), type: "Drawer Slides", part_no: "", room: "All", qty: 1, notes: "", sort_order: 1 },
+                      { id: uid(), type: "Hinges", part_no: "", room: "All", qty: 1, notes: "Blum 170°", sort_order: 0 },
+                      { id: uid(), type: "Drawer Slides", part_no: "", room: "All", qty: 1, notes: "Blum Tandem Plus Blumotion", sort_order: 1 },
                       { id: uid(), type: "Shelf Clips", part_no: "", room: "All", qty: 1, notes: "", sort_order: 2 },
                       { id: uid(), type: "Soft-Close Buffers", part_no: "", room: "All", qty: 1, notes: "", sort_order: 3 },
+                      { id: uid(), type: "Closet Rods", part_no: "", room: "", qty: 1, notes: "Specify room + length in notes", sort_order: 4 },
                     ];
-                    setSpecHW(defaults); markDirty();
+                    setSpecHW(prev => {
+                      // Merge: add defaults not already present (by type)
+                      const existingTypes = new Set(prev.map(h => h.type.toLowerCase()));
+                      const toAdd = defaults.filter(d => !existingTypes.has(d.type.toLowerCase()))
+                        .map((d, i) => ({ ...d, sort_order: prev.length + i }));
+                      return [...prev, ...toAdd];
+                    });
+                    markDirty();
                   }}
                   className="bg-white/5 hover:bg-white/10 border border-white/15 text-white/50 hover:text-white font-condensed uppercase tracking-widest text-xs rounded py-3 px-5 transition-colors"
                 >
-                  Preload Standard Hardware
+                  {specHW.length === 0 ? "Load Standard Hardware" : "Add Missing Defaults"}
                 </button>
-              )}
               <button onClick={addSpecHW} className="border border-dashed border-white/20 hover:border-[#f08122] text-white/30 hover:text-[#f08122] font-condensed uppercase tracking-widest text-xs rounded py-3 px-6 transition-colors">
                 + Add Hardware Row
               </button>

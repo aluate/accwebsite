@@ -1108,6 +1108,8 @@ async function main() {
   try { await sql`ALTER TABLE client_signoffs ADD COLUMN signoff_purpose TEXT DEFAULT 'spec'`; } catch {}
   try { await sql`ALTER TABLE client_signoffs ADD COLUMN certificate_path TEXT`; } catch {}
   try { await sql`ALTER TABLE client_signoffs ADD COLUMN attached_docs_json TEXT`; } catch {}
+  try { await sql`ALTER TABLE client_signoffs ADD COLUMN combined_pdf_path TEXT`; } catch {}
+  try { await sql`ALTER TABLE client_signoffs ADD COLUMN signed_contract_path TEXT`; } catch {}
 
 
   // ── builders (contractor company CRM) ────────────────────────────────────

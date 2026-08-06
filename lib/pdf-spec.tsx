@@ -62,7 +62,7 @@ export type RoomTrimEntry = { id: string; room_id: string; trim_type: string; si
 export type ApplianceEntry = { id: string; appliance_type: string; manufacturer: string; model_no: string; room_name: string; notes: string; cutout_w: number | null; cutout_h: number | null; cutout_d: number | null; sort_order: number };
 
 export type SpecPDFData = {
-  job_id: string; spec_name: string; generated_at: string;
+  job_id: string; job_number: string | null; spec_name: string; generated_at: string;
   client_name: string; client_email: string | null;
   builder_name: string | null; builder_company: string | null;
   pm: string | null; engineer: string | null; site_address: string; city: string | null;
@@ -288,30 +288,48 @@ function DraftWatermark() {
 function TitleBlock({ data, code }: { data: SpecPDFData; code: string }) {
   const stageLetter = code.split(".")[0] || "F";
   const stageWord   = stageMap[stageLetter] ?? "SPEC";
-  const projectName = [data.builder_company, data.client_name].filter(Boolean).join(" — ") || data.client_name;
+  const projectName = data.client_name || "";
+  const jobNum      = data.job_number ?? "";   // blank if no job number assigned
+  const isApproved  = data.lifecycle_state === "APPROVED";
   return (
     <View style={S.tbWrap} fixed>
-      <View style={S.tbTopRow}>
-        <View style={S.tbLeft}>
-          <Text style={S.tbBrand}>ADVANCED CUSTOM CABINETS</Text>
-          <View style={S.tbStageRow}>
-            <Text style={S.tbStage}>{stageWord}</Text>
-            <Text style={S.tbCover}>SHEET {code}</Text>
-          </View>
-          <Text style={S.tbProject}>{projectName}</Text>
+      {/* 3-column header: logo | project info | job meta */}
+      <View style={{ flexDirection: "row", borderWidth: 1, borderColor: "#ccc" }}>
+        {/* Logo */}
+        <View style={{ width: 80, padding: 5, borderRightWidth: 0.5, borderRightColor: "#ccc", justifyContent: "center", alignItems: "center" }}>
+          <Image src={LOGO_PATH} style={{ width: 68 }} />
         </View>
-        <View>
-          <Text style={S.tbRight}>Job #: {data.job_id}</Text>
-          {data.pm              && <Text style={S.tbRight}>PM: {data.pm}</Text>}
-          {data.builder_company && <Text style={S.tbRight}>Builder: {data.builder_company}</Text>}
-          {data.builder_name    && <Text style={[S.tbRight, { fontSize: 6, color: MUTED }]}>Contact: {data.builder_name}</Text>}
-          <Text style={S.tbRight}>Date: {new Date(data.generated_at).toLocaleDateString()}</Text>
+        {/* Centre: project + spec type */}
+        <View style={{ flex: 1, padding: 5, borderRightWidth: 0.5, borderRightColor: "#ccc" }}>
+          <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold", color: DARK }}>{projectName}</Text>
+          {data.builder_company && (
+            <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: DARK, marginTop: 1 }}>{data.builder_company}</Text>
+          )}
+          <View style={{ flexDirection: "row", alignItems: "center", marginTop: 2 }}>
+            <Text style={{ fontSize: 7, fontFamily: "Helvetica-Bold", color: ORANGE, letterSpacing: 1.2, marginRight: 6 }}>{stageWord}</Text>
+            <Text style={{ fontSize: 6.5, color: MUTED, letterSpacing: 0.8 }}>SHEET {code}</Text>
+          </View>
+          <Text style={{ fontSize: 6, color: MUTED, marginTop: 2 }}>
+            250 W Anton Ave · Coeur d&apos;Alene, Idaho 83815 · (208) 772-2377
+          </Text>
+        </View>
+        {/* Right: meta */}
+        <View style={{ width: 130, padding: 5, justifyContent: "center" }}>
+          {jobNum ? <Text style={{ fontSize: 6.5, color: "#444", marginBottom: 1 }}>Job #:     {jobNum}</Text> : null}
+          {data.pm              && <Text style={{ fontSize: 6.5, color: "#444", marginBottom: 1 }}>PM:        {data.pm}</Text>}
+          {data.builder_company && <Text style={{ fontSize: 6.5, color: "#444", marginBottom: 1 }}>Builder:   {data.builder_company}</Text>}
+          <Text style={{ fontSize: 6.5, color: "#444", marginBottom: 1 }}>Date:      {new Date(data.generated_at).toLocaleDateString()}</Text>
+          <Text style={{ fontSize: 6, fontFamily: "Helvetica-Bold", color: isApproved ? "#2a7a2a" : ORANGE, marginTop: 2, letterSpacing: 0.8 }}>
+            {isApproved ? "APPROVED" : "DRAFT — PENDING APPROVAL"}
+          </Text>
         </View>
       </View>
-      <Text style={S.tbAddrRow}>250 W Anton Ave · Coeur d&apos;Alene, Idaho 83815 · (208) 772-2377</Text>
-      <View style={S.tbBanner}>
-        <Text style={S.tbBnrLeft}>{data.job_id}  ·  {projectName}</Text>
-        <Text style={S.tbBnrRight}>{stageWord} · SHEET {code}</Text>
+      {/* Orange banner */}
+      <View style={{ flexDirection: "row", justifyContent: "space-between", borderTopWidth: 0, borderBottomWidth: 1.5, borderBottomColor: ORANGE, paddingVertical: 2, paddingHorizontal: 2, backgroundColor: "#fffaf6" }}>
+        <Text style={{ fontSize: 7, fontFamily: "Helvetica-Bold", color: DARK, letterSpacing: 0.4 }}>
+          {[jobNum, projectName].filter(Boolean).join("  ·  ")}
+        </Text>
+        <Text style={{ fontSize: 6.5, color: MUTED, letterSpacing: 0.8 }}>{stageWord} · SHEET {code}</Text>
       </View>
     </View>
   );
@@ -334,13 +352,25 @@ function PageFooter({ data }: { data: SpecPDFData }) {
 // ─── Page 1: Finish Schedule + Room Schedule ──────────────────────────────────
 
 function FinishSchedulePage({ data }: { data: SpecPDFData }) {
-  const fgs = data.finish_groups;
+  const fgs     = data.finish_groups;
   const fgPulls = data.finish_group_pulls ?? {};
-
-  // Column flex widths
-  const COL = { fg: 0.9, color: 1.6, species: 0.9, carcass: 1.3, drawerBox: 1.3, rolloutBox: 1.3, doorStyle: 1.5, appliedPanels: 0.9, pulls: 2.2, notes: 1.6 };
-
   const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+
+  // Conditional countertop column: only show if any FG has CT data
+  const hasCT = fgs.some(fg => fg.countertops.length > 0);
+
+  // Column flex widths for the Finish Schedule
+  const COL = {
+    fg:       0.9,
+    color:    1.6,
+    species:  0.8,
+    carcass:  1.3,
+    doorSpec: 2.8,   // stacked: Doors / DF / Applied Ends
+    ct:       1.6,   // countertop (conditional)
+    pulls:    2.2,
+    notes:    1.4,
+  };
+
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
       {isDraft && <DraftWatermark />}
@@ -351,46 +381,106 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
       {fgs.length === 0 ? (
         <Text style={[S.cellMu, { marginBottom: 12 }]}>No finish groups defined.</Text>
       ) : (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 14 }}>
           {/* Header */}
           <View style={S.colHdr}>
             <Text style={[S.colHdrTx, { flex: COL.fg }]}>Finish Group</Text>
-            <Text style={[S.colHdrTx, { flex: COL.color }]}>Color</Text>
+            <Text style={[S.colHdrTx, { flex: COL.color }]}>Color / Finish</Text>
             <Text style={[S.colHdrTx, { flex: COL.species }]}>Species</Text>
             <Text style={[S.colHdrTx, { flex: COL.carcass }]}>Carcass</Text>
-            <Text style={[S.colHdrTx, { flex: COL.drawerBox }]}>Drawer Box</Text>
-            <Text style={[S.colHdrTx, { flex: COL.rolloutBox }]}>Rollout Box</Text>
-            <Text style={[S.colHdrTx, { flex: COL.doorStyle }]}>Door Style</Text>
-            <Text style={[S.colHdrTx, { flex: COL.appliedPanels }]}>Applied Panels</Text>
+            <Text style={[S.colHdrTx, { flex: COL.doorSpec }]}>Doors · DF · Applied Ends</Text>
+            {hasCT && <Text style={[S.colHdrTx, { flex: COL.ct }]}>Countertop</Text>}
             <Text style={[S.colHdrTx, { flex: COL.pulls }]}>Pulls</Text>
             <Text style={[S.colHdrTx, { flex: COL.notes }]}>Notes</Text>
           </View>
+
           {fgs.map((fg, fi) => {
-            const pulls = fgPulls[fg.id] ?? [];
+            const pulls    = fgPulls[fg.id] ?? [];
             const colorName = fg.finish.stain_name || fg.finish.paint_name || "";
-            const carcass = fg.materials.find(m => m.role === "cab_ext")?.name ?? "";
-            const drawerBox = fg.drawers.find(d2 => d2.role === "drawer_box")?.drawer_box_name ?? "";
-            const doorStyle = fg.door_fronts.find(d2 => d2.role === "base")?.style_name ?? "";
-            const rowStyle = fi % 2 === 0 ? S.row : S.rowAlt;
+            const carcass   = fg.materials.find(m => m.role === "cab_ext")?.name ?? "";
+            const rowStyle  = fi % 2 === 0 ? S.row : S.rowAlt;
+
+            // Pull display lines
             const pullLines = pulls.length === 0 ? ["—"] : pulls.map(p => {
               const parts = [p.description, p.where_used ? `(${p.where_used})` : ""].filter(Boolean);
               return parts.join(" ");
             });
+
+            // Door / DF / Applied Ends stacked lines
+            const doorLines: { label: string; val: string }[] = [];
+
+            // Doors (base role, grouped — take distinct styles)
+            const baseDoors = fg.door_fronts.filter(df => df.role === "base");
+            if (baseDoors.length > 0) {
+              const bd = baseDoors[0];
+              const val = [bd.style_name, bd.material_name].filter(v => v && v !== "—").join(" / ") || "—";
+              doorLines.push({ label: "Doors", val });
+            }
+
+            // Drawer Fronts — look for role "drawer_front"; fall back to first non-base door front
+            const dfFronts = fg.door_fronts.filter(df => df.role === "drawer_front");
+            const dfSource = dfFronts.length > 0 ? dfFronts : fg.door_fronts.filter(df => df.role !== "base" && df.role !== "applied_end");
+            if (dfSource.length > 0) {
+              const df0 = dfSource[0];
+              const val = [df0.style_name, df0.material_name].filter(v => v && v !== "—").join(" / ") || "—";
+              // Only show if different from base doors
+              if (!baseDoors[0] || val !== [baseDoors[0].style_name, baseDoors[0].material_name].filter(v => v && v !== "—").join(" / ")) {
+                doorLines.push({ label: "DF", val });
+              } else {
+                doorLines.push({ label: "DF", val: "Match Doors" });
+              }
+            } else if (baseDoors.length > 0) {
+              doorLines.push({ label: "DF", val: "Match Doors" });
+            }
+
+            // Applied Ends — look for role "applied_end" or use fg.applied_panels
+            const appliedEndDf = fg.door_fronts.find(df => df.role === "applied_end");
+            if (appliedEndDf) {
+              const val = [appliedEndDf.style_name, appliedEndDf.material_name].filter(v => v && v !== "—").join(" / ") || fmtAppliedPanels(fg.applied_panels);
+              doorLines.push({ label: "Appl. Ends", val });
+            } else if (fg.applied_panels) {
+              doorLines.push({ label: "Appl. Ends", val: fmtAppliedPanels(fg.applied_panels) });
+            }
+
+            // Countertop summary (first CT only, for the column)
+            const ct = fg.countertops[0];
+            const ctVal = ct
+              ? [ct.material_name, ct.style_name, ct.edge_name ? `${ct.edge_name} edge` : ""].filter(v => v && v !== "—").join(" / ")
+              : "—";
+
             return (
               <View key={fg.id} style={rowStyle} wrap={false}>
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
                 <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
                 <Text style={[S.cell, { flex: COL.species }]}>{d(fg.species)}</Text>
                 <Text style={[S.cell, { flex: COL.carcass }]}>{d(carcass)}</Text>
-                <Text style={[S.cell, { flex: COL.drawerBox }]}>{d(drawerBox)}</Text>
-                <Text style={[S.cell, { flex: COL.rolloutBox }]}>{d(fg.rollout_box_name) === "—" ? d(drawerBox) : d(fg.rollout_box_name)}</Text>
-                <Text style={[S.cell, { flex: COL.doorStyle }]}>{d(doorStyle)}</Text>
-                <Text style={[S.cell, { flex: COL.appliedPanels }]}>{fmtAppliedPanels(fg.applied_panels)}</Text>
-                <View style={{ flex: COL.pulls, padding: 4 }}>
-                  {pullLines.map((line, li) => (
-                    <Text key={li} style={[{ fontSize: 7, color: DARK }, li > 0 && { borderTopWidth: 0.3, borderTopColor: HAIR, marginTop: 2, paddingTop: 2 }]}>{line}</Text>
+
+                {/* Stacked door / DF / applied ends */}
+                <View style={{ flex: COL.doorSpec, padding: 4 }}>
+                  {doorLines.length === 0 ? (
+                    <Text style={{ fontSize: 7, color: MUTED, fontStyle: "italic" }}>—</Text>
+                  ) : doorLines.map((line, li) => (
+                    <View key={li} style={li > 0 ? { borderTopWidth: 0.3, borderTopColor: HAIR, marginTop: 2, paddingTop: 2 } : {}}>
+                      <Text style={{ fontSize: 6.5, color: DARK }}>
+                        <Text style={{ fontFamily: "Helvetica-Bold", color: MUTED, fontSize: 6 }}>{line.label}: </Text>
+                        {line.val}
+                      </Text>
+                    </View>
                   ))}
                 </View>
+
+                {/* Countertop (conditional column) */}
+                {hasCT && (
+                  <Text style={[S.cell, { flex: COL.ct }]}>{ctVal}</Text>
+                )}
+
+                {/* Pulls — stacked */}
+                <View style={{ flex: COL.pulls, padding: 4 }}>
+                  {pullLines.map((line, li) => (
+                    <Text key={li} style={[{ fontSize: 7, color: DARK }, li > 0 ? { borderTopWidth: 0.3, borderTopColor: HAIR, marginTop: 2, paddingTop: 2 } : {}]}>{line}</Text>
+                  ))}
+                </View>
+
                 <Text style={[S.cellMu, { flex: COL.notes }]}>{d(fg.notes)}</Text>
               </View>
             );
@@ -406,7 +496,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
       {data.rooms.length === 0 ? (
         <Text style={S.cellMu}>No rooms added.</Text>
       ) : (
-        <View>
+        <View style={{ marginBottom: 12 }}>
           <View style={S.colHdr}>
             <Text style={[S.colHdrTx, { flex: 2 }]}>Room</Text>
             <Text style={[S.colHdrTx, { flex: 0.8 }]}>FG</Text>
@@ -428,60 +518,72 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
         </View>
       )}
 
-      {/* ACCESSORIES BY FINISH GROUP (WO-specific view) */}
+      {/* ACCESSORIES BY ROOM (whole-job, sorted by room) */}
       {(() => {
-        const fgAccMap = new Map<string, { roomName: string; accs: typeof data.rooms[0]["accessories"] }[]>();
+        type AccRow = { roomName: string; name: string; brand: string; series: string; size: string; handed: string; qty: number };
+        const allRows: AccRow[] = [];
         for (const room of data.rooms) {
-          for (const rf of room.finishes) {
-            if (!fgAccMap.has(rf.finish_group_id)) fgAccMap.set(rf.finish_group_id, []);
-            if (room.accessories.length > 0) {
-              fgAccMap.get(rf.finish_group_id)!.push({ roomName: room.name, accs: room.accessories });
-            }
+          for (const a of room.accessories) {
+            allRows.push({ roomName: room.name, name: a.name, brand: a.brand, series: a.series, size: a.size, handed: a.handed, qty: a.qty });
           }
         }
-        const fgsWithAccs = data.finish_groups.filter(fg => (fgAccMap.get(fg.id)?.length ?? 0) > 0);
-        if (fgsWithAccs.length === 0) return null;
+        if (allRows.length === 0) return null;
+        // Group by room
+        const byRoom = new Map<string, AccRow[]>();
+        for (const row of allRows) {
+          if (!byRoom.has(row.roomName)) byRoom.set(row.roomName, []);
+          byRoom.get(row.roomName)!.push(row);
+        }
+        const sortedRooms = Array.from(byRoom.entries()).sort(([a], [b]) => a.localeCompare(b));
         return (
           <>
-            <Text style={[S.secHead, { marginTop: 10 }]}>ACCESSORIES BY FINISH GROUP</Text>
-            {fgsWithAccs.map(fg => {
-              const roomAccs = fgAccMap.get(fg.id) ?? [];
-              return (
-                <View key={fg.id} style={{ marginBottom: 6 }} wrap={false}>
-                  <View style={S.fgBand}>
-                    <Text style={S.fgBandTx}>{fg.label}</Text>
-                  </View>
-                  <View style={S.colHdr}>
-                    <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
-                    <Text style={[S.colHdrTx, { flex: 3 }]}>Item</Text>
-                    <Text style={[S.colHdrTx, { flex: 0.8 }]}>Series</Text>
-                    <Text style={[S.colHdrTx, { flex: 0.6 }]}>Size</Text>
-                    <Text style={[S.colHdrTx, { flex: 0.6 }]}>Hand</Text>
-                    <Text style={[S.colHdrTx, { flex: 0.5 }]}>Qty</Text>
-                  </View>
-                  {roomAccs.flatMap(({ roomName, accs }) =>
-                    accs.map((a, ai) => (
-                      <View key={`${roomName}-${ai}`} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
-                        <Text style={[S.cell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{ai === 0 ? roomName : ""}</Text>
-                        <Text style={[S.cell, { flex: 3 }]}>{d(a.name)}</Text>
-                        <Text style={[S.cell, { flex: 0.8 }]}>{d(a.series)}</Text>
-                        <Text style={[S.cell, { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
-                        <Text style={[S.cell, { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
-                        <Text style={[S.cell, { flex: 0.5 }]}>{String(a.qty)}</Text>
-                      </View>
-                    ))
-                  )}
+            <Text style={[S.secHead, { marginTop: 8 }]}>ACCESSORIES BY ROOM</Text>
+            <View style={S.colHdr}>
+              <Text style={[S.colHdrTx, { flex: 1.5 }]}>Room</Text>
+              <Text style={[S.colHdrTx, { flex: 3 }]}>Item</Text>
+              <Text style={[S.colHdrTx, { flex: 0.8 }]}>Series</Text>
+              <Text style={[S.colHdrTx, { flex: 0.6 }]}>Size</Text>
+              <Text style={[S.colHdrTx, { flex: 0.6 }]}>Hand</Text>
+              <Text style={[S.colHdrTx, { flex: 0.5 }]}>Qty</Text>
+            </View>
+            {sortedRooms.flatMap(([roomName, accs]) =>
+              accs.map((a, ai) => (
+                <View key={`${roomName}-${ai}`} style={ai % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
+                  <Text style={[S.cell, { flex: 1.5, fontFamily: "Helvetica-Bold" }]}>{ai === 0 ? roomName : ""}</Text>
+                  <Text style={[S.cell, { flex: 3 }]}>{d(a.name)}</Text>
+                  <Text style={[S.cell, { flex: 0.8 }]}>{d(a.series)}</Text>
+                  <Text style={[S.cell, { flex: 0.6 }]}>{a.size ? `${a.size}"` : "—"}</Text>
+                  <Text style={[S.cell, { flex: 0.6 }]}>{a.handed && a.handed !== "N/A" ? a.handed : "—"}</Text>
+                  <Text style={[S.cell, { flex: 0.5 }]}>{String(a.qty)}</Text>
                 </View>
-              );
-            })}
+              ))
+            )}
           </>
         );
       })()}
+
+      {/* SIGN-OFF BLOCK */}
+      <View style={{ flexDirection: "row", gap: 16, marginTop: 14, marginBottom: 4 }} wrap={false}>
+        {[
+          { label: "Client Approval", sub: "I have reviewed and approve the above specification." },
+          { label: "ACC Representative", sub: "" },
+        ].map((box, bi) => (
+          <View key={bi} style={{ flex: 1, borderWidth: 0.5, borderColor: "#ccc", borderRadius: 2, padding: 6 }}>
+            <Text style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>{box.label}</Text>
+            {box.sub ? <Text style={{ fontSize: 6, color: MUTED, marginBottom: 12 }}>{box.sub}</Text> : <View style={{ height: 12 }} />}
+            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#999", marginBottom: 3 }} />
+            <Text style={{ fontSize: 6, color: "#bbb" }}>Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</Text>
+            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#999", marginBottom: 3, marginTop: 10 }} />
+            <Text style={{ fontSize: 6, color: "#bbb" }}>Print Name</Text>
+          </View>
+        ))}
+      </View>
 
       <PageFooter data={data} />
     </Page>
   );
 }
+
 
 // ─── Page 2: Accessories + Moldings ──────────────────────────────────────────
 // (Edgebanding removed — now lives on W.n Work Order sheets)

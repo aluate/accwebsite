@@ -321,7 +321,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   }));
 
   return {
-    job_id: job.job_number ?? spec.job_id, engineer: job.engineer ?? null, spec_name: spec.name,
+    job_id: job.job_number ?? spec.job_id, job_number: job.job_number ?? null, engineer: job.engineer ?? null, spec_name: spec.name,
     generated_at: new Date().toISOString(),
     client_name: job.client_name, client_email: job.client_email,
     builder_name: job.builder_name, builder_company: job.builder_company,

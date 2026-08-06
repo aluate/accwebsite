@@ -2,87 +2,33 @@
 
 import { useRef, useState, useEffect } from "react";
 
-type Doc = { type: string; filename: string; url: string };
-
-function DocViewer({ doc, index }: { doc: Doc; index: number }) {
-  const [expanded, setExpanded] = useState(false);
-  const [opened, setOpened] = useState(false);
-
-  const label =
-    doc.type === "disclosure"     ? "Residential Disclosure"
-    : doc.type === "03_job_specs" ? "Cabinet Specification"
-    : doc.type === "05_drawings"  ? "Project Drawings"
-    : doc.type === "02_quote"     ? "Estimate / Quote"
-    : doc.filename;
-
-  function openNewTab() {
-    window.open(doc.url, "_blank", "noopener");
-    setOpened(true);
-  }
-
-  return (
-    <div className="border border-white/10 rounded-lg overflow-hidden">
-      {/* Header row */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-white/5">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="text-[#f08122] text-lg shrink-0">📄</span>
-          <div className="min-w-0">
-            <p className="text-white text-sm font-medium truncate">{label}</p>
-            <p className="text-white/30 text-xs truncate">{doc.filename}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {opened && (
-            <span className="text-green-400 text-xs font-condensed uppercase tracking-widest">
-              ✓ Opened
-            </span>
-          )}
-          <button
-            onClick={openNewTab}
-            className="text-xs font-condensed uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white/70 hover:text-white px-3 py-1.5 rounded transition-colors"
-          >
-            Open
-          </button>
-          <button
-            onClick={() => { setExpanded(!expanded); setOpened(true); }}
-            className="text-xs font-condensed uppercase tracking-widest bg-[#f08122]/20 hover:bg-[#f08122]/30 text-[#f08122] px-3 py-1.5 rounded transition-colors"
-          >
-            {expanded ? "Hide" : "Preview"}
-          </button>
-        </div>
-      </div>
-
-      {/* Inline PDF preview */}
-      {expanded && (
-        <div className="border-t border-white/10">
-          <iframe
-            src={doc.url}
-            className="w-full"
-            style={{ height: "520px", background: "#1a1a1a" }}
-            title={label}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
+/**
+ * SignoffCanvas — renders the combined contract PDF inline and gates the
+ * signature form on the user having opened/interacted with the document.
+ */
 export function SignoffCanvas({
   token,
   jobLabel,
-  docs = [],
+  combinedPdfUrl,
 }: {
   token: string;
   jobLabel: string;
-  docs?: Doc[];
+  combinedPdfUrl: string | null;
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [drawing, setDrawing] = useState(false);
-  const [hasSig, setHasSig]   = useState(false);
-  const [name, setName]       = useState("");
-  const [agreed, setAgreed]   = useState(false);
-  const [state, setState]     = useState<"idle" | "submitting" | "done" | "error">("idle");
-  const [errMsg, setErrMsg]   = useState("");
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const [drawing, setDrawing]     = useState(false);
+  const [hasSig, setHasSig]       = useState(false);
+  const [name, setName]           = useState("");
+  const [agreed, setAgreed]       = useState(false);
+  const [docOpened, setDocOpened] = useState(false);
+  const [showPdf, setShowPdf]     = useState(false);
+  const [state, setState]         = useState<"idle" | "submitting" | "done" | "error">("idle");
+  const [errMsg, setErrMsg]       = useState("");
+
+  // Auto-expand PDF if URL is available
+  useEffect(() => {
+    if (combinedPdfUrl) setShowPdf(true);
+  }, [combinedPdfUrl]);
 
   // ── canvas setup ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -127,17 +73,25 @@ export function SignoffCanvas({
 
   function clearCanvas() {
     const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.getContext("2d")!.clearRect(0, 0, canvas.width, canvas.height);
     setHasSig(false);
+  }
+
+  function handleOpenNewTab() {
+    if (combinedPdfUrl) window.open(combinedPdfUrl, "_blank", "noopener");
+    setDocOpened(true);
+  }
+
+  function handleTogglePdf() {
+    setShowPdf(!showPdf);
+    setDocOpened(true);
   }
 
   // ── submit ────────────────────────────────────────────────────────────────
   async function submit() {
-    if (!name.trim() || !hasSig || !agreed) return;
+    if (!name.trim() || !hasSig || !agreed || !docOpened) return;
     setState("submitting");
-    const canvas = canvasRef.current!;
-    const signature_data = canvas.toDataURL("image/png");
+    const signature_data = canvasRef.current!.toDataURL("image/png");
     try {
       const res = await fetch(`/api/signoffs/${token}`, {
         method: "POST",
@@ -166,39 +120,91 @@ export function SignoffCanvas({
           Signature Received
         </h2>
         <p className="text-white/50 text-sm max-w-sm">
-          Your approval has been recorded. The Advanced Custom Cabinets team
-          has been notified and will be in touch.
+          Your approval has been recorded and a signed copy has been saved.
+          The Advanced Custom Cabinets team has been notified.
         </p>
         <p className="text-white/25 text-xs mt-4">You may close this window.</p>
       </div>
     );
   }
 
-  const canSubmit = name.trim() && hasSig && agreed && state === "idle";
+  const canSubmit = name.trim() && hasSig && agreed && docOpened && state === "idle";
 
   return (
     <div className="space-y-8">
 
-      {/* ── Documents to review ─────────────────────────────────────────── */}
-      {docs.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xs font-condensed uppercase tracking-widest text-white/50">
-              Documents to Review
-            </h2>
-            <div className="flex-1 border-t border-white/10" />
-            <span className="text-xs font-condensed text-white/30">{docs.length} file{docs.length !== 1 ? "s" : ""}</span>
-          </div>
-          <p className="text-white/40 text-xs">
-            Please review each document before signing. Use &ldquo;Preview&rdquo; to read inline or &ldquo;Open&rdquo; to view in a new tab.
-          </p>
-          {docs.map((doc, i) => (
-            <DocViewer key={i} doc={doc} index={i} />
-          ))}
+      {/* ── Contract document ──────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xs font-condensed uppercase tracking-widest text-white/50">
+            Contract Documents
+          </h2>
+          <div className="flex-1 border-t border-white/10" />
+          {docOpened && (
+            <span className="text-green-400 text-xs font-condensed uppercase tracking-widest">
+              ✓ Reviewed
+            </span>
+          )}
         </div>
-      )}
 
-      {/* ── Approval form ───────────────────────────────────────────────── */}
+        {combinedPdfUrl ? (
+          <div className="border border-white/10 rounded-lg overflow-hidden">
+            {/* Header bar */}
+            <div className="flex items-center justify-between gap-3 px-4 py-3 bg-white/5">
+              <div className="flex items-center gap-3">
+                <span className="text-[#f08122] text-lg shrink-0">📄</span>
+                <div>
+                  <p className="text-white text-sm font-medium">Cabinet Specification &amp; Contract</p>
+                  <p className="text-white/30 text-xs">
+                    Includes spec, drawings, disclosure &amp; warranty
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={handleOpenNewTab}
+                  className="text-xs font-condensed uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white/70 hover:text-white px-3 py-1.5 rounded transition-colors"
+                >
+                  Open ↗
+                </button>
+                <button
+                  onClick={handleTogglePdf}
+                  className="text-xs font-condensed uppercase tracking-widest bg-[#f08122]/20 hover:bg-[#f08122]/30 text-[#f08122] px-3 py-1.5 rounded transition-colors"
+                >
+                  {showPdf ? "Hide" : "Preview"}
+                </button>
+              </div>
+            </div>
+
+            {/* Inline PDF viewer */}
+            {showPdf && (
+              <div className="border-t border-white/10">
+                <iframe
+                  src={combinedPdfUrl}
+                  className="w-full"
+                  style={{ height: "640px", background: "#1a1a1a" }}
+                  title="Contract Documents"
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="border border-white/10 rounded-lg px-4 py-6 text-center">
+            <p className="text-white/40 text-sm">
+              Contract documents are being prepared. If this message persists,
+              contact your project manager.
+            </p>
+          </div>
+        )}
+
+        {!docOpened && (
+          <p className="text-[#f08122]/70 text-xs text-center font-condensed uppercase tracking-wider">
+            Please open or preview the contract documents before signing
+          </p>
+        )}
+      </div>
+
+      {/* ── Approval form ───────────────────────────────────────────────────── */}
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <h2 className="text-xs font-condensed uppercase tracking-widest text-white/50">
@@ -217,7 +223,7 @@ export function SignoffCanvas({
         <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-5">
           <p className="text-white/70 text-sm leading-relaxed">
             By signing below, you confirm that you have reviewed and approve the
-            cabinet specifications for the above job, as presented by Advanced
+            cabinet specification for the above job, as presented by Advanced
             Custom Cabinets. Changes after signing may be subject to a change order.
           </p>
         </div>
@@ -275,9 +281,9 @@ export function SignoffCanvas({
             className="mt-0.5 accent-[#f08122] w-4 h-4 shrink-0"
           />
           <span className="text-white/60 text-sm leading-relaxed">
-            I confirm I have read and approve the above cabinet specifications.
-            I understand that changes after this approval may be subject to a
-            change order fee.
+            I confirm I have reviewed the contract documents and approve the
+            cabinet specifications for this job. I understand that changes after
+            this approval may be subject to a change order fee.
           </span>
         </label>
 
@@ -295,9 +301,15 @@ export function SignoffCanvas({
           {state === "submitting" ? "Submitting…" : "Submit Approval"}
         </button>
 
+        {!docOpened && (
+          <p className="text-center text-white/30 text-xs font-condensed uppercase tracking-widest">
+            Open the contract documents above to enable signing
+          </p>
+        )}
+
         <p className="text-white/20 text-[11px] text-center leading-relaxed">
           Your name, signature, IP address, and timestamp will be recorded.
-          This constitutes a legally binding electronic approval.
+          A signed copy will be saved automatically and sent to your project manager.
         </p>
       </div>
     </div>

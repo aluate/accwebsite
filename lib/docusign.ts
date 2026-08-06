@@ -1,24 +1,19 @@
 /**
- * DocuSign envelope builder + sender.
+ * lib/docusign.ts
  *
- * Auth: JWT Bearer (server-to-server). No user interaction after first consent grant.
- * Docs: https://developers.docusign.com/platform/auth/jwt-get-token/
+ * Contract packet builder + (legacy) DocuSign sender.
  *
- * Required env vars:
- *   DOCUSIGN_INTEGRATION_KEY  — app/integration key (UUID)
- *   DOCUSIGN_USER_ID          — impersonation user ID (UUID)
- *   DOCUSIGN_ACCOUNT_ID       — eSign account ID (UUID)
- *   DOCUSIGN_PRIVATE_KEY      — RSA private key (PEM, newlines as \n or literal)
- *   DOCUSIGN_BASE_PATH        — https://demo.docusign.net  (dev) or https://na3.docusign.net (prod)
+ * Primary export: buildContractPacket(jobId, specId)
+ *   — Generates the combined unsigned PDF: spec + drawings + disclosure + warranty.
+ *   — Used by the internal signing flow (/api/jobs/[id]/send-contract).
  *
- * First-time setup: Karl must grant consent once per integration key:
- *   Dev:  https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id={INTEGRATION_KEY}&redirect_uri=https://accwebsite-cd58.vercel.app
- *   Prod: https://account.docusign.com/oauth/auth?...
+ * Legacy: buildEnvelopePDF / sendEnvelope kept for DocuSign code paths.
  */
 
 import { sql } from "@/lib/db";
 import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
+import { downloadTemplateDoc } from "@/lib/template-documents";
 import { createClient } from "@supabase/supabase-js";
 
 // ── Supabase admin client ─────────────────────────────────────────────────
@@ -33,14 +28,112 @@ function getSupabaseAdmin() {
   return _supabaseAdmin;
 }
 
-const DISCLOSURE_STORAGE_PATH = "templates/residential-disclosure.pdf";
 const STORAGE_BUCKET = "job-files";
 
-function isResidentialJob(builder_company: string | null | undefined): boolean {
-  return !builder_company || builder_company.trim() === "";
+// ── Contract packet builder ───────────────────────────────────────────────
+export type ContractPacketResult = {
+  buffer: Buffer;
+  bytes: number;
+  pageCount: number;
+  components: {
+    spec: number;
+    drawings: number;
+    disclosure: number;
+    warranty: number;
+  };
+  drawing_filename: string | null;
+  spec_filename: string | null;
+};
+
+/**
+ * Build the combined unsigned contract PDF for a job:
+ *   spec PDF (fresh render) + most-recent drawings + disclosure + warranty.
+ *
+ * Throws if drawings are missing (they are required for a complete contract).
+ * Disclosure and warranty are best-effort — included if uploaded, skipped with a warning if not.
+ */
+export async function buildContractPacket(
+  jobId: string,
+  specId: string
+): Promise<ContractPacketResult> {
+  // 1. Spec PDF — fresh render.
+  const specData = await loadSpecPDFData(specId);
+  const specBuf = await renderSpecPDFBuffer(specData);
+
+  // 2. Drawings — most-recent engineering drawing from job_files.
+  const drawingRows = await sql`
+    SELECT storage_path, filename FROM job_files
+    WHERE job_id = ${jobId}
+      AND kind IN ('drawings', '05_drawings', '16_eng_drawings')
+    ORDER BY
+      CASE kind WHEN '16_eng_drawings' THEN 0 WHEN '05_drawings' THEN 1 ELSE 2 END,
+      uploaded_at DESC
+    LIMIT 1
+  `;
+
+  let drawingsBuf: Buffer | null = null;
+  let drawingFile: string | null = null;
+
+  if (drawingRows.length > 0) {
+    const row = drawingRows[0] as { storage_path: string; filename: string };
+    drawingFile = row.filename;
+    const { data, error } = await getSupabaseAdmin()
+      .storage.from(STORAGE_BUCKET)
+      .download(row.storage_path);
+    if (!error && data) drawingsBuf = Buffer.from(await data.arrayBuffer());
+  }
+
+  if (!drawingsBuf) {
+    throw new Error(
+      "No drawings PDF found for this job. Upload a PDF with kind '05_drawings' or '16_eng_drawings' before sending the contract."
+    );
+  }
+
+  // 3. Disclosure + Warranty from template library.
+  const [disclosureDoc, warrantyDoc] = await Promise.all([
+    downloadTemplateDoc("residential_disclosure"),
+    downloadTemplateDoc("warranty"),
+  ]);
+
+  // 4. Merge via pdf-lib.
+  const { PDFDocument } = await import("pdf-lib");
+  const out = await PDFDocument.create();
+
+  async function appendAll(srcBuffer: Buffer): Promise<number> {
+    const src = await PDFDocument.load(srcBuffer);
+    const indices = src.getPageIndices();
+    const pages = await out.copyPages(src, indices);
+    for (const p of pages) out.addPage(p);
+    return pages.length;
+  }
+
+  const specPages       = await appendAll(specBuf);
+  const drawingsPages   = await appendAll(drawingsBuf);
+  const disclosurePages = disclosureDoc ? await appendAll(disclosureDoc.buffer) : 0;
+  const warrantyPages   = warrantyDoc   ? await appendAll(warrantyDoc.buffer)   : 0;
+
+  if (!disclosureDoc) console.warn("[buildContractPacket] disclosure not found — skipping.");
+  if (!warrantyDoc)   console.warn("[buildContractPacket] warranty not found — skipping.");
+
+  const bytes = await out.save();
+  const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+
+  return {
+    buffer: Buffer.from(bytes),
+    bytes: bytes.length,
+    pageCount: specPages + drawingsPages + disclosurePages + warrantyPages,
+    components: {
+      spec: specPages,
+      drawings: drawingsPages,
+      disclosure: disclosurePages,
+      warranty: warrantyPages,
+    },
+    drawing_filename: drawingFile,
+    spec_filename: `spec-${ts}.pdf`,
+  };
 }
 
-// ── Envelope PDF builder ──────────────────────────────────────────────────
+// ── Legacy: envelope PDF builder (used by /api/specs/[id]/contract) ───────
 export type EnvelopeBuildResult = {
   buffer: Buffer;
   bytes: number;
@@ -50,17 +143,17 @@ export type EnvelopeBuildResult = {
   disclosure_attached: boolean;
 };
 
+function isResidentialJob(builder_company: string | null | undefined): boolean {
+  return !builder_company || builder_company.trim() === "";
+}
+
 export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildResult> {
   const data = await loadSpecPDFData(specId);
-
-  // 1. Spec PDF (fresh render).
   const specBuf = await renderSpecPDFBuffer(data);
 
-  // 2. Drawings — most-recent drawing file from Supabase Storage.
   const [jobRow] = await sql`SELECT builder_company FROM jobs WHERE id = ${data.job_id}`;
   const job = jobRow as { builder_company: string | null } | undefined;
 
-  // Accept both legacy 'drawings' kind and current '05_drawings' / '16_eng_drawings'
   const drawingRows = await sql`
     SELECT storage_path, filename FROM job_files
     WHERE job_id = ${data.job_id}
@@ -77,33 +170,23 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
   if (drawingRows.length > 0) {
     const { storage_path, filename } = drawingRows[0] as { storage_path: string; filename: string };
     drawingFile = filename;
-    const { data: fileData, error } = await getSupabaseAdmin().storage
-      .from(STORAGE_BUCKET)
+    const { data: fileData, error } = await getSupabaseAdmin()
+      .storage.from(STORAGE_BUCKET)
       .download(storage_path);
-    if (!error && fileData) {
-      drawingsBuf = Buffer.from(await fileData.arrayBuffer());
-    }
+    if (!error && fileData) drawingsBuf = Buffer.from(await fileData.arrayBuffer());
   }
 
   if (!drawingsBuf) {
-    throw new Error("No drawings PDF for this job. Upload a PDF with kind '05_drawings' or '16_eng_drawings' on the job page first.");
+    throw new Error("No drawings PDF for this job. Upload a PDF with kind '05_drawings' or '16_eng_drawings' first.");
   }
 
-  // 3. Disclosure (residential customers only).
   const wantsDisclosure = isResidentialJob(job?.builder_company);
   let disclosureBuf: Buffer | null = null;
   if (wantsDisclosure) {
-    const { data: discData, error: discError } = await getSupabaseAdmin().storage
-      .from(STORAGE_BUCKET)
-      .download(DISCLOSURE_STORAGE_PATH);
-    if (!discError && discData) {
-      disclosureBuf = Buffer.from(await discData.arrayBuffer());
-    } else {
-      console.warn(`[docusign] residential job but no disclosure at ${DISCLOSURE_STORAGE_PATH} — skipping.`);
-    }
+    const disc = await downloadTemplateDoc("residential_disclosure");
+    if (disc) disclosureBuf = disc.buffer;
   }
 
-  // 4. Merge via pdf-lib.
   const { PDFDocument } = await import("pdf-lib");
   const out = await PDFDocument.create();
 
@@ -133,23 +216,16 @@ export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildRes
 async function getDocuSignToken(): Promise<string> {
   const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY!;
   const userId = process.env.DOCUSIGN_USER_ID!;
-  // Support both literal \n (env var escaping) and real newlines
   const privateKey = (process.env.DOCUSIGN_PRIVATE_KEY || "").replace(/\\n/g, "\n");
   const basePath = process.env.DOCUSIGN_BASE_URL || "https://demo.docusign.net";
   const isProd = !basePath.includes("demo");
   const authHost = isProd ? "account.docusign.com" : "account-d.docusign.com";
-
   const now = Math.floor(Date.now() / 1000);
 
-  // Build JWT header + payload
   const header  = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
   const payload = Buffer.from(JSON.stringify({
-    iss: integrationKey,
-    sub: userId,
-    aud: authHost,
-    iat: now,
-    exp: now + 3600,
-    scope: "signature impersonation",
+    iss: integrationKey, sub: userId, aud: authHost,
+    iat: now, exp: now + 3600, scope: "signature impersonation",
   })).toString("base64url");
 
   const { createSign } = await import("crypto");
@@ -169,10 +245,7 @@ async function getDocuSignToken(): Promise<string> {
 
   if (!res.ok) {
     const txt = await res.text();
-    // consent_required means Karl needs to click the one-time grant URL
-    if (txt.includes("consent_required")) {
-      throw new Error("CONSENT_REQUIRED");
-    }
+    if (txt.includes("consent_required")) throw new Error("CONSENT_REQUIRED");
     throw new Error(`DocuSign token failed (${res.status}): ${txt}`);
   }
 
@@ -180,7 +253,6 @@ async function getDocuSignToken(): Promise<string> {
   return access_token;
 }
 
-// ── Envelope sender ───────────────────────────────────────────────────────
 export type SendEnvelopeInput = {
   approvalRequestId: string;
   recipientName: string;
@@ -199,7 +271,7 @@ export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelo
   if (!process.env.DOCUSIGN_INTEGRATION_KEY) {
     return {
       ok: false,
-      error: "DocuSign not configured. Set DOCUSIGN_INTEGRATION_KEY and related env vars in Vercel.",
+      error: "DocuSign not configured.",
       needsProvisioning: true,
     };
   }
@@ -219,20 +291,15 @@ export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelo
       const authHost = isProd ? "account.docusign.com" : "account-d.docusign.com";
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://accwebsite-cd58.vercel.app";
       const consentUrl = `https://${authHost}/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=${integrationKey}&redirect_uri=${appUrl}`;
-      return {
-        ok: false,
-        error: `DocuSign consent not yet granted. Open this URL in a browser and click Allow: ${consentUrl}`,
-        needsConsent: true,
-      };
+      return { ok: false, error: `DocuSign consent required. Grant URL: ${consentUrl}`, needsConsent: true };
     }
     return { ok: false, error: `DocuSign auth error: ${msg}` };
   }
 
-  // Sign here tab on the last page, near the bottom
   const lastPage = String(input.pageCount);
   const envelopeBody = {
     emailSubject: input.emailSubject ?? "Please sign your ACC Cabinet Contract",
-    emailBlurb: input.emailMessage ?? "Advanced Custom Cabinets has prepared your contract for signature. Please review and sign at your earliest convenience.",
+    emailBlurb: input.emailMessage ?? "Advanced Custom Cabinets has prepared your contract for signature.",
     documents: [{
       documentBase64: input.pdfBuffer.toString("base64"),
       name: "ACC-Cabinet-Contract.pdf",
@@ -246,18 +313,8 @@ export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelo
         recipientId: "1",
         routingOrder: "1",
         tabs: {
-          signHereTabs: [{
-            documentId: "1",
-            pageNumber: lastPage,
-            xPosition: "72",
-            yPosition: "650",
-          }],
-          dateSignedTabs: [{
-            documentId: "1",
-            pageNumber: lastPage,
-            xPosition: "300",
-            yPosition: "650",
-          }],
+          signHereTabs: [{ documentId: "1", pageNumber: lastPage, xPosition: "72", yPosition: "650" }],
+          dateSignedTabs: [{ documentId: "1", pageNumber: lastPage, xPosition: "300", yPosition: "650" }],
         },
       }],
     },
@@ -266,10 +323,7 @@ export async function sendEnvelope(input: SendEnvelopeInput): Promise<SendEnvelo
 
   const envRes = await fetch(`${apiBase}/envelopes`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(envelopeBody),
   });
 

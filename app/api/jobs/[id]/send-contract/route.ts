@@ -1,23 +1,24 @@
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+export const runtime = "nodejs";
 
 /**
  * POST /api/jobs/[id]/send-contract
  *
- * Sends the contract packet to the client and creates a signoff token.
- * Auto-attaches the residential_disclosure from the template document library.
- * PM selects drawings and quote files from the job file store.
+ * Builds the contract packet automatically (no manual file selection):
+ *   spec PDF (most recent for this job) + drawings (most recent) + disclosure + warranty
+ *
+ * Uploads the combined PDF to Supabase Storage and stores the path in
+ * client_signoffs.combined_pdf_path so the signoff page can serve it inline.
  *
  * Body: {
- *   to: string            — recipient email
+ *   to: string           — recipient email
  *   cc?: string
  *   note?: string
- *   include_estimate: boolean   — link to web estimate in email
- *   drawing_file_ids?: string[] — job_files.id for final drawings (01_plan / 05_drawings)
- *   quote_file_ids?: string[]   — job_files.id for quote PDFs (02_quote)
- *   expiry_days?: number        — signoff link expiry (default 30)
+ *   expiry_days?: number — signoff link expiry (default 30)
  * }
  *
- * Returns: { ok, token, signoffUrl, signoffId }
+ * Returns: { ok, token, signoffUrl, signoffId, components }
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -26,11 +27,9 @@ import { requireBuilder } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { contractSent } from "@/lib/email-templates";
 import { generateSignoffToken, signoffUrl } from "@/lib/signoff";
-import { downloadTemplateDoc } from "@/lib/template-documents";
+import { buildContractPacket } from "@/lib/docusign";
 import { logActivity } from "@/lib/activity-log";
 import { createClient } from "@supabase/supabase-js";
-
-export const runtime = "nodejs";
 
 const BUCKET = "job-files";
 
@@ -51,6 +50,8 @@ export async function POST(
   }
 
   const { id } = await params;
+
+  // ── Load job ──────────────────────────────────────────────────────────────
   const [job] = await sql`
     SELECT id, job_number, status, client_name, client_email, site_address, city, pm
     FROM jobs WHERE id = ${id} OR job_number = ${id}
@@ -65,44 +66,52 @@ export async function POST(
     to: string;
     cc?: string;
     note?: string;
-    include_estimate?: boolean;
-    drawing_file_ids?: string[];
-    quote_file_ids?: string[];
     expiry_days?: number;
   };
 
   const toEmail = (body.to ?? "").trim();
   if (!toEmail) return NextResponse.json({ error: "Recipient email required" }, { status: 400 });
 
-  // ── Collect attachments ───────────────────────────────────────────────────
-  const attachments: Array<{ filename: string; content: Buffer }> = [];
-  const attachedDocsMeta: Array<{ type: string; filename: string }> = [];
+  // ── Find most-recent spec for this job ────────────────────────────────────
+  const [specRow] = await sql`
+    SELECT id FROM residential_specs
+    WHERE job_id = ${job.id}
+    ORDER BY created_at DESC
+    LIMIT 1
+  ` as Array<{ id: string }>;
 
-  // 1. Residential disclosure (from template library)
-  const disclosure = await downloadTemplateDoc("residential_disclosure");
-  if (disclosure) {
-    attachments.push({ filename: disclosure.filename, content: disclosure.buffer });
-    attachedDocsMeta.push({ type: "disclosure", filename: disclosure.filename });
+  if (!specRow) {
+    return NextResponse.json(
+      { error: "No spec found for this job. Create a spec before sending the contract." },
+      { status: 400 }
+    );
   }
 
-  // 2. Job files (drawings + quote PDFs)
-  const allFileIds = [
-    ...(body.drawing_file_ids ?? []),
-    ...(body.quote_file_ids ?? []),
-  ];
-  if (allFileIds.length) {
-    const supabase = supabaseAdmin();
-    const files = await sql<Array<{ id: string; filename: string; storage_path: string; kind: string }>>`
-      SELECT id, filename, storage_path, kind FROM job_files
-      WHERE id = ANY(${allFileIds}::text[]) AND job_id = ${job.id}
-    `.catch(() => []);
+  // ── Build the contract packet ─────────────────────────────────────────────
+  let packet;
+  try {
+    packet = await buildContractPacket(job.id, specRow.id);
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : String(e) },
+      { status: 400 }
+    );
+  }
 
-    for (const f of files) {
-      const { data, error } = await supabase.storage.from(BUCKET).download(f.storage_path);
-      if (error || !data) continue;
-      attachments.push({ filename: f.filename, content: Buffer.from(await data.arrayBuffer()) });
-      attachedDocsMeta.push({ type: f.kind, filename: f.filename });
-    }
+  // ── Upload combined PDF to Supabase Storage ───────────────────────────────
+  const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const filename = `contract-unsigned-${ts}.pdf`;
+  const storagePath = `jobs/${job.id}/15_contract/${filename}`;
+
+  const { error: uploadError } = await supabaseAdmin()
+    .storage.from(BUCKET)
+    .upload(storagePath, packet.buffer, { contentType: "application/pdf", upsert: false });
+
+  if (uploadError) {
+    return NextResponse.json(
+      { error: `Storage upload failed: ${uploadError.message}` },
+      { status: 500 }
+    );
   }
 
   // ── Create signoff token ──────────────────────────────────────────────────
@@ -112,22 +121,20 @@ export async function POST(
   const expiresAt = new Date(Date.now() + expiryDays * 86400 * 1000).toISOString();
   const now = new Date().toISOString();
   const actor = session.name ?? "pm";
-
-  const pmNote = body.note?.trim() || `Contract packet for ${job.client_name} — ${job.site_address}`;
+  const pmNote = body.note?.trim() || `Contract for ${job.client_name} — ${job.site_address}`;
 
   await sql`
     INSERT INTO client_signoffs
       (id, job_id, token, token_expires_at, status, pm_note,
-       created_by, created_at, signoff_purpose, attached_docs_json)
+       created_by, created_at, signoff_purpose, combined_pdf_path)
     VALUES
       (${signoffId}, ${job.id}, ${token}, ${expiresAt}, 'pending',
-       ${pmNote}, ${actor}, ${now}, 'contract',
-       ${JSON.stringify(attachedDocsMeta)})
+       ${pmNote}, ${actor}, ${now}, 'contract', ${storagePath})
   `;
 
   const sUrl = signoffUrl(token);
 
-  // ── Build and send email ───────────────────────────────────────────────────
+  // ── Email client the signoff link ─────────────────────────────────────────
   const { subject, text, html } = contractSent({
     clientName: job.client_name,
     siteAddress: job.site_address,
@@ -142,11 +149,12 @@ export async function POST(
     subject,
     text,
     html,
-    attachments: attachments.length ? attachments : undefined,
+    // No attachments — client reviews inline on the signoff page
   });
 
   if (!result.ok) {
-    // Clean up the signoff we just created
+    // Clean up storage + signoff row
+    await supabaseAdmin().storage.from(BUCKET).remove([storagePath]).catch(() => {});
     await sql`DELETE FROM client_signoffs WHERE id = ${signoffId}`;
     return NextResponse.json(
       { error: `Email failed: ${(result as { ok: false; error: string }).error}` },
@@ -162,9 +170,16 @@ export async function POST(
     payload: {
       to: toEmail,
       signoff_id: signoffId,
-      attachments: attachedDocsMeta.map((d) => d.filename),
+      components: packet.components,
+      drawing: packet.drawing_filename,
     },
   }).catch(() => {});
 
-  return NextResponse.json({ ok: true, token, signoffUrl: sUrl, signoffId });
+  return NextResponse.json({
+    ok: true,
+    token,
+    signoffUrl: sUrl,
+    signoffId,
+    components: packet.components,
+  });
 }
