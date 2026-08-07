@@ -1172,7 +1172,7 @@ async function main() {
   await sql`
     CREATE TABLE IF NOT EXISTS finish_group_trim_defaults (
       id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      finish_group_id UUID NOT NULL REFERENCES finish_groups(id) ON DELETE CASCADE,
+      finish_group_id TEXT NOT NULL REFERENCES finish_groups(id) ON DELETE CASCADE,
       trim_type       TEXT NOT NULL,
       species_material TEXT,
       size_desc       TEXT,
