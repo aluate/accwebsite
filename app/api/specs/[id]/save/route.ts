@@ -246,8 +246,37 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     `;
     await sql`DELETE FROM cabinet_line_items WHERE spec_id = ${id}`;
     await sql`DELETE FROM room_accessories WHERE room_id IN (SELECT id FROM rooms WHERE spec_id = ${id})`;
-    await sql`DELETE FROM rooms WHERE spec_id = ${id}`;
-    await sql`DELETE FROM finish_groups WHERE spec_id = ${id}`;
+    // DO NOT delete rooms / finish_groups wholesale.
+    //
+    // Ten tables cascade off these two, and six of them are never re-inserted by
+    // this route, so a plain "DELETE then re-INSERT" silently destroyed real data
+    // on EVERY save of ANY spec:
+    //
+    //   finish_group_countertops    CASCADE  - never re-inserted
+    //   finish_group_pulls          CASCADE  - never re-inserted (has its own API)
+    //   finish_group_trim_defaults  CASCADE  - never re-inserted (has its own API)
+    //   room_trim                   CASCADE  - never re-inserted, not even in RoomPayload
+    //   spec_appliances.room_id     SET NULL - appliances lost their room
+    //   punch_list_items.room_id    SET NULL - punch items lost their room
+    //
+    // It also explains why finish_group_hardware was empty: the cascade wiped the
+    // hinge rows and only door_pulls / drawer_pulls were ever re-seeded.
+    //
+    // Instead: remove only the rows the user actually deleted, and UPSERT the rest.
+    // Rows that survive keep their id, so nothing cascades.
+    const keepFgIds   = finish_groups.map((g) => g.id).filter(Boolean);
+    const keepRoomIds = rooms.map((r) => r.id).filter(Boolean);
+
+    if (keepRoomIds.length > 0) {
+      await sql`DELETE FROM rooms WHERE spec_id = ${id} AND id NOT IN ${sql(keepRoomIds)}`;
+    } else {
+      await sql`DELETE FROM rooms WHERE spec_id = ${id}`;
+    }
+    if (keepFgIds.length > 0) {
+      await sql`DELETE FROM finish_groups WHERE spec_id = ${id} AND id NOT IN ${sql(keepFgIds)}`;
+    } else {
+      await sql`DELETE FROM finish_groups WHERE spec_id = ${id}`;
+    }
 
     // Insert finish groups
     for (const g of finish_groups) {
@@ -276,6 +305,34 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
            ${g.wo_number ?? null},
            ${g.ct_material ?? null}, ${g.ct_style ?? null}, ${g.ct_edge ?? null}, ${g.ct_splash ?? null},
            ${(g as Record<string, unknown>).grain_orientation as string ?? null})
+        ON CONFLICT (id) DO UPDATE SET
+          label              = EXCLUDED.label,
+          finish_type        = EXCLUDED.finish_type,
+          color_id           = EXCLUDED.color_id,
+          color_name         = EXCLUDED.color_name,
+          door_style_id      = EXCLUDED.door_style_id,
+          drawer_style_id    = EXCLUDED.drawer_style_id,
+          pull_id            = EXCLUDED.pull_id,
+          box_material       = EXCLUDED.box_material,
+          carcass_id         = EXCLUDED.carcass_id,
+          drawer_box_id      = EXCLUDED.drawer_box_id,
+          edgeband_id        = EXCLUDED.edgeband_id,
+          applied_panels     = EXCLUDED.applied_panels,
+          species            = EXCLUDED.species,
+          rollout_box_id     = EXCLUDED.rollout_box_id,
+          cabdoor_edge_id    = EXCLUDED.cabdoor_edge_id,
+          cabdoor_profile_id = EXCLUDED.cabdoor_profile_id,
+          cabdoor_panel_id   = EXCLUDED.cabdoor_panel_id,
+          notes              = EXCLUDED.notes,
+          sort_order         = EXCLUDED.sort_order,
+          box_count          = EXCLUDED.box_count,
+          wo_count           = EXCLUDED.wo_count,
+          wo_number          = EXCLUDED.wo_number,
+          ct_material        = EXCLUDED.ct_material,
+          ct_style           = EXCLUDED.ct_style,
+          ct_edge            = EXCLUDED.ct_edge,
+          ct_splash          = EXCLUDED.ct_splash,
+          grain_orientation  = EXCLUDED.grain_orientation
       `;
     }
 
@@ -290,6 +347,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 ${(r as Record<string, unknown>).ceiling_height as string || null},
                 ${(r as Record<string, unknown>).soffit as string || null},
                 ${(r as Record<string, unknown>).backsplash as string || null})
+        ON CONFLICT (id) DO UPDATE SET
+          name            = EXCLUDED.name,
+          finish_group_id = EXCLUDED.finish_group_id,
+          notes           = EXCLUDED.notes,
+          sort_order      = EXCLUDED.sort_order,
+          flooring        = EXCLUDED.flooring,
+          ceiling_height  = EXCLUDED.ceiling_height,
+          soffit          = EXCLUDED.soffit,
+          backsplash      = EXCLUDED.backsplash
       `;
 
       // Multi-finish links
