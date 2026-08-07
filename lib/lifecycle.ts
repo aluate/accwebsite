@@ -1,5 +1,6 @@
 import sql, { uid } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
+import { hasDoorMaterial, describeMissingDoorMaterial } from "@/lib/door-material";
 
 export const LIFECYCLE_STATES = ["DRAFT", "CLIENT_APPROVED", "RELEASED_TO_ENG", "ENGINEERED", "RELEASED_TO_SHOP"] as const;
 export type LifecycleState = (typeof LIFECYCLE_STATES)[number];
@@ -33,9 +34,12 @@ export type TransitionInput = { specId: string; to: LifecycleState; actor: strin
 // if any are blank the engineer cannot do their job.
 
 async function validateForRelease(specId: string): Promise<string | null> {
+  // finish_type / species / color_name come along because base door material is
+  // DERIVED from them rather than entered separately -- see lib/door-material.ts.
   const groups = await sql`
-    SELECT id, label FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order
-  ` as { id: string; label: string }[];
+    SELECT id, label, finish_type, species, color_name
+    FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order
+  ` as { id: string; label: string; finish_type: string | null; species: string | null; color_name: string | null }[];
 
   if (groups.length === 0) {
     return "No finish groups defined — add at least one before releasing to engineering.";
@@ -43,6 +47,7 @@ async function validateForRelease(specId: string): Promise<string | null> {
 
   const fgIds = groups.map((g) => g.id);
   const labelOf = Object.fromEntries(groups.map((g) => [g.id, g.label || g.id]));
+  const fgOf = Object.fromEntries(groups.map((g) => [g.id, g]));
 
   const [doorFronts, drawers, hardware] = await Promise.all([
     sql`SELECT finish_group_id, role, style_id, material_id
@@ -70,8 +75,14 @@ async function validateForRelease(specId: string): Promise<string | null> {
     const hingeRow = (hardware as { finish_group_id: string; role: string; hardware_id: string | null }[])
       .find((h) => h.finish_group_id === fgId && h.role === "hinges");
 
-    if (!baseDoor?.style_id)    missing.push(`"${tag}": base door style`);
-    if (!baseDoor?.material_id) missing.push(`"${tag}": base door material`);
+    const fg = fgOf[fgId];
+    if (!baseDoor?.style_id) missing.push(`"${tag}": base door style`);
+    // Accepts a DERIVED material. The old check demanded material_id, a column
+    // written only by the Schedules tab -- which is imported nowhere -- so this
+    // line alone blocked every spec in the system from reaching engineering.
+    if (!hasDoorMaterial(baseDoor?.material_id, fg)) {
+      missing.push(`"${tag}": ${describeMissingDoorMaterial(fg)}`);
+    }
     if (!drawer?.drawer_box_id) missing.push(`"${tag}": drawer box`);
     if (!drawer?.slides_id)     missing.push(`"${tag}": drawer slides`);
     if (!hingeRow?.hardware_id) missing.push(`"${tag}": hinges`);
@@ -82,7 +93,7 @@ async function validateForRelease(specId: string): Promise<string | null> {
   const shown = missing.slice(0, 4);
   const extra = missing.length - shown.length;
   const list  = shown.join("; ") + (extra > 0 ? `; (+${extra} more)` : "");
-  return `Cannot release to engineering — required fields missing: ${list}. Open the Schedules tab to complete them.`;
+  return `Cannot release to engineering — required fields missing: ${list}. Complete them on the Finishes tab.`;
 }
 
 // ── Main transition ──────────────────────────────────────────────────────────

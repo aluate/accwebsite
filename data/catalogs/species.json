@@ -1,5 +1,15 @@
 [
   {
+    "id": "SP-PAINT",
+    "name": "Paint Grade",
+    "grades": "Paint Grade",
+    "hardness_janka": null,
+    "typical_use": "Painted doors and faces",
+    "notes": "ACC STANDARD paint-grade substrate - MDF / poplar / hard maple / select alder as availability dictates. Specify a species only when the client requires one.",
+    "finish_types": "paint",
+    "sort_order": "10"
+  },
+  {
     "id": "SP-001",
     "name": "Alder",
     "grades": [
@@ -12,7 +22,12 @@
       "Painted cabinets",
       "trim supply"
     ],
-    "notes": "Soft hardwood; takes paint well; most common in PNW residential"
+    "notes": "Soft hardwood; takes paint well; most common in PNW residential",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "30"
   },
   {
     "id": "SP-002",
@@ -26,7 +41,12 @@
       "Painted/stained cabinets",
       "faces"
     ],
-    "notes": "Dense and smooth; excellent for painted doors"
+    "notes": "Dense and smooth; excellent for painted doors",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "31"
   },
   {
     "id": "SP-003",
@@ -37,7 +57,12 @@
       "Interior trim",
       "boxes"
     ],
-    "notes": "Lighter than hard maple; good painted option"
+    "notes": "Lighter than hard maple; good painted option",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "32"
   },
   {
     "id": "SP-004",
@@ -51,7 +76,12 @@
       "Stained cabinets",
       "traditional trim"
     ],
-    "notes": "Open grain; popular for traditional stain work"
+    "notes": "Open grain; popular for traditional stain work",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "11"
   },
   {
     "id": "SP-005",
@@ -65,7 +95,12 @@
       "Modern stained cabinets",
       "trim"
     ],
-    "notes": "Tighter grain than red; Rift/Q for contemporary"
+    "notes": "Tighter grain than red; Rift/Q for contemporary",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "12"
   },
   {
     "id": "SP-006",
@@ -79,7 +114,9 @@
       "Stained cabinets",
       "executive millwork"
     ],
-    "notes": "Darkens with light exposure; rich tone"
+    "notes": "Darkens with light exposure; rich tone",
+    "finish_types": "stain",
+    "sort_order": "33"
   },
   {
     "id": "SP-007",
@@ -93,7 +130,9 @@
       "Stained cabinets",
       "accent panels"
     ],
-    "notes": "Premium; dark chocolate tones"
+    "notes": "Premium; dark chocolate tones",
+    "finish_types": "stain",
+    "sort_order": "34"
   },
   {
     "id": "SP-008",
@@ -104,7 +143,9 @@
     ],
     "hardness_janka": "1820",
     "typical_use": "Rustic stained cabinets",
-    "notes": "High contrast grain; very hard"
+    "notes": "High contrast grain; very hard",
+    "finish_types": "stain",
+    "sort_order": "35"
   },
   {
     "id": "SP-009",
@@ -115,7 +156,12 @@
       "Stained/painted trim",
       "contemporary"
     ],
-    "notes": "Similar to white oak; open grain"
+    "notes": "Similar to white oak; open grain",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "36"
   },
   {
     "id": "SP-010",
@@ -126,7 +172,9 @@
       "Interior trim (painted only)",
       "secondary wood"
     ],
-    "notes": "Soft; inconsistent color — paint only"
+    "notes": "Soft; inconsistent color — paint only",
+    "finish_types": "paint",
+    "sort_order": "37"
   },
   {
     "id": "SP-011",
@@ -140,7 +188,9 @@
       "Rustic trim",
       "knotty pine cabinets"
     ],
-    "notes": "PNW local species; soft"
+    "notes": "PNW local species; soft",
+    "finish_types": "stain",
+    "sort_order": "38"
   },
   {
     "id": "SP-012",
@@ -154,7 +204,9 @@
       "Structural trim",
       "commercial"
     ],
-    "notes": "Local PNW species; distinctive grain"
+    "notes": "Local PNW species; distinctive grain",
+    "finish_types": "stain",
+    "sort_order": "39"
   },
   {
     "id": "SP-013",
@@ -165,7 +217,9 @@
       "Painted doors",
       "shop cabinets"
     ],
-    "notes": "No grain; ultra-smooth painted finish; no moisture exposure"
+    "notes": "No grain; ultra-smooth painted finish; no moisture exposure",
+    "finish_types": "paint",
+    "sort_order": "40"
   },
   {
     "id": "SP-014",
@@ -176,6 +230,21 @@
       "Box material (painted)",
       "shelving"
     ],
-    "notes": "Shop standard for primed/painted interiors"
+    "notes": "Shop standard for primed/painted interiors",
+    "finish_types": "paint",
+    "sort_order": "41"
+  },
+  {
+    "id": "SP-099",
+    "name": "Other",
+    "grades": null,
+    "hardness_janka": null,
+    "typical_use": "Specify in notes",
+    "notes": "Escape hatch - PM names the species in notes.",
+    "finish_types": [
+      "paint",
+      "stain"
+    ],
+    "sort_order": "90"
   }
 ]

@@ -7,6 +7,7 @@ import type {
 } from "@/lib/catalogs";
 import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
 import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES } from "@/lib/trim-types";
+import { speciesAllowedFor } from "@/lib/door-material";
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
@@ -31,7 +32,7 @@ type CatalogData = {
   cabDoorEdges?: { id: string; name: string }[];
   cabDoorProfiles?: { id: string; name: string }[];
   cabDoorPanels?: { id: string; name: string }[];
-  species?: { id: string; name: string; grades: string | string[] | null }[];
+  species?: { id: string; name: string; grades: string | string[] | null; finish_types?: string | string[] | null; sort_order?: number }[];
   // Already passed in by app/jobs/[id]/residential/[specId]/page.tsx — it was just
   // never declared here, so the trim dropdowns each carried their own hardcoded
   // list instead of reading the catalog.
@@ -1817,17 +1818,37 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (
                     <div>
-                      <label className={LABEL}>Species</label>
-                      <select
-                        value={(catalogs.species ?? []).find(s => g.species?.startsWith(s.name)) ? g.species.split(" - ")[0] : ""}
-                        onChange={(e) => updateGroup(g.id, { species: e.target.value })}
-                        className={SELECT}
-                      >
-                        <option value="">-- Select Species --</option>
-                        {(catalogs.species ?? []).map((s) => (
-                          <option key={s.id} value={s.name}>{s.name}</option>
-                        ))}
-                      </select>
+                      <label className={LABEL}>
+                        Species
+                        <span className="text-white/25 normal-case font-normal ml-1">· door material</span>
+                      </label>
+                      {(() => {
+                        // Filtered by finish type, from the catalog's finish_types
+                        // column — paint shows the paint list (Paint Grade, the oaks,
+                        // alder, maple…), stain shows the stain species. One catalog,
+                        // two views, editable without a deploy.
+                        const all = catalogs.species ?? [];
+                        const forType = all.filter((s) => speciesAllowedFor(s.finish_types, g.finish_type));
+                        const list = forType.length > 0 ? forType : all;
+                        const current = all.find((s) => g.species?.startsWith(s.name)) ? g.species.split(" - ")[0] : "";
+                        return (
+                          <select
+                            value={current}
+                            onChange={(e) => updateGroup(g.id, { species: e.target.value })}
+                            className={SELECT}
+                          >
+                            <option value="">-- Select Species --</option>
+                            {list.map((s) => (
+                              <option key={s.id} value={s.name}>{s.name}</option>
+                            ))}
+                            {/* A species stored before the filter existed stays
+                                selectable rather than silently resetting to blank. */}
+                            {current && !list.some((s) => s.name === current) && (
+                              <option value={current}>{current}</option>
+                            )}
+                          </select>
+                        );
+                      })()}
                       {(() => {
                         const spName = g.species?.split(" - ")[0] ?? "";
                         const sp = (catalogs.species ?? []).find((s) => s.name === spName);

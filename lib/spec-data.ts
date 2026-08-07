@@ -3,6 +3,7 @@ import { catalogs } from "@/lib/catalogs";
 import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry, HardwareView } from "@/lib/pdf-spec";
 import { ACC_HARDWARE_STANDARDS, HARDWARE_ROLE_LABEL } from "@/lib/acc-standards";
 import { canonicalTrimType } from "@/lib/trim-types";
+import { resolveDoorMaterial } from "@/lib/door-material";
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; job_number: string | null; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; engineer: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
@@ -186,7 +187,13 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
             role_label: DOOR_FRONT_ROLE_LABEL[df.role] ?? df.role,
             slot_label: df.slot_label ?? "",
             style_name: df.style_id ? (doorStyleIdx.get(df.style_id) ?? df.style_id) : "",
-            material_name: df.material_id ? (doorMatIdx.get(df.material_id) ?? df.material_id) : "",
+            // Door material follows the finish group -- species for paint and
+            // stain, the melamine colour for melamine. An explicit material_id
+            // still wins for the jobs where the door genuinely differs.
+            material_name: resolveDoorMaterial(
+              df.material_id ? (doorMatIdx.get(df.material_id) ?? null) : null,
+              { finish_type: g.finish_type, species: g.species, color_name: g.color_name },
+            ),
             oe_name: df.oe_id ? (cabdoorEdgeIdx.get(df.oe_id) ?? df.oe_id) : "",
             ie_name: df.ie_id ? (cabdoorInsideIdx.get(df.ie_id) ?? df.ie_id) : "",
             panel_name: df.panel_id ? (cabdoorPanelIdx.get(df.panel_id) ?? df.panel_id) : "",
