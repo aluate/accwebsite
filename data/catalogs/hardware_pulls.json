@@ -199,14 +199,14 @@
     "notes": null
   },
   {
-    "id": "PL-01",
-    "name": null,
-    "brand": null,
+    "id": "PL-014",
+    "name": "Other/Custom",
+    "brand": "Custom",
     "model": null,
-    "type": null,
+    "type": "custom",
     "hole_spacing_in": null,
     "length_in": null,
-    "unit_cost": null,
+    "unit_cost": 0,
     "finish_options": null,
     "notes": null
   }

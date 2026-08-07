@@ -56,7 +56,19 @@
     "supplier_code": "WHITE PB",
     "unit_cost_per_sheet": "48.00",
     "sqft_per_sheet": "32",
-    "notes": "Rare — only when customer specifical",
-    "is_other": null
+    "notes": "Rare — only when customer specifically asks. Estimate. Verify.",
+    "is_other": false
+  },
+  {
+    "id": "CAR-099",
+    "name": "Other (specify in notes)",
+    "material_class": "other",
+    "species": null,
+    "prefinish": null,
+    "supplier_code": null,
+    "unit_cost_per_sheet": "0",
+    "sqft_per_sheet": "32",
+    "notes": "Escape hatch — PM must enter material in the per-finish notes field",
+    "is_other": true
   }
 ]

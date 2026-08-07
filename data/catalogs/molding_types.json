@@ -5,7 +5,7 @@
     "display_name": "Toe Skin",
     "typical_size": "4.5in",
     "inherits_room_finish": true,
-    "notes": "Default 4.5in; some rooms 6in (Karl to confirm)"
+    "notes": "Default 4.5in; some rooms 6in. Also called a toekick. Covers the finished kick face too - ACC treats these as one item"
   },
   {
     "id": "MTYPE-002",
@@ -37,7 +37,7 @@
     "display_name": "Light Rail",
     "typical_size": "1.5in",
     "inherits_room_finish": true,
-    "notes": "Under upper cabinets"
+    "notes": "Under upper cabinets. Also called a light valance - same item."
   },
   {
     "id": "MTYPE-006",
@@ -62,14 +62,6 @@
     "typical_size": "varies",
     "inherits_room_finish": true,
     "notes": "Standard ACC baseboard; profile per job"
-  },
-  {
-    "id": "MTYPE-009",
-    "type": "toe_kick",
-    "display_name": "Toe Kick",
-    "typical_size": "varies",
-    "inherits_room_finish": true,
-    "notes": "Finished toe kick board (visible kick face)"
   },
   {
     "id": "MTYPE-010",

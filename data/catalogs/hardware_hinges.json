@@ -51,7 +51,18 @@
     "type": "euro_concealed",
     "overlay": "inset",
     "close": "soft-close",
-    "unit_cost": 2,
-    "notes": null
+    "unit_cost": 2.6,
+    "notes": "Inset doors — estimate based on BLU-110. Verify."
+  },
+  {
+    "id": "HH-099",
+    "name": "Other",
+    "brand": null,
+    "model": null,
+    "type": null,
+    "overlay": null,
+    "close": null,
+    "unit_cost": 0,
+    "notes": "Specify in notes"
   }
 ]

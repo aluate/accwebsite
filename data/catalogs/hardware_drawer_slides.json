@@ -62,5 +62,22 @@
     "unit_cost_18in": "12.00",
     "unit_cost_21in": null,
     "notes": null
+  },
+  {
+    "id": "HDS-BLU-TANDEM",
+    "name": "Blum Tandem Wide Drawer",
+    "brand": "Blum",
+    "model": "560H",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": [
+      21,
+      24,
+      30
+    ],
+    "unit_cost_15in": "45.00",
+    "unit_cost_18in": "45.00",
+    "unit_cost_21in": "45.00",
+    "notes": "Wide drawer (>=25\") Blum Tandem. ~$45/pair per Karl 2026-07. Update from PPAK when available."
   }
 ]

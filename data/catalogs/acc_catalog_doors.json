@@ -6,7 +6,12 @@
     "cabdoor_preset_id": null,
     "species": "TBD",
     "description": "Clean flat slab door. Species TBD.",
-    "active": true
+    "active": true,
+    "price_per_sqft": 0,
+    "cabdoor_style_wood": null,
+    "cabdoor_style_paint": null,
+    "species_wood": null,
+    "species_paint": null
   },
   {
     "catalog_id": "ACC-DOOR-116",
@@ -15,6 +20,11 @@
     "cabdoor_preset_id": "PRESET-116",
     "species": "TBD",
     "description": "ACC standard profile. Fill in CabDoor preset ID.",
-    "active": true
+    "active": true,
+    "price_per_sqft": 12.93,
+    "cabdoor_style_wood": "113",
+    "cabdoor_style_paint": "116",
+    "species_wood": "Alder",
+    "species_paint": "Paint Grade Hardwood"
   }
 ]

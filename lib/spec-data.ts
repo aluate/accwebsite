@@ -2,6 +2,7 @@ import sql from "@/lib/db";
 import { catalogs } from "@/lib/catalogs";
 import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry, HardwareView } from "@/lib/pdf-spec";
 import { ACC_HARDWARE_STANDARDS, HARDWARE_ROLE_LABEL } from "@/lib/acc-standards";
+import { canonicalTrimType } from "@/lib/trim-types";
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; job_number: string | null; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; engineer: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
@@ -363,7 +364,13 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   for (const t of room_trim_list) {
     if (!room_trim[t.room_id]) room_trim[t.room_id] = [];
     room_trim[t.room_id].push({
-      id: t.id, room_id: t.room_id, trim_type: t.trim_type,
+      id: t.id, room_id: t.room_id,
+      // Normalized on read. The work order rolls trim up by trim_type +
+      // size_desc, so a room row saved as "Crown" and another as "Crown
+      // Molding" would print as two lines with the footage split between
+      // them. Doing it here fixes every existing spec, not just the ones
+      // someone re-saves.
+      trim_type: canonicalTrimType(t.trim_type),
       size_desc: t.size_desc ?? "", material: t.material ?? "",
       qty_lf: t.qty_lf, notes: t.notes ?? "", sort_order: t.sort_order,
     });

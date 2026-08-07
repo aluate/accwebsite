@@ -5,11 +5,8 @@
     "vendor": "Cab Door",
     "cabdoor_preset_id": "116",
     "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": false,
+    "compatible_finish": "[\"paint\", \"stain\"]",
+    "placeholder": "False",
     "notes": "ACC default shaker. 2.25\" stile/rail, 1/8\" radius on edge and profile, flat panel."
   },
   {
@@ -18,11 +15,8 @@
     "vendor": "Cab Door",
     "cabdoor_preset_id": "113",
     "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": false,
+    "compatible_finish": "[\"paint\", \"stain\"]",
+    "placeholder": "False",
     "notes": "Reverse raised panel. Cab Door style #113."
   },
   {
@@ -31,12 +25,9 @@
     "vendor": "Cab Door",
     "cabdoor_preset_id": null,
     "construction": "frame_and_panel",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": false,
-    "notes": "Select from Cab Door preset catalog \u2014 specify in Schedules tab."
+    "compatible_finish": "[\"paint\", \"stain\"]",
+    "placeholder": "False",
+    "notes": "Select from Cab Door preset catalog — specify in Schedules tab."
   },
   {
     "id": "DS-CD-CUSTOM",
@@ -44,29 +35,19 @@
     "vendor": "Cab Door",
     "cabdoor_preset_id": null,
     "construction": "custom",
-    "compatible_finish": [
-      "paint",
-      "stain"
-    ],
-    "placeholder": false,
-    "notes": "Custom Cab Door spec \u2014 specify Edge, Profile, and Panel options below."
+    "compatible_finish": "[\"paint\", \"stain\"]",
+    "placeholder": "False",
+    "notes": "Custom Cab Door spec — specify Edge, Profile, and Panel options below."
   },
   {
     "id": "DS-SLAB-MDF",
     "name": "Slab MDF",
-    "vendor": [
-      "In-house",
-      "Cab Door"
-    ],
+    "vendor": "[\"In-house\", \"Cab Door\"]",
     "cabdoor_preset_id": null,
     "construction": "slab",
-    "compatible_finish": [
-      "paint",
-      "melamine",
-      "plam"
-    ],
-    "placeholder": false,
-    "notes": "Modern slab \u2014 paint or melamine or PLAM"
+    "compatible_finish": "[\"paint\", \"melamine\", \"plam\"]",
+    "placeholder": "False",
+    "notes": "Modern slab — paint or melamine or PLAM"
   },
   {
     "id": "DS-OTHER",
@@ -75,7 +56,7 @@
     "cabdoor_preset_id": null,
     "construction": "custom",
     "compatible_finish": null,
-    "placeholder": false,
-    "notes": "Non-Cab-Door or fully custom \u2014 specify in Notes."
+    "placeholder": "False",
+    "notes": "Non-Cab-Door or fully custom — specify in Notes."
   }
 ]

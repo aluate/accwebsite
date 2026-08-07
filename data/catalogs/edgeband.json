@@ -1,26 +1,26 @@
 [
   {
     "id": "EB-007",
-    "product_name": "Custom Hardwood \u2014 Paint to Match",
+    "product_name": "Custom Hardwood — Paint to Match",
     "supplier": "Internal",
     "type": "hardwood",
     "color_match": "custom",
     "compatible_finish_type": "[\"paint\", \"stain\"]",
     "thickness_mm": "3.0",
     "width_in": "15/16",
-    "notes": "Solid hardwood applied edge then painted to match \u2014 flags Finishing Dept",
+    "notes": "Solid hardwood applied edge then painted to match — flags Finishing Dept",
     "placeholder": "False"
   },
   {
     "id": "EB-008",
-    "product_name": "Custom Hardwood \u2014 Stain to Match",
+    "product_name": "Custom Hardwood — Stain to Match",
     "supplier": "Internal",
     "type": "hardwood",
     "color_match": "custom",
     "compatible_finish_type": "stain",
     "thickness_mm": "3.0",
     "width_in": "15/16",
-    "notes": "Solid hardwood applied edge then stained to match \u2014 flags Finishing Dept",
+    "notes": "Solid hardwood applied edge then stained to match — flags Finishing Dept",
     "placeholder": "False"
   },
   {
@@ -28,10 +28,10 @@
     "product_name": "Other (specify in notes)",
     "supplier": "Custom",
     "type": "custom",
-    "color_match": "",
+    "color_match": null,
     "compatible_finish_type": "all",
-    "thickness_mm": "",
-    "width_in": "",
+    "thickness_mm": null,
+    "width_in": null,
     "notes": "Escape hatch when none of the above fit",
     "placeholder": "False"
   },
@@ -140,7 +140,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018in",
     "width_in": "15/16",
-    "notes": "Standard interior edgeband \u2014 adjustable shelves and unfinished bottoms. Used in nearly every job.",
+    "notes": "Standard interior edgeband — adjustable shelves and unfinished bottoms. Used in nearly every job.",
     "placeholder": "False"
   },
   {
@@ -224,7 +224,7 @@
     "compatible_finish_type": "paint",
     "thickness_mm": "0.018in",
     "width_in": "15/16",
-    "notes": "Edgeband painted to match door color \u2014 Bissell Bar",
+    "notes": "Edgeband painted to match door color — Bissell Bar",
     "placeholder": "False"
   },
   {
@@ -236,7 +236,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018in",
     "width_in": "15/16",
-    "notes": "Standard interior shelves and unfinished ends \u2014 stock. Used in virtually every job for I and U positions.",
+    "notes": "Standard interior shelves and unfinished ends — stock. Used in virtually every job for I and U positions.",
     "placeholder": "False"
   },
   {
@@ -248,7 +248,7 @@
     "compatible_finish_type": "all",
     "thickness_mm": "0.018in",
     "width_in": "15/16",
-    "notes": "Standard B and C positions (drawer box sides and F&B) \u2014 stock in every job",
+    "notes": "Standard B and C positions (drawer box sides and F&B) — stock in every job",
     "placeholder": "False"
   },
   {
@@ -313,10 +313,10 @@
   },
   {
     "id": "EB-TAF-M2015",
-    "product_name": "Tafisa M2015 Apr\u00e8s-Ski",
+    "product_name": "Tafisa M2015 Après-Ski",
     "supplier": "Tafisa",
     "type": "melamine",
-    "color_match": "Apr\u00e8s-Ski",
+    "color_match": "Après-Ski",
     "compatible_finish_type": "melamine",
     "thickness_mm": "1.0",
     "width_in": "15/16",
@@ -1057,10 +1057,10 @@
   },
   {
     "id": "EB-TAF-M2031",
-    "product_name": "Tafisa M2031 Cr\u00e8me de la Cr\u00e8me",
+    "product_name": "Tafisa M2031 Crème de la Crème",
     "supplier": "Tafisa",
     "type": "melamine",
-    "color_match": "Cr\u00e8me de la Cr\u00e8me",
+    "color_match": "Crème de la Crème",
     "compatible_finish_type": "melamine",
     "thickness_mm": "1.0",
     "width_in": "15/16",
@@ -1165,10 +1165,10 @@
   },
   {
     "id": "EB-TAF-M2001",
-    "product_name": "Tafisa M2001 T\u00eate-\u00e0-T\u00eate",
+    "product_name": "Tafisa M2001 Tête-à-Tête",
     "supplier": "Tafisa",
     "type": "melamine",
-    "color_match": "T\u00eate-\u00e0-T\u00eate",
+    "color_match": "Tête-à-Tête",
     "compatible_finish_type": "melamine",
     "thickness_mm": "1.0",
     "width_in": "15/16",
@@ -1940,7 +1940,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-20200VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-20200VF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -1952,7 +1952,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-30255UTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-30255UTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -1964,7 +1964,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-30517YF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-30517YF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -1976,7 +1976,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-30614UF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-30614UF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -1988,7 +1988,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8229VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8229VF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2000,7 +2000,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8231L-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8231L-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2012,7 +2012,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8232F-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8232F-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2024,7 +2024,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8232VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8232VF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2036,7 +2036,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8351VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8351VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2048,7 +2048,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8595-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8595-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2060,7 +2060,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8843L-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8843L-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2072,7 +2072,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-8854AAMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-8854AAMF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2084,7 +2084,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-STE574VF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-STE574VF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2096,7 +2096,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-STEVENS589V-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-STEVENS589V-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2108,7 +2108,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P-SW7008TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P-SW7008TF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2120,7 +2120,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-2410CP0108-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-2410CP0108-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2132,7 +2132,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30135AA-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30135AA-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2144,7 +2144,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30255UTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30255UTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2156,7 +2156,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30256U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30256U-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2168,7 +2168,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30257U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30257U-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2180,7 +2180,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30258U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30258U-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2192,7 +2192,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30259UTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30259UTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2204,7 +2204,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30329YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30329YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2216,7 +2216,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30330YF-41. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30330YF-41. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2228,7 +2228,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30331YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30331YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2240,7 +2240,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30333YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30333YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2252,7 +2252,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30336YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30336YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2264,7 +2264,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30337Y-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30337Y-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2276,7 +2276,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30337YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30337YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2288,7 +2288,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30451YMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30451YMTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2300,7 +2300,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30452YM-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30452YM-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2312,7 +2312,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30616U-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30616U-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2324,7 +2324,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30782S-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30782S-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2336,7 +2336,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30922VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30922VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2348,7 +2348,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30923VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30923VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2360,7 +2360,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30924VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30924VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2372,7 +2372,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-30925VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-30925VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2384,7 +2384,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31170UMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31170UMTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2396,7 +2396,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31301EVMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31301EVMTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2408,7 +2408,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31302EVMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31302EVMF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2420,7 +2420,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31306EVMTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31306EVMTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2432,7 +2432,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31308EVMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31308EVMF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2444,7 +2444,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31499YMF-41. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31499YMF-41. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2456,7 +2456,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-31519EBMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-31519EBMF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2468,7 +2468,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8196VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8196VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2480,7 +2480,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8198AA-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8198AA-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2492,7 +2492,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8212LTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8212LTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2504,7 +2504,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8213F-41. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8213F-41. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2516,7 +2516,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8233VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8233VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2528,7 +2528,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8234FT-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8234FT-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2540,7 +2540,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8236VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8236VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2552,7 +2552,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8239VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8239VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2564,7 +2564,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8253VTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8253VTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2576,7 +2576,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8351LF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8351LF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2588,7 +2588,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8351TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8351TF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2600,7 +2600,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8351VF-38. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8351VF-38. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2612,7 +2612,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8434V-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8434V-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2624,7 +2624,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8589YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8589YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2636,7 +2636,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8596Y-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8596Y-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2648,7 +2648,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8597Y-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8597Y-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2660,7 +2660,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8830AA-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8830AA-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2672,7 +2672,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-8871AAMF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-8871AAMF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2684,7 +2684,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-STE388TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-STE388TF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2696,7 +2696,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-STEL14TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-STEL14TF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2708,7 +2708,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-STEL40YTF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-STEL40YTF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2720,7 +2720,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P1-STEWB4TF-24. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P1-STEWB4TF-24. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2732,7 +2732,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P2-8196VTF-32. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P2-8196VTF-32. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2744,7 +2744,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P2-EGGH1210TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P2-EGGH1210TF-44. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2756,7 +2756,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P2-EGGH1221TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P2-EGGH1221TF-44. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2768,7 +2768,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P2-EGGH3309TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P2-EGGH3309TF-44. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2780,7 +2780,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P2-EGGH3325TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P2-EGGH3325TF-44. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -2792,7 +2792,7 @@
     "compatible_finish_type": "melamine",
     "thickness_mm": "0.018",
     "width_in": "15/16",
-    "notes": "ESI item P2-EGGH3794TF-44. Panel code TBD \u2014 cross-ref colors_melamine.",
+    "notes": "ESI item P2-EGGH3794TF-44. Panel code TBD — cross-ref colors_melamine.",
     "placeholder": "False"
   },
   {
@@ -3428,7 +3428,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U220 ST9. Classic Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger U220 ST9. Classic Collection — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3548,7 +3548,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U250 ST9. Inspired Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger U250 ST9. Inspired Collection — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3560,7 +3560,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U444 ST9. Inspired Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger U444 ST9. Inspired Collection — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3572,7 +3572,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U665 ST9. Inspired Collection \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger U665 ST9. Inspired Collection — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3584,7 +3584,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H1247 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger H1247 ST17. Inspired — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3596,7 +3596,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H1708 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger H1708 ST17. Inspired — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3608,7 +3608,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H3322 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger H3322 ST17. Inspired — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3620,7 +3620,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H7604 ST17. Inspired \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
+    "notes": "Egger H7604 ST17. Inspired — NEW 2026. PVC 1mm x 15/16\" x 302' = $48/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3812,7 +3812,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H3786 ST19. Essence \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "notes": "Egger H3786 ST19. Essence — NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3824,7 +3824,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H3787 ST19. Essence \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "notes": "Egger H3787 ST19. Essence — NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3896,7 +3896,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H1369 ST40. Exclusive \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "notes": "Egger H1369 ST40. Exclusive — NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3908,7 +3908,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger H1388 ST40. Exclusive \u2014 NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
+    "notes": "Egger H1388 ST40. Exclusive — NEW 2026. PVC 1mm x 15/16\" x 302' = $62/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3920,7 +3920,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger W1100 TM. Perfect Sense Collection \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger W1100 TM. Perfect Sense Collection — ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3932,7 +3932,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U999 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U999 TM. Perfect Sense — ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3944,7 +3944,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U398 TM. Perfect Sense \u2014 NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U398 TM. Perfect Sense — NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3956,7 +3956,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U590 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U590 TM. Perfect Sense — ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3968,7 +3968,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U665 TM. Perfect Sense \u2014 NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U665 TM. Perfect Sense — NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3980,7 +3980,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U702 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U702 TM. Perfect Sense — ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -3992,7 +3992,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U708 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U708 TM. Perfect Sense — ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -4004,7 +4004,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U755 TM. Perfect Sense \u2014 NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U755 TM. Perfect Sense — NEW 2026. ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -4016,7 +4016,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Egger U961 TM. Perfect Sense \u2014 ABS 1mm x 23mm x 246' = $110/roll (HW West)",
+    "notes": "Egger U961 TM. Perfect Sense — ABS 1mm x 23mm x 246' = $110/roll (HW West)",
     "placeholder": "False"
   },
   {
@@ -4304,7 +4304,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code L175M. Materia line \u2014 NEW 2026 TFL. LEDGEBAND match.",
+    "notes": "Tafisa panel code L175M. Materia line — NEW 2026 TFL. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4316,7 +4316,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code L761M. Materia line \u2014 NEW 2026 TFL. LEDGEBAND match.",
+    "notes": "Tafisa panel code L761M. Materia line — NEW 2026 TFL. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4328,7 +4328,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code L782M. Materia line \u2014 NEW 2026 TFL. LEDGEBAND match.",
+    "notes": "Tafisa panel code L782M. Materia line — NEW 2026 TFL. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4340,7 +4340,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2014Y. Lummia line \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2014Y. Lummia line — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4352,7 +4352,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M203Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M203Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4364,7 +4364,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M763Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M763Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4376,7 +4376,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2061Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2061Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4388,7 +4388,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2062Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2062Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4400,7 +4400,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2063Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2063Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4412,7 +4412,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2064Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2064Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4424,7 +4424,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2065Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2065Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4436,7 +4436,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M2066Q. Iconiq Texture \u2014 NEW 2026. LEDGEBAND match.",
+    "notes": "Tafisa panel code M2066Q. Iconiq Texture — NEW 2026. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4448,7 +4448,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M175B. Brava line \u2014 2026 TFL. LEDGEBAND match.",
+    "notes": "Tafisa panel code M175B. Brava line — 2026 TFL. LEDGEBAND match.",
     "placeholder": "False"
   },
   {
@@ -4460,7 +4460,7 @@
     "compatible_finish_type": "[\"melamine\"]",
     "thickness_mm": "1.0",
     "width_in": "15/16",
-    "notes": "Tafisa panel code M203B. Brava line \u2014 2026 TFL. LEDGEBAND match.",
+    "notes": "Tafisa panel code M203B. Brava line — 2026 TFL. LEDGEBAND match.",
     "placeholder": "False"
   },
   {

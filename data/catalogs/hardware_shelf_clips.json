@@ -20,10 +20,19 @@
   {
     "id": "HSC-003",
     "name": "Adjustable Pilaster + Clip",
-    "brand": "Knape & Vo",
+    "brand": "Knape & Vogt",
+    "model": "255-ALU",
+    "type": "pilaster",
+    "unit_cost": 1.2,
+    "notes": "Heavy-duty adjustable — estimate. Verify."
+  },
+  {
+    "id": "HSC-099",
+    "name": "Other",
+    "brand": null,
     "model": null,
     "type": null,
-    "unit_cost": null,
-    "notes": null
+    "unit_cost": 0,
+    "notes": "Specify in notes"
   }
 ]

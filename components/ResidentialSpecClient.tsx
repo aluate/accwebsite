@@ -6,6 +6,7 @@ import type {
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
 } from "@/lib/catalogs";
 import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
+import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES } from "@/lib/trim-types";
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
@@ -31,6 +32,10 @@ type CatalogData = {
   cabDoorProfiles?: { id: string; name: string }[];
   cabDoorPanels?: { id: string; name: string }[];
   species?: { id: string; name: string; grades: string | string[] | null }[];
+  // Already passed in by app/jobs/[id]/residential/[specId]/page.tsx — it was just
+  // never declared here, so the trim dropdowns each carried their own hardcoded
+  // list instead of reading the catalog.
+  moldingTypes?: { id: string; type: string; display_name: string; typical_size: string | null }[];
 };
 
 type FinishType = "paint" | "stain" | "melamine" | "plam" | "";
@@ -1360,6 +1365,16 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     genState === "error"      ? "Error - retry" : "Generate Spec";
   const canSave = dirty && saveState !== "saving" && violations.length === 0;
   const canGen  = violations.length === 0 && genState !== "generating";
+
+  // One trim vocabulary for both the room rows and the finish-group defaults,
+  // read from data/catalogs/molding_types.csv so it is editable without a deploy.
+  // Falls back to the four always-present types if the catalog is unavailable.
+  const trimTypeOptions = useMemo(() => {
+    const fromCatalog = (catalogs.moldingTypes ?? [])
+      .map((m) => m.display_name)
+      .filter(Boolean);
+    return fromCatalog.length > 0 ? fromCatalog : [...FG_TRIM_DEFAULT_TYPES];
+  }, [catalogs.moldingTypes]);
   const blockedReason = violations.length > 0
     ? `Blocked - fix these first:\n${violations.map((v) => `- ${v.tag}: ${v.field}`).join("\n")}`
     : "";
@@ -1939,18 +1954,57 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     Trim Defaults <span className="text-white/20 normal-case font-normal text-[9px]">(pre-populates room trim rows — PM enters LF per room)</span>
                   </p>
                   {(() => {
-                    const FIXED_TYPES = ["Fillers", "Toekick", "Crown", "Light Valance"];
+                    // These four used to be spelled "Fillers", "Crown" and
+                    // "Light Valance" — none of which matched the room trim
+                    // dropdown, so a default and the room row it pre-populated
+                    // rolled up as two separate line items with the footage split
+                    // between them. Now both lists speak the same vocabulary.
+                    const FIXED_TYPES: string[] = [...FG_TRIM_DEFAULT_TYPES];
                     const fgDefs = fgTrimDefaults.filter(d => d.finish_group_id === g.id);
-                    const allTypes = [...new Set([...FIXED_TYPES, ...fgDefs.map(d => d.trim_type)])];
+                    const allTypes = [...new Set([...FIXED_TYPES, ...fgDefs.map(d => canonicalTrimType(d.trim_type))])];
+                    // Types not yet on this group, offered by the "+ Add" dropdown.
+                    const addableTypes = trimTypeOptions.filter(t => /^other/i.test(t) || !allTypes.includes(t));
+                    // Rows are matched on the CANONICAL name, not the stored one.
+                    // A row saved as "Crown" has to be found by "Crown Molding" or
+                    // the UI would show the field blank and quietly create a second
+                    // row alongside it.
                     function getDefRow(type: string): FgTrimDefault {
-                      return fgDefs.find(d => d.trim_type === type) ?? { id: "", finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0 };
+                      const found = fgDefs.find(d => canonicalTrimType(d.trim_type) === type);
+                      return found
+                        ? { ...found, trim_type: type }
+                        : { id: "", finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0 };
                     }
                     function patchTrimDefault(type: string, patch: Partial<FgTrimDefault>) {
                       setFgTrimDefaults(prev => {
-                        const idx = prev.findIndex(d => d.finish_group_id === g.id && d.trim_type === type);
-                        if (idx >= 0) { const next = [...prev]; next[idx] = { ...next[idx], ...patch }; return next; }
+                        const idx = prev.findIndex(d => d.finish_group_id === g.id && canonicalTrimType(d.trim_type) === type);
+                        // Editing a legacy row also rewrites its name, so the stored
+                        // vocabulary drifts clean as people work rather than needing
+                        // a migration over documents the shop already built from.
+                        if (idx >= 0) { const next = [...prev]; next[idx] = { ...next[idx], trim_type: type, ...patch }; return next; }
                         return [...prev, { id: uid(), finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0, ...patch }];
                       });
+                      markDirty();
+                    }
+                    // Renaming a custom row is keyed on the row id, not its name —
+                    // patchTrimDefault matches by name, so using it here would treat
+                    // each keystroke as a brand new type.
+                    function renameTrimDefault(rowId: string, name: string) {
+                      setFgTrimDefaults(prev => prev.map(d => d.id === rowId ? { ...d, trim_type: name } : d));
+                      markDirty();
+                    }
+                    function addTrimDefault(type: string) {
+                      const isOther = /^other/i.test(type);
+                      setFgTrimDefaults(prev => [...prev, {
+                        id: uid(), finish_group_id: g.id,
+                        // "Other (specify)" starts blank so the PM names it; anything
+                        // else is a real catalog type and keeps its name.
+                        trim_type: isOther ? "" : type,
+                        species_material: "",
+                        // Prefill the catalog's typical size — it is what the size box
+                        // would have been filled with by hand nine times in ten.
+                        size_desc: (catalogs.moldingTypes ?? []).find(m => m.display_name === type)?.typical_size ?? "",
+                        notes: "", sort_order: fgDefs.length,
+                      }]);
                       markDirty();
                     }
                     return (
@@ -1961,12 +2015,29 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         {allTypes.map((type) => {
                           const def = getDefRow(type);
                           const isFixed = FIXED_TYPES.includes(type);
+                          // A row is custom when its name is not in the catalog —
+                          // either "Other (specify)" or something the PM typed.
+                          const isCustomRow = !isFixed && !trimTypeOptions.includes(type);
                           return (
                             <div key={type} className="grid grid-cols-4 gap-2 mb-1.5 items-center">
+                              {/*
+                                An added row is a real trim type, so it reads like
+                                one — name shown plainly, exactly like the four
+                                fixed rows, with the same Species / Size / Notes
+                                fields. Only a custom row gets a text box, because
+                                that is the one case where the PM supplies the name.
+                                Renaming patches by row id so the row moves rather
+                                than spawning a duplicate on every keystroke.
+                              */}
                               <div className="flex items-center gap-1">
-                                {isFixed
-                                  ? <span className="text-white/70 text-xs font-condensed py-2">{type}</span>
-                                  : <input value={def.trim_type} onChange={(e) => patchTrimDefault(type, { trim_type: e.target.value })} className={INPUT + " text-xs"} />
+                                {isCustomRow
+                                  ? <input
+                                      value={def.trim_type}
+                                      onChange={(e) => renameTrimDefault(def.id, e.target.value)}
+                                      placeholder="Name this trim…"
+                                      className={INPUT + " text-xs"}
+                                    />
+                                  : <span className="text-white/70 text-xs font-condensed py-2">{type}</span>
                                 }
                               </div>
                               <input value={def.species_material} onChange={(e) => patchTrimDefault(type, { species_material: e.target.value })} placeholder="e.g. Alder" className={INPUT + " text-xs"} />
@@ -1974,15 +2045,35 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                               <div className="flex gap-1">
                                 <input value={def.notes} onChange={(e) => patchTrimDefault(type, { notes: e.target.value })} placeholder="Notes" className={INPUT + " text-xs flex-1"} />
                                 {!isFixed && (
-                                  <button onClick={() => setFgTrimDefaults(prev => prev.filter(d => !(d.finish_group_id === g.id && d.trim_type === type)))} className="text-white/20 hover:text-red-400 text-sm leading-none px-1 shrink-0">×</button>
+                                  <button onClick={() => { setFgTrimDefaults(prev => prev.filter(d => !(d.finish_group_id === g.id && canonicalTrimType(d.trim_type) === type))); markDirty(); }} className="text-white/20 hover:text-red-400 text-sm leading-none px-1 shrink-0">×</button>
                                 )}
                               </div>
                             </div>
                           );
                         })}
-                        <button onClick={() => { setFgTrimDefaults(prev => [...prev, { id: uid(), finish_group_id: g.id, trim_type: "Custom", species_material: "", size_desc: "", notes: "", sort_order: fgDefs.length }]); markDirty(); }} className="text-[10px] font-condensed uppercase tracking-widest text-white/30 hover:text-[#f08122] mt-1 transition-colors">
-                          + Add Custom Trim Type
-                        </button>
+                        {/*
+                          Was a button that immediately created a row literally named
+                          "Custom" with a bare text box for the type. Now it offers the
+                          same catalog list the room trim rows use — with "Other
+                          (specify)" as one of the choices rather than the only one.
+                        */}
+                        <div className="flex items-center gap-2 mt-1">
+                          <select
+                            value=""
+                            onChange={(e) => { if (e.target.value) addTrimDefault(e.target.value); }}
+                            className={SELECT + " text-xs max-w-[16rem]"}
+                          >
+                            <option value="">+ Add trim type…</option>
+                            {addableTypes.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                          {addableTypes.length === 0 && (
+                            <span className="text-white/25 text-[10px] font-condensed uppercase tracking-widest">
+                              All types added
+                            </span>
+                          )}
+                        </div>
                       </>
                     );
                   })()}
@@ -2219,11 +2310,21 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     <div key={ti} className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#1a1a1a] rounded p-2">
                       <div>
                         <label className={LABEL}>Type</label>
-                        <select value={tr.trim_type} onChange={(e) => updateTrim(room.id, ti, { trim_type: e.target.value })} className={SELECT}>
-                          {["Crown Molding","Valance","Toekick","Light Rail","Scribe Molding","Base Shoe","Crown Nailer","Filler","Other"].map((t) => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
+                        {(() => {
+                          // Types come from the catalog, not a literal list, so the
+                          // vocabulary is editable without a deploy. A legacy value
+                          // still stored on this row is shown as its canonical
+                          // spelling and rewritten on save.
+                          const canon = canonicalTrimType(tr.trim_type);
+                          const opts = trimTypeOptions.includes(canon) ? trimTypeOptions : [...trimTypeOptions, canon];
+                          return (
+                            <select value={canon} onChange={(e) => updateTrim(room.id, ti, { trim_type: e.target.value })} className={SELECT}>
+                              {opts.map((t) => (
+                                <option key={t} value={t}>{t}</option>
+                              ))}
+                            </select>
+                          );
+                        })()}
                       </div>
                       <div>
                         <label className={LABEL}>Size/Description</label>
