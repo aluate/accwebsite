@@ -5,7 +5,7 @@
     "display_name": "Toe Skin",
     "typical_size": "4.5in",
     "inherits_room_finish": true,
-    "notes": "Default 4.5in; some rooms 6in. Also called a toekick. Covers the finished kick face too - ACC treats these as one item"
+    "notes": "Default 4.5in; some rooms 6in. The applied skin over the kick recess. Bare Toekick on older rows means this."
   },
   {
     "id": "MTYPE-002",
@@ -62,6 +62,14 @@
     "typical_size": "varies",
     "inherits_room_finish": true,
     "notes": "Standard ACC baseboard; profile per job"
+  },
+  {
+    "id": "MTYPE-009",
+    "type": "toe_kick",
+    "display_name": "Toe Kick",
+    "typical_size": "varies",
+    "inherits_room_finish": true,
+    "notes": "Finished visible kick face - a different part from the applied skin above. Selectable; not a preloaded default."
   },
   {
     "id": "MTYPE-010",

@@ -31,8 +31,12 @@ for (const t of FG_TRIM_DEFAULT_TYPES) {
 check('catalog has an "Other" escape hatch', names.some((n) => /^other/i.test(n)));
 
 console.log("\n2. Karl's calls, 2026-08-07");
-check('Toe Skin and Toe Kick collapsed to a single entry',
-  names.filter((n) => /toe/i.test(n)).length === 1, names.filter((n) => /toe/i.test(n)).join(" | "));
+check('Toe Skin and Toe Kick are both offered, as separate parts',
+  names.includes("Toe Skin") && names.includes("Toe Kick"), names.filter((n) => /toe/i.test(n)).join(" | "));
+check('a bare "Toekick" resolves to the skin, which is what existing rows mean',
+  canonicalTrimType("Toekick") === "Toe Skin");
+check('"Toe Kick" written out keeps its own identity',
+  canonicalTrimType("Toe Kick") === "Toe Kick");
 check('no separate "Valance" entry — a light valance IS a light rail',
   !names.some((n) => /^valance$/i.test(n)), names.filter((n) => /valance|rail/i.test(n)).join(" | "));
 
@@ -47,7 +51,7 @@ const cases = [
   ["Valance",       "Light Rail"],
   ["Light Rail",    "Light Rail"],
   ["Toekick",       "Toe Skin"],
-  ["Toe Kick",      "Toe Skin"],
+  ["Toe Kick",      "Toe Kick"],
   ["Toe Skin",      "Toe Skin"],
   ["Scribe Molding","Scribe"],
 ];
@@ -56,7 +60,7 @@ for (const [raw, want] of cases) {
 }
 
 console.log("\n4. Normalization is case- and whitespace-insensitive");
-for (const raw of ["TOEKICK", "toe kick", "  Toe  Kick  ", "tOeKiCk"]) {
+for (const raw of ["TOEKICK", "toeskin", "  Toe  Skin  ", "tOeKiCk"]) {
   check(`"${raw}" -> "Toe Skin"`, canonicalTrimType(raw) === "Toe Skin", `got "${canonicalTrimType(raw)}"`);
 }
 

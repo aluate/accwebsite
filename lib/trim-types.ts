@@ -47,11 +47,14 @@ const LEGACY_TRIM_NAMES: Record<string, string> = {
   "fillers":       "Filler",
   "crown":         "Crown Molding",
   "scribe molding": "Scribe",
-  // Karl: one entry, the 4.5in part. "Toekick" is the shop word for it.
+  // Bare "Toekick" is the applied skin — that is what every existing row means,
+  // and what the 4.5in on the work order refers to. "Toe Kick" written out is a
+  // real, separate catalog entry now (the finished visible kick face) and keeps
+  // its own name rather than being folded in.
   "toekick":       "Toe Skin",
-  "toe kick":      "Toe Skin",
-  "toe skin":      "Toe Skin",
   "toeskin":       "Toe Skin",
+  "toe skin":      "Toe Skin",
+  "toe kick":      "Toe Kick",
   // Karl: a light valance IS a light rail
   "light valance": "Light Rail",
   "valance":       "Light Rail",
