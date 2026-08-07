@@ -9,8 +9,9 @@
 import { sql, uid } from "@/lib/db";
 import {
   ACC_HARDWARE_STANDARDS,
-  ACC_STANDARD_DRAWER_SLIDE,
-  ACC_STANDARD_ROLLOUT_SLIDE,
+  ACC_STANDARD_DRAWER_SLIDE_SPEC,
+  ACC_STANDARD_ROLLOUT_SLIDE_SPEC,
+  isWrongNamespaceSlideId,
 } from "@/lib/acc-standards";
 
 // ── Seeding ──────────────────────────────────────────────────────────────────
@@ -55,6 +56,13 @@ export async function seedHardwareRole(
  * (only the Schedules tab, which is imported nowhere), and the release gate
  * requires it, so every spec failed on "drawer slides" regardless of what the PM
  * filled in.
+ *
+ * The one exception to fill-blanks-only lives here: an id from the HARDWARE
+ * namespace (HDS- or HRS- prefixed) in slides_id is not a decision, it is a defect. The
+ * first version of this seeding wrote those ids into a column resolved against
+ * drawer_slides.csv, so the work order printed "HDS-BLU-001" where a slide name
+ * belongs. Those values are overwritten, because leaving them would mean a
+ * fill-blanks rule protecting a bug forever.
  */
 export async function seedDrawerRow(
   fgId: string,
@@ -81,7 +89,7 @@ export async function seedDrawerRow(
   if (!row.drawer_box_id && boxId) {
     await sql`UPDATE finish_group_drawers SET drawer_box_id = ${boxId} WHERE id = ${row.id}`;
   }
-  if (!row.slides_id) {
+  if (!row.slides_id || isWrongNamespaceSlideId(row.slides_id)) {
     await sql`UPDATE finish_group_drawers SET slides_id = ${slidesId} WHERE id = ${row.id}`;
   }
 }
@@ -122,14 +130,14 @@ export async function seedAccStandards(fgId: string, input: SeedFgInput): Promis
   }
 
   try {
-    await seedDrawerRow(fgId, "drawer_box", drawerBoxId, ACC_STANDARD_DRAWER_SLIDE, 0);
+    await seedDrawerRow(fgId, "drawer_box", drawerBoxId, ACC_STANDARD_DRAWER_SLIDE_SPEC, 0);
   } catch { /* skip */ }
 
   // A rollout row on a job with no rollouts becomes a phantom line on the work
   // order, so this one waits until the group says it has them.
   if (rolloutBoxId) {
     try {
-      await seedDrawerRow(fgId, "rollout", rolloutBoxId, ACC_STANDARD_ROLLOUT_SLIDE, 1);
+      await seedDrawerRow(fgId, "rollout", rolloutBoxId, ACC_STANDARD_ROLLOUT_SLIDE_SPEC, 1);
     } catch { /* skip */ }
   }
 }

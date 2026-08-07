@@ -10,6 +10,34 @@
     "notes": "Push-to-open or no slides"
   },
   {
+    "id": "DS-ACC-STD",
+    "name": "ACC Standard Undermount Soft-Close",
+    "brand": "Blum",
+    "model": "563H",
+    "mount": "undermount",
+    "close": "soft-close",
+    "length_options_in": [
+      15,
+      18,
+      21
+    ],
+    "notes": "ACC STANDARD - undermount soft close on all drawers. Length by cabinet depth; shop selects 563H3810B/4570B/5330B. Substituted only on client request."
+  },
+  {
+    "id": "DS-ACC-RO",
+    "name": "ACC Standard Rollout Slide - Side-Mount Ball-Bearing",
+    "brand": "Knape & Vogt",
+    "model": "3132",
+    "mount": "sidemount",
+    "close": "full-extension",
+    "length_options_in": [
+      18,
+      22,
+      24
+    ],
+    "notes": "ACC STANDARD - full-extension side-mount ball-bearing on pullouts. Length by cabinet depth. Substituted only on client request."
+  },
+  {
     "id": "DS-BLU-001",
     "name": "Blum Tandem Plus Blumotion 21in",
     "brand": "Blum",

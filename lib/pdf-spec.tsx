@@ -13,6 +13,7 @@ import path from "path";
 import {
   Document, Page, View, Text, Image, StyleSheet, renderToBuffer,
 } from "@react-pdf/renderer";
+import { HARDWARE_ROLE_LABEL as HW_ROLE_LABEL_PDF } from "@/lib/acc-standards";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -688,8 +689,46 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
 
 function AppliancesHardwarePage({ data }: { data: SpecPDFData }) {
   const apps = data.spec_appliances_list ?? [];
-  const hw   = data.spec_hardware ?? [];
   const isDraftAP = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+
+  // This page is spec-level, but hardware is recorded per finish group. Roll the
+  // finish groups up: one line when every group agrees (the normal case), and a
+  // line per group when they do not — a spec whose kitchen and bath use different
+  // hinges has to say so here, not average them into a single misleading row.
+  //
+  // Pulls are excluded; they have their own section on the work order sheets.
+  const hwRollup = (() => {
+    const byRole = new Map<string, Map<string, string[]>>();  // role -> name -> fg labels
+    for (const g of data.finish_groups ?? []) {
+      for (const h of g.hardware ?? []) {
+        if (h.role === "door_pulls" || h.role === "drawer_pulls") continue;
+        if (!h.hardware_name) continue;
+        const names = byRole.get(h.role) ?? new Map<string, string[]>();
+        const labels = names.get(h.hardware_name) ?? [];
+        labels.push(g.label);
+        names.set(h.hardware_name, labels);
+        byRole.set(h.role, names);
+      }
+    }
+    const out: { id: string; type: string; part_no: string; room: string; qty: number; notes: string }[] = [];
+    for (const [role, names] of byRole) {
+      const single = names.size === 1;
+      for (const [name, labels] of names) {
+        out.push({
+          id: `fg-${role}-${name}`,
+          type: HW_ROLE_LABEL_PDF[role] ?? role,
+          part_no: name,
+          // Only name the finish groups when they disagree; otherwise it is noise.
+          room: single ? "" : labels.join(", "),
+          qty: 0,
+          notes: "",
+        });
+      }
+    }
+    return out;
+  })();
+
+  const hw = [...hwRollup, ...(data.spec_hardware ?? [])];
 
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
@@ -793,6 +832,9 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
   const pageCode    = `W.${index + 1}`;
   const colorName   = fg.finish.paint_name || fg.finish.stain_name || "";
   const fgPulls     = (data.finish_group_pulls ?? {})[fg.id] ?? [];
+  // fgHw = this finish group's own hardware record. hw = spec-level extras a PM
+  // typed in, which apply across finish groups. Pulls come from a third table.
+  const fgHw        = (fg.hardware ?? []).filter((h) => h.role !== "door_pulls" && h.role !== "drawer_pulls");
   const hw          = data.spec_hardware ?? [];
   // Task #55 — prefer stored WO edgeband rows over re-derived defaults, BUT:
   //   - Paint/stain FGs: ALWAYS use derivedRows so Task #50 thickness fix ("" not "3.0") applies.
@@ -943,12 +985,28 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         {/* RIGHT: Work Order Hardware */}
         <View style={WS.bodyRight}>
           <Text style={WS.secHead}>WORK ORDER HARDWARE</Text>
-          {hw.length === 0 && fgPulls.length === 0 ? (
+          {fgHw.length === 0 && hw.length === 0 && fgPulls.length === 0 ? (
             <Text style={[WS.tdMu, { padding: 4 }]}>No hardware specified.</Text>
           ) : (
             <>
+              {/*
+                THIS finish group's hardware, from finish_group_hardware. Until now
+                this block rendered spec-level free text only, so a hinge changed on
+                the Schedules tab never reached the work order. Per-FG comes first
+                because it is the authoritative record for the sheet being built.
+              */}
+              {fgHw.map((h, i) => (
+                <View key={`fg-${i}`} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                  <Text style={[WS.specLabel, { width: 90 }]}>
+                    {h.role_label}{h.slot_label ? ` · ${h.slot_label}` : ""}
+                  </Text>
+                  <Text style={WS.specValue}>
+                    {[h.hardware_name, h.qty ? `× ${h.qty}` : "", h.notes].filter(Boolean).join(" · ") || "—"}
+                  </Text>
+                </View>
+              ))}
               {hw.map((h, i) => (
-                <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                <View key={`spec-${i}`} style={[WS.specRow, (fgHw.length + i) % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
                   <Text style={[WS.specLabel, { width: 90 }]}>{h.type}</Text>
                   <Text style={WS.specValue}>{h.part_no || h.notes || "—"}</Text>
                 </View>

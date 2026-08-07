@@ -1,6 +1,7 @@
 import sql from "@/lib/db";
 import { catalogs } from "@/lib/catalogs";
-import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry } from "@/lib/pdf-spec";
+import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry, HardwareView } from "@/lib/pdf-spec";
+import { ACC_HARDWARE_STANDARDS, HARDWARE_ROLE_LABEL } from "@/lib/acc-standards";
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; job_number: string | null; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; engineer: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
@@ -26,7 +27,6 @@ type DBHardwareRow = { id: string; spec_id: string; type: string; part_no: strin
 const MATERIAL_ROLE_LABEL: Record<string, string> = { cab_ext:"Cabinet Exterior", cab_int:"Cabinet Interior", cab_ext2:"Cab Exterior 2", cab_int2:"Cab Interior 2" };
 const DOOR_FRONT_ROLE_LABEL: Record<string, string> = { base:"Base Doors", upper:"Upper Doors", applied_ends:"Applied Ends", slab_df:"Slab DF", "5pc_df":"5 PC DF" };
 const DRAWER_ROLE_LABEL: Record<string, string> = { drawer_box:"Drawer Box", rollout:"Rollout" };
-const HW_ROLE_LABEL: Record<string, string> = { hinges:"Hinges", drawer_slides:"Drawer Slides", rollout_slides:"Rollout Slides", closet_rod:"Closet Rod", trash_pullout:"Trash Pullout", base_pullout:"Base Pullout", blind_corner:"Blind Corner", shelf_clips:"Shelf Clips", door_pulls:"Door Pulls", drawer_pulls:"Drawer Pulls", misc:"Misc." };
 const MOLDING_TYPE_LABEL: Record<string, string> = { toe_skin:"Toe Skin", filler_1:"Filler 1", filler_2:"Filler 2", crown_1:"Crown 1", crown_2:"Crown 2", crown_nailer:"Crown Nailer", light_rail:"Light Rail", shelf_cleating:"Shelf Cleating", base_shoe:"Base Shoe", scribe:"Scribe Molding", base:"Base" };
 const EDGEBAND_WHERE_USED_LABEL: Record<string, string> = { applied_ends_doors_dwr_fronts:"Applied Ends / Doors & Drawer Fronts", cabinet_body_parts:"Cabinet Body Parts", adjustable_shelves:"Adjustable Shelves", bottom_upper_fe:"Bottom of Upper F.E.", bottom_upper_unfe:"Bottom of Upper Un-F.E.", drawer_box_sides:"Drawer Box Sides", drawer_box_front_back:"Drawer Box Front/Back", misc:"Misc — see notes" };
 
@@ -123,6 +123,17 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     arr.push(dr);
     drawersByFg.set(dr.finish_group_id, arr);
   }
+  // finish_group_hardware was loaded above and then discarded — FinishGroupView.hardware
+  // was hardcoded to []. Everything in the work order's hardware block came from a
+  // literal string array (HW_DEFAULTS, deleted below), so overriding a hinge on the
+  // Schedules tab changed the spec and did NOT change the document the shop builds
+  // from. Grouping it here is the first half of fixing that.
+  const hardwareByFg = new Map<string, HardwareRow[]>();
+  for (const h of hardware) {
+    const arr = hardwareByFg.get(h.finish_group_id) ?? [];
+    arr.push(h);
+    hardwareByFg.set(h.finish_group_id, arr);
+  }
 
   const fgViews: FinishGroupView[] = fgs.map((g) => {
     // Color display: use stored color_name directly (handles both catalog and custom)
@@ -205,7 +216,46 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
         return rows;
       })(),
       edgebands: ebEntries,
-      hardware: [],
+      hardware: (() => {
+        const rows = hardwareByFg.get(g.id) ?? [];
+        const views: HardwareView[] = rows.map((h) => ({
+          role: h.role,
+          role_label: HARDWARE_ROLE_LABEL[h.role] ?? h.role,
+          slot_label: h.slot_label ?? "",
+          // Falls back to "" rather than the raw id: a shop document showing a
+          // blank is a visible gap someone will ask about, while one showing
+          // "HDS-BLU-001" reads like a real part number and gets ordered.
+          hardware_name: hardwareName(h.role, h.hardware_id),
+          brand: hardwareBrand(h.role, h.hardware_id),
+          qty: h.qty,
+          location: h.location ?? "",
+          vendor: h.vendor ?? "",
+          notes: h.notes ?? "",
+        }));
+
+        // A finish group that has not been saved since the seeding shipped has no
+        // rows at all. Rather than print nothing where the standards used to
+        // appear, synthesize them from ACC_HARDWARE_STANDARDS — the same constants
+        // the Spec Details tab shows the client. Marked so the reader can tell a
+        // stated standard from a recorded one.
+        const present = new Set(views.map((v) => v.role));
+        for (const std of ACC_HARDWARE_STANDARDS) {
+          if (present.has(std.role)) continue;
+          if (!std.always && !g.rollout_box_id) continue;
+          views.push({
+            role: std.role,
+            role_label: HARDWARE_ROLE_LABEL[std.role] ?? std.role,
+            slot_label: "",
+            hardware_name: std.label,
+            brand: "",
+            qty: null,
+            location: "",
+            vendor: "",
+            notes: "ACC standard",
+          });
+        }
+        return views;
+      })(),
       countertops: (() => {
         const hasCt = g.ct_material || g.ct_style || g.ct_edge || g.ct_splash;
         if (!hasCt) return [];
@@ -270,18 +320,27 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     spec_pulls = pullsRows.map((r) => ({ id:r.id, make:r.make??"", model:r.model??"", size:r.size??"", room:r.room??"", notes:r.notes??"", qty:r.qty }));
     spec_accessories = accRows.map((r) => ({ id:r.id, type:r.type??"", part_number:r.part_number??"", description:r.description??"", qty:r.qty, handed:r.handed??"N/A", room:r.room??"", size:r.size??"", notes:r.notes??"" }));
     spec_hardware_list = hwRows.map((r) => ({ id:r.id, type:r.type, part_no:r.part_no??"", room:r.room??"", qty:r.qty, notes:r.notes??"" }));
-    // Prepend ACC standard hardware defaults. Suppress a default if the spec already has a row
-    // of that type (except Closet Rod, which always appears so the PM can fill in details).
-    const HW_DEFAULTS: SpecHardwareRow[] = [
-      { id:"def-hinge",   type:"Hinge",         part_no:"Blum 110 Int-Soft Close",                room:"", qty:0, notes:"" },
-      { id:"def-drawer",  type:"Drawer Guides",  part_no:"Full Extension Soft Close Undermount",  room:"", qty:0, notes:"" },
-      { id:"def-rollout", type:"Rollout Guides", part_no:"Full Extension Sidemount",               room:"", qty:0, notes:"" },
-      { id:"def-shelf",   type:"Shelf Clips",    part_no:"5mm Nickel",                             room:"", qty:0, notes:"" },
-       { id:"def-closet",  type:"Closet Rod",     part_no:"",                                       room:"", qty:0, notes:"" },
+    // HW_DEFAULTS used to live here: five hardcoded strings ("Blum 110 Int-Soft
+    // Close", "Full Extension Soft Close Undermount", ...) prepended to this list
+    // on every render. They were the only place the work order got its hardware,
+    // which meant the printed document could not disagree with them -- including
+    // when the spec itself said something different. That is the failure mode worth
+    // caring about: not a blank field, a confidently wrong one.
+    //
+    // The standards now come from finish_group_hardware via FinishGroupView.hardware
+    // (with ACC_HARDWARE_STANDARDS as a named fallback), so this list holds only what
+    // it was always supposed to: the spec-level extras a PM typed in.
+    //
+    // Shelf Clips has no seeded standard, so it stays a literal here to preserve what
+    // the shop is used to seeing. Closet Rod is kept as an empty prompt row for the
+    // same reason -- it is a fill-me-in cue, not an assertion.
+    const HW_PROMPTS: SpecHardwareRow[] = [
+      { id:"def-shelf",  type:"Shelf Clips", part_no:"5mm Nickel", room:"", qty:0, notes:"" },
+      { id:"def-closet", type:"Closet Rod",  part_no:"",           room:"", qty:0, notes:"" },
     ];
-    // Always include all 5 defaults; only show user rows with real content (part_no or notes)
+    const userTypes = new Set(spec_hardware_list.filter(h => h.part_no || h.notes).map(h => h.type));
     const meaningfulUserRows = spec_hardware_list.filter(h => h.part_no || h.notes);
-    spec_hardware_list = [...HW_DEFAULTS, ...meaningfulUserRows];
+    spec_hardware_list = [...HW_PROMPTS.filter(p => !userTypes.has(p.type)), ...meaningfulUserRows];
     fg_pulls_list = fgPullsRows;
     room_trim_list = trimRows;
     db_appliances = appRows;

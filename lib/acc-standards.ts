@@ -25,9 +25,49 @@
  * them — nothing enforces the reference.
  */
 
+// ── Two catalogs, two id namespaces. Do not mix them. ────────────────────────
+//
+// There are two parallel slide catalogs in data/catalogs, and which one applies
+// depends on the COLUMN, not the concept:
+//
+//   finish_group_hardware.hardware_id  -> hardware_drawer_slides.csv  (HDS-*)
+//                                         hardware_rollout_slides.csv (HRS-*)
+//   finish_group_drawers.slides_id     -> drawer_slides.csv           (DS-*)
+//
+// Both the Schedules panel (components/SpecSchedulesPanel.tsx:603) and the work
+// order PDF (lib/spec-data.ts:197) resolve slides_id against drawer_slides.csv.
+// Put an HDS-* id in that column and the lookup misses, the code falls back to
+// printing the raw id, and a shop-facing document says "HDS-BLU-001" where a
+// slide name belongs. That happened — see the repair pass in seedDrawerRow.
+
+/** finish_group_hardware, role='hinges' */
 export const ACC_STANDARD_HINGE = "HH-BLU-110";
+/** finish_group_hardware, role='drawer_slides' */
 export const ACC_STANDARD_DRAWER_SLIDE = "HDS-BLU-001";
+/** finish_group_hardware, role='rollout_slides' */
 export const ACC_STANDARD_ROLLOUT_SLIDE = "HRS-KV-001";
+
+// drawer_slides.csv had no length-agnostic entry and no side-mount ball-bearing
+// entry at all — only per-length SKUs (563H3810B for 15in, 4570B for 18in,
+// 5330B for 21in). A spec-level default has no business choosing a slide length;
+// that follows cabinet depth and is the shop's call. So these two abstract
+// entries were added to the catalog: they name WHAT the slide is and leave the
+// SKU to be resolved downstream.
+
+/** finish_group_drawers.slides_id, role='drawer_box' */
+export const ACC_STANDARD_DRAWER_SLIDE_SPEC = "DS-ACC-STD";
+/** finish_group_drawers.slides_id, role='rollout' */
+export const ACC_STANDARD_ROLLOUT_SLIDE_SPEC = "DS-ACC-RO";
+
+/**
+ * Ids that were written into finish_group_drawers.slides_id by mistake and must
+ * be corrected rather than preserved. Anything from the hardware namespace is
+ * wrong in that column by definition, so the prefix test is the whole rule —
+ * no list of specific bad ids to keep in sync.
+ */
+export function isWrongNamespaceSlideId(id: string | null): boolean {
+  return !!id && (id.startsWith("HDS-") || id.startsWith("HRS-"));
+}
 
 export type AccHardwareStandard = {
   role: string;
@@ -66,3 +106,25 @@ export const ACC_HARDWARE_STANDARDS: AccHardwareStandard[] = [
     always: false,
   },
 ];
+
+/**
+ * Display labels for finish_group_hardware.role.
+ *
+ * Kept here rather than in components/SpecSchedulesPanel.tsx (where an identical
+ * list already lived) so the Schedules form, the spec builder and the work order
+ * PDF cannot drift apart on what to call a role. This module has no imports, so
+ * server and client code can both read it.
+ */
+export const HARDWARE_ROLE_LABEL: Record<string, string> = {
+  hinges:         "Hinges",
+  drawer_slides:  "Drawer Slides",
+  door_pulls:     "Door Pulls",
+  drawer_pulls:   "Drawer Pulls",
+  rollout_slides: "Rollout Slides",
+  closet_rod:     "Closet Rod",
+  trash_pullout:  "Trash Pullout",
+  base_pullout:   "Base Pullout",
+  blind_corner:   "Blind Corner",
+  shelf_clips:    "Shelf Clips",
+  misc:           "Misc.",
+};
