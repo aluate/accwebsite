@@ -55,6 +55,7 @@ export type FinishGroup = {
   ct_style: string | null;
   ct_edge: string | null;
   ct_splash: string | null;
+  grain_orientation: string | null;
 };
 
 export type FgTrimDefault = {
@@ -1024,7 +1025,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     box_count: null,
     wo_count: null,
     wo_number: null,
-    ct_material: null, ct_style: null, ct_edge: null, ct_splash: null,
+    ct_material: null, ct_style: null, ct_edge: null, ct_splash: null, grain_orientation: null,
       color_id: "", color_name: "",
       door_style_id: "", drawer_style_id: "",
       cabdoor_edge_id: "", cabdoor_profile_id: "", cabdoor_panel_id: "",
@@ -1780,6 +1781,19 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     >
                       <option value="slab">Slab</option>
                       <option value="match_door">Match door style</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={LABEL}>Grain Orientation</label>
+                    <select
+                      value={g.grain_orientation ?? ""}
+                      onChange={(e) => updateGroup(g.id, { grain_orientation: e.target.value || null })}
+                      className={SELECT}
+                    >
+                      <option value="">— Not specified</option>
+                      <option value="Horizontal">Horizontal</option>
+                      <option value="Vertical">Vertical</option>
+                      <option value="Random">Random</option>
                     </select>
                   </div>
                   {(g.finish_type === "paint" || g.finish_type === "stain") && (

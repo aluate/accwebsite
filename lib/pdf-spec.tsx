@@ -31,6 +31,7 @@ export type MoldingView = { molding_type: string; type_label: string; profile_na
 export type FinishGroupView = {
   id: string; label: string; finish_type: string; notes: string; species: string;
   wo_number: string | null;
+  grain_orientation: string | null;
   applied_panels: string | null;
   rollout_box_name: string;
   finish: FinishView;
@@ -397,7 +398,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
           {fgs.map((fg, fi) => {
             const pulls    = fgPulls[fg.id] ?? [];
             const colorName = fg.finish.stain_name || fg.finish.paint_name || "";
-            const carcass   = fg.materials.find(m => m.role === "cab_ext")?.name ?? "";
+            const carcass   = fg.materials.find(m => m.role === "cab_int")?.name ?? fg.materials.find(m => m.role === "cab_ext")?.name ?? "";
             const rowStyle  = fi % 2 === 0 ? S.row : S.rowAlt;
 
             // Pull display lines
@@ -440,6 +441,10 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
               doorLines.push({ label: "Appl. Ends", val });
             } else if (fg.applied_panels) {
               doorLines.push({ label: "Appl. Ends", val: fmtAppliedPanels(fg.applied_panels) });
+            }
+            // Grain orientation line
+            if (fg.grain_orientation) {
+              doorLines.push({ label: "Grain", val: fg.grain_orientation.toUpperCase() });
             }
 
             // Countertop summary (first CT only, for the column)
@@ -1124,7 +1129,7 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
               </Text>
               <Text style={[WS.td, { flex: 1.8 }]}>{d(df.style_name)}</Text>
               <Text style={[WS.td, { flex: 1.8 }]}>{d(df.material_name)}</Text>
-              <Text style={[WS.td, { flex: 1 }]}>{d(df.grain)}</Text>
+              <Text style={[WS.td, { flex: 1 }]}>{d(df.grain || fg.grain_orientation)}</Text>
               <Text style={[WS.tdMu, { flex: 1.8 }]}>{d(df.notes)}</Text>
             </View>
           ))}

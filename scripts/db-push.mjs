@@ -1161,6 +1161,10 @@ async function main() {
   try { await sql`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS placeholder_id TEXT REFERENCES jobs(id) ON DELETE SET NULL`; } catch {}
   console.log("jobs placeholder columns OK");
 
+  // ── finish_groups: grain_orientation ────────────────────────────────────────
+  try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS grain_orientation TEXT`; } catch (_) {}
+  console.log("finish_groups grain_orientation OK");
+
   // ── finish_groups: countertop free-entry columns ─────────────────────────
   try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS ct_material TEXT`; } catch (_) {}
   try { await sql`ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS ct_style    TEXT`; } catch (_) {}
