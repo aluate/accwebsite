@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
+import { requireBuilderApi } from "@/lib/auth";
+import { checkSpecCompleteness, describeViolations } from "@/lib/spec-completeness";
 import { createClient } from "@supabase/supabase-js";
 
 function supabaseAdmin() {
@@ -24,6 +26,26 @@ function supabaseAdmin() {
 //    X-File-Id header carries the saved file ID for the client to link.
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: specId } = await params;
+
+  // This route had no auth at all, while holding SUPABASE_SERVICE_ROLE_KEY and a
+  // 60s maxDuration -- the most expensive endpoint in the app, open to anyone.
+  const session = await requireBuilderApi();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // THE $70k GUARD. Previously the only thing standing between an incomplete spec
+  // and a PDF on the shop floor was `canGen` in the browser, which a direct POST
+  // ignored entirely. Now the database is the source of truth for completeness.
+  const violations = await checkSpecCompleteness(specId);
+  if (violations.length > 0) {
+    return NextResponse.json(
+      {
+        error: "Spec is incomplete - cannot generate a shop PDF.",
+        detail: describeViolations(violations),
+        violations,
+      },
+      { status: 422 }
+    );
+  }
 
   let data;
   try {

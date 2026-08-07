@@ -778,7 +778,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       const res = await fetch(`/api/specs/${specId}/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ finish_groups: groups, rooms: roomsForSave, materials }),
+        // force=true means the user asked for a draft save. The server keeps
+          // integrity checks but downgrades completeness to warnings, so partial
+          // work persists instead of 400ing and being lost on navigate.
+          body: JSON.stringify({ finish_groups: groups, rooms: roomsForSave, materials, draft: force === true }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));

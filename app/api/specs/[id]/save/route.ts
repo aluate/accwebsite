@@ -94,11 +94,22 @@ type SavePayload = {
   rooms: RoomPayload[];
   moldings?: MoldingPayload[];
   materials?: MaterialPayload[];
+  /** Save an incomplete spec on purpose. Completeness warnings are returned
+   *  in the response instead of rejecting the write. Integrity errors still
+   *  block. PDF generation remains gated -- see lib/spec-completeness.ts. */
+  draft?: boolean;
 };
 
 // -- Validation
 
-type Violation = { path: string; message: string };
+type Violation = { path: string; message: string; severity: "error" | "warning" };
+
+// "error"   -> would break referential integrity or violate a NOT NULL/UNIQUE
+//              constraint. Always blocks the save.
+// "warning" -> the spec is incomplete. Blocks a normal save, but a draft save
+//              (draft: true) is allowed through so work is never lost. These
+//              same fields block PDF generation server-side -- see
+//              lib/spec-completeness.ts. That is where the $70k guard lives now.
 
 function validate(payload: SavePayload): Violation[] {
   const v: Violation[] = [];
@@ -107,47 +118,47 @@ function validate(payload: SavePayload): Violation[] {
 
   for (const g of payload.finish_groups) {
     const tag = `finish_groups[${g.label || g.id}]`;
-    if (!g.label?.trim())  v.push({ path: tag, message: "label is required" });
-    if (!g.finish_type)    v.push({ path: tag, message: "finish_type is required" });
-    if (!g.carcass_id)     v.push({ path: tag, message: "carcass material is required (the $70k field)" });
-    if (!g.drawer_box_id)  v.push({ path: tag, message: "drawer box is required (the $70k field)" });
+    if (!g.label?.trim())  v.push({ path: tag, message: "label is required", severity: "warning" });
+    if (!g.finish_type)    v.push({ path: tag, message: "finish_type is required", severity: "warning" });
+    if (!g.carcass_id)     v.push({ path: tag, message: "carcass material is required (the $70k field)", severity: "warning" });
+    if (!g.drawer_box_id)  v.push({ path: tag, message: "drawer box is required (the $70k field)", severity: "warning" });
     if ((g.finish_type === "paint" || g.finish_type === "stain") && !g.edgeband_id) {
-      v.push({ path: tag, message: "edgeband selection is required for paint/stain finishes" });
+      v.push({ path: tag, message: "edgeband selection is required for paint/stain finishes", severity: "warning" });
     }
   }
 
   for (const r of payload.rooms) {
     const tag = `rooms[${r.name || r.id}]`;
-    if (!r.name?.trim()) v.push({ path: tag, message: "room name is required" });
+    if (!r.name?.trim()) v.push({ path: tag, message: "room name is required", severity: "warning" });
 
     const hasMulti = (r.finishes ?? []).some((f) => f.finish_group_id);
     const hasLegacy = !!r.finish_group_id;
     if (!hasMulti && !hasLegacy) {
-      v.push({ path: tag, message: "at least one finish must be assigned to this room" });
+      v.push({ path: tag, message: "at least one finish must be assigned to this room", severity: "warning" });
     }
 
     for (const f of r.finishes ?? []) {
       if (f.finish_group_id && !fgIds.has(f.finish_group_id)) {
-        v.push({ path: tag, message: `finish reference ${f.finish_group_id} not found in finish_groups` });
+        v.push({ path: tag, message: `finish reference ${f.finish_group_id} not found in finish_groups`, severity: "error" });
       }
     }
     if (r.finish_group_id && !fgIds.has(r.finish_group_id)) {
-      v.push({ path: tag, message: `legacy finish_group_id ${r.finish_group_id} not found in finish_groups` });
+      v.push({ path: tag, message: `legacy finish_group_id ${r.finish_group_id} not found in finish_groups`, severity: "error" });
     }
 
     for (const c of r.cabinets ?? []) {
-      if (!c.family_code) v.push({ path: `${tag}.cabinet`, message: "cabinet family is required for every cabinet line item" });
+      if (!c.family_code) v.push({ path: `${tag}.cabinet`, message: "cabinet family is required for every cabinet line item", severity: "warning" });
     }
   }
 
   for (const m of payload.moldings ?? []) {
     const tag = `moldings[${m.id}]`;
-    if (!m.molding_type)    v.push({ path: tag, message: "molding_type is required" });
-    if (!m.finish_group_id) v.push({ path: tag, message: "finish_group_id is required" });
+    if (!m.molding_type)    v.push({ path: tag, message: "molding_type is required", severity: "warning" });
+    if (!m.finish_group_id) v.push({ path: tag, message: "finish_group_id is required", severity: "error" });
     if (m.finish_group_id && !fgIds.has(m.finish_group_id))
-      v.push({ path: tag, message: `finish_group_id ${m.finish_group_id} not in finish_groups` });
+      v.push({ path: tag, message: `finish_group_id ${m.finish_group_id} not in finish_groups`, severity: "error" });
     for (const rid of m.where_used_room_ids ?? []) {
-      if (!roomIds.has(rid)) v.push({ path: tag, message: `where_used room ${rid} not in rooms` });
+      if (!roomIds.has(rid)) v.push({ path: tag, message: `where_used room ${rid} not in rooms`, severity: "error" });
     }
   }
 
@@ -155,12 +166,12 @@ function validate(payload: SavePayload): Violation[] {
   const VALID_MATERIAL_ROLES = new Set(["cab_int", "cab_ext2", "cab_int2"]);
   for (const m of payload.materials ?? []) {
     const tag = `materials[${m.id || `${m.finish_group_id}/${m.role}`}]`;
-    if (!m.finish_group_id) v.push({ path: tag, message: "finish_group_id is required" });
+    if (!m.finish_group_id) v.push({ path: tag, message: "finish_group_id is required", severity: "error" });
     if (m.finish_group_id && !fgIds.has(m.finish_group_id))
-      v.push({ path: tag, message: `finish_group_id ${m.finish_group_id} not in finish_groups` });
-    if (!m.role) v.push({ path: tag, message: "role is required" });
+      v.push({ path: tag, message: `finish_group_id ${m.finish_group_id} not in finish_groups`, severity: "error" });
+    if (!m.role) v.push({ path: tag, message: "role is required", severity: "error" });
     if (m.role && !VALID_MATERIAL_ROLES.has(m.role))
-      v.push({ path: tag, message: `role '${m.role}' not in {cab_int, cab_ext2, cab_int2}` });
+      v.push({ path: tag, message: `role '${m.role}' not in {cab_int, cab_ext2, cab_int2}`, severity: "error" });
   }
 
   return v;
@@ -175,8 +186,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { finish_groups, rooms, moldings = [], materials = [] } = body;
 
   const violations = validate(body);
-  if (violations.length > 0) {
-    return NextResponse.json({ ok: false, error: "validation failed", violations }, { status: 400 });
+  const blocking = violations.filter((x) => x.severity === "error");
+  const warnings = violations.filter((x) => x.severity === "warning");
+  const isDraft = body.draft === true;
+
+  // Integrity errors always block. Completeness warnings block a normal save but
+  // are allowed through on a draft, so a half-entered spec is never lost. The
+  // spec still cannot produce a PDF until the warnings clear -- that check runs
+  // server-side in app/api/specs/[id]/generate/route.ts.
+  if (blocking.length > 0 || (!isDraft && warnings.length > 0)) {
+    return NextResponse.json(
+      { ok: false, error: "validation failed", violations: isDraft ? blocking : violations },
+      { status: 400 }
+    );
   }
 
   const now = new Date().toISOString();
