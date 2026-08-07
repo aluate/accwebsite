@@ -1899,7 +1899,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       { field: "ct_material" as const, label: "Material",     ph: "e.g. Quartz, Granite, Laminate" },
                       { field: "ct_style"    as const, label: "Style / Color", ph: "e.g. Calacatta Gold" },
                       { field: "ct_edge"     as const, label: "Edge Profile",  ph: "e.g. Eased, Ogee, Waterfall" },
-                      { field: "ct_splash"   as const, label: "Splash",        ph: "e.g. 4" matching, Full tile" },
+                      { field: "ct_splash"   as const, label: "Splash",        ph: 'e.g. 4" matching, Full tile' },
                     ] as { field: keyof FinishGroup; label: string; ph: string }[]).map(({ field, label, ph }) => (
                       <div key={field}>
                         <label className={LABEL}>{label}</label>
