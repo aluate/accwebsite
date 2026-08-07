@@ -5,6 +5,7 @@ import type {
   PaintColor, StainColor, MelamineColor, DoorStyle, HardwarePull, RevaAccessory,
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
 } from "@/lib/catalogs";
+import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
@@ -2343,6 +2344,36 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       {/* SPEC DETAILS — appliances, accessories, hardware */}
       {tab === "specDetails" && (
         <div className="space-y-6">
+          {/*
+            ACC hardware standards.
+
+            These are applied automatically to every finish group on save (see
+            lib/acc-standards.ts), which is only safe if they are STATED rather
+            than assumed. A default nobody can see is how the $70k job happened.
+            This block is the "loud" half: it is on the sheet the client reviews,
+            so nobody can be surprised by what showed up.
+          */}
+          <div className="bg-[#2d2d2d] rounded p-4 border-l-2 border-[#f08122]">
+            <div className="text-xs font-condensed uppercase tracking-widest text-[#f08122] mb-2">
+              ACC Standard Hardware — Included On Every Finish Group
+            </div>
+            <div className="space-y-1.5">
+              {ACC_HARDWARE_STANDARDS.map((s) => (
+                <div key={s.role} className="flex flex-col sm:flex-row sm:gap-3 text-sm">
+                  <span className="text-white/40 font-condensed uppercase tracking-wider text-xs sm:w-36 sm:shrink-0 sm:pt-0.5">
+                    {s.role.replace(/_/g, " ")}
+                  </span>
+                  <span className="text-white/90">{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-white/30 text-xs mt-3 leading-relaxed">
+              Rollout slides apply only to finish groups that have rollouts. These are
+              substituted only when a client specifically asks — change them on the
+              Schedules tab and leave a note saying why.
+            </p>
+          </div>
+
           <p className="text-white/30 text-xs font-condensed uppercase tracking-widest">
             List all appliances and plumbing fixtures. Audience: engineer (rough-in reference) and client (change tracking).
           </p>

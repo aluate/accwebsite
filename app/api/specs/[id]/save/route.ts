@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
+import { seedAccStandards } from "@/lib/acc-standards-seed";
 
 // -- Payload types
 
@@ -423,8 +424,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       `;
     }
 
-    // Auto-seed detail sub-tables from top-level FG fields.
-    // Only seeds if the detail table has 0 rows for this finish_group_id.
+    // Auto-seed detail sub-tables from top-level FG fields, plus the ACC hardware
+    // standards.
+    //
+    // Guards are PER ROLE, not per table. The old version counted rows in the
+    // whole table for the finish group, which had a nasty consequence: once
+    // door_pulls and drawer_pulls were seeded from pull_id, the count was no
+    // longer zero, so hinges could never be seeded afterwards. And hinges
+    // (finish_group_hardware, role='hinges') is one of the five fields
+    // validateForRelease() demands. Net effect: nothing could reach engineering.
+    //
+    // Seeding only ever fills a BLANK. It never overwrites a value someone chose,
+    // including a deliberate "None" — an existing row for a role, even one with a
+    // null hardware_id, is treated as a decision already made.
+    //
     // Wrapped in individual try/catch so a seeding failure never breaks the save.
     for (const g of finish_groups) {
       const fgId = g.id;
@@ -442,18 +455,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         } catch (_) { /* seeding failure -- skip */ }
       }
 
-      // drawers -- seed one "drawer_box" row from drawer_box_id
-      if (g.drawer_box_id) {
-        try {
-          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_drawers WHERE finish_group_id = ${fgId}`;
-          if (Number((cnt[0] as { c: string | number }).c) === 0) {
-            await sql`
-              INSERT INTO finish_group_drawers (id, finish_group_id, role, drawer_box_id, sort_order)
-              VALUES (${uid()}, ${fgId}, ${'drawer_box'}, ${g.drawer_box_id}, ${0})
-            `;
-          }
-        } catch (_) { /* seeding failure -- skip */ }
-      }
+      // ACC standard hinges and slides, the pulls the PM chose, and the drawer /
+      // rollout rows that carry slides_id. See lib/acc-standards-seed.ts -- it is all
+      // per-role, idempotent, and only ever fills a blank.
+      await seedAccStandards(fgId, {
+        drawerBoxId:  g.drawer_box_id || null,
+        rolloutBoxId: g.rollout_box_id || null,
+        pullId:       g.pull_id || null,
+      });
 
       // edgebands -- seed one row from edgeband_id (skip sentinel values)
       const EDGEBAND_SENTINELS = ["MATCH_PAINT_STAIN", "PVC_SPECIFY", "OTHER_EDGEBAND"];
@@ -464,23 +473,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             await sql`
               INSERT INTO finish_group_edgebands (id, finish_group_id, code, edgeband_id, sort_order)
               VALUES (${uid()}, ${fgId}, ${'EB1'}, ${g.edgeband_id}, ${0})
-            `;
-          }
-        } catch (_) { /* seeding failure -- skip */ }
-      }
-
-      // hardware -- seed door_pulls and drawer_pulls rows from pull_id
-      if (g.pull_id) {
-        try {
-          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_hardware WHERE finish_group_id = ${fgId}`;
-          if (Number((cnt[0] as { c: string | number }).c) === 0) {
-            await sql`
-              INSERT INTO finish_group_hardware (id, finish_group_id, role, hardware_id, sort_order)
-              VALUES (${uid()}, ${fgId}, ${'door_pulls'}, ${g.pull_id}, ${0})
-            `;
-            await sql`
-              INSERT INTO finish_group_hardware (id, finish_group_id, role, hardware_id, sort_order)
-              VALUES (${uid()}, ${fgId}, ${'drawer_pulls'}, ${g.pull_id}, ${1})
             `;
           }
         } catch (_) { /* seeding failure -- skip */ }
