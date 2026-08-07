@@ -13,7 +13,7 @@ type Params = { params: Promise<{ invoiceId: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 
@@ -57,7 +57,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 

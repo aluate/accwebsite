@@ -20,9 +20,11 @@ export function NewSpecButton({
 }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function create() {
     setCreating(true);
+    setError(null);
     try {
       const body: Record<string, unknown> = { job_id: jobId, name: "Cabinet Spec" };
       if (builderProfileId) body.builder_profile_id = builderProfileId;
@@ -32,15 +34,24 @@ export function NewSpecButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) { setCreating(false); return; }
+      if (!res.ok) {
+        // Previously this swallowed the failure and just stopped the spinner, so a
+        // broken "+ New Spec" looked like a dead button with no explanation.
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || `Could not create the spec (HTTP ${res.status}).`);
+        setCreating(false);
+        return;
+      }
       const { id } = await res.json();
       router.push(`/jobs/${jobId}/residential/${id}`);
-    } catch {
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Network error creating the spec.");
       setCreating(false);
     }
   }
 
   return (
+    <div className="inline-flex flex-col items-start gap-1">
     <button
       onClick={create}
       disabled={creating}
@@ -48,5 +59,9 @@ export function NewSpecButton({
     >
       {creating ? "Creating…" : "+ New Spec"}
     </button>
+    {error && (
+      <span role="alert" className="text-xs text-red-600 max-w-xs">{error}</span>
+    )}
+    </div>
   );
 }

@@ -57,21 +57,28 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
       }
     }
     if (!builderProfile) {
-      const [def] = await sql<BPRow[]>`
-        SELECT id, company AS builder_name, is_residential_default FROM builders
-        WHERE is_residential_default = 1 AND active = 1 LIMIT 1
+      // catalog_builder_profiles is the only table that actually carries the
+      // default_* columns and is_residential_default. The unified `builders`
+      // table was supposed to absorb them (scripts/migrate-unified-builders.mjs)
+      // but that script is not in package.json and was never run, so builders
+      // has none of them.
+      //
+      // This used to query builders FIRST, inside this same try block. That
+      // query threw on the missing column, the catch swallowed it, and the
+      // catalog_builder_profiles fallback below never ran -- so builderProfile
+      // was always null and builder defaults were never seeded into a new spec.
+      const [profile] = await sql<BPRow[]>`
+        SELECT id, builder_name, is_residential_default
+        FROM catalog_builder_profiles
+        WHERE is_residential_default = true
+        LIMIT 1
       `;
-      if (!def) {
-        const [legacy] = await sql<BPRow[]>`
-          SELECT id, builder_name, is_residential_default FROM catalog_builder_profiles
-          WHERE is_residential_default = true LIMIT 1
-        `;
-        builderProfile = legacy ?? null;
-      } else {
-        builderProfile = def;
-      }
+      builderProfile = profile ?? null;
     }
-  } catch { /* table may not exist yet */ }
+  } catch (e) {
+    // Never block the page on profile lookup, but stop hiding the reason.
+    console.error("[residential] builder profile lookup failed:", e);
+  }
   const builderProfileId = builderProfile?.id ?? null;
 
   const specs = await sql`

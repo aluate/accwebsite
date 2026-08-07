@@ -45,7 +45,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await requireBuilder();
-  if (!["admin", "pm"].includes(session.role)) {
+  if (!["karl", "admin", "pm"].includes(session.role)) {
     return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
   }
 

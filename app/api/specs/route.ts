@@ -26,19 +26,23 @@ export async function POST(req: NextRequest) {
     VALUES (${id}, ${body.job_id}, ${body.name ?? "New Spec"}, 'draft', ${now}, ${now})
   `;
 
+  // Seeding is best-effort and deliberately cannot fail the request: the spec row
+  // above is already committed, so throwing here would return 500 while leaving an
+  // orphan spec behind -- the caller would see "nothing happened" and retry,
+  // creating another one each time.
+  //
+  // The previous query UNION'd `builders`, selecting default_finish_type,
+  // default_carcass_id, default_drawer_box_id, default_pull_id and builder_name --
+  // none of which exist on that table (checked against a pg_dump of production).
+  // Only catalog_builder_profiles has them.
   const profileId: string | undefined = body.builder_profile_id;
   if (profileId) {
+    try {
     const [profile] = await sql<{
       id: string; builder_name: string; default_finish_type: string;
       default_carcass_id: string | null; default_drawer_box_id: string | null;
       default_pull_id: string | null;
     }[]>`
-      SELECT id,
-             COALESCE(company, builder_name) AS builder_name,
-             default_finish_type, default_carcass_id,
-             default_drawer_box_id, default_pull_id
-      FROM builders WHERE id = ${profileId} AND active = 1
-      UNION ALL
       SELECT id, builder_name,
              default_finish_type, default_carcass_id,
              default_drawer_box_id, default_pull_id
@@ -71,6 +75,9 @@ export async function POST(req: NextRequest) {
           NULL
         )
       `;
+    }
+    } catch (e) {
+      console.error("[api/specs] builder-profile seeding failed (spec still created):", e);
     }
   }
 

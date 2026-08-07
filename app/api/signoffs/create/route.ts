@@ -34,11 +34,16 @@ export async function POST(req: NextRequest) {
   const id = uid();
   const expiresAt = new Date(Date.now() + expiry_days * 86400 * 1000).toISOString();
 
+  // created_at is TEXT NOT NULL with no DB default, so omitting it made every
+  // single sign-off request fail with a not-null violation. The other two writers
+  // (send-contract, change-orders/[coId]/send) always passed it; this one didn't.
+  const now = new Date().toISOString();
+
   await sql`
     INSERT INTO client_signoffs
-      (id, job_id, token, token_expires_at, status, pm_note, created_by)
+      (id, job_id, token, token_expires_at, status, pm_note, created_by, created_at)
     VALUES
-      (${id}, ${job_id}, ${token}, ${expiresAt}, 'pending', ${pm_note ?? null}, ${session.name ?? session.username ?? "pm"})
+      (${id}, ${job_id}, ${token}, ${expiresAt}, 'pending', ${pm_note ?? null}, ${session.name ?? session.username ?? "pm"}, ${now})
   `;
 
   await logActivity({

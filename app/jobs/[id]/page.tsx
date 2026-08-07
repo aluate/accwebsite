@@ -313,7 +313,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
               <GateCheckinButton jobId={internalId} currentStage={job.status} />
             )}
-            {((session.role === "admin" || session.role === "karl") || session.role === "user") && (
+            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
               <ReadyToScheduleButton jobId={internalId} initialOnDeck={hasScheduleEvents} />
             )}
             {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (

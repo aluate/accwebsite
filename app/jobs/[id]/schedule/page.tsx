@@ -8,8 +8,9 @@ import { PhaseIntakeClient } from "@/components/PhaseIntakeClient";
 export default async function JobSchedulePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await requireBuilder();
-  // PMs (role="user") and admins can add/delete phases; installers are read-only.
-  const canEdit = (session.role === "admin" || session.role === "karl") || session.role === "user";
+  // PMs and admins can add/delete phases; installers are read-only.
+  // (was role="user", which is not a value in the Role union -- PMs could not edit.)
+  const canEdit = (session.role === "admin" || session.role === "karl") || session.role === "pm";
 
   // Resolve job_number to internal UUID, same as the main job detail page.
   // Without this, navigating via ACC-YYYY-NNNN URLs returns no events because

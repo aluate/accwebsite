@@ -221,7 +221,9 @@ export async function POST(
   }).catch(() => {});
 
   // ── 8. Auto-create balance invoice draft on delivery ───────
-  if (toStatus === "delivered") {
+  // STATUS_SEQUENCE (lib/transition-gates.ts:56) has "delivery", not "delivered",
+  // so this branch never ran and no invoice was ever auto-created.
+  if (toStatus === "delivery") {
     const alreadyExists = await invoiceExists(internalId, "balance").catch(() => true);
     if (!alreadyExists) {
       const label = [job.client_name, job.site_address].filter(Boolean).join(" — ");
