@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -6,6 +7,8 @@ export const dynamic = "force-dynamic";
 // GET /api/builders?q=premier
 // Returns builders matching the search query (company or contact_name)
 export async function GET(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   const like = `%${q}%`;
 
@@ -26,6 +29,8 @@ export async function GET(req: NextRequest) {
 
 // POST /api/builders — create or update a builder (admin only)
 export async function POST(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const body = await req.json();
   const { id, company, contact_name, phone, email, typical_pm, notes, active,
           default_finish_type, default_carcass_id, default_drawer_box_id,

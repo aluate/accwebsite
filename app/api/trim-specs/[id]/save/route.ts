@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 // POST /api/trim-specs/[id]/save
@@ -9,6 +10,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const b = await req.json();
   const now = new Date().toISOString();

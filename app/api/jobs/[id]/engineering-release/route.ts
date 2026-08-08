@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
-import { getBuilder } from "@/lib/auth";
+import { getBuilder, guardApi } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { isComplete } from "@/lib/engineering-release-checklist";
 import { computeAutoChecked, mergeChecklist } from "@/lib/engineering-autocheck";
@@ -22,6 +22,8 @@ function supabaseAdmin() {
 
 // GET — return the most recent release for this job (or null)
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm", "engineer"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
 
   const [row] = await sql<{

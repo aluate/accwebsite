@@ -1,11 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 const API_KEY = process.env.INTERNAL_API_KEY;
 
 export async function GET(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const key = req.nextUrl.searchParams.get("key");
 
   if (!API_KEY || key !== API_KEY) {

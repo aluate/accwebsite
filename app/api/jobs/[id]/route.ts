@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
-import { requireBuilderApi } from "@/lib/auth";
+import { requireBuilderApi, guardApi } from "@/lib/auth";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireBuilderApi();
@@ -122,10 +122,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getBuilder();
-  if (!session || !["karl", "admin"].includes(session.role ?? "")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
+  // This read `await getBuilder()` with no import for getBuilder — a ReferenceError
+  // at runtime, so the handler had never once succeeded and the admin Delete Job
+  // button did nothing. Turbopack does not typecheck during build, so it shipped.
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const [row] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; client_name: string }>;
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });

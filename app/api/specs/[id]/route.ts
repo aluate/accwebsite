@@ -1,9 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
 
   const [spec] = await sql`SELECT * FROM residential_specs WHERE id = ${id}`;
@@ -31,6 +34,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const { name, status } = await req.json();
   const now = new Date().toISOString();
@@ -46,6 +51,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   await sql`DELETE FROM residential_specs WHERE id = ${id}`;
   return NextResponse.json({ ok: true });

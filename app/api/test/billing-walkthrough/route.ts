@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
-import { hashPassword } from "@/lib/auth";
+import { hashPassword, guardApi } from "@/lib/auth";
 import { hashPassword as portalHashPassword } from "@/lib/portal-auth";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE } from "@/lib/transition-gates";
@@ -47,6 +47,8 @@ type StepResult = {
 };
 
 export async function GET(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const key = req.nextUrl.searchParams.get("key");
   if (!API_KEY || key !== API_KEY) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

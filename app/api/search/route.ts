@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +8,8 @@ type JobHit  = { id: string; job_number: string | null; client_name: string; sit
 type SpecHit = { id: string; job_id: string; name: string; lifecycle_state: string; client_name: string };
 
 export async function GET(req: NextRequest) {
+  const guard = await guardApi();
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) return NextResponse.json({ jobs: [], specs: [] });
 

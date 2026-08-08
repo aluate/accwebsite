@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
-import { getBuilder, requireRole } from "@/lib/auth";
+import { getBuilder, requireRole, guardApi } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-log";
 import { createClient } from "@supabase/supabase-js";
 
@@ -109,6 +109,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 //   List mode: { files: { [kind]: FileEntry[] } }  — all 17 folders always present
 //   Stream mode (?file_id=Y): returns signed download URL redirect
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm", "engineer", "installer"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id: rawId } = await params;
   const id = await resolveJobId(rawId);
   if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });

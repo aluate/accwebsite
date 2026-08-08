@@ -1,12 +1,15 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; fgId: string; code: string }> }
 ) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { fgId, code } = await params;
   const body = await req.json() as {
     edgeband_id?:  string | null;

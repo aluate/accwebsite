@@ -10,6 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { getPunchActor } from "@/lib/punch-auth";
 import { logActivity } from "@/lib/activity-log";
@@ -23,6 +24,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
+  const guard = await guardApi(["admin", "pm", "installer"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -96,6 +99,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
+  const guard = await guardApi(["admin", "pm", "installer"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor?.canManage) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

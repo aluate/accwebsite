@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
-import { requireBuilderApi } from "@/lib/auth";
+import { requireBuilderApi, guardApi } from "@/lib/auth";
 import { checkSpecCompleteness, describeViolations } from "@/lib/spec-completeness";
 import { createClient } from "@supabase/supabase-js";
 
@@ -93,6 +93,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
 // GET — not supported (no persistent disk in serverless).
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id: specId } = await params;
   const [spec] = await sql<{ id: string }[]>`SELECT id FROM residential_specs WHERE id = ${specId}`;
   if (!spec) return NextResponse.json({ error: "Spec not found" }, { status: 404 });

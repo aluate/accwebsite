@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { getBuilder } from "@/lib/auth";
+import { getBuilder, guardApi } from "@/lib/auth";
 import { computeAutoChecked } from "@/lib/engineering-autocheck";
 
 export const runtime = "nodejs";
@@ -77,6 +77,8 @@ async function _unused_computeAutoChecked(jobId: string): Promise<Record<string,
 
 // GET — load saved checklist + auto-checked items derived from spec data
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await guardApi(["admin", "pm", "engineer"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
 
   const [[row], autoChecked] = await Promise.all([

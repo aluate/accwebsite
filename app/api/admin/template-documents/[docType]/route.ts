@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { getAdmin } from "@/lib/admin-auth";
 import { createClient } from "@supabase/supabase-js";
@@ -29,6 +30,8 @@ function supabaseAdmin() {
 
 // ── GET — signed download URL ─────────────────────────────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -45,6 +48,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
 // ── POST — upload ─────────────────────────────────────────────────────────
 export async function POST(req: NextRequest, { params }: Params) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -97,6 +102,8 @@ export async function POST(req: NextRequest, { params }: Params) {
 
 // ── DELETE — clear slot ───────────────────────────────────────────────────
 export async function DELETE(_req: NextRequest, { params }: Params) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

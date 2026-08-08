@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 
@@ -31,6 +32,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id: specId } = await params;
   const [spec] = await sql`SELECT id FROM residential_specs WHERE id = ${specId}`;
   if (!spec) return NextResponse.json({ error: "Spec not found" }, { status: 404 });
@@ -43,6 +46,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id: specId } = await params;
   const [spec] = await sql`
     SELECT id, job_id FROM residential_specs WHERE id = ${specId}

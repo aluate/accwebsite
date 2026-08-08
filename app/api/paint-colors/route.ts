@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
  * brand filter is optional (BM | SW | etc.)
  */
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 type PaintColorRow = {
@@ -17,6 +18,8 @@ type PaintColorRow = {
 };
 
 export async function GET(req: NextRequest) {
+  const guard = await guardApi();
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { searchParams } = req.nextUrl;
   const q     = (searchParams.get("q") ?? "").trim();
   const brand = (searchParams.get("brand") ?? "").trim().toUpperCase();

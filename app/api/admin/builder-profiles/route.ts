@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
-import { requireBuilder } from "@/lib/auth";
+import { requireBuilder, guardApi } from "@/lib/auth";
 
 export type DbBuilderProfile = {
   id: string;
@@ -19,6 +19,8 @@ export type DbBuilderProfile = {
 
 // GET /api/admin/builder-profiles
 export async function GET() {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const rows = await sql<DbBuilderProfile[]>`
     SELECT id, builder_name, builder_company, default_finish_type,
            default_carcass_id, default_drawer_box_id, default_pull_id,

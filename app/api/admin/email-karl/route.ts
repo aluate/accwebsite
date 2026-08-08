@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 
 // POST /api/admin/email-karl
@@ -6,6 +7,8 @@ import { sendEmail } from "@/lib/mailer";
 // Simple internal route so Claude can fire emails to Karl without needing
 // a full email connector. No auth guard — internal use only, no sensitive data exposed.
 export async function POST(req: Request) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   try {
     const { subject, text, to } = await req.json();
     if (!subject || !text) {

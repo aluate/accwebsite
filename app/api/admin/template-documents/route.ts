@@ -5,10 +5,13 @@ export const dynamic = "force-dynamic";
  */
 
 import { NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { getAdmin } from "@/lib/admin-auth";
 
 export async function GET() {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const ok = await getAdmin();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

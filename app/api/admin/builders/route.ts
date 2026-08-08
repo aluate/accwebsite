@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { sql, uid } from "@/lib/db";
 
@@ -12,6 +13,8 @@ type AccountRow = {
 
 // GET /api/admin/builders — list all accounts (incl. role)
 export async function GET() {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const rows = await sql<AccountRow[]>`
     SELECT id, username, name, company, email, phone, active, created_at, role, must_change_pw
     FROM builder_accounts ORDER BY created_at DESC
@@ -23,6 +26,8 @@ export async function GET() {
 //   body: { username, password, name, company?, email?, phone?, role? }
 //   New accounts always get must_change_pw = 1 so users set their own password on first login.
 export async function POST(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { username, password, name, company, email, phone, role } = await req.json();
 
   if (!username?.trim() || !password || !name?.trim()) {
@@ -56,6 +61,8 @@ export async function POST(req: NextRequest) {
 //   body: { id, username?, active?, password?, must_change_pw?, name?, company?, email?, phone?, role? }
 //   Setting password also sets must_change_pw = 1 (Reset PW flow).
 export async function PATCH(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id, username, active, password, must_change_pw, name, company, email, phone, role } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
@@ -96,6 +103,8 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE /api/admin/builders?id=... — remove account
 export async function DELETE(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
   await sql`DELETE FROM builder_accounts WHERE id = ${id}`;

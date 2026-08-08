@@ -1,11 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
 // GET /api/jobs/pms — returns active accounts with role in ('pm','admin'), ordered by name.
 // Used by IntakeForm to populate the PM dropdown from the DB instead of site.ts.
 export async function GET() {
+  const guard = await guardApi();
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const rows = await sql<{ name: string; email: string | null }[]>`
     SELECT name, email
     FROM builder_accounts

@@ -1,9 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 
 export async function POST(req: NextRequest) {
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   try {
     const { to, subject, body } = await req.json();
     if (!to || !subject || !body) {

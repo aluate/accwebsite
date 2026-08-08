@@ -1,10 +1,13 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 
 // POST /api/trim-specs  { job_id, name }
 export async function POST(req: NextRequest) {
+  const guard = await guardApi(["admin", "pm"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const body = await req.json();
   if (!body.job_id) return NextResponse.json({ error: "job_id required" }, { status: 400 });
   const now = new Date().toISOString();

@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { getPunchActor } from "@/lib/punch-auth";
 import { createClient } from "@supabase/supabase-js";
@@ -37,6 +38,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
+  const guard = await guardApi(["admin", "pm", "installer"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

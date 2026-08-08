@@ -85,3 +85,45 @@ export async function requireKarl(): Promise<BuilderSession> {
 export async function requireBuilderApi(): Promise<BuilderSession | null> {
   return getBuilder();
 }
+
+// ── API route guard ──────────────────────────────────────────────────────────
+//
+// requireRole() above calls redirect(), which is right for a page and wrong for an
+// API route: a fetch() gets a 307 to /login and the caller sees HTML where it asked
+// for JSON. With no API-safe equivalent, seven routes hand-rolled the check as
+// `if (!["karl","admin","pm"].includes(session.role))`, each with its own status
+// code and message. That is how the 23rd route ends up subtly different from the
+// other 22.
+//
+// One helper, used everywhere.
+
+export type ApiGuardResult =
+  | { ok: true; session: BuilderSession }
+  | { ok: false; status: 401 | 403; error: string };
+
+/**
+ * The entire auth decision for an API route, in one call.
+ *
+ * Separates 401 (not signed in — send them to /login) from 403 (signed in, wrong
+ * role — sending them to /login would be a lie, and a redirect loop).
+ *
+ * `karl` and `admin` bypass the role list, matching requireRole(), so a page guard
+ * and an API guard can never disagree about who gets through. Pass
+ * `{ strict: true }` to disable the bypass: that is the requireKarl() case, where
+ * an `admin` account deliberately must not reach /admin/*.
+ *
+ * Call with no roles for "any signed-in user".
+ */
+export async function guardApi(
+  roles?: Role[],
+  opts?: { strict?: boolean },
+): Promise<ApiGuardResult> {
+  const session = await getBuilder();
+  if (!session) return { ok: false, status: 401, error: "Unauthorized" };
+  if (!roles || roles.length === 0) return { ok: true, session };
+
+  const bypass = !opts?.strict && (session.role === "karl" || session.role === "admin");
+  if (bypass || roles.includes(session.role)) return { ok: true, session };
+
+  return { ok: false, status: 403, error: `Requires one of: ${roles.join(", ")}` };
+}
