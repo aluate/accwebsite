@@ -93,19 +93,34 @@ export type StainColor = {
   placeholder: boolean;
 };
 
+/**
+ * Melamine / TFL colours.
+ *
+ * Replaced the 205-row hand-built catalog in 2026-08 with 366 real supplier colours,
+ * each with photography. The old schema described a colour in words (supplier,
+ * collection, line, an approximate hex); this one points at a picture of it, which
+ * is what a client choosing a finish actually needs.
+ *
+ * No id survived the change — old ids looked like MEL-EG-F416, new ones like
+ * MEL-EGG-045, and even Stevenswood moved from SW to SWD. Existing specs are
+ * remapped by colour name; see scripts/migrate-melamine-ids.mjs. Documents were
+ * never at risk because finish_groups.color_name is stored denormalised and the PDF
+ * renders from it.
+ */
 export type MelamineColor = {
   id: string;
-  supplier: "Egger" | "Stevenswood" | "Tafisa" | "Custom";
-  collection: string;
-  line: string;
-  code: string | null;
-  name: string;
-  texture: string | null;
-  woodgrain: boolean;
-  price_tier: string | null;
-  hex_approx: string | null;
+  /** AGT | Egger | Stevenswood | Tafisa | Tru North */
+  brand: string;
+  color_name: string;
+  color_code: string | null;
+  /** e.g. soft_touch, matte, gloss, woodgrain */
+  finish_type: string | null;
+  texture_code: string | null;
+  /** Served path, e.g. /melamines/MEL-AGT-001.jpg — 400x400, derived from the original. */
+  image_url: string | null;
+  /** Where the photo came from. Kept for re-fetching, never displayed. */
+  source_image_url: string | null;
   notes: string | null;
-  placeholder: boolean;
 };
 
 export type Species = {

@@ -233,7 +233,7 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
 // For paint → live API type-ahead (/api/paint-colors) with brand filter tabs,
 //   debounced input, swatch chips, selected-state chip + X to clear.
 // For stain/melamine → catalog-backed filter + select (unchanged).
-type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null };
+type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null; image?: string | null };
 
 // ── PaintColorTypeAhead ──────────────────────────────────────────────────────
 // Replaces the static select for paint finish groups.
@@ -425,7 +425,13 @@ function ColorPicker({
         .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name }));
     }
     return catalogs.melamineColors
-      .map((c) => ({ id: c.id, brand: c.supplier, code: c.code && c.code !== "—" ? c.code : "", name: c.name, hex: c.hex_approx }));
+      .map((c) => ({
+        id: c.id,
+        brand: c.brand,
+        code: c.color_code && c.color_code !== "—" ? c.color_code : "",
+        name: c.color_name,
+        image: c.image_url,
+      }));
   }, [type, catalogs]);
 
   const brands = useMemo(() => [...new Set(all.map((c) => c.brand))].sort(), [all]);
@@ -481,7 +487,21 @@ function ColorPicker({
             <option key={c.id} value={c.id}>{c.code ? `${c.code}  ` : ""}{c.name}</option>
           ))}
         </select>
-        {selected?.hex && !isCustom && (
+        {/*
+          A melamine colour is a photograph of a woodgrain or texture. It was
+          previously represented by an approximate hex, which for "Valenti Walnut"
+          conveys roughly nothing. Stains still have no image, so the hex chip stays
+          as the fallback.
+        */}
+        {!isCustom && selected?.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={selected.image}
+            alt={selected.name}
+            className="w-9 h-9 rounded shrink-0 border border-white/20 object-cover"
+          />
+        )}
+        {!isCustom && !selected?.image && selected?.hex && (
           <span className="w-6 h-6 rounded-full shrink-0 border border-white/20" style={{ background: selected.hex }} />
         )}
       </div>
@@ -1622,7 +1642,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             const matchedEdgeband = g.finish_type === "melamine" && g.color_id
               ? (() => {
                   const mc = catalogs.melamineColors.find((c) => c.id === g.color_id);
-                  return mc ? catalogs.edgebands.find((e) => e.color_match === mc.name && !e.placeholder) : undefined;
+                  return mc ? catalogs.edgebands.find((e) => e.color_match === mc.color_name && !e.placeholder) : undefined;
                 })()
               : undefined;
             const edgebandOptions = catalogs.edgebands.filter((e) => {
@@ -1688,7 +1708,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         if (g.finish_type === "melamine" && id) {
                           const mc = catalogs.melamineColors.find((c) => c.id === id);
                           if (mc) {
-                            const eb = catalogs.edgebands.find((e) => e.color_match === mc.name && !e.placeholder);
+                            const eb = catalogs.edgebands.find((e) => e.color_match === mc.color_name && !e.placeholder);
                             if (eb) updates.edgeband_id = eb.id;
                           }
                         }

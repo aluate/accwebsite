@@ -57,3 +57,14 @@ next-env.d.ts
 
 # Local secrets file
 secrets.txt
+
+# Full-resolution catalog source images.
+#
+# public/melamines holds 400x400 derived swatches (~16KB each, 6MB total). The
+# originals run to 7200x7200 and 5.4MB — 225MB for the set. They are the archival
+# source, not something to serve: a picker showing 366 of them would move hundreds of
+# megabytes per page view, metered as Fast Data Transfer.
+#
+# Regenerate the served versions with scripts/build-swatches.sh.
+_originals/
+*.tgz

@@ -1,206 +1,367 @@
-id,supplier,collection,line,code,name,texture,woodgrain,price_tier,hex_approx,notes,placeholder
-MEL-SW-W03,Stevenswood,Stevenswood (Walnut),Walnut,W03,Valenti Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
-MEL-SW-W04,Stevenswood,Stevenswood (Walnut),Walnut,W04,Amble Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
-MEL-SW-W13,Stevenswood,Stevenswood (Walnut),Walnut,W13,Opus Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
-MEL-SW-W43,Stevenswood,Stevenswood (Walnut),Walnut,W43,Roan Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
-MEL-SW-W45,Stevenswood,Stevenswood (Walnut),Walnut,W45,Magpie Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
-MEL-SW-W68,Stevenswood,Stevenswood (Walnut),Walnut,W68,Cognac Walnut,Wood Matte,true,std,,Stevenswood TFL Walnut series,false
-MEL-SW-W77,Stevenswood,Stevenswood (Itabri),Itabri,W77,Nova Itabri,Wood Matte,true,std,,Stevenswood TFL Itabri series,false
-MEL-SW-W80,Stevenswood,Stevenswood (Itabri),Itabri,W80,Jordan Itabri,Wood Matte,true,std,,Stevenswood TFL Itabri series,false
-MEL-SW-W89,Stevenswood,Stevenswood (Itabri),Itabri,W89,Sandro Itabri,Wood Matte,true,std,,Stevenswood TFL Itabri series,false
-MEL-SW-784,Stevenswood,Stevenswood (Sary Walnut),Walnut,784,Karius Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
-MEL-SW-774,Stevenswood,Stevenswood (Sary Walnut),Walnut,774,Tyne Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
-MEL-SW-669,Stevenswood,Stevenswood (Sary Walnut),Walnut,669,Tino Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
-MEL-SW-540,Stevenswood,Stevenswood (Sary Walnut),Walnut,540,Solano Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
-MEL-SW-579,Stevenswood,Stevenswood (Sary Walnut),Walnut,579,Tuscany Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
-MEL-SW-633,Stevenswood,Stevenswood (Sary Walnut),Walnut,633,Tonali Walnut,Wood Matte,true,std,,Stevenswood Sary Walnut Lab series,false
-MEL-SW-514,Stevenswood,Timber,Oak,514,Outer Banks Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
-MEL-SW-592,Stevenswood,Timber,Oak,592,Battle Creek Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
-MEL-SW-603,Stevenswood,Timber,Oak,603,Door County Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
-MEL-SW-637,Stevenswood,Timber,Oak,637,Iron Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
-MEL-SW-654,Stevenswood,Timber,Oak,654,Lakefront Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
-MEL-SW-688,Stevenswood,Timber,Oak,688,Studio Oak,Wood Matte,true,std,,Stevenswood Timber Oak series,false
-MEL-SW-574,Stevenswood,Stevenswood,Elm,574,Natural Elm,Wood Matte,true,std,,Stevenswood TFL,false
-MEL-SW-596,Stevenswood,Stevenswood,Solid,596,Morning Fog,Warm Matte,false,std,,Stevenswood TFL solid,false
-MEL-SW-632,Stevenswood,Stevenswood,Solid,632,Midnight Espresso,Softex,false,std,,Stevenswood TFL solid,false
-MEL-SW-700,Stevenswood,Stevenswood,Solid,700,Insipid,Warm Matte,false,std,,Stevenswood TFL solid,false
-MEL-TF-PRELUDE-PLACEHOLDER,Tafisa,Prelude,Alto (A),—,Alto Series Placeholder,Alto (A),true,A,,Tafisa Prelude line — populate Alto colors from Tafisa rep,true
-MEL-TF-PRELUDE-C-PLACEHOLDER,Tafisa,Prelude,Crystalite (C),—,Crystalite Series Placeholder,Crystalite (C),true,A,,Tafisa Prelude line — Crystalite (matte),true
-MEL-TF-PRELUDE-I-PLACEHOLDER,Tafisa,Prelude,Isola (I),—,Isola Series Placeholder,Isola (I),true,A,,Tafisa Prelude line — Isola texture,true
-MEL-TF-PRELUDE-K-PLACEHOLDER,Tafisa,Prelude,Karisma (K),—,Karisma Series Placeholder,Karisma (K),true,A,,Tafisa Prelude line — Karisma texture,true
-MEL-TF-PRELUDE-S-PLACEHOLDER,Tafisa,Prelude,Smoothwood (S),—,Smoothwood Series Placeholder,Smoothwood (S),true,A,,Tafisa Prelude line — Smoothwood texture,true
-MEL-TF-PRELUDE-R-PLACEHOLDER,Tafisa,Prelude,Urbania (R),—,Urbania Series Placeholder,Urbania (R),true,A,,Tafisa Prelude line — Urbania texture,true
-MEL-TF-SOMMET-B-PLACEHOLDER,Tafisa,Sommet,Brava (B),—,Brava Series Placeholder,Brava (B),true,B,,Tafisa Sommet line — Brava texture,true
-MEL-TF-SOMMET-F-PLACEHOLDER,Tafisa,Sommet,Feria (F),—,Feria Series Placeholder,Feria (F),true,B,,Tafisa Sommet line — Feria texture,true
-MEL-TF-SOMMET-Y-PLACEHOLDER,Tafisa,Sommet,Viva (Y),—,Viva Series Placeholder,Viva (Y),true,B,,Tafisa Sommet line — Viva texture,true
-MEL-TF-MATERIA-PLACEHOLDER,Tafisa,Materia,Materia,—,Materia Series Placeholder,Materia,false,A,,Tafisa Materia matte line — newer launch,true
-MEL-CUSTOM,Custom,Custom Match,Custom,—,Other / Custom Match,—,false,custom,,Escape hatch — PM specifies supplier and code in finish notes,false
-MEL-EG-F416-ST10,Egger,Decorative Collection 26+,Next Level,F416 ST10,Beige Textile,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
-MEL-EG-F417-ST10,Egger,Decorative Collection 26+,Next Level,F417 ST10,Grey Textile,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
-MEL-EG-F422-ST10,Egger,Decorative Collection 26+,Next Level,F422 ST10,White Linen,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
-MEL-EG-F433-ST10,Egger,Decorative Collection 26+,Next Level,F433 ST10,Anthracite Linen,ST10,false,tier4_nextlevel,,Egger 26+ — Next Level line • ST10 • $1.87/sq ft,false
-MEL-EG-H1176-ST37,Egger,Decorative Collection 26+,Exclusive,H1176 ST37,White Halifax,ST37,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST37 • $2.58/sq ft,false
-MEL-EG-H1180-ST37,Egger,Decorative Collection 26+,Exclusive,H1180 ST37,Natural Halifax,ST37,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST37 • $2.58/sq ft,false
-MEL-EG-H1181-ST37,Egger,Decorative Collection 26+,Exclusive,H1181 ST37,Tobacco Halifax,ST37,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST37 • $2.58/sq ft,false
-MEL-EG-H1210-ST12,Egger,Decorative Collection 26+,Next Level,H1210 ST12,GB Tossini Elm,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H1222-ST12,Egger,Decorative Collection 26+,Next Level,H1222 ST12,Fox Grey Tossini Elm,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H1225-ST12,Egger,Decorative Collection 26+,Next Level,H1225 ST12,Trondhelm Ash,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H1247-ST17,Egger,Decorative Collection 26+,Inspired,H1247 ST17,Graphite Sheffield Acacia,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
-MEL-EG-H1288-ST19,Egger,Decorative Collection 26+,Essence,H1288 ST19,Stone Grey Frozen Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H1290-ST19,Egger,Decorative Collection 26+,Essence,H1290 ST19,White Frozen Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H1292-ST19,Egger,Decorative Collection 26+,Essence,H1292 ST19,Carbon Frozen Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H1307-ST19,Egger,Decorative Collection 26+,Essence,H1307 ST19,Brown Warmla Walnut,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H1367-ST40,Egger,Decorative Collection 26+,Exclusive,H1367 ST40,Light Natural Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
-MEL-EG-H1369-ST40,Egger,Decorative Collection 26+,Exclusive,H1369 ST40,Marone Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
-MEL-EG-H1384-ST40,Egger,Decorative Collection 26+,Exclusive,H1384 ST40,White Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
-MEL-EG-H1385-ST40,Egger,Decorative Collection 26+,Exclusive,H1385 ST40,Natural Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
-MEL-EG-H1386-ST40,Egger,Decorative Collection 26+,Exclusive,H1386 ST40,Brown Casella Oak,ST40,true,tier6_exclusive,,Egger 26+ — Exclusive line • ST40 • $2.58/sq ft,false
-MEL-EG-H1388,Egger,Decorative Collection 26+,Exclusive,H1388,Sand Casella Oak,,false,tier6_exclusive,,Egger 26+ — Exclusive line • $2.58/sq ft,false
-MEL-EG-H1701-ST12,Egger,Decorative Collection 26+,Next Level,H1701 ST12,White Tossini Elm,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H1708-ST17,Egger,Decorative Collection 26+,Inspired,H1708 ST17,Brighton Chestnut,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
-MEL-EG-H1715-ST12,Egger,Decorative Collection 26+,Next Level,H1715 ST12,Parona Walnut,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H1816-ST7,Egger,Decorative Collection 26+,Everyday,H1816 ST7,Natural Maple,ST7,true,tier_call,,Egger 26+ — Everyday line • ST7 • call for pricing,false
-MEL-EG-H3041-ST12,Egger,Decorative Collection 26+,Next Level,H3041 ST12,Natural Eucalyptus,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H3157-ST12,Egger,Decorative Collection 26+,Next Level,H3157 ST12,Vicenza Oak,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H3158-ST19,Egger,Decorative Collection 26+,Essence,H3158 ST19,Grey Vicenza Oak,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H3165-ST12,Egger,Decorative Collection 26+,Next Level,H3165 ST12,Light Vicenza Oak,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H3171-ST12,Egger,Decorative Collection 26+,Next Level,H3171 ST12,Oiled Kendal Oak,ST12,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST12 • $1.87/sq ft,false
-MEL-EG-H3195-ST19,Egger,Decorative Collection 26+,Essence,H3195 ST19,White Fineline,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H3197-ST19,Egger,Decorative Collection 26+,Essence,H3197 ST19,Medium Grey Fineline,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H3198-ST19,Egger,Decorative Collection 26+,Essence,H3198 ST19,Dark Grey Fineline,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H3322-ST17,Egger,Decorative Collection 26+,Inspired,H3322 ST17,Light Natural Rovato Oak,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
-MEL-EG-H3710-ST12,Egger,Decorative Collection 26+,Essence,H3710 ST12,Natural Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
-MEL-EG-H3786-ST19,Egger,Decorative Collection 26+,Essence,H3786 ST19,Natural Bolivar Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H3787-ST19,Egger,Decorative Collection 26+,Essence,H3787 ST19,Brown Bolivar Wood,ST19,true,tier5_essence,,Egger 26+ — Essence line • ST19 • $2.34/sq ft,false
-MEL-EG-H3790-ST12,Egger,Decorative Collection 26+,Essence,H3790 ST12,Honey Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
-MEL-EG-H3791-ST12,Egger,Decorative Collection 26+,Essence,H3791 ST12,Auburn Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
-MEL-EG-H3794-ST12,Egger,Decorative Collection 26+,Essence,H3794 ST12,Chocolate Carini Walnut,ST12,true,tier5_essence,,Egger 26+ — Essence line • ST12 • $2.34/sq ft,false
-MEL-EG-H3860-ST9,Egger,Decorative Collection 26+,Next Level,H3860 ST9,Champagne Hard Maple,ST9,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST9 • $1.87/sq ft,false
-MEL-EG-H7604-ST17,Egger,Decorative Collection 26+,Inspired,H7604 ST17,Natural Dimaro Walnut,ST17,true,tier3_inspired,,Egger 26+ — Inspired line • ST17 • $1.76/sq ft,false
-MEL-EG-U216-ST9,Egger,Decorative Collection 26+,Classic,U216 ST9,Came Beige,ST9,false,tier1_classic,,Egger 26+ — Classic line • ST9 • $1.34/sq ft,false
-MEL-EG-U220-ST9,Egger,Decorative Collection 26+,Classic,U220 ST9,Soft Beige,ST9,false,tier1_classic,,Egger 26+ — Classic line • ST9 • $1.34/sq ft,false
-MEL-EG-U250-ST9,Egger,Decorative Collection 26+,Inspired,U250 ST9,Caramel Beige,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-U398-TM,Egger,Decorative Collection 26+,Perfect Sense,U398 TM,Dark Berry,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U444-ST9,Egger,Decorative Collection 26+,Inspired,U444 ST9,Cassis,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-U502-ST9,Egger,Decorative Collection 26+,Inspired,U502 ST9,Misty Blue,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-U590,Egger,Decorative Collection 26+,Perfect Sense,U590,Deep Blue,,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • $4.12/sq ft,false
-MEL-EG-U604-ST9,Egger,Decorative Collection 26+,Inspired,U604 ST9,Reed Green,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-U665-ST9,Egger,Decorative Collection 26+,Inspired,U665 ST9,Stone Green,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-U665-TM,Egger,Decorative Collection 26+,Perfect Sense,U665 TM,Stone Green,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U702-ST9,Egger,Decorative Collection 26+,Essential,U702 ST9,Cashmere Grey,ST9,true,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
-MEL-EG-U702-TM,Egger,Decorative Collection 26+,Perfect Sense,U702 TM,Cashmere Grey,TM,true,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U705-ST9,Egger,Decorative Collection 26+,Essential,U705 ST9,Angora Grey,ST9,false,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
-MEL-EG-U708-TM,Egger,Decorative Collection 26+,Perfect Sense,U708 TM,Light Grey,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U732-ST9,Egger,Decorative Collection 26+,Classic,U732 ST9,Dust Grey,ST9,false,tier1_classic,,Egger 26+ — Classic line • ST9 • $1.34/sq ft,false
-MEL-EG-U750-ST9,Egger,Decorative Collection 26+,Essential,U750 ST9,Taupe Grey,ST9,false,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
-MEL-EG-U755-TM,Egger,Decorative Collection 26+,Perfect Sense,U755 TM,Havanna Grey,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U779-ST7,Egger,Decorative Collection 26+,Classic,U779 ST7,Fog Grey,ST7,false,tier1_classic,,Egger 26+ — Classic line • ST7 • $1.34/sq ft,false
-MEL-EG-U780-ST9,Egger,Decorative Collection 26+,Inspired,U780 ST9,Monument Grey,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-U961-TM,Egger,Decorative Collection 26+,Perfect Sense,U961 TM,Graphite Grey,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U963-ST9,Egger,Decorative Collection 26+,Essential,U963 ST9,Diamond Grey,ST9,false,tier2_essential,,Egger 26+ — Essential line • ST9 • $1.56/sq ft,false
-MEL-EG-U999-ST19,Egger,Decorative Collection 26+,Next Level,U999 ST19,Black,ST19,true,tier4_nextlevel,,Egger 26+ — Next Level line • ST19 • $1.87/sq ft,false
-MEL-EG-U999-TM,Egger,Decorative Collection 26+,Perfect Sense,U999 TM,Black,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-U999-ST7,Egger,Decorative Collection 26+,Everyday,U999 ST7,Black,ST7,false,tier_call,,Egger 26+ — Everyday line • ST7 • call for pricing,false
-MEL-EG-W1100-ST9,Egger,Decorative Collection 26+,Inspired,W1100 ST9,Alpine White,ST9,false,tier3_inspired,,Egger 26+ — Inspired line • ST9 • $1.76/sq ft,false
-MEL-EG-W1100-TM,Egger,Decorative Collection 26+,Perfect Sense,W1100 TM,Alpine White,TM,false,tier7_perfectsense,,Egger 26+ — Perfect Sense line • TM • $4.12/sq ft,false
-MEL-EG-W960-ST7,Egger,Decorative Collection 26+,Everyday,W960 ST7,Classic White,ST7,false,tier_call,,Egger 26+ — Everyday line • ST7 • call for pricing,false
-MEL-SW-589,Stevenswood,Stevenswood (ARTIKA),Echo,589,Grey Echo,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-G86,Stevenswood,Stevenswood (ARTIKA),Notte,G86,Gregio Notte,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-L39,Stevenswood,Stevenswood (Walnut Pittoni),Walnut Pittoni,L39,Midnight Run,Walnut Pittoni,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-G88,Stevenswood,Stevenswood (ARTIKA),Rustik,G88,Natural Rustik,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-W51,Stevenswood,Stevenswood (ARTIKA),Cherry,W51,Richmond Cherry,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-529,Stevenswood,Stevenswood (ARTIKA),Teak,529,Takase Teak,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-W42,Stevenswood,Stevenswood (Wood Matte),Walnut,W42,Bleached Walnut,Wood Matte,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-L33,Stevenswood,Stevenswood (Mezzo Cherry),Cherry,L33,Serotina,Mezzo Cherry,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-L35,Stevenswood,Stevenswood (Mezzo Cherry),Cherry,L35,Kirsche,Mezzo Cherry,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-W66,Stevenswood,Stevenswood (Wood Matte),Walnut,W66,Dark Walnut,Wood Matte,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-W53,Stevenswood,Stevenswood (ARTIKA),Cypress,W53,Arizona Cypress,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-174,Stevenswood,Stevenswood (ARTIKA),Solid,174,Black,ARTIKA,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-G87,Stevenswood,Stevenswood (ARTIKA),Rustik,G87,Cannella Rustik,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-G92,Stevenswood,Stevenswood (ARTIKA),Drift,G92,Drift Loud,ARTIKA,false,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-SW-W29,Stevenswood,Stevenswood (ARTIKA),Pine,W29,Gregio Pine,ARTIKA,true,std,,Stevenswood TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-L05,TruNorth,TruNorth (Legno),Solid,L05,Alno,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-L09,TruNorth,TruNorth (Legno),Solid,L09,Kyushu,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-L33,TruNorth,TruNorth (Legno),Solid,L33,Serotina,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-L35,TruNorth,TruNorth (Legno),Solid,L35,Kirsche,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-L39,TruNorth,TruNorth (Legno),Solid,L39,Midnight Run,Legno,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-W29,TruNorth,TruNorth (Artica),Pine,W29,Gregio Pine,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-W42,TruNorth,TruNorth (Timber),Walnut,W42,Bleached Walnut,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-W51,TruNorth,TruNorth (Artica),Cherry,W51,Richmond Cherry,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-W53,TruNorth,TruNorth (Artica),Cypress,W53,Arizona Cypress,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-W66,TruNorth,TruNorth (Timber),Walnut,W66,Dark Walnut,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-174,TruNorth,TruNorth (Timber),Solid,174,Black,Timber,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-514,TruNorth,TruNorth (Timber),Oak,514,Outer Banks Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-529,TruNorth,TruNorth (Artica),Teak,529,Takase Teak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-574,TruNorth,TruNorth (Artica),Elm,574,Natural Elm,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-576,TruNorth,TruNorth (Artica),Elm,576,Dark Elm,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-589,TruNorth,TruNorth (Artica),Solid,589,Grey Echo,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-592,TruNorth,TruNorth (Artica),Oak,592,Battle Creek Oak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-596,TruNorth,TruNorth (Artica),Solid,596,Morning Fog,Artica,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-603,TruNorth,TruNorth (Timber),Oak,603,Door County Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-654,TruNorth,TruNorth (Timber),Oak,654,Lakefront Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-688,TruNorth,TruNorth (Timber),Oak,688,Studio Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-043,TruNorth,TruNorth (Timber),Oak,043,Pearl White Oak,Timber,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-G76,TruNorth,TruNorth (Artica),Teak,G76,Shadow Teak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-G77,TruNorth,TruNorth (Artica),Teak,G77,Natural Teak,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-G86,TruNorth,TruNorth (Artica),Solid,G86,Gregio Notte,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-G87,TruNorth,TruNorth (Artica),Rustik,G87,Cannella Rustik,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-G88,TruNorth,TruNorth (Artica),Rustik,G88,Natural Rustik,Artica,true,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-TN-G92,TruNorth,TruNorth (Artica),Solid,G92,Drift Loud,Artica,false,std,,TruNorth TFL · ingested from sample-box photo 2026-05-05,false
-MEL-AGT-3010,AGT,AGT (Solid),Solid,3010,Pearl Black,Matte,false,std,#111111,"AGT Pearl Black 3010 — Pritchette Residence, multiple jobs",false
-MEL-AGT-3002,AGT,AGT (Soft Touch),Soft Touch,3002,Dark Grey Matte Soft Touch,Soft Touch Matte,false,std,#4A4A4A,AGT Dark Grey Matte Soft Touch 3002 — Kenny Debaene,false
-MEL-UNI-K15,Uniboard,Uniboard (Oak),Oak,K15,Cannes Riviera Oak,Wood Matte,true,std,,Uniboard K15 — Stancraft Smith Lake House,false
-MEL-TA-L582K,Tafisa,Tafisa (Melamine),Melamine,L582 (K),Fashionista,Horizontal Grain,true,std,,"Tafisa Fashionista L582 (K) — Kenny Debaene, Woolridge. Horizontal grain.",false
-MEL-TA-L583K,Tafisa,Tafisa (Melamine),Melamine,L583 (K),First Class,Horizontal Grain,true,std,,Tafisa First Class L583 (K) — Atlas Plant 6549. Horizontal grain.,false
-MEL-TA-T581,Tafisa,Tafisa (Melamine),Melamine,T581,Sheer Beauty,Vertical Grain,true,std,,Tafisa Sheer Beauty T581 — Spivey Residence,false
-MEL-TA-T2013,Tafisa,Tafisa (Melamine),Melamine,T2013,Summertime Blues,Vertical Grain,true,std,,Tafisa Summertime Blues T2013 — Spivey Residence,false
-MEL-TA-L420C,Tafisa,Tafisa 2026 West Coast TFL,Crystalite (C),L420C,Summer Flame,Crystalite,false,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. Crystalite texture solid color.,false
-MEL-TA-L421C,Tafisa,Tafisa 2026 West Coast TFL,Crystalite (C),L421C,Candlelight,Crystalite,false,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. Crystalite texture solid color.,false
-MEL-TA-L444C,Tafisa,Tafisa 2026 West Coast TFL,Crystalite (C),L444C,Chocolate Pear Tree,Crystalite,false,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. Crystalite texture solid color.,false
-MEL-TA-L474C,Tafisa,Tafisa 2026 West Coast TFL,Crystalite (C),L474C,Brushed Aluminum,Crystalite,false,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. See also T4000 (prior code).,false
-MEL-TA-L481S,Tafisa,Tafisa 2026 West Coast TFL,Smoothwood (S),L481S,Nutmeg,Smoothwood,false,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L492R,Tafisa,Tafisa 2026 West Coast TFL,Urbania (R),L492R,White Chocolate,Urbania,false,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L530A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L530A,Latitude North,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L532A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L532A,Latitude West,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L535A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L535A,Southwester,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L538A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L538A,River Rock,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L540A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L540A,Summer Breeze,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L543A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L543A,Spring Blossom,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L544A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L544A,Niagara,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62.,false
-MEL-TA-L546A,Tafisa,Tafisa 2026 West Coast TFL,Alto (A),L546A,Mojave,Alto,true,tfl_standard,,Tafisa 2026 West Coast TFL. 3/4 5x9 pcs=$62. See also 456/L456 (prior).,false
-MEL-TA-L580K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L580K,Free Spirit,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L581K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L581K,Sheer Beauty,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L584K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L584K,Chameleon,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L585K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L585K,Rhapsody,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L586K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L586K,Natural Affinity,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 586.,false
-MEL-TA-L587K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L587K,Sugar Rush,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 587.,false
-MEL-TA-L588K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L588K,Sweet & Savory,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 588.,false
-MEL-TA-L589K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L589K,Salt of the Earth,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 589.,false
-MEL-TA-L590K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L590K,Love at First Sight,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L591K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L591K,Acacia Honey,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L592K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L592K,Kiss Curl,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 592.,false
-MEL-TA-L593K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L593K,Mastermind,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 593.,false
-MEL-TA-L830K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L830K,Force of Nature,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L831K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L831K,Rock Solid,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79. See also 531.,false
-MEL-TA-L832K,Tafisa,Tafisa 2026 West Coast TFL,Karisma (K),L832K,Urban Vibe,Karisma,true,tfl_karisma,,Tafisa 2026 West Coast TFL. Karisma woodgrain. 3/4 5x9 pcs=$79.,false
-MEL-TA-L175M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L175M,White,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia — NEW. 3/4 5x9 units=$108/$100.,false
-MEL-TA-L761M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L761M,Moonlight,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia — NEW. 3/4 5x9 units=$108/$100.,false
-MEL-TA-L763M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L763M,Morning Dew,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100. See also PM763.,false
-MEL-TA-L767M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L767M,Milky Way,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.,false
-MEL-TA-L775M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L775M,Gardenia,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100. See also PM775.,false
-MEL-TA-L781M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L781M,Cream Puff,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.,false
-MEL-TA-L782M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L782M,Sand Castle,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia — NEW. 3/4 5x9 units=$108/$100.,false
-MEL-TA-L783M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L783M,Tiramisu,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.,false
-MEL-TA-L784M,Tafisa,Tafisa 2026 West Coast TFL,Materia (M),L784M,Secret Garden,Materia,false,tfl_materia,,Tafisa 2026 West Coast TFL. Materia. 3/4 5x9 units=$108/$100.,false
-MEL-TA-M2014Y,Tafisa,Tafisa 2026 West Coast TFL,Lummia (Y),M2014Y,Sugar on Ice,Lummia,false,tfl_lummia,,Tafisa 2026 West Coast TFL. Lummia — NEW color. 3/4 5x9 pcs=$102/$94.,false
-MEL-TA-M175B,Tafisa,Tafisa 2026 West Coast TFL,Brava (B),M175B,White Brava,Brava,false,tfl_brava,,Tafisa 2026 West Coast TFL. Brava. 3/4 5x9 ~$96 wht/$116 other.,false
-MEL-TA-M203B,Tafisa,Tafisa 2026 West Coast TFL,Brava (B),M203B,Black Brava,Brava,false,tfl_brava,,Tafisa 2026 West Coast TFL. Brava. 3/4 5x9 ~$116.,false
-MEL-TA-M2031B,Tafisa,Tafisa 2026 West Coast TFL,Brava (B),M2031B,Crème de la Crème,Brava,false,tfl_brava,,Tafisa 2026 West Coast TFL. Brava. 3/4 5x9 ~$116.,false
-MEL-TA-M203Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M203Q,Black Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M763Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M763Q,Morning Dew Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M2061Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M2061Q,Muse Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M2062Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M2062Q,Masterpiece Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M2063Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M2063Q,Emblem Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M2064Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M2064Q,Prodigy Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M2065Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M2065Q,Maestro Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
-MEL-TA-M2066Q,Tafisa,Tafisa 2026 West Coast TFL,Iconiq (Q),M2066Q,Pioneer Iconiq,Iconiq,false,tfl_iconiq,,Tafisa 2026 West Coast TFL. Iconiq Texture — NEW. 3/4 5x9 pcs=$144/$133.,false
+id,brand,color_name,color_code,finish_type,texture_code,image_url,source_image_url,notes
+MEL-AGT-001,AGT,Soft Touch White,734,soft_touch,,/melamines/MEL-AGT-001.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-white-734.jpg,
+MEL-AGT-002,AGT,Soft Touch Antique White,647,soft_touch,,/melamines/MEL-AGT-002.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-antique-white-647-G2S.jpg,
+MEL-AGT-003,AGT,Soft Touch Arctic Grey,313,soft_touch,,/melamines/MEL-AGT-003.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-arctic-grey-313.jpg,
+MEL-AGT-004,AGT,Soft Touch Light Grey,729,soft_touch,,/melamines/MEL-AGT-004.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-light-grey-729.jpg,
+MEL-AGT-005,AGT,Soft Touch Sunset Grey,399,soft_touch,,/melamines/MEL-AGT-005.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/11/Soft-Touch-Sunset-Grey-399-Cropped-2-1-e1667851244307.jpg,
+MEL-AGT-006,AGT,Soft Touch Stone Grey,728,soft_touch,,/melamines/MEL-AGT-006.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-stone-grey728.jpg,
+MEL-AGT-007,AGT,Soft Touch Storm Grey,726,soft_touch,,/melamines/MEL-AGT-007.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-Storm-grey-726.jpg,
+MEL-AGT-008,AGT,Soft Touch Slate Grey,425,soft_touch,,/melamines/MEL-AGT-008.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/04/425.1-1.png,
+MEL-AGT-009,AGT,Soft Touch Ocean Blue,736,soft_touch,,/melamines/MEL-AGT-009.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/07/736-e1721856253791.jpg,
+MEL-AGT-010,AGT,Soft Touch Navy Blue,707,soft_touch,,/melamines/MEL-AGT-010.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-Navy-Blue-707.jpg,
+MEL-AGT-011,AGT,Soft Touch Black,723,soft_touch,,/melamines/MEL-AGT-011.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-soft-touch-black-723.jpg,
+MEL-AGT-012,AGT,Soft Touch Siena Wood,737,soft_touch,,/melamines/MEL-AGT-012.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-High-Gloss-and-supermatt-line-soft-touch-siena-wood-737.jpg,
+MEL-AGT-013,AGT,SuperMatt Silver Grey,3018,supermatt,,/melamines/MEL-AGT-013.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotech-Vivid-White-3018.jpg,
+MEL-AGT-014,AGT,SuperMatt Crisp Grey,3021,supermatt,,/melamines/MEL-AGT-014.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/Decotech-Crisp-Grey-3021.jpg,
+MEL-AGT-015,AGT,SuperMatt Seal Grey,3024,supermatt,,/melamines/MEL-AGT-015.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotech-Seal-Grey-3024.jpg,
+MEL-AGT-016,AGT,SuperMatt Dolphin Grey,3023,supermatt,,/melamines/MEL-AGT-016.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2025/05/3023-Dolphin-Grey-1.jpg,
+MEL-AGT-017,AGT,SuperMatt Fossil Grey,3022,supermatt,,/melamines/MEL-AGT-017.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotec-Fossil-Grey-3022.jpg,
+MEL-AGT-018,AGT,SuperMatt Sonara,3094,supermatt,,/melamines/MEL-AGT-018.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2025/09/3094-Sonara-W.jpg,
+MEL-AGT-019,AGT,SuperMatt Havana Coffee,3096,supermatt,,/melamines/MEL-AGT-019.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2025/09/3096-Havana-Coffee-W.jpg,
+MEL-AGT-020,AGT,SuperMatt Java Brown,3025,supermatt,,/melamines/MEL-AGT-020.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotech-Java-Brown-3025.jpg,
+MEL-AGT-021,AGT,SuperMatt Tobac,3092,supermatt,,/melamines/MEL-AGT-021.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/02/3092-Tobac_Tobac1.jpg,
+MEL-AGT-022,AGT,SuperMatt Mint Green,3015,supermatt,,/melamines/MEL-AGT-022.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/07/mint-e1721856065583.jpg,
+MEL-AGT-023,AGT,SuperMatt Hunter Green,3027,supermatt,,/melamines/MEL-AGT-023.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotech-Hunter-Green-3027.jpg,
+MEL-AGT-024,AGT,SuperMatt High Seas,3029,supermatt,,/melamines/MEL-AGT-024.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotec-High-Seas-3029.jpg,
+MEL-AGT-025,AGT,SuperMatt Royal Blue,3011,supermatt,,/melamines/MEL-AGT-025.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotech-Royal-Blue-3011.jpg,
+MEL-AGT-026,AGT,SuperMatt Sahara Cream,3019,supermatt,,/melamines/MEL-AGT-026.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/04/Sahara-Cream-w-2.jpg,
+MEL-AGT-027,AGT,SuperMatt Merlot Red,3026,supermatt,,/melamines/MEL-AGT-027.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotec-Merlot-Red-3026.jpg,
+MEL-AGT-028,AGT,SuperMatt Onyx Black,3010,supermatt,,/melamines/MEL-AGT-028.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/decotech-Onyx-Black-3010.jpg,
+MEL-AGT-029,AGT,Galaxy White Matt,3006,supermatt,,/melamines/MEL-AGT-029.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-Galaxy-White-matt-3006.jpg,
+MEL-AGT-030,AGT,White,601,high_gloss,,/melamines/MEL-AGT-030.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-White-HG-601.jpg,
+MEL-AGT-031,AGT,Galaxy White,670,high_gloss,,/melamines/MEL-AGT-031.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-Galaxy-White-high-gloss-G2s-670.jpg,
+MEL-AGT-032,AGT,Antique White,647,high_gloss,,/melamines/MEL-AGT-032.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-antique-white-647-HG-1.jpg,
+MEL-AGT-033,AGT,Matrix,675,high_gloss,,/melamines/MEL-AGT-033.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-Matrix-675-scaled.jpg,
+MEL-AGT-034,AGT,Porte Pearl,6004,high_gloss,,/melamines/MEL-AGT-034.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/11/Porte-Pearl-HG-6004-1.jpg,
+MEL-AGT-035,AGT,Arctic Grey,313,high_gloss,,/melamines/MEL-AGT-035.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-arctic-grey-313-HG-PET.jpg,
+MEL-AGT-036,AGT,ECD Light Grey,6016,high_gloss,,/melamines/MEL-AGT-036.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/01/ECD-Light-Grey-6016-HG.jpg.png,
+MEL-AGT-037,AGT,ECD Vision,6015,high_gloss,,/melamines/MEL-AGT-037.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/ECD-Vision-HG-6017.jpg,
+MEL-AGT-038,AGT,Sunset Grey,6012,high_gloss,,/melamines/MEL-AGT-038.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/HG-6012.jpg,
+MEL-AGT-039,AGT,Slate Grey,425,high_gloss,,/melamines/MEL-AGT-039.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/HG-608.jpg,
+MEL-AGT-040,AGT,Metallic Anthracite,608,high_gloss,,/melamines/MEL-AGT-040.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/01/Metallic-Anthtacite-608-HG-Scaled-2-e1673389530334.jpg,
+MEL-AGT-041,AGT,Black,6002,high_gloss,,/melamines/MEL-AGT-041.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-Black6002-HG.jpg,
+MEL-AGT-042,AGT,Milano Walnut,627,high_gloss,,/melamines/MEL-AGT-042.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-High-Gloss-and-supermatt-line-Milano-Walnut-HG-627.jpg,
+MEL-AGT-043,AGT,Imperia,633,high_gloss,,/melamines/MEL-AGT-043.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-High-Gloss-and-supermatt-line-HG-633.jpg,
+MEL-AGT-044,AGT,Ebony,604,high_gloss,,/melamines/MEL-AGT-044.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-High-Gloss-and-supermatt-line-Ebony-604-HG-PET-G2S.jpg,
+MEL-AGT-045,AGT,Metallic Elm,603,high_gloss,,/melamines/MEL-AGT-045.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-High-Gloss-and-supermatt-line-metalic-elm-603-HG-g2s-NEW-option-3.jpg,
+MEL-AGT-046,AGT,Delphi Oak,3039,specialty,,/melamines/MEL-AGT-046.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/11/Delphi-Oak-3039.jpg,
+MEL-AGT-047,AGT,Natural Touch Oak,397,specialty,,/melamines/MEL-AGT-047.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/03/Natural-Touch-Oak-397-w.jpg,
+MEL-AGT-048,AGT,Light Walnut,239,specialty,,/melamines/MEL-AGT-048.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/02/Light-Walnut-239-w.png,
+MEL-AGT-049,AGT,Peru Oak,3041,specialty,,/melamines/MEL-AGT-049.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/02/Peru-Oak-3041-w.png,
+MEL-AGT-050,AGT,Texas Oak,3037,specialty,,/melamines/MEL-AGT-050.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/02/Texas-Oak-3037-w.png,
+MEL-AGT-051,AGT,Vermont Oak,3038,specialty,,/melamines/MEL-AGT-051.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/02/Vermont-Oak-3038-w.png,
+MEL-AGT-052,AGT,Picasso Gold,395,specialty,,/melamines/MEL-AGT-052.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-picasso-gold-395-.jpg,
+MEL-AGT-053,AGT,Picasso Inox,394,specialty,,/melamines/MEL-AGT-053.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-picasso-inox-394-option-2.jpg,
+MEL-AGT-054,AGT,Cashmere White Matt,383,specialty,,/melamines/MEL-AGT-054.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-final-Cashmere-white-matt-383-NEW-option-1.jpg,
+MEL-AGT-055,AGT,Cashmere Grey Matt,387,specialty,,/melamines/MEL-AGT-055.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-final-Cashmere-Grey-matt-387.jpg,
+MEL-AGT-056,AGT,Cashmere Gold Matt,384,specialty,,/melamines/MEL-AGT-056.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/AGT-final-Cashmere-Gold-matt-384.jpg,
+MEL-AGT-057,AGT,Spectrum Rose,6026,specialty,,/melamines/MEL-AGT-057.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/Spectrum-Rose-6026-.jpg,
+MEL-EGG-001,Egger,White Halifax Oak,H1176,textured_tfl,ST37,/melamines/MEL-EGG-001.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H1176-White-Halifax-Oak-ST37.jpg,via Decotec
+MEL-EGG-002,Egger,Natural Halifax Oak,H1180,textured_tfl,ST37,/melamines/MEL-EGG-002.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h1180.jpg,via Decotec
+MEL-EGG-003,Egger,Pewter Halifax Oak,H3176,textured_tfl,ST37,/melamines/MEL-EGG-003.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3176.jpg,via Decotec
+MEL-EGG-004,Egger,Tobacco Halifax Oak,H1181,textured_tfl,ST37,/melamines/MEL-EGG-004.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H1181-Tobacco-Halifax-ST37.jpg,via Decotec
+MEL-EGG-005,Egger,White Fineline,H3195,textured_tfl,ST19,/melamines/MEL-EGG-005.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3195-White-Fineline-ST19.jpg,via Decotec
+MEL-EGG-006,Egger,Medium Grey Fineline,H3197,textured_tfl,ST19,/melamines/MEL-EGG-006.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2025/05/result_H3197-ST19-Medium-Grey-Fineline-e1746105503209.png,via Decotec
+MEL-EGG-007,Egger,Dark Grey Fineline,H3198,textured_tfl,ST19,/melamines/MEL-EGG-007.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3198-Dark-Grey-Fineline-ST19.jpg,via Decotec
+MEL-EGG-008,Egger,White Linen,F422,textured_tfl,ST10,/melamines/MEL-EGG-008.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/F422.jpg,via Decotec
+MEL-EGG-009,Egger,Beige Textile,F416,textured_tfl,ST10,/melamines/MEL-EGG-009.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/f416.jpg,via Decotec
+MEL-EGG-010,Egger,Grey Textile,F417,textured_tfl,ST10,/melamines/MEL-EGG-010.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/11/Grey-Linen-Cropped.jpg,via Decotec
+MEL-EGG-011,Egger,Anthracite Linen,F433,textured_tfl,ST10,/melamines/MEL-EGG-011.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/f433.jpg,via Decotec
+MEL-EGG-012,Egger,Metallic Inox,F500,textured_tfl,ST20,/melamines/MEL-EGG-012.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/F500-Metallic-Inox-ST20-e1715101730927.jpg,via Decotec
+MEL-EGG-013,Egger,Brushed Brass,F784,textured_tfl,ST20,/melamines/MEL-EGG-013.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/F784-Brushed-Brass-ST20-e1715101753150.jpg,via Decotec
+MEL-EGG-014,Egger,Cubanite Steelbrush,F434,textured_tfl,ST20,/melamines/MEL-EGG-014.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/F434-Cubanite-Steelbrush-ST20-.jpg,via Decotec
+MEL-EGG-015,Egger,Stone Grey Frozen Wood,H1288,textured_tfl,ST19,/melamines/MEL-EGG-015.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1288-Stone-Grey-Frozen-Wood-ST19-1-1.jpg,via Decotec
+MEL-EGG-016,Egger,Carbon Frozen Wood,H1292,textured_tfl,ST19,/melamines/MEL-EGG-016.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H1292-Carbon-Frozen-Wood-ST19.jpg,via Decotec
+MEL-EGG-017,Egger,Parona Walnut,H1715,textured_tfl,ST12,/melamines/MEL-EGG-017.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1715-Parona-Walnut-ST12-.jpg,via Decotec
+MEL-EGG-018,Egger,Light Tennessee Walnut,H3775,textured_tfl,ST12,/melamines/MEL-EGG-018.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/H3775.jpg,via Decotec
+MEL-EGG-019,Egger,Lincoln Walnut,H1714,textured_tfl,ST19,/melamines/MEL-EGG-019.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1714-Lincoln-Walnut-ST19-.jpg,via Decotec
+MEL-EGG-020,Egger,Brown Bolivar Wood,H3787,textured_tfl,ST19,/melamines/MEL-EGG-020.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/02/H3787-Brown-Bolivar-Wood-1.png,via Decotec
+MEL-EGG-021,Egger,Acacia Sheffield Graphite,H1247,textured_tfl,ST17,/melamines/MEL-EGG-021.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/02/H1247_Acacia-Sheffield-Graphite-1.png,via Decotec
+MEL-EGG-022,Egger,Dark Brown Eucalyptus,H3043,textured_tfl,ST12,/melamines/MEL-EGG-022.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3043-Dark-Brown-Eucalyptus-ST12.jpg,via Decotec
+MEL-EGG-023,Egger,Honey Carini Walnut,H3790,textured_tfl,ST12,/melamines/MEL-EGG-023.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3790-Honey-Carini-Walnut-ST12.jpg,via Decotec
+MEL-EGG-024,Egger,Bleached Carini Walnut,H3773,textured_tfl,ST12,/melamines/MEL-EGG-024.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/H3773.jpg,via Decotec
+MEL-EGG-025,Egger,Natural Carini Walnut,H3710,textured_tfl,ST12,/melamines/MEL-EGG-025.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/H3710.jpg,via Decotec
+MEL-EGG-026,Egger,Chocolate Carini Walnut,H3794,textured_tfl,ST12,/melamines/MEL-EGG-026.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3794-Chocolate-Caarini-Walnut-ST12.jpg,via Decotec
+MEL-EGG-027,Egger,Light Vicenza Oak,H3165,textured_tfl,ST12,/melamines/MEL-EGG-027.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2025/05/H3165-ST12-Light-Vicenza-Oak-reduced-e1746105862467.jpg,via Decotec
+MEL-EGG-028,Egger,Bleached Vicenza Oak,H3152,textured_tfl,ST19,/melamines/MEL-EGG-028.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H3152-Bleached-Vicenza-Oak-ST19-.jpg,via Decotec
+MEL-EGG-029,Egger,Vicenza Oak,H3157,textured_tfl,ST12,/melamines/MEL-EGG-029.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/H3157.jpg,via Decotec
+MEL-EGG-030,Egger,Grey Vicenza Oak,H3158,textured_tfl,ST12,/melamines/MEL-EGG-030.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/H3158.jpg,via Decotec
+MEL-EGG-031,Egger,Grey Nebraska Oak,H3332,textured_tfl,ST10,/melamines/MEL-EGG-031.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3332.jpg,via Decotec
+MEL-EGG-032,Egger,Natural Bardolino Oak,H1145,textured_tfl,ST10,/melamines/MEL-EGG-032.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h1145.jpg,via Decotec
+MEL-EGG-033,Egger,Grey Bardolino Oak,H1146,textured_tfl,ST10,/melamines/MEL-EGG-033.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h1146.jpg,via Decotec
+MEL-EGG-034,Egger,Natural Aragon Oak,H1372,textured_tfl,ST22,/melamines/MEL-EGG-034.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/H1372.jpg,via Decotec
+MEL-EGG-035,Egger,Oiled Kendal Oak,H3171,textured_tfl,ST12,/melamines/MEL-EGG-035.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H3171-Oiled-Kendal-Oak-ST12-.jpg,via Decotec
+MEL-EGG-036,Egger,White Casella Oak,H1384,textured_tfl,ST40,/melamines/MEL-EGG-036.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1384-White-Casella-Oak-ST40-.jpg,via Decotec
+MEL-EGG-037,Egger,Sand Casella Oak,H1388,textured_tfl,ST40,/melamines/MEL-EGG-037.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/11/H1388-e1731433284155.jpg,via Decotec
+MEL-EGG-038,Egger,Light Natural Casella Oak,H1367,textured_tfl,ST40,/melamines/MEL-EGG-038.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1367-Light-Natural-Casella-Oak.jpg,via Decotec
+MEL-EGG-039,Egger,Natural Casella Oak,H1385,textured_tfl,ST40,/melamines/MEL-EGG-039.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1385-Natural-Casella-Oak-ST40-1-2-e1732569793690.jpg,via Decotec
+MEL-EGG-040,Egger,Brown Casella Oak,H1386,textured_tfl,ST40,/melamines/MEL-EGG-040.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/H1386-Brown-Casella-Oak-ST40--e1732569747330.jpg,via Decotec
+MEL-EGG-041,Egger,Marone Casella Oak,H1369,textured_tfl,ST40,/melamines/MEL-EGG-041.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/02/H1369_Marone-Casella-Oak-1.png,via Decotec
+MEL-EGG-042,Egger,Black Casella Oak,H1366,textured_tfl,ST40,/melamines/MEL-EGG-042.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/04/H1366_1300x2800_10DE-scaled-e1777303842685.jpg,via Decotec
+MEL-EGG-043,Egger,Brown Orleans Oak,H1379,textured_tfl,ST36,/melamines/MEL-EGG-043.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H1379-Brown-Orealns-Oak-ST36.jpg,via Decotec
+MEL-EGG-044,Egger,Fabric Anthracite Metal,F461,textured_tfl,ST10,/melamines/MEL-EGG-044.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/F461.jpg,via Decotec
+MEL-EGG-045,Egger,Black Gold Metal Slate,F629,textured_tfl,ST16,/melamines/MEL-EGG-045.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/F629.jpg,via Decotec
+MEL-EGG-046,Egger,Premium White,W1000,textured_tfl,ST38,/melamines/MEL-EGG-046.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/W1000.jpg,via Decotec
+MEL-EGG-047,Egger,Black,U999,textured_tfl,ST19,/melamines/MEL-EGG-047.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/01/U999-Black-ST19-Cropped-e1673385187869.jpg,via Decotec
+MEL-EGG-048,Egger,White Chromix,F637,textured_tfl,ST10,/melamines/MEL-EGG-048.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/F637.jpg,via Decotec
+MEL-EGG-049,Egger,Chromix Silver,F638,textured_tfl,ST10,/melamines/MEL-EGG-049.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/F638.jpg,via Decotec
+MEL-EGG-050,Egger,Chromix Anthracite,F641,textured_tfl,ST10,/melamines/MEL-EGG-050.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/F641.jpg,via Decotec
+MEL-EGG-051,Egger,White Tossini Elm,H1701,textured_tfl,ST12,/melamines/MEL-EGG-051.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H1701-White-Tossini-Elm-ST33.jpg,via Decotec
+MEL-EGG-052,Egger,Natural Tossini Elm,H1213,textured_tfl,ST12,/melamines/MEL-EGG-052.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h1213.jpg,via Decotec
+MEL-EGG-053,Egger,Grey Beige Tossini Elm,H1210,textured_tfl,ST12,/melamines/MEL-EGG-053.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H1210-Grey-Beige-Tossini-Elm-ST33.jpg,via Decotec
+MEL-EGG-054,Egger,White Cape Elm,H3760,textured_tfl,ST10,/melamines/MEL-EGG-054.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3760.jpg,via Decotec
+MEL-EGG-055,Egger,Anthracite Mountain Larch,H3406,textured_tfl,ST38,/melamines/MEL-EGG-055.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3406.jpg,via Decotec
+MEL-EGG-056,Egger,White Havana Pine,H3078,textured_tfl,ST22,/melamines/MEL-EGG-056.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3078.jpg,via Decotec
+MEL-EGG-057,Egger,Black Havana Pine,H3081,textured_tfl,ST22,/melamines/MEL-EGG-057.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3081.jpg,via Decotec
+MEL-EGG-058,Egger,White Gladstone Oak,H3335,textured_tfl,ST28,/melamines/MEL-EGG-058.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/h3335.jpg,via Decotec
+MEL-EGG-059,Egger,Sand Gladstone Oak,H3309,textured_tfl,ST28,/melamines/MEL-EGG-059.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3309-Sand-Gladstone-Oak-ST28.jpg,via Decotec
+MEL-EGG-060,Egger,Grey Beige Gladstone Oak,H3326,textured_tfl,ST28,/melamines/MEL-EGG-060.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3326.jpg,via Decotec
+MEL-EGG-061,Egger,Tobacco Gladstone Oak,H3325,textured_tfl,ST28,/melamines/MEL-EGG-061.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h3325.jpg,via Decotec
+MEL-EGG-062,Egger,Shorewood,H3090,textured_tfl,ST22,/melamines/MEL-EGG-062.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/08/H3090-Shorewood-ST22.jpg,via Decotec
+MEL-EGG-063,Egger,Sand Lyon Ash,H1298,textured_tfl,ST22,/melamines/MEL-EGG-063.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h1298.jpg,via Decotec
+MEL-EGG-064,Egger,Sand Beige Molina Ash,H1267,textured_tfl,ST22,/melamines/MEL-EGG-064.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/07/h1267.jpg,via Decotec
+MEL-EGG-065,Egger,Soft Beige,U220,textured_tfl,ST9,/melamines/MEL-EGG-065.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/02/U220-Soft-Beige.png,via Decotec
+MEL-EGG-066,Egger,Cashmere Grey,U702,textured_tfl,ST9,/melamines/MEL-EGG-066.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U702-Cashmere-Grey-ST9.jpg,via Decotec
+MEL-EGG-067,Egger,Pebble Grey,U201,textured_tfl,ST9,/melamines/MEL-EGG-067.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/U201-Pebble-Grey-ST9-e1715016847378.jpg,via Decotec
+MEL-EGG-068,Egger,Stone Grey,U727,textured_tfl,ST9,/melamines/MEL-EGG-068.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U727-Stone-Grey-ST9.jpg,via Decotec
+MEL-EGG-069,Egger,Cassis,U444,textured_tfl,ST9,/melamines/MEL-EGG-069.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2026/02/U444_Cassis.png,via Decotec
+MEL-EGG-070,Egger,Taupe Grey,U750,textured_tfl,ST9,/melamines/MEL-EGG-070.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U750-Taupe-Grey-ST9-1.jpg,via Decotec
+MEL-EGG-071,Egger,Dust Grey,U732,textured_tfl,ST9,/melamines/MEL-EGG-071.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U732-Dust-Grey-ST9.jpg,via Decotec
+MEL-EGG-072,Egger,Cubanit Grey,U767,textured_tfl,ST9,/melamines/MEL-EGG-072.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U767-Cubanit-Grey-ST9.jpg,via Decotec
+MEL-EGG-073,Egger,Reed Green,U604,textured_tfl,ST9,/melamines/MEL-EGG-073.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U604-Reed-Green-ST9.jpg,via Decotec
+MEL-EGG-074,Egger,Monument Grey,U780,textured_tfl,ST9,/melamines/MEL-EGG-074.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U780-Monument-Grey-ST9.jpg,via Decotec
+MEL-EGG-075,Egger,Misty Blue,U502,textured_tfl,ST9,/melamines/MEL-EGG-075.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U502-Misty-Blue-ST9.jpg,via Decotec
+MEL-EGG-076,Egger,Graphite Grey,U961,textured_tfl,ST7,/melamines/MEL-EGG-076.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/05/U961-Graphite-Grey-ST7.jpg,via Decotec
+MEL-EGG-077,Egger,Alpine White,W1100,perfectsense_pm,ST9,/melamines/MEL-EGG-077.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/01/W1100-alipine-white-PM-1-scaled.jpg,via Decotec; PerfectSense
+MEL-EGG-078,Egger,Alpine White,W1100,perfectsense_pg,ST9,/melamines/MEL-EGG-078.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/11/W1100-Alpine-White-PG-Border-1.jpg,via Decotec; PerfectSense
+MEL-EGG-079,Egger,Light Grey,U708,perfectsense_pm,ST9,/melamines/MEL-EGG-079.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/U708-Light-Grey-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-EGG-080,Egger,Cashmere Grey,U702,perfectsense_pm,ST9,/melamines/MEL-EGG-080.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/U702-Cashmere-Grey-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-EGG-081,Egger,Stone Grey,U727,perfectsense_pm,ST9,/melamines/MEL-EGG-081.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/U727-Stone-Grey-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-EGG-082,Egger,Dust Grey,U732,perfectsense_pm,ST9,/melamines/MEL-EGG-082.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/U732-Dust-Grey-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-EGG-083,Egger,Dust Grey,U732,perfectsense_pg,ST9,/melamines/MEL-EGG-083.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/01/U732-Dust-Grey-PG-ST9-e1673979824592.png,via Decotec; PerfectSense
+MEL-EGG-084,Egger,Indigo Blue,U599,perfectsense_pm,ST9,/melamines/MEL-EGG-084.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/U599-Indigo-Blue-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-EGG-085,Egger,Dark Steel,F627,perfectsense_pm,ST9,/melamines/MEL-EGG-085.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2024/11/F627PM-2.jpg,via Decotec; PerfectSense
+MEL-EGG-086,Egger,Graphite Grey,U961,perfectsense_pm,ST9,/melamines/MEL-EGG-086.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/11/U961-PM-Cropped-1.jpg,via Decotec; PerfectSense
+MEL-EGG-087,Egger,Black,U999,perfectsense_pm,ST19,/melamines/MEL-EGG-087.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/05/U999_PM-1.jpg,via Decotec; PerfectSense
+MEL-EGG-088,Egger,Chilli Red,U323,perfectsense_pg,ST9,/melamines/MEL-EGG-088.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2023/10/U323_PG_T.png,via Decotec; PerfectSense
+MEL-EGG-089,Egger,White Levanto Marble,F812,perfectsense_pm,ST9,/melamines/MEL-EGG-089.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/F812-White-Levanto-Marble-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-EGG-090,Egger,Marmara Marble,F160,perfectsense_pm,ST9,/melamines/MEL-EGG-090.jpg,https://cdn-decotecinc.b-cdn.net/wp-content/uploads/2022/09/F160-Marmara-Marble-PM-ST9.jpg,via Decotec; PerfectSense
+MEL-TRN-001,Tru North,Alabama Cherry,Alabama Cherry,tfl,,/melamines/MEL-TRN-001.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/17.png,image pending Chrome session
+MEL-TRN-002,Tru North,Alexandria Walnut,Alexandria Walnut,tfl,,/melamines/MEL-TRN-002.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/20.png,image pending Chrome session
+MEL-TRN-003,Tru North,Almond,Almond,tfl,,/melamines/MEL-TRN-003.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/23.png,image pending Chrome session
+MEL-TRN-004,Tru North,Antique White,Antique White,tfl,,/melamines/MEL-TRN-004.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/27.png,image pending Chrome session
+MEL-TRN-005,Tru North,Black,Black,tfl,,/melamines/MEL-TRN-005.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/21.png,image pending Chrome session
+MEL-TRN-006,Tru North,Cascade Rift,Cascade Rift,tfl,,/melamines/MEL-TRN-006.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Cascade-Rift-1.png,via Intermountain Wood Products
+MEL-TRN-007,Tru North,Durango Oak,Durango Oak,tfl,,/melamines/MEL-TRN-007.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Durango-Oak.png,via Intermountain Wood Products
+MEL-TRN-008,Tru North,Flaming Gorge Rift,Flaming Gorge Rift,tfl,,/melamines/MEL-TRN-008.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Flaming-Gorge-Rift.png,via Intermountain Wood Products
+MEL-TRN-009,Tru North,Fog Grey,Fog Grey,tfl,,/melamines/MEL-TRN-009.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/11.png,image pending Chrome session
+MEL-TRN-010,Tru North,Folkstone Grey,Folkstone Grey,tfl,,/melamines/MEL-TRN-010.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/12.png,image pending Chrome session
+MEL-TRN-011,Tru North,Hardrock Maple,Hardrock Maple,tfl,,/melamines/MEL-TRN-011.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/24.png,image pending Chrome session
+MEL-TRN-012,Tru North,Hewned Barnwood,Hewned Barnwood,tfl,,/melamines/MEL-TRN-012.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/6.png,image pending Chrome session
+MEL-TRN-013,Tru North,Hewned Beach,Hewned Beach,tfl,,/melamines/MEL-TRN-013.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/5.png,image pending Chrome session
+MEL-TRN-014,Tru North,Jackson Aspen,Jackson Aspen,tfl,,/melamines/MEL-TRN-014.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Jackson-Aspen.png,via Intermountain Wood Products
+MEL-TRN-015,Tru North,Lochsa Rosewood,Lochsa Rosewood,tfl,,/melamines/MEL-TRN-015.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Lochsa-Rosewood.png,via Intermountain Wood Products
+MEL-TRN-016,Tru North,Medium Sycamore,Medium Sycamore,tfl,,/melamines/MEL-TRN-016.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/18.png,image pending Chrome session
+MEL-TRN-017,Tru North,Moab Rift,Moab Rift,tfl,,/melamines/MEL-TRN-017.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Moab-Rift.png,via Intermountain Wood Products
+MEL-TRN-018,Tru North,Natural Jute,Natural Jute,tfl,,/melamines/MEL-TRN-018.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/9.png,image pending Chrome session
+MEL-TRN-019,Tru North,Natural Maple,Natural Maple,tfl,,/melamines/MEL-TRN-019.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/22.png,image pending Chrome session
+MEL-TRN-020,Tru North,Palisades Oak,Palisades Oak,tfl,,/melamines/MEL-TRN-020.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Palisades-Oak.png,via Intermountain Wood Products
+MEL-TRN-021,Tru North,Pepperdust,Pepperdust,tfl,,/melamines/MEL-TRN-021.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/13.png,image pending Chrome session
+MEL-TRN-022,Tru North,Polar White,Polar White,tfl,,/melamines/MEL-TRN-022.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/26.png,image pending Chrome session
+MEL-TRN-023,Tru North,Silver Frost,Silver Frost,tfl,,/melamines/MEL-TRN-023.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/25.png,image pending Chrome session
+MEL-TRN-024,Tru North,Stone Textile,Stone Textile,tfl,,/melamines/MEL-TRN-024.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Stone-Textile.png,via Intermountain Wood Products
+MEL-TRN-025,Tru North,Storm,Storm,tfl,,/melamines/MEL-TRN-025.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/15.png,image pending Chrome session
+MEL-TRN-026,Tru North,Summer Cotton,Summer Cotton,tfl,,/melamines/MEL-TRN-026.jpg,https://www.intermountainwood.com/wp-content/uploads/2024/04/10.png,image pending Chrome session
+MEL-TRN-027,Tru North,Sweetwater Rift,Sweetwater Rift,tfl,,/melamines/MEL-TRN-027.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Sweetwater-Rift.png,via Intermountain Wood Products
+MEL-TRN-028,Tru North,Wasatch Rift,Wasatch Rift,tfl,,/melamines/MEL-TRN-028.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Wasatch-Rift.png,via Intermountain Wood Products
+MEL-TRN-029,Tru North,Yellowstone Oak,Yellowstone Oak,tfl,,/melamines/MEL-TRN-029.jpg,https://www.intermountainwood.com/wp-content/uploads/2023/11/Yellowstone-Oak.png,via Intermountain Wood Products
+MEL-SWD-001,Stevenswood,Valenti Walnut,W03,tfl,,/melamines/MEL-SWD-001.jpg,https://stevens-wood.com/wp-content/uploads/W03-Valenti-Walnut-Copy-1.png,partial list — more colors via Chrome
+MEL-SWD-002,Stevenswood,Amble Walnut,W04,tfl,,/melamines/MEL-SWD-002.jpg,https://stevens-wood.com/wp-content/uploads/W04-Amble-Walnut-Copy-2.png,partial list — more colors via Chrome
+MEL-SWD-003,Stevenswood,Opus Walnut,W13,tfl,,/melamines/MEL-SWD-003.jpg,https://stevens-wood.com/wp-content/uploads/W13-Opus-Walnut-Copy.png,partial list — more colors via Chrome
+MEL-SWD-004,Stevenswood,Roan Walnut,W43,tfl,,/melamines/MEL-SWD-004.jpg,https://stevens-wood.com/wp-content/uploads/W43-Roan-Walnut-Copy-1.png,partial list — more colors via Chrome
+MEL-SWD-005,Stevenswood,Magpie Walnut,W45,tfl,,/melamines/MEL-SWD-005.jpg,https://stevens-wood.com/wp-content/uploads/W45-Magpie-Walnut-Copy-1.png,partial list — more colors via Chrome
+MEL-SWD-006,Stevenswood,Cognac Walnut,W68,tfl,,/melamines/MEL-SWD-006.jpg,https://stevens-wood.com/wp-content/uploads/W68-Cognac-Walnut-Copy-1.png,partial list — more colors via Chrome
+MEL-SWD-007,Stevenswood,Nova Itabri,W77,tfl,,/melamines/MEL-SWD-007.jpg,https://stevens-wood.com/wp-content/uploads/W77-Nova-Itabri-Copy-1.png,partial list — more colors via Chrome
+MEL-SWD-008,Stevenswood,Jordan Itabri,W80,tfl,,/melamines/MEL-SWD-008.jpg,https://stevens-wood.com/wp-content/uploads/W80-Jordan-Itabri-Copy-1.png,partial list — more colors via Chrome
+MEL-SWD-009,Stevenswood,Sandro Itabri,W89,tfl,,/melamines/MEL-SWD-009.jpg,https://stevens-wood.com/wp-content/uploads/W89-Sandro-Itabri-Copy.png,partial list — more colors via Chrome
+MEL-SWD-010,Stevenswood,Outer Banks Oak,514,tfl,,/melamines/MEL-SWD-010.jpg,https://stevens-wood.com/wp-content/uploads/514-OUTER-BANKS-OAK-TIM.jpg,partial list — more colors via Chrome
+MEL-SWD-011,Stevenswood,Battle Creek Oak,592,tfl,,/melamines/MEL-SWD-011.jpg,https://stevens-wood.com/wp-content/uploads/592-BATTLE-CREEK-OAK-TIM.jpg,partial list — more colors via Chrome
+MEL-SWD-012,Stevenswood,Door County Oak,603,tfl,,/melamines/MEL-SWD-012.jpg,https://stevens-wood.com/wp-content/uploads/603-DOOR-COUNTY-OAK-TIM.jpg,partial list — more colors via Chrome
+MEL-SWD-013,Stevenswood,Karius Walnut,784,tfl,,/melamines/MEL-SWD-013.jpg,https://stevens-wood.com/wp-content/uploads/48192_Sary_Walnut_Lab_Sary-Midcentury.jpg,partial list — more colors via Chrome
+MEL-SWD-014,Stevenswood,Tyne Walnut,774,tfl,,/melamines/MEL-SWD-014.jpg,https://stevens-wood.com/wp-content/uploads/48192_Sary_Walnut_Lab_Sary-Honey.jpg,partial list — more colors via Chrome
+MEL-SWD-015,Stevenswood,Tino Walnut,669,tfl,,/melamines/MEL-SWD-015.jpg,https://stevens-wood.com/wp-content/uploads/48192_Sary_Walnut_Lab_Sary-9035306.jpg,partial list — more colors via Chrome
+MEL-SWD-016,Stevenswood,Solano Walnut,540,tfl,,/melamines/MEL-SWD-016.jpg,https://stevens-wood.com/wp-content/uploads/48192_Sary_Walnut_Lab_Sary-9035312.jpg,partial list — more colors via Chrome
+MEL-SWD-017,Stevenswood,Tuscany Walnut,579,tfl,,/melamines/MEL-SWD-017.jpg,https://stevens-wood.com/wp-content/uploads/48192_Sary_Walnut_Lab_Sary-9035322.jpg,partial list — more colors via Chrome
+MEL-SWD-018,Stevenswood,Tonali Walnut,633,tfl,,/melamines/MEL-SWD-018.jpg,https://stevens-wood.com/wp-content/uploads/48192_Sary_Walnut_Lab_Sary-9035357.jpg,partial list — more colors via Chrome
+MEL-SWD-019,Stevenswood,Natural Elm,574,tfl,,/melamines/MEL-SWD-019.jpg,https://stevens-wood.com/wp-content/uploads/574-NATURAL-ELM.jpg,partial list — more colors via Chrome
+MEL-SWD-020,Stevenswood,Iron Oak,637,tfl,,/melamines/MEL-SWD-020.jpg,https://stevens-wood.com/wp-content/uploads/637-IRON-OAK-TIM.jpg,partial list — more colors via Chrome
+MEL-SWD-021,Stevenswood,Lakefront Oak,654,tfl,,/melamines/MEL-SWD-021.jpg,https://stevens-wood.com/wp-content/uploads/654-LAKEFRONT-OAK-TIM.jpg,partial list — more colors via Chrome
+MEL-TAF-001,Tafisa,Muse,M2061,ICONIQ,M2061 (Q),/melamines/MEL-TAF-001.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m2061q_muse_muse_med_res.png,HPL: T2061 (QI)
+MEL-TAF-002,Tafisa,Masterpiece,M2062,ICONIQ,M2062 (Q),/melamines/MEL-TAF-002.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m2062q_mast_chef-doeuvre_med_res.png,HPL: T2062 (QI)
+MEL-TAF-003,Tafisa,Emblem,M2063,ICONIQ,M2063 (Q),/melamines/MEL-TAF-003.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m2063q_emblem_embleme_med_res.png,HPL: T2063 (QI)
+MEL-TAF-004,Tafisa,Prodigy,M2064,ICONIQ,M2064 (Q),/melamines/MEL-TAF-004.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m2064q_prodigy_virtuose_med_res.png,HPL: T2064 (QI)
+MEL-TAF-005,Tafisa,Maestro,M2065,ICONIQ,M2065 (Q),/melamines/MEL-TAF-005.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m2065q_maestro_maestro_med_res.png,HPL: T2065 (QI)
+MEL-TAF-006,Tafisa,Pioneer,M2066,ICONIQ,M2066 (Q),/melamines/MEL-TAF-006.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m2066q_pioneer_pionnier_med_res.png,HPL: T2066 (QI)
+MEL-TAF-007,Tafisa,Black,M203,ICONIQ,M203(Q),/melamines/MEL-TAF-007.jpg,https://tafisa.ca/sites/default/files/2026-03/texture_iconiq_retouche_low-res.png,HPL: T203(QI)
+MEL-TAF-008,Tafisa,Morning Dew,M763,ICONIQ,M763(Q),/melamines/MEL-TAF-008.jpg,https://tafisa.ca/sites/default/files/2026-02/iconiq_24x24_m763q_morning_dew_rosee_du_matin_med_res.png,HPL: T763(QI)
+MEL-TAF-009,Tafisa,Winter Fun!,HG2004,HighGloss,HG2004,/melamines/MEL-TAF-009.jpg,https://tafisa.ca/sites/default/files/2024-02/M2004%28Y%29-LessGreen.jpg,HPL: T2004HG
+MEL-TAF-010,Tafisa,Winter Fun!,M2004,Prelude,M2004 (Y),/melamines/MEL-TAF-010.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_M2004%28Y%29_24X24_72dpi.jpg,HPL: T2004 (VA)
+MEL-TAF-011,Tafisa,Latitude North,L530,Authentica,L530 (A),/melamines/MEL-TAF-011.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L530%28A%29_24X24_72dpi.jpg,HPL: T530 (AT)
+MEL-TAF-012,Tafisa,White Chocolate,L492,Lummia,L492 (R),/melamines/MEL-TAF-012.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L492%28R%29_24X24_72dpi.jpg,HPL: T492 (UR)
+MEL-TAF-013,Tafisa,Fogo Harbour,L565,Lummia,L565 (R),/melamines/MEL-TAF-013.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L565%28R%29_24X24_72dpi.jpg,HPL: T565 (UR)
+MEL-TAF-014,Tafisa,Weekend Getaway,M2003,Prelude,M2003 (Y),/melamines/MEL-TAF-014.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2003%28Y%29_24X24_72dpi_1.jpg,HPL: T2003 (VA)
+MEL-TAF-015,Tafisa,Crème de la Crème,M2031,SOMMET,M2031 (B),/melamines/MEL-TAF-015.jpg,https://tafisa.ca/sites/default/files/2018-08/M2031%28B%29-Creme-de-la-Creme_Creme-de-la-Creme-_24x24.jpg,HPL: T2031 (BV)
+MEL-TAF-016,Tafisa,Natural Affinity,L586,KARISMA,L586 (K),/melamines/MEL-TAF-016.jpg,https://tafisa.ca/sites/default/files/2023-05/L586K%20NaturalAffinity_12x12.jpg,HPL: T586 (KA)
+MEL-TAF-017,Tafisa,Free Spirit,L580,KARISMA,L580 (K),/melamines/MEL-TAF-017.jpg,https://tafisa.ca/sites/default/files/2020-10/L580%28K%29%20Free%20Spirit_Esprit%20Libre_24X24%20%28Medium%29_0.jpg,HPL: T580 (KA)
+MEL-TAF-018,Tafisa,Niagara,L544,Authentica,L544 (A),/melamines/MEL-TAF-018.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_L544%28A%29_24X24_72dpi.jpg,HPL: T544 (AT)
+MEL-TAF-019,Tafisa,Love at First Sight,L590,KARISMA,L590 (K),/melamines/MEL-TAF-019.jpg,https://tafisa.ca/sites/default/files/2023-05/L590-12x12_Compress%C3%A9.jpg,HPL: T590 (KA)
+MEL-TAF-020,Tafisa,Summer Breeze,L540,Authentica,L540 (A),/melamines/MEL-TAF-020.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L540%28A%29_24X24_72dpi.jpg,HPL: T540 (AT)
+MEL-TAF-021,Tafisa,Mojave,L546,Authentica,L546 (A),/melamines/MEL-TAF-021.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_L546%28A%29_24X24_72dpi.jpg,HPL: T546 (AT)
+MEL-TAF-022,Tafisa,Maritime Dune,L555,Lummia,L555 (R),/melamines/MEL-TAF-022.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L555%28R%29_24X24_72dpi.jpg,HPL: T555 (UR)
+MEL-TAF-023,Tafisa,Sheer Beauty,L581,KARISMA,L581 (K),/melamines/MEL-TAF-023.jpg,https://tafisa.ca/sites/default/files/2020-10/L581%28K%29%20Sheer%20Beauty_Beaut%C3%A9%20Naturelle_24X24%20%28Medium%29.jpg,HPL: T581 (KA)
+MEL-TAF-024,Tafisa,Acacia Honey,L591,KARISMA,L591 (K),/melamines/MEL-TAF-024.jpg,https://tafisa.ca/sites/default/files/2023-05/L591-12x12_Compress%C3%A9.jpg,HPL: T591 (KA)
+MEL-TAF-025,Tafisa,Casting at First Light,M2007,Prelude,M2007 (Y),/melamines/MEL-TAF-025.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_M2007%28Y%29_24X24_72dpi.jpg,HPL: T2007 (VA)
+MEL-TAF-026,Tafisa,Hardrock Maple,L303,Classic,L303 (C),/melamines/MEL-TAF-026.jpg,https://tafisa.ca/sites/default/files/1000x1000_L303%28C%29_hires.jpg,HPL: T303 (CR)
+MEL-TAF-027,Tafisa,Rhapsody,L585,KARISMA,L585 (K),/melamines/MEL-TAF-027.jpg,https://tafisa.ca/sites/default/files/2020-10/L585%28K%29%20Rhapsody_Rhapsodie_24X24%20%28Medium%29.jpg,HPL: T585 (KA)
+MEL-TAF-028,Tafisa,Secret,L443,Classic,L443 (C),/melamines/MEL-TAF-028.jpg,https://tafisa.ca/sites/default/files/960x960_L443%28C%29_hires.jpg,HPL: T443 (CR)
+MEL-TAF-029,Tafisa,Sheer Beauty,PM581,PerfectMatte,PM581,/melamines/MEL-TAF-029.jpg,https://tafisa.ca/sites/default/files/2024-02/L581%28K%29%20Sheer%20Beauty_Beaut%C3%A9%20Naturelle_24X24%20%28Medium%29.jpg,HPL: T581PM
+MEL-TAF-030,Tafisa,Sable Island,L562,Lummia,L562 (R),/melamines/MEL-TAF-030.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_L562%28R%29_24X24_72dpi.jpg,HPL: T562 (UR)
+MEL-TAF-031,Tafisa,Prestige Maple,L476,Classic,L476 (C),/melamines/MEL-TAF-031.jpg,https://tafisa.ca/sites/default/files/1000x1000_L476%28C%29_hires.jpg,HPL: T476 (CR)
+MEL-TAF-032,Tafisa,Tofino,L564,Lummia,L564 (R),/melamines/MEL-TAF-032.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_L564%28R%29_24X24_72dpi.jpg,HPL: T564 (UR)
+MEL-TAF-033,Tafisa,Beach Memories,L491,Sommet,L491 (S),/melamines/MEL-TAF-033.jpg,https://tafisa.ca/sites/default/files/960x960_L491%28S%29_hires.jpg,HPL: T491 (SN)
+MEL-TAF-034,Tafisa,Dolce Vita,L488,Sommet,L488 (S),/melamines/MEL-TAF-034.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L488%28S%29_24X24_72dpi.jpg,HPL: T488 (SN)
+MEL-TAF-035,Tafisa,Sugar Rush,L587,KARISMA,L587 (K),/melamines/MEL-TAF-035.jpg,https://tafisa.ca/sites/default/files/2023-05/L587K%20SugarRush_12x12.jpg,HPL: T587 (KA)
+MEL-TAF-036,Tafisa,Fashionista,HG582,HighGloss,HG582,/melamines/MEL-TAF-036.jpg,https://tafisa.ca/sites/default/files/2024-02/L582%28K%29%20Fashionista_24X24%20%28Medium%29.jpg,HPL: T582HG
+MEL-TAF-037,Tafisa,Kiss Curl,PM592,PerfectMatte,PM592,/melamines/MEL-TAF-037.jpg,https://tafisa.ca/sites/default/files/2024-02/TAFISA_L592K_Karisma_24x24_300dpi%20%28Medium%29.jpg,HPL: T592PM
+MEL-TAF-038,Tafisa,Tea for Two,M2006,Prelude,M2006 (Y),/melamines/MEL-TAF-038.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2006%28Y%29_24X24_72dpi.jpg,HPL: T2006 (VA)
+MEL-TAF-039,Tafisa,Candlelight,L421,Classic,L421 (C),/melamines/MEL-TAF-039.jpg,https://tafisa.ca/sites/default/files/960x960_L421%28C%29_hires.jpg,HPL: T421 (CR)
+MEL-TAF-040,Tafisa,Nutmeg,L481,Sommet,L481 (S),/melamines/MEL-TAF-040.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L481%28S%29_24X24_72dpi.jpg,HPL: T481 (SN)
+MEL-TAF-041,Tafisa,Après-Ski,M2015,Prelude,M2015 (Y),/melamines/MEL-TAF-041.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2015%28Y%29_24X24_72dpi.jpg,HPL: T2015 (VA)
+MEL-TAF-042,Tafisa,Kiss Curl,L592,KARISMA,L592 (K),/melamines/MEL-TAF-042.jpg,https://tafisa.ca/sites/default/files/2023-05/L592-12x12_Compress%C3%A9.jpg,HPL: T592 (KA)
+MEL-TAF-043,Tafisa,Sweet & Savory,L588,KARISMA,L588 (K),/melamines/MEL-TAF-043.jpg,https://tafisa.ca/sites/default/files/2023-05/L588K%20Sweet%26Savory_12x12.jpg,HPL: T588 (KA)
+MEL-TAF-044,Tafisa,Laurentian Path,L556,Lummia,L556 (R),/melamines/MEL-TAF-044.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L556%28R%29_24X24_72dpi.jpg,HPL: T556 (UR)
+MEL-TAF-045,Tafisa,Fashionista,L582,KARISMA,L582 (K),/melamines/MEL-TAF-045.jpg,https://tafisa.ca/sites/default/files/2020-10/L582%28K%29%20Fashionista_24X24%20%28Medium%29.jpg,HPL: T582 (KA)
+MEL-TAF-046,Tafisa,Salt of the Earth,L589,KARISMA,L589 (K),/melamines/MEL-TAF-046.jpg,https://tafisa.ca/sites/default/files/2023-05/L589K%20SaltOfTheEarth_12x12.jpg,HPL: T589 (KA)
+MEL-TAF-047,Tafisa,Rocky Mountain,L557,Lummia,L557 (R),/melamines/MEL-TAF-047.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L557%28R%29_24X24_72dpi.jpg,HPL: T557 (UR)
+MEL-TAF-048,Tafisa,Sunday Brunch,M2005,Prelude,M2005 (Y),/melamines/MEL-TAF-048.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2005%28Y%29_24X24_72dpi.jpg,HPL: T2005 (VA)
+MEL-TAF-049,Tafisa,Sugar on Ice,M2014,Prelude,M2014 (Y),/melamines/MEL-TAF-049.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_M2014%28Y%29_24X24_72dpi.jpg,HPL: T2014 (VA)
+MEL-TAF-050,Tafisa,Bora Bora,L497,Sommet,L497 (S),/melamines/MEL-TAF-050.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L497%28S%29_24X24_72dpi_0.jpg,HPL: T497 (SN)
+MEL-TAF-051,Tafisa,Antigua,L498,Sommet,L498 (S),/melamines/MEL-TAF-051.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L498%28S%29_24X24_72dpi.jpg,HPL: T498 (SN)
+MEL-TAF-052,Tafisa,Rustik Cherry,L521,Classic,L521 (C),/melamines/MEL-TAF-052.jpg,https://tafisa.ca/sites/default/files/960x960_L521%28C%29_hires.jpg,HPL: T521 (CR)
+MEL-TAF-053,Tafisa,Hot Cinnamon,L480,Sommet,L480 (S),/melamines/MEL-TAF-053.jpg,https://tafisa.ca/sites/default/files/2020-04/Tafisa_L480%28S%29_24X24_72dpi.jpg,HPL: T480 (SN)
+MEL-TAF-054,Tafisa,Copa Cabana,L489,Sommet,L489 (S),/melamines/MEL-TAF-054.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L489%28S%29_24X24_72dpi.jpg,HPL: T489 (SN)
+MEL-TAF-055,Tafisa,Summer Flame,L420,Classic,L420 (C),/melamines/MEL-TAF-055.jpg,https://tafisa.ca/sites/default/files/960x960_L420%28C%29_hires.jpg,HPL: T420 (CR)
+MEL-TAF-056,Tafisa,Dark Rum Cherry,L473,Classic,L473 (C),/melamines/MEL-TAF-056.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L473%28C%29_24X24_72dpi.jpg,HPL: T473 (CR)
+MEL-TAF-057,Tafisa,Shiraz Cherry,L472,Classic,L472 (C),/melamines/MEL-TAF-057.jpg,https://tafisa.ca/sites/default/files/960x960_L472%28C%29_hires.jpg,HPL: T472 (CR)
+MEL-TAF-058,Tafisa,Iron Horse,HG834,HighGloss,HG834,/melamines/MEL-TAF-058.jpg,https://tafisa.ca/sites/default/files/2020-11/HG834_24X24%20%28Medium%29.jpg,
+MEL-TAF-059,Tafisa,Force of Nature,L830,KARISMA,L830 (K),/melamines/MEL-TAF-059.jpg,https://tafisa.ca/sites/default/files/2020-10/L830%28K%29%20Force%20of%20Nature_Force%20de%20la%20Nature_24X24%20%28Medium%29.jpg,HPL: T830 (KA)
+MEL-TAF-060,Tafisa,River Rock,L538,Authentica,L538 (A),/melamines/MEL-TAF-060.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L538%28A%29_24X24_72dpi.jpg,HPL: T538 (AT)
+MEL-TAF-061,Tafisa,Mastermind,L593,KARISMA,L593 (K),/melamines/MEL-TAF-061.jpg,https://tafisa.ca/sites/default/files/2023-05/L593-12x12_Compress%C3%A9-moyen.jpg,HPL: T593 (KA)
+MEL-TAF-062,Tafisa,Brushed Aluminum,L474,Classic,L474 (C),/melamines/MEL-TAF-062.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L474%28C%29_24X24_72dpi.jpg,HPL: T474 (CR)
+MEL-TAF-063,Tafisa,Rock Solid,L831,KARISMA,L831 (K),/melamines/MEL-TAF-063.jpg,https://tafisa.ca/sites/default/files/2020-10/L831%28K%29%20Roc%20Solid_Roc%20Solide_24X24%20%28Medium%29.jpg,HPL: T831 (KA)
+MEL-TAF-064,Tafisa,Latitude East,L533,Authentica,L533 (A),/melamines/MEL-TAF-064.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L533%28A%29_24x24_72dpi.jpg,HPL: T533 (AT)
+MEL-TAF-065,Tafisa,Summertime Blues,M2013,Prelude,M2013 (Y),/melamines/MEL-TAF-065.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2013%28Y%29_24X24_72dpi.jpg,HPL: T2013 (VA)
+MEL-TAF-066,Tafisa,The Chameleon,L584,KARISMA,L584 (K),/melamines/MEL-TAF-066.jpg,https://tafisa.ca/sites/default/files/2020-10/L584%28K%29%20The%20Chameleon_Le%20Cam%C3%A9l%C3%A9on_24X24%20%28Medium%29.jpg,HPL: T584 (KA)
+MEL-TAF-067,Tafisa,Mégantic,L563,Lummia,L563 (R),/melamines/MEL-TAF-067.jpg,https://tafisa.ca/sites/default/files/2020-03/Tafisa_L563%28R%29_24X24_72dpi.jpg,HPL: T563 (UR)
+MEL-TAF-068,Tafisa,New Wave,M2041,SOMMET,M2041 (B),/melamines/MEL-TAF-068.jpg,https://tafisa.ca/sites/default/files/2018-08/M2041%28B%29-New-Wave_Nouvelle-Vague_24x24.jpg,HPL: T2041 (BV)
+MEL-TAF-069,Tafisa,Sunset Cruise,M2002,Prelude,M2002 (Y),/melamines/MEL-TAF-069.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2002%28Y%29_24X24_72dpi.jpg,HPL: T2002 (VA)
+MEL-TAF-070,Tafisa,Home Sweet Home,M2034,SOMMET,M2034 (B),/melamines/MEL-TAF-070.jpg,https://tafisa.ca/sites/default/files/2018-08/M2034%28B%29-Home-Sweet-Home_Home-Sweet-Home_24x24.jpg,HPL: T2034 (BV)
+MEL-TAF-071,Tafisa,Urban Vibe,L832,KARISMA,L832 (K),/melamines/MEL-TAF-071.jpg,https://tafisa.ca/sites/default/files/2020-10/L832%28K%29%20Urban%20Vibe_Amiance%20Urbaine_24X24%20%28Medium%29.jpg,HPL: T832 (KA)
+MEL-TAF-072,Tafisa,Urban Vibe,PM832,PerfectMatte,PM832,/melamines/MEL-TAF-072.jpg,https://tafisa.ca/sites/default/files/2020-10/PM832_24X24%20%28Medium%29.jpg,HPL: T832 (PM)
+MEL-TAF-073,Tafisa,Southwester,L535,Authentica,L535 (A),/melamines/MEL-TAF-073.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L535%28A%29_24X24_72dpi.jpg,HPL: T535 (AT)
+MEL-TAF-074,Tafisa,Breakwater,L537,Authentica,L537 (A),/melamines/MEL-TAF-074.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L537%28A%29_24X24_72dpi.jpg,HPL: T537 (AT)
+MEL-TAF-075,Tafisa,First Class,L583,KARISMA,L583 (K),/melamines/MEL-TAF-075.jpg,https://tafisa.ca/sites/default/files/2020-10/L583%28K%29%20First%20Class_Premi%C3%A8re%20Classe_24X24%20%28Medium%29.jpg,HPL: T583 (KA)
+MEL-TAF-076,Tafisa,Tuxedo,L477,Classic,L477 (C),/melamines/MEL-TAF-076.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L477%28C%29_24X24_72dpi.jpg,HPL: T477 (CR)
+MEL-TAF-077,Tafisa,Grenada,L499,Sommet,L499 (S),/melamines/MEL-TAF-077.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L499%28S%29_24X24_72dpi.jpg,HPL: T499 (SN)
+MEL-TAF-078,Tafisa,Truffle,L479,Classic,L479 (C),/melamines/MEL-TAF-078.jpg,https://tafisa.ca/sites/default/files/960x960_L479%28C%29_hires.jpg,HPL: T479 (CR)
+MEL-TAF-079,Tafisa,Spring Blossom,L543,Authentica,L543 (A),/melamines/MEL-TAF-079.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L543%28A%29_24X24_72dpi_0.jpg,HPL: T543 (AT)
+MEL-TAF-080,Tafisa,Chocolate Pear Tree,L444,Classic,L444 (C),/melamines/MEL-TAF-080.jpg,https://tafisa.ca/sites/default/files/960x960_L444%28C%29_hires.jpg,HPL: T444 (CR)
+MEL-TAF-081,Tafisa,Dark Chocolate,L494,Lummia,L494 (R),/melamines/MEL-TAF-081.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L494%28R%29_24X24_72dpi.jpg,HPL: T494 (UR)
+MEL-TAF-082,Tafisa,Latitude West,L532,Authentica,L532 (A),/melamines/MEL-TAF-082.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L532%28A%29_24X24_72dpi.jpg,HPL: T532 (AT)
+MEL-TAF-083,Tafisa,Tête-à-Tête,M2001,Prelude,M2001 (Y),/melamines/MEL-TAF-083.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2001%28Y%29_24X24_72dpi_0.jpg,HPL: T2001 (VA)
+MEL-TAF-084,Tafisa,Black Tie,M2035,SOMMET,M2035 (B),/melamines/MEL-TAF-084.jpg,https://tafisa.ca/sites/default/files/2018-08/M2035%28B%29-Black-Tie_Cravate-Noire_24X24.jpg,HPL: T2035 (BV)
+MEL-TAF-085,Tafisa,After-Hours,M2010,Prelude,M2010 (Y),/melamines/MEL-TAF-085.jpg,https://tafisa.ca/sites/default/files/2020-03/tafisa_M2010%28Y%29_24X24_72dpi.jpg,HPL: T2010 (VA)
+MEL-TAF-086,Tafisa,Camera Obscura,PM835,PerfectMatte,PM835,/melamines/MEL-TAF-086.jpg,https://tafisa.ca/sites/default/files/2020-10/PM835_24X24%20%28Medium%29.jpg,HPL: T835 (PM)
+MEL-TAF-087,Tafisa,Carte Blanche,L115,InnoColor,L115 (I),/melamines/MEL-TAF-087.jpg,https://tafisa.ca/sites/default/files/2021-07/PMHG115_24X24%20%28Medium%29-Frame_0.png,HPL: T115(IS)
+MEL-TAF-088,Tafisa,Carte Blanche,L115,Classic,L115 (C),/melamines/MEL-TAF-088.jpg,https://tafisa.ca/sites/default/files/2025-11/pmhg115_24x24_medium-frame_0.png,
+MEL-TAF-089,Tafisa,Carte Blanche,PM115,PerfectMatte,PM115,/melamines/MEL-TAF-089.jpg,https://tafisa.ca/sites/default/files/2023-07/PMHG115_24X24%20%28Medium%29-Frame.png,HPL: T115PM
+MEL-TAF-090,Tafisa,Carte Blanche,HG115,HighGloss,HG115,/melamines/MEL-TAF-090.jpg,https://tafisa.ca/sites/default/files/2023-05/PMHG115_24X24%20%28Medium%29-Frame.png,HPL: T115HG
+MEL-TAF-091,Tafisa,White,M175,SOMMET,M175(B),/melamines/MEL-TAF-091.jpg,https://tafisa.ca/sites/default/files/2019-11/M175B%20-%2012%27%27x12%27%27.jpg,HPL: T175(BV)
+MEL-TAF-092,Tafisa,White,M175,Prelude,M175(Y),/melamines/MEL-TAF-092.jpg,https://tafisa.ca/sites/default/files/2019-11/M175Y%20-%2012%27%27x12%27%27.jpg,HPL: T175(VA)
+MEL-TAF-093,Tafisa,White,L175,Materia,L175 (M),/melamines/MEL-TAF-093.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L175_White_Blanc.jpg,HPL: T175 (MA)
+MEL-TAF-094,Tafisa,White,L175,Classic,L175 (C),/melamines/MEL-TAF-094.jpg,https://tafisa.ca/sites/default/files/960x960_L175%28C%29_hires.jpg,HPL: T175 (CR)
+MEL-TAF-095,Tafisa,Glacier White,L191,Classic,L191 (C),/melamines/MEL-TAF-095.jpg,https://tafisa.ca/sites/default/files/960x960_L191%28C%29_hires.jpg,
+MEL-TAF-096,Tafisa,Classic White,L178,Classic,L178 (C),/melamines/MEL-TAF-096.jpg,https://tafisa.ca/sites/default/files/960x960_L178%28C%29_hires.jpg,
+MEL-TAF-097,Tafisa,Froth of Sea,L080,Materia,L080 (M),/melamines/MEL-TAF-097.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB__L080_Froth%20of%20Sea_%C3%89cume%20de%20Mer.jpg,
+MEL-TAF-098,Tafisa,Froth of Sea,L080,Classic,L080 (C),/melamines/MEL-TAF-098.jpg,https://tafisa.ca/sites/default/files/2025-05/L080_forth%20of%20the%20sea_ecume%20de%20mer_materia_24x24_CMYK_.jpg,HPL: T080 (CR)
+MEL-TAF-099,Tafisa,Vanilla Orchid,PM100,PerfectMatte,PM100,/melamines/MEL-TAF-099.jpg,https://tafisa.ca/sites/default/files/2020-10/PMHG100_24X24%20%28Medium%29.jpg,HPL: T100PM
+MEL-TAF-100,Tafisa,Vanilla Orchid,HG100,HighGloss,HG100,/melamines/MEL-TAF-100.jpg,https://tafisa.ca/sites/default/files/2020-11/PMHG100_24X24%20%28Medium%29.jpg,HPL: T100HG
+MEL-TAF-101,Tafisa,Vanilla Orchid,L100,Classic,L100 (C),/melamines/MEL-TAF-101.jpg,https://tafisa.ca/sites/default/files/960x960_L100%28C%29_hires.jpg,
+MEL-TAF-102,Tafisa,Gardenia,PM775,PerfectMatte,PM775,/melamines/MEL-TAF-102.jpg,https://tafisa.ca/sites/default/files/2024-08/PM775-24x24-RGB.jpg,HPL: T775PM
+MEL-TAF-103,Tafisa,Gardenia,HG775,HighGloss,HG775,/melamines/MEL-TAF-103.jpg,https://tafisa.ca/sites/default/files/2024-09/PM775-24x24-RGB.jpg,HPL: T775HG
+MEL-TAF-104,Tafisa,Gardenia,L775,Materia,L775 (M),/melamines/MEL-TAF-104.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L775_Gardenia_Gard%C3%A9nia.jpg,HPL: T775 (MA)
+MEL-TAF-105,Tafisa,Cashmere,PM776,PerfectMatte,PM776,/melamines/MEL-TAF-105.jpg,https://tafisa.ca/sites/default/files/2024-08/PM776-24x24-RGB.jpg,HPL: T776PM
+MEL-TAF-106,Tafisa,Cashmere,HG776,HighGloss,HG776,/melamines/MEL-TAF-106.jpg,https://tafisa.ca/sites/default/files/2024-09/PM776-24x24-RGB_0.jpg,HPL: HG776
+MEL-TAF-107,Tafisa,Cashmere,L776,Materia,L776 (M),/melamines/MEL-TAF-107.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L775_Gardenia_Gard%C3%A9nia_0.jpg,HPL: T776 (MA)
+MEL-TAF-108,Tafisa,Snowfall,L105,Classic,L105 (C),/melamines/MEL-TAF-108.jpg,https://tafisa.ca/sites/default/files/2024-01/L105-12x12.png,HPL: T105 (CR)
+MEL-TAF-109,Tafisa,Snowfall,L105,InnoColor,L105 (I),/melamines/MEL-TAF-109.jpg,https://tafisa.ca/sites/default/files/2024-01/L105-12x12_2.png,
+MEL-TAF-110,Tafisa,Ivory,L204,Classic,L204 (C),/melamines/MEL-TAF-110.jpg,https://tafisa.ca/sites/default/files/1000x1000_L204%28C%29_hires.jpg,
+MEL-TAF-111,Tafisa,Morning Dew,PM763,PerfectMatte,PM763,/melamines/MEL-TAF-111.jpg,https://tafisa.ca/sites/default/files/2020-10/PMHG763_24X24%20%28Medium%29.jpg,HPL: T763PM
+MEL-TAF-112,Tafisa,Morning Dew,HG763,HighGloss,HG763,/melamines/MEL-TAF-112.jpg,https://tafisa.ca/sites/default/files/2020-11/PMHG763_24X24%20%28Medium%29.jpg,HPL: T763HG
+MEL-TAF-113,Tafisa,Morning Dew,L763,Materia,L763 (M),/melamines/MEL-TAF-113.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L763_Morning%20Dew_Rose%CC%81e%20du%20Matin.jpg,HPL: T763 (MA)
+MEL-TAF-114,Tafisa,Morning Dew,L763,Classic,L763 (C),/melamines/MEL-TAF-114.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L763%28C%29_24X24_72dpi_3.jpg,HPL: T763 (CR)
+MEL-TAF-115,Tafisa,Morning Dew,L763,InnoColor,L763 (I),/melamines/MEL-TAF-115.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L763%28C%29_24X24_72dpi_1.jpg,HPL: T763 (IS)
+MEL-TAF-116,Tafisa,Cream Puff,PM781,PerfectMatte,PM781,/melamines/MEL-TAF-116.jpg,https://tafisa.ca/sites/default/files/2025-09/pm781_24x24_72_dpi_rgb.jpg,HPL: T781PM
+MEL-TAF-117,Tafisa,Cream Puff,L781,Materia,L781 (M),/melamines/MEL-TAF-117.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L781_cream%20puff_chou%20a%20la%20creme.jpg,HPL: T781 (MA)
+MEL-TAF-118,Tafisa,Sea Fog,L769,InnoColor,L769 (I),/melamines/MEL-TAF-118.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L769%28I%29_24X24_72dpi.jpg,HPL: T769 (IS)
+MEL-TAF-119,Tafisa,Sea Fog,L769,Classic,L769 (C),/melamines/MEL-TAF-119.jpg,https://tafisa.ca/sites/default/files/2025-11/l769i_24x24_72dpi_0.jpg,HPL: T769 (CR)
+MEL-TAF-120,Tafisa,Daybreak,L764,Materia,L764 (M),/melamines/MEL-TAF-120.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L764_Daybreak_Au%20Petit%20Matin.jpg,HPL: T764 (MA)
+MEL-TAF-121,Tafisa,Daybreak,L764,Classic,L764 (C),/melamines/MEL-TAF-121.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L764%28C%29_24X24_72dpi_1.jpg,
+MEL-TAF-122,Tafisa,Daybreak,L764,InnoColor,L764 (I),/melamines/MEL-TAF-122.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L764%28C%29_24X24_72dpi_2.jpg,
+MEL-TAF-123,Tafisa,Milky Way,L767,Materia,L767 (M),/melamines/MEL-TAF-123.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L767_Milky%20Way_Voie%20Lact%C3%A9e.jpg,HPL: T767 (MA)
+MEL-TAF-124,Tafisa,Milky Way,L767,Classic,L767 (C),/melamines/MEL-TAF-124.jpg,https://tafisa.ca/sites/default/files/960x960_L767%28C%29_hires.jpg,
+MEL-TAF-125,Tafisa,Slate,L228,Classic,L228 (C),/melamines/MEL-TAF-125.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L228%28C%29_24X24_72dpi.jpg,HPL: T228 (CR)
+MEL-TAF-126,Tafisa,Slate,L228,InnoColor,L228 (I),/melamines/MEL-TAF-126.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L228%28C%29_24X24_72dpi_1.jpg,HPL: T228 (IS)
+MEL-TAF-127,Tafisa,Sundown,L768,Classic,L768 (C),/melamines/MEL-TAF-127.jpg,https://tafisa.ca/sites/default/files/2018-08/960x960_L768_hires_0.jpg,HPL: T768 (CR)
+MEL-TAF-128,Tafisa,Sundown,L768,InnoColor,L768 (I),/melamines/MEL-TAF-128.jpg,https://tafisa.ca/sites/default/files/960x960_L768%28I%29_hires.jpg,
+MEL-TAF-129,Tafisa,Sand Castle,PM782,PerfectMatte,PM782,/melamines/MEL-TAF-129.jpg,https://tafisa.ca/sites/default/files/2025-09/pm782_24x24_72_dpi_rgb.jpg,HPL: T782PM
+MEL-TAF-130,Tafisa,Sand Castle,L782,Materia,L782 (M),/melamines/MEL-TAF-130.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L782_Sand%20Castle_Ch%C3%A2teau%20de%20Sable.jpg,HPL: T782 (MA)
+MEL-TAF-131,Tafisa,Tiramisu,PM783,PerfectMatte,PM783,/melamines/MEL-TAF-131.jpg,https://tafisa.ca/sites/default/files/2025-09/pm783_24x24_72_dpi_rgb.jpg,HPL: T783PM
+MEL-TAF-132,Tafisa,Tiramisu,L783,Materia,L783 (M),/melamines/MEL-TAF-132.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L783_Tiramisu_Tiramisu.jpg,HPL: T783 (MA)
+MEL-TAF-133,Tafisa,Sunflower,PM774,PerfectMatte,PM774,/melamines/MEL-TAF-133.jpg,https://tafisa.ca/sites/default/files/2020-10/PM774_24X24%20%28Medium%29.jpg,HPL: T774PM
+MEL-TAF-134,Tafisa,Steampunk,HG833,HighGloss,HG833,/melamines/MEL-TAF-134.jpg,https://tafisa.ca/sites/default/files/2020-11/HG833_24X24%20%28Medium%29.jpg,
+MEL-TAF-135,Tafisa,Terrarossa,PM780,PerfectMatte,PM780,/melamines/MEL-TAF-135.jpg,https://tafisa.ca/sites/default/files/2024-08/PM780-24x24-RGB.jpg,HPL: T780PM
+MEL-TAF-136,Tafisa,Sage Leaf,PM779,PerfectMatte,PM779,/melamines/MEL-TAF-136.jpg,https://tafisa.ca/sites/default/files/2024-08/PM779-24x24-RGB-2.jpg,HPL: T779PM
+MEL-TAF-137,Tafisa,Secret Garden,PM784,PerfectMatte,PM784,/melamines/MEL-TAF-137.jpg,https://tafisa.ca/sites/default/files/2025-09/pm784_24x24_72_dpi_rgb.jpg,HPL: T784PM
+MEL-TAF-138,Tafisa,Secret Garden,L784,Materia,L784 (M),/melamines/MEL-TAF-138.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L784_Secret%20Garden_Jardin%20Secret.jpg,HPL: T784 (MA)
+MEL-TAF-139,Tafisa,Eucalyptus,PM773,PerfectMatte,PM773,/melamines/MEL-TAF-139.jpg,https://tafisa.ca/sites/default/files/2020-10/PM773_24X24%20%28Medium%29.jpg,HPL: T773PM
+MEL-TAF-140,Tafisa,Summer Drops,PM202,PerfectMatte,PM202,/melamines/MEL-TAF-140.jpg,https://tafisa.ca/sites/default/files/2023-07/L202_Crystalite_24x24_150dpi.jpg,HPL: T202PM
+MEL-TAF-141,Tafisa,Summer Drops,HG202,HighGloss,HG202,/melamines/MEL-TAF-141.jpg,https://tafisa.ca/sites/default/files/2023-07/L202_Crystalite_24x24_150dpi_1.jpg,HPL: T202HG
+MEL-TAF-142,Tafisa,Summer Drops,L202,Materia,L202 (M),/melamines/MEL-TAF-142.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L202_Summer%20Drops_Grisaille.jpg,
+MEL-TAF-143,Tafisa,Summer Drops,L202,Classic,L202 (C),/melamines/MEL-TAF-143.jpg,https://tafisa.ca/sites/default/files/2023-07/L202_Crystalite_24x24_150dpi_6.jpg,HPL: T202 (CR)
+MEL-TAF-144,Tafisa,Summer Drops,L202,InnoColor,L202 (I),/melamines/MEL-TAF-144.jpg,https://tafisa.ca/sites/default/files/2023-07/L202_Crystalite_24x24_150dpi_5.jpg,
+MEL-TAF-145,Tafisa,Winter Horizon,PM777,PerfectMatte,PM777,/melamines/MEL-TAF-145.jpg,https://tafisa.ca/sites/default/files/2024-08/PM777-24x24-RGB.jpg,HPL: T777PM
+MEL-TAF-146,Tafisa,Rain Cloud,L760,Classic,L760 (C),/melamines/MEL-TAF-146.jpg,https://tafisa.ca/sites/default/files/960x960_L760%28C%29_hires.jpg,HPL: T760 (CR)
+MEL-TAF-147,Tafisa,Shadows,L201,Classic,L201 (C),/melamines/MEL-TAF-147.jpg,https://tafisa.ca/sites/default/files/960x960_L201%28C%29_hires.jpg,
+MEL-TAF-148,Tafisa,North Wind,PM771,PerfectMatte,PM771,/melamines/MEL-TAF-148.jpg,https://tafisa.ca/sites/default/files/2020-10/PMHG771_24X24%20%28Medium%29.jpg,HPL: T771PM
+MEL-TAF-149,Tafisa,North Wind,HG771,HighGloss,HG771,/melamines/MEL-TAF-149.jpg,https://tafisa.ca/sites/default/files/2020-11/PMHG771_24X24%20%28Medium%29.jpg,HPL: T771HG
+MEL-TAF-150,Tafisa,Evening Star,L770,InnoColor,L770 (I),/melamines/MEL-TAF-150.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L770%28I%29_24X24_72dpi.jpg,HPL: T770 (IS)
+MEL-TAF-151,Tafisa,Evening Star,L770,Classic,L770 (C),/melamines/MEL-TAF-151.jpg,https://tafisa.ca/sites/default/files/2025-06/C_24x24_RGB_L770_evening_star.jpg,HPL: T770 (CR)
+MEL-TAF-152,Tafisa,Steel Blue,PM778,PerfectMatte,PM778,/melamines/MEL-TAF-152.jpg,https://tafisa.ca/sites/default/files/2024-08/PM778-24x24-RGB.jpg,HPL: T778PM
+MEL-TAF-153,Tafisa,Moonlight,L761,Materia,L761 (M),/melamines/MEL-TAF-153.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L761_Moonlight_Claire%20de%20Lune.jpg,HPL: T761 (MA)
+MEL-TAF-154,Tafisa,Moonlight,L761,Classic,L761 (C),/melamines/MEL-TAF-154.jpg,https://tafisa.ca/sites/default/files/960x960_L761%28C%29_hires.jpg,HPL: T761 (CR)
+MEL-TAF-155,Tafisa,Calm Sea,PM772,PerfectMatte,PM772,/melamines/MEL-TAF-155.jpg,https://tafisa.ca/sites/default/files/2020-10/PM772_24X24%20%28Medium%29.jpg,HPL: T772PM
+MEL-TAF-156,Tafisa,Midnight Sun,PM765,PerfectMatte,PM765,/melamines/MEL-TAF-156.jpg,https://tafisa.ca/sites/default/files/2020-10/PMHG765_24X24%20%28Medium%29.jpg,HPL: T765PM
+MEL-TAF-157,Tafisa,Midnight Sun,HG765,HighGloss,HG765,/melamines/MEL-TAF-157.jpg,https://tafisa.ca/sites/default/files/2020-11/PMHG765_24X24%20%28Medium%29.jpg,HPL: T765HG
+MEL-TAF-158,Tafisa,Midnight Sun,L765,Materia,L765 (M),/melamines/MEL-TAF-158.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L765_Midnight%20Sun_Soleil%20de%20Minuit.jpg,HPL: T765 (MA)
+MEL-TAF-159,Tafisa,Starry Night,L762,Classic,L762 (C),/melamines/MEL-TAF-159.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L762%28C%29_24X24_72dpi.jpg,HPL: T762 (CR)
+MEL-TAF-160,Tafisa,Starry Night,L762,InnoColor,L762 (I),/melamines/MEL-TAF-160.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L762%28C%29_24X24_72dpi_1.jpg,HPL: T762 (CR)
+MEL-TAF-161,Tafisa,Midnight Sun,L765,InnoColor,L765 (I),/melamines/MEL-TAF-161.jpg,https://tafisa.ca/sites/default/files/2020-04/tafisa_L765%28I%29_24X24_72dpi.jpg,HPL: T765 (IS)
+MEL-TAF-162,Tafisa,Black,PM203,PerfectMatte,PM203,/melamines/MEL-TAF-162.jpg,https://tafisa.ca/sites/default/files/2020-10/PMHG203_24X24%20%28Medium%29.jpg,HPL: T203PM
+MEL-TAF-163,Tafisa,Black,HG203,HighGloss,HG203,/melamines/MEL-TAF-163.jpg,https://tafisa.ca/sites/default/files/2020-11/PMHG203_24X24%20%28Medium%29.jpg,HPL: T203HG
+MEL-TAF-164,Tafisa,Black,L203,Materia,L203 (M),/melamines/MEL-TAF-164.jpg,https://tafisa.ca/sites/default/files/2025-05/materia_24x24_RGB_L203_Black_Noir.jpg,HPL: T203 (MA)
+MEL-TAF-165,Tafisa,Black,L203,Classic,L203 (C),/melamines/MEL-TAF-165.jpg,https://tafisa.ca/sites/default/files/960x960_L203%28C%29_hires.jpg,HPL: T203 (CR)
+MEL-TAF-166,Tafisa,Black,L203,InnoColor,L203 (I),/melamines/MEL-TAF-166.jpg,https://tafisa.ca/sites/default/files/960x960_L203%28I%29_hires.jpg,
+MEL-TAF-167,Tafisa,Black,L203,KARISMA,L203(K),/melamines/MEL-TAF-167.jpg,https://tafisa.ca/sites/default/files/2023-10/Karisma_03-square%20%28Large%29_0.png,HPL: T203(KA)
+MEL-TAF-168,Tafisa,Black,M203,SOMMET,M203(B),/melamines/MEL-TAF-168.jpg,https://tafisa.ca/sites/default/files/2019-11/M203B%20-%2012%27x12%27.jpg,HPL: T203(BV)
+MEL-TAF-169,Tafisa,Black,M203,Prelude,M203(Y),/melamines/MEL-TAF-169.jpg,https://tafisa.ca/sites/default/files/2019-11/M203Y%20-%2012%27%27x12%27%27.jpg,HPL: T203(VA)
