@@ -11,6 +11,13 @@ type TrimPayload = {
   material: string | null;
   qty_lf: number;
   notes: string | null;
+  /**
+   * 'fg_default' | 'manual'. Must survive this round trip: the route deletes and
+   * re-inserts, so anything the payload omits reverts to the column default. Losing
+   * it would silently mark every defaulted row as hand-typed, and the finish-group
+   * swap would then leave stale trim behind on a room that changed finish.
+   */
+  source?: string | null;
   sort_order: number;
 };
 
@@ -23,7 +30,7 @@ export async function GET(
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   try {
-    const rows = await sql<{ id: string; room_id: string; trim_type: string; size_desc: string | null; material: string | null; qty_lf: number; notes: string | null; sort_order: number }[]>`
+    const rows = await sql<{ id: string; room_id: string; trim_type: string; size_desc: string | null; material: string | null; qty_lf: number; notes: string | null; sort_order: number; source: string }[]>`
       SELECT rt.*
       FROM room_trim rt
       JOIN rooms r ON r.id = rt.room_id
@@ -70,11 +77,12 @@ export async function POST(
       const rowId = t.id || crypto.randomUUID();
       await sql`
         INSERT INTO room_trim
-          (id, room_id, trim_type, size_desc, material, qty_lf, notes, sort_order)
+          (id, room_id, trim_type, size_desc, material, qty_lf, notes, sort_order, source)
         VALUES
           (${rowId}, ${room_id}, ${t.trim_type || "Other"},
            ${t.size_desc || null}, ${t.material || null},
-           ${t.qty_lf ?? 0}, ${t.notes || null}, ${t.sort_order ?? i})
+           ${t.qty_lf ?? 0}, ${t.notes || null}, ${t.sort_order ?? i},
+           ${t.source === "fg_default" ? "fg_default" : "manual"})
       `;
     }
 

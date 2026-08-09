@@ -3,9 +3,9 @@
     "id": "MTYPE-001",
     "type": "toe_skin",
     "display_name": "Toe Skin",
-    "typical_size": "3/4 x 4.5",
+    "typical_size": "3/4\" x 4.5\"",
     "inherits_room_finish": true,
-    "notes": "Default 4.5in; some rooms 6in. The applied skin over the kick recess. Bare Toekick on older rows means this."
+    "notes": "Default 4.5in; some rooms 6in. The applied skin over the kick recess. Bare \"Toekick\" on older rows means this."
   },
   {
     "id": "MTYPE-002",
@@ -27,7 +27,7 @@
     "id": "MTYPE-004",
     "type": "filler",
     "display_name": "Filler",
-    "typical_size": "2.5 x 2.5",
+    "typical_size": "2.5\" x 2.5\"",
     "inherits_room_finish": true,
     "notes": "Width varies; commonly 3in or 6in"
   },
@@ -35,7 +35,7 @@
     "id": "MTYPE-005",
     "type": "light_rail",
     "display_name": "Light Rail",
-    "typical_size": "3/4 x 2",
+    "typical_size": "3/4\" x 2\"",
     "inherits_room_finish": true,
     "notes": "Under upper cabinets. Also called a light valance - same item."
   },

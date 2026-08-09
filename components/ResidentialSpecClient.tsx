@@ -107,6 +107,15 @@ export type TrimRow = {
   qty_lf: number;
   notes: string;
   sort_order: number;
+  /**
+   * Where this row came from: seeded by the finish group, or typed by a person.
+   *
+   * Carried through the client purely so it survives the save, which deletes and
+   * re-inserts the whole room. Drop it here and every defaulted row comes back
+   * marked 'manual', and a later finish-group swap leaves the room carrying trim
+   * from the finish it no longer has.
+   */
+  source?: "fg_default" | "manual";
 };
 
 export type ApplianceRow = {
@@ -1251,6 +1260,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       ...r, trim: [...(r.trim ?? []), {
         id: uid(), trim_type: "Crown Molding", size_desc: "", material: "",
         qty_lf: 0, notes: "", sort_order: (r.trim ?? []).length,
+        // Added by a person here, so a later finish-group swap keeps what they type
+        // rather than re-deriving it from the new group.
+        source: "manual",
       }],
     }));
     markDirty();
@@ -2328,7 +2340,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                 <p className="text-white/40 text-[10px] font-condensed uppercase tracking-widest mb-3">Trim Callouts</p>
                 <div className="space-y-2">
                   {(room.trim ?? []).map((tr, ti) => (
-                    <div key={ti} className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#1a1a1a] rounded p-2">
+                    <div key={ti} className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#1a1a1a] rounded p-2">
                       <div>
                         <label className={LABEL}>Type</label>
                         {(() => {
@@ -2351,9 +2363,35 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <label className={LABEL}>Size/Description</label>
                         <input value={tr.size_desc} onChange={(e) => updateTrim(room.id, ti, { size_desc: e.target.value })} placeholder='e.g. 4.5" crown' className={INPUT} />
                       </div>
+                      {/*
+                        This was ONE input, labelled "Notes", writing to the
+                        `material` column — while `room_trim.notes` sat unused. So
+                        everything a PM typed as a note was stored as the material:
+                        one production row reads material = "KITCHEN".
+
+                        It only became visible when finish-group defaults started
+                        filling `material`, which would have put "Poplar - Paint
+                        Grade" inside what the screen calls Notes.
+
+                        Two fields now, each writing to the column it names.
+                      */}
+                      <div>
+                        <label className={LABEL}>Species / Material</label>
+                        <input
+                          value={tr.material}
+                          onChange={(e) => updateTrim(room.id, ti, { material: e.target.value })}
+                          placeholder="Defaults from the finish group"
+                          className={INPUT}
+                        />
+                      </div>
                       <div>
                         <label className={LABEL}>Notes</label>
-                        <input value={tr.material} onChange={(e) => updateTrim(room.id, ti, { material: e.target.value })} placeholder="Special conditions, stick counts, install notes..." className={INPUT} />
+                        <input
+                          value={tr.notes ?? ""}
+                          onChange={(e) => updateTrim(room.id, ti, { notes: e.target.value })}
+                          placeholder="Special conditions, stick counts, install notes..."
+                          className={INPUT}
+                        />
                       </div>
                       <div>
                         <label className={LABEL}>LF Qty</label>
