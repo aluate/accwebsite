@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { propagateTrimDefaults } from "@/lib/trim-propagate";
 
 type TrimDefaultPayload = {
   id?: string;
@@ -73,7 +74,24 @@ export async function POST(
       `;
     }
 
-    return NextResponse.json({ ok: true });
+    // Karl: "once we fill out the FG it should populate to the ROOMS with that FG
+    // applied automatically." So saving the defaults pushes them out immediately
+    // rather than waiting for someone to find a button.
+    //
+    // Fill-blanks only: this must never overwrite what a PM typed in a room, and it
+    // never writes qty_lf. The overwrite case is the explicit "apply to all rooms"
+    // action, which is a different call with overwrite: true.
+    //
+    // Best-effort. Propagation failing must not lose the defaults the PM just saved
+    // -- those are the thing they were actually doing.
+    let propagated = { rooms: 0, added: 0, updated: 0 };
+    try {
+      propagated = await propagateTrimDefaults(id, finish_group_id, false);
+    } catch (propErr) {
+      console.error("[trim-defaults] propagate failed:", propErr);
+    }
+
+    return NextResponse.json({ ok: true, propagated });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
