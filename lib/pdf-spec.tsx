@@ -582,22 +582,6 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
         );
       })()}
 
-      {/* SIGN-OFF BLOCK */}
-      <View style={{ flexDirection: "row", gap: 16, marginTop: 14, marginBottom: 4 }} wrap={false}>
-        {[
-          { label: "Client Approval", sub: "I have reviewed and approve the above specification." },
-          { label: "ACC Representative", sub: "" },
-        ].map((box, bi) => (
-          <View key={bi} style={{ flex: 1, borderWidth: 0.5, borderColor: "#ccc", borderRadius: 2, padding: 6 }}>
-            <Text style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>{box.label}</Text>
-            {box.sub ? <Text style={{ fontSize: 6, color: MUTED, marginBottom: 12 }}>{box.sub}</Text> : <View style={{ height: 12 }} />}
-            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#999", marginBottom: 3 }} />
-            <Text style={{ fontSize: 6, color: "#bbb" }}>Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</Text>
-            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#999", marginBottom: 3, marginTop: 10 }} />
-            <Text style={{ fontSize: 6, color: "#bbb" }}>Print Name</Text>
-          </View>
-        ))}
-      </View>
 
       <PageFooter data={data} />
     </Page>
@@ -806,6 +790,87 @@ function AppliancesHardwarePage({ data }: { data: SpecPDFData }) {
         </View>
       )}
 
+      <PageFooter data={data} />
+    </Page>
+  );
+}
+
+// The two signature boxes, lifted out of FinishSchedulePage so that the page which
+// draws them and the document which decides where they belong stay separate.
+function SignOffBlock() {
+  return (
+      <View style={{ flexDirection: "row", gap: 16, marginTop: 14, marginBottom: 4 }} wrap={false}>
+        {[
+          { label: "Client Approval", sub: "I have reviewed and approve the above specification." },
+          { label: "ACC Representative", sub: "" },
+        ].map((box, bi) => (
+          <View key={bi} style={{ flex: 1, borderWidth: 0.5, borderColor: "#ccc", borderRadius: 2, padding: 6 }}>
+            <Text style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>{box.label}</Text>
+            {box.sub ? <Text style={{ fontSize: 6, color: MUTED, marginBottom: 12 }}>{box.sub}</Text> : <View style={{ height: 12 }} />}
+            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#999", marginBottom: 3 }} />
+            <Text style={{ fontSize: 6, color: "#bbb" }}>Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</Text>
+            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#999", marginBottom: 3, marginTop: 10 }} />
+            <Text style={{ fontSize: 6, color: "#bbb" }}>Print Name</Text>
+          </View>
+        ))}
+      </View>
+  );
+}
+
+// ─── Sign-off page — client document only, always last ───────────────────────
+//
+// This sat at the bottom of the Finish Schedule: page one, under the accessories
+// table. A signature at the bottom of page one attests to page one. The client was
+// signing before the appliances, hardware and notes they had not turned to yet.
+//
+// Now its own page at the end of the client document, and it states what is being
+// signed rather than floating under the nearest table. Karl asked that drawer boxes
+// and rollouts be signed off "the same as doors", so they are named explicitly.
+
+function SignOffPage({ data }: { data: SpecPDFData }) {
+  const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const fgs = data.finish_groups ?? [];
+
+  return (
+    <Page size="LETTER" orientation="landscape" style={S.page}>
+      {isDraft && <DraftWatermark />}
+      <TitleBlock data={data} code="F.S" />
+
+      <Text style={S.secHead}>SPECIFICATION SIGN-OFF</Text>
+      <Text style={[S.cellMu, { marginBottom: 8 }]}>
+        By signing below you confirm that the finishes, door and drawer front styles,
+        drawer boxes, rollouts, hardware, accessories and appliances recorded in this
+        document are correct. Changes after sign-off may affect price and lead time.
+      </Text>
+
+      <View style={S.colHdr}>
+        <Text style={[S.colHdrTx, { flex: 0.9 }]}>Finish Group</Text>
+        <Text style={[S.colHdrTx, { flex: 1.6 }]}>Color / Finish</Text>
+        <Text style={[S.colHdrTx, { flex: 1.6 }]}>Doors</Text>
+        <Text style={[S.colHdrTx, { flex: 1.8 }]}>Drawer Box</Text>
+        <Text style={[S.colHdrTx, { flex: 1.8 }]}>Rollout</Text>
+        <Text style={[S.colHdrTx, { flex: 1.4 }]}>Rooms</Text>
+      </View>
+      {fgs.map((fg, i) => {
+        const base    = fg.door_fronts.find((df) => df.role === "base");
+        const box     = fg.drawers.find((dr) => dr.role === "drawer_box");
+        const rollout = fg.drawers.find((dr) => dr.role === "rollout");
+        const rooms   = (data.rooms ?? [])
+          .filter((r) => r.finishes.some((f) => f.finish_group_id === fg.id))
+          .map((r) => r.name);
+        return (
+          <View key={fg.id} style={i % 2 === 0 ? S.row : S.rowAlt} wrap={false}>
+            <Text style={[S.cell, { flex: 0.9, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
+            <Text style={[S.cell, { flex: 1.6 }]}>{d(fg.finish.stain_name || fg.finish.paint_name)}</Text>
+            <Text style={[S.cell, { flex: 1.6 }]}>{d([base?.style_name, base?.material_name].filter(Boolean).join(" / "))}</Text>
+            <Text style={[S.cell, { flex: 1.8 }]}>{d([box?.drawer_box_name, box?.slides_name].filter(Boolean).join(" \u00b7 "))}</Text>
+            <Text style={[S.cell, { flex: 1.8 }]}>{d([rollout?.drawer_box_name, rollout?.slides_name].filter(Boolean).join(" \u00b7 "))}</Text>
+            <Text style={[S.cellMu, { flex: 1.4 }]}>{d(rooms.join(", "))}</Text>
+          </View>
+        );
+      })}
+
+      <SignOffBlock />
       <PageFooter data={data} />
     </Page>
   );
@@ -1280,27 +1345,86 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
 
 // ─── Main renderer ────────────────────────────────────────────────────────────
 
-export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
-  const hasNotes = !!(
-    cleanNotes(data.notes_install) || cleanNotes(data.notes_finishing) ||
-    cleanNotes(data.notes_shop)    || cleanNotes(data.notes_client)
-  );
-  const hasAppliances = (data.spec_appliances_list?.length ?? 0) > 0;
-  const hasHardware   = (data.spec_hardware?.length ?? 0) > 0;
-  const hasAccs       = (data.spec_accessories?.length ?? 0) > 0 || (data.accessories_rollup?.length ?? 0) > 0;
-  const hasMoldings   = data.finish_groups.some(fg => fg.moldings.some(m => m.qty_lf || m.type_label));
+/**
+ * What renderToBuffer() actually accepts. The render functions below used to return
+ * a bare React.ReactElement, which discards the Document props and made every
+ * renderToBuffer() call a type error nobody had fixed. Derived from <Document> so it
+ * stays correct if the library's props change.
+ */
+type DocumentElement = React.ReactElement<React.ComponentProps<typeof Document>>;
 
+// ─── Documents ───────────────────────────────────────────────────────────────
+//
+// There used to be one document holding the client pages AND every work order sheet.
+// That meant the client signed the shop paperwork: buildContractPacket() in
+// lib/docusign.ts sends this PDF for signature, so drawer-box construction, slide
+// part numbers and shop notes all travelled into the envelope with the finish
+// schedule.
+//
+// Now: one client document, and one per finish group for the floor. They share the
+// same page components, so a change to the finish schedule cannot reach the client
+// copy and miss the shop copy.
+
+/** Which optional pages actually have something to say. */
+function pageFlags(data: SpecPDFData) {
+  return {
+    hasNotes: !!(
+      cleanNotes(data.notes_install) || cleanNotes(data.notes_finishing) ||
+      cleanNotes(data.notes_shop)    || cleanNotes(data.notes_client)
+    ),
+    hasAppliances: (data.spec_appliances_list?.length ?? 0) > 0,
+    hasHardware:   (data.spec_hardware?.length ?? 0) > 0,
+    hasAccs:       (data.spec_accessories?.length ?? 0) > 0 || (data.accessories_rollup?.length ?? 0) > 0,
+    hasMoldings:   data.finish_groups.some((fg) => fg.moldings.some((m) => m.qty_lf || m.type_label)),
+  };
+}
+
+function ClientPages({ data }: { data: SpecPDFData }) {
+  const f = pageFlags(data);
+  return (
+    <>
+      <FinishSchedulePage data={data} />
+      {(f.hasAccs || f.hasMoldings) && <AccessoriesMoldingsPage data={data} />}
+      {(f.hasAppliances || f.hasHardware) && <AppliancesHardwarePage data={data} />}
+      {f.hasNotes && <NotesPage data={data} />}
+      <SignOffPage data={data} />
+    </>
+  );
+}
+
+/** The client's document. Sign-off is always the final page. */
+export function renderClientSpecPDF(data: SpecPDFData): DocumentElement {
+  return <Document><ClientPages data={data} /></Document>;
+}
+
+/** One finish group's work order — what goes to the floor. */
+export function renderWorkOrderPDF(data: SpecPDFData, fg: FinishGroupView): DocumentElement {
+  const i = data.finish_groups.findIndex((g) => g.id === fg.id);
+  return <Document><WorkOrderPage data={data} fg={fg} index={i < 0 ? 0 : i} /></Document>;
+}
+
+/** Every work order in one file, for printing the shop set in a single job. */
+export function renderAllWorkOrdersPDF(data: SpecPDFData): DocumentElement {
   return (
     <Document>
-      {/* Page 1: Finish Schedule + Room Schedule */}
-      <FinishSchedulePage data={data} />
-      {/* Page 2: Accessories + Moldings (only if any content) */}
-      {(hasAccs || hasMoldings) && <AccessoriesMoldingsPage data={data} />}
-      {/* Page 3: Appliances + Hardware (only if any content) */}
-      {(hasAppliances || hasHardware) && <AppliancesHardwarePage data={data} />}
-      {/* Page 4: Notes */}
-      {hasNotes && <NotesPage data={data} />}
-      {/* W.1 … W.n: Work Order sheets — one per finish group */}
+      {data.finish_groups.map((fg, i) => (
+        <WorkOrderPage key={fg.id} data={data} fg={fg} index={i} />
+      ))}
+    </Document>
+  );
+}
+
+/**
+ * Client pages plus every work order in one file.
+ *
+ * Only for callers that genuinely want everything. Never use it for anything the
+ * client sees — renderClientSpecPDF is for that, and confusing the two is the bug
+ * this split exists to fix.
+ */
+export function renderSpecPDF(data: SpecPDFData): DocumentElement {
+  return (
+    <Document>
+      <ClientPages data={data} />
       {data.finish_groups.map((fg, i) => (
         <WorkOrderPage key={fg.id} data={data} fg={fg} index={i} />
       ))}
@@ -1310,4 +1434,16 @@ export function renderSpecPDF(data: SpecPDFData): React.ReactElement {
 
 export async function renderSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
   return renderToBuffer(renderSpecPDF(data));
+}
+
+export async function renderClientSpecPDFBuffer(data: SpecPDFData): Promise<Buffer> {
+  return renderToBuffer(renderClientSpecPDF(data));
+}
+
+export async function renderWorkOrderPDFBuffer(data: SpecPDFData, fg: FinishGroupView): Promise<Buffer> {
+  return renderToBuffer(renderWorkOrderPDF(data, fg));
+}
+
+export async function renderAllWorkOrdersPDFBuffer(data: SpecPDFData): Promise<Buffer> {
+  return renderToBuffer(renderAllWorkOrdersPDF(data));
 }

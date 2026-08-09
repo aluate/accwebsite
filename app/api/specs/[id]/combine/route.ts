@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireBuilder } from "@/lib/auth";
-import { renderSpecPDF } from "@/lib/pdf-spec";
+import { renderClientSpecPDF } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 
 export const runtime = 'nodejs';

@@ -16,7 +16,7 @@
 import { sql, uid } from "@/lib/db";
 import { createClient } from "@supabase/supabase-js";
 import { renderCoversheetBuffer, type WorkOrderRow } from "@/lib/pdf-coversheet";
-import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
+import { renderAllWorkOrdersPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData } from "@/lib/spec-data";
 
 // ── Supabase ─────────────────────────────────────────────────────────────────
@@ -208,7 +208,9 @@ export async function runEngineeringReleaseSideEffects(
   }
 
   // ── 5. Generate spec PDF ───────────────────────────────────────────────────
-  const specPdfBuffer = await renderSpecPDFBuffer(specData);
+  // The shop set. Engineering release is the hand-off to the floor, so this is
+  // every work order rather than the client's copy.
+  const specPdfBuffer = await renderAllWorkOrdersPDFBuffer(specData);
 
   return { wosCreated, coversheets, specPdfBuffer };
 }

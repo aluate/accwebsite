@@ -11,7 +11,7 @@
  */
 
 import { sql } from "@/lib/db";
-import { renderSpecPDFBuffer } from "@/lib/pdf-spec";
+import { renderClientSpecPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 import { downloadTemplateDoc } from "@/lib/template-documents";
 import { createClient } from "@supabase/supabase-js";
@@ -58,7 +58,9 @@ export async function buildContractPacket(
 ): Promise<ContractPacketResult> {
   // 1. Spec PDF — fresh render.
   const specData = await loadSpecPDFData(specId);
-  const specBuf = await renderSpecPDFBuffer(specData);
+  // Client document only. This envelope goes to the client for signature; the
+  // work order sheets are shop paperwork and have no business in it.
+  const specBuf = await renderClientSpecPDFBuffer(specData);
 
   // 2. Drawings — most-recent engineering drawing from job_files.
   const drawingRows = await sql`
@@ -149,7 +151,8 @@ function isResidentialJob(builder_company: string | null | undefined): boolean {
 
 export async function buildEnvelopePDF(specId: string): Promise<EnvelopeBuildResult> {
   const data = await loadSpecPDFData(specId);
-  const specBuf = await renderSpecPDFBuffer(data);
+  // Client document only -- see the note in buildContractPacket.
+  const specBuf = await renderClientSpecPDFBuffer(data);
 
   const [jobRow] = await sql`SELECT builder_company FROM jobs WHERE id = ${data.job_id}`;
   const job = jobRow as { builder_company: string | null } | undefined;
