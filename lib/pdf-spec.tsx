@@ -458,7 +458,21 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
               <View key={fg.id} style={rowStyle} wrap={false}>
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
                 <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
-                <Text style={[S.cell, { flex: COL.species }]}>{d(fg.species)}</Text>
+                {/*
+                  Species on a melamine group used to print "—" because
+                  finish_groups.species is only filled for paint and stain. But a
+                  melamine door is made OF the melamine, so the column had an answer
+                  and was showing a dash.
+
+                  It reads "Melamine" / "Laminate" rather than repeating the colour:
+                  the specific sheet is already in the Color / Finish column two
+                  cells to the left, and a client sheet that says MOAB RIFT twice in
+                  a row reads like a mistake.
+                */}
+                <Text style={[S.cell, { flex: COL.species }]}>
+                  {d(fg.species || (fg.finish_type === "melamine" ? "Melamine"
+                                  : fg.finish_type === "plam" ? "Laminate" : ""))}
+                </Text>
                 <Text style={[S.cell, { flex: COL.carcass }]}>{d(carcass)}</Text>
 
                 {/* Stacked door / DF / applied ends */}
@@ -892,8 +906,22 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
 
         {/* Job # + Builder + Address */}
         <View style={WS.hdrLeft}>
-          <Text style={WS.hdrTitle}>JOB # {data.job_id}</Text>
-          <Text style={WS.hdrSub}>{projectName}</Text>
+          {/*
+            This printed data.job_id — the internal key, "ACC-2026-0260". A job's
+            real number comes from Tradesoft when it is released to engineering, and
+            until then it does not have one. Printing the internal id in a JOB #
+            field invites someone on the floor to write it on a box or quote it back
+            to a builder, and it means nothing outside this database.
+
+            job_number is the fact; job_id is a key. Only facts print. When there is
+            no number yet the field is blank, which is honest.
+          */}
+          {data.job_number
+            ? <><Text style={WS.hdrTitle}>JOB # {data.job_number}</Text>
+                <Text style={WS.hdrSub}>{projectName}</Text></>
+            /* No number yet: promote the project name so the sheet still has a
+               heading rather than a gap where the job number would be. */
+            : <Text style={WS.hdrTitle}>{projectName}</Text>}
           {(data.site_address || data.city) && (
             <Text style={WS.hdrAddr}>
               {[data.site_address, data.city].filter(Boolean).join(", ")}

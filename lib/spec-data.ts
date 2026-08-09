@@ -342,12 +342,20 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     // Shelf Clips has no seeded standard, so it stays a literal here to preserve what
     // the shop is used to seeing. Closet Rod is kept as an empty prompt row for the
     // same reason -- it is a fill-me-in cue, not an assertion.
+    // Prompt rows carry a real ACC value. A "Closet Rod — " row used to sit here as
+    // a fill-me-in cue, and it printed on every work order including the ones with
+    // no closet rod. An empty line on a shop document is not a prompt, it is noise,
+    // and noise is how a real callout two rows down gets skimmed past.
+    //
+    // So a prompt only exists if it has something to say. Closet Rod is a per-job
+    // choice with no ACC standard, so it appears when someone enters one and not
+    // before.
     const HW_PROMPTS: SpecHardwareRow[] = [
-      { id:"def-shelf",  type:"Shelf Clips", part_no:"5mm Nickel", room:"", qty:0, notes:"" },
-      { id:"def-closet", type:"Closet Rod",  part_no:"",           room:"", qty:0, notes:"" },
-    ];
-    const userTypes = new Set(spec_hardware_list.filter(h => h.part_no || h.notes).map(h => h.type));
+      { id:"def-shelf", type:"Shelf Clips", part_no:"5mm Nickel", room:"", qty:0, notes:"" },
+    ].filter(p => p.part_no || p.notes);
+
     const meaningfulUserRows = spec_hardware_list.filter(h => h.part_no || h.notes);
+    const userTypes = new Set(meaningfulUserRows.map(h => h.type));
     spec_hardware_list = [...HW_PROMPTS.filter(p => !userTypes.has(p.type)), ...meaningfulUserRows];
     fg_pulls_list = fgPullsRows;
     room_trim_list = trimRows;

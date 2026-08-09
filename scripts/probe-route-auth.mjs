@@ -64,13 +64,39 @@ const PROBES = [
 
 const DENIED = new Set([401, 403]);
 
+/**
+ * A refusal only counts if it came from the application.
+ *
+ * The first run of this script reported 32/32 refused and proved nothing: every 403
+ * was produced by an egress proxy between the prober and the internet, body
+ * "Host not in allowlist". The request never reached Vercel. Because 403 was in
+ * DENIED, a total network failure rendered as a perfect security pass — the worst
+ * possible failure mode for a verification tool, since it is indistinguishable from
+ * success unless you look at the body.
+ *
+ * So: every response must carry proof it was served by the deployment. Vercel sets
+ * x-vercel-id on everything it serves, and the app's own refusals are JSON with an
+ * `error` key. Anything else is a broken probe, reported as such, never as a pass.
+ */
+function servedByApp(res, bodyText) {
+  if (res.headers.get("x-vercel-id")) return true;
+  if (res.headers.get("server")?.toLowerCase().includes("vercel")) return true;
+  try {
+    const j = JSON.parse(bodyText);
+    if (j && typeof j === "object" && "error" in j) return true;
+  } catch { /* not JSON */ }
+  return false;
+}
+
 let pass = 0, fail = 0;
 const failures = [];
 
 console.log(`Probing ${BASE} with no credentials — every route must refuse.\n`);
 
+let unreachable = 0;
+
 for (const [method, path, body] of PROBES) {
-  let status, note = "";
+  let status, note = "", reached = false, bodyText = "";
   try {
     const res = await fetch(BASE + path, {
       method,
@@ -79,6 +105,8 @@ for (const [method, path, body] of PROBES) {
       redirect: "manual",
     });
     status = res.status;
+    bodyText = await res.text().catch(() => "");
+    reached = servedByApp(res, bodyText);
     // A 307/302 to /login means the route used requireBuilder() (which redirects)
     // instead of an API guard. It does deny the request, but the caller gets HTML
     // where it asked for JSON — worth flagging, not worth failing.
@@ -87,12 +115,25 @@ for (const [method, path, body] of PROBES) {
     status = `ERR ${String(e.message ?? e).slice(0, 40)}`;
   }
 
+  if (!reached) {
+    unreachable++;
+    console.log(`  ????  ${String(status).padEnd(5)} ${method.padEnd(6)} ${path}   <- never reached the app: ${bodyText.slice(0, 60).replace(/\s+/g, " ")}`);
+    continue;
+  }
+
   const ok = DENIED.has(status) || status === 307 || status === 302;
   if (ok) { pass++; console.log(`  ok    ${String(status).padEnd(5)} ${method.padEnd(6)} ${path}${note}`); }
   else {
     fail++; failures.push({ method, path, status });
     console.log(`  FAIL  ${String(status).padEnd(5)} ${method.padEnd(6)} ${path}   <- NOT REFUSED`);
   }
+}
+
+if (unreachable) {
+  console.error(`\nPROBE INVALID — ${unreachable} of ${PROBES.length} request(s) never reached the deployment.`);
+  console.error(`A proxy or firewall answered instead. This proves nothing about the app's auth;`);
+  console.error(`do not read it as a pass. Run this from a machine that can reach ${BASE}.`);
+  process.exit(2);
 }
 
 console.log(`\n${pass} refused, ${fail} reachable.`);
