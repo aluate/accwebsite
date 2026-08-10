@@ -16,7 +16,13 @@ type AccRow = { room_id: string; acc_id: string; qty: number; size: string | nul
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type DoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; style_id: string | null; material_id: string | null; oe_id: string | null; ie_id: string | null; panel_id: string | null; grain: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type DrawerRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; drawer_box_id: string | null; slides_id: string | null; notes: string | null; sort_order: number };
-type EdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string | null; where_used: string | null; notes: string | null; sort_order: number };
+/*
+  thick / mfr / part_no / description are the free-text overrides the editable
+  edgeband table on the spec page writes (PATCH .../edgebands/[code]). They exist on
+  the table, are declared in db-push, and were read by nothing — so everything a PM
+  typed into that table was stored and then dropped. See the code note below.
+*/
+type EdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string | null; where_used: string | null; notes: string | null; sort_order: number; thick: string | null; mfr: string | null; part_no: string | null; description: string | null };
 type HardwareRow = { id: string; finish_group_id: string; role: string; slot_label: string | null; hardware_id: string | null; qty: number | null; location: string | null; vendor: string | null; notes: string | null; sort_order: number };
 type CountertopRow = { id: string; finish_group_id: string; location: string | null; style_id: string | null; edge_id: string | null; splash_style: string | null; splash_edge_id: string | null; material_id: string | null; buildup_in: number | null; core_substrate: string | null; brackets: string | null; notes: string | null; sort_order: number };
 type MoldingRow = { id: string; finish_group_id: string; molding_type: string; molding_profile_id: string | null; qty_lf: number | null; notes: string | null; sort_order: number; size_in: number | null; material_id: string | null };
@@ -91,13 +97,26 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   function hardwareName(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.name??""):"";}
   function hardwareBrand(role:string,id:string|null):string{if(!id)return"";const cat=catalogs.hardwareByRole(role);const row=cat.find(r=>r.id===id);return row?String(row.brand??""):"";}
 
-  // Build edgeband code map from finish_group_edgebands table rows (preferred — carries where_used).
-  // Fall back to flat finish_groups.edgeband_id for FGs with no table rows.
-  const ebCodeMap = new Map<string, string>(); // edgeband_id → code
+  /*
+    Synthetic EB1, EB2, … reference codes, for an FG that has NO stored letter code.
+
+    These used to be applied to every row that named an edgeband product, overwriting
+    the letter code the row was saved with — and the letter code is the only thing any
+    consumer reads. `finish_group_edgebands` is keyed (finish_group_id, code) on the
+    work-order letters D/E/I/V/U/B/C/X, which is what the editable edgeband table
+    PATCHes and what lib/pdf-spec.tsx matches on to prefer a stored row over a derived
+    default. Rewriting "D" to "EB1" meant pdf-spec found no standard code, fell all the
+    way back to the derived defaults, and the PM's chosen edgeband never printed.
+
+    So the stored code wins. A synthetic code is only assigned where there is no
+    stored one to lose — the flat finish_groups.edgeband_id fallback for older
+    specs that never got table rows.
+  */
+  const WO_LETTER_CODES = new Set(["D", "E", "I", "V", "U", "B", "C", "X"]);
+  const ebCodeMap = new Map<string, string>(); // edgeband_id → synthetic code
   let ebCounter = 0;
-  // Seed from table rows first (preserves insertion order per spec)
   for (const eb of edgebands) {
-    if (eb.edgeband_id && !ebCodeMap.has(eb.edgeband_id)) {
+    if (eb.edgeband_id && !WO_LETTER_CODES.has(eb.code) && !ebCodeMap.has(eb.edgeband_id)) {
       ebCodeMap.set(eb.edgeband_id, `EB${++ebCounter}`);
     }
   }
@@ -170,16 +189,35 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     if (tableEbs.length > 0) {
       ebEntries = tableEbs.map((eb) => {
         const id = eb.edgeband_id ?? "";
-        const code = id ? (ebCodeMap.get(id) ?? eb.code) : eb.code;
+        // A stored work-order letter is never replaced. Only a row with no letter
+        // gets a synthetic reference code — see the WO_LETTER_CODES note above.
+        const code = WO_LETTER_CODES.has(eb.code) ? eb.code : (id ? (ebCodeMap.get(id) ?? eb.code) : eb.code);
         const data = id ? edgebandIdx.get(id) : undefined;
         const whereUsedLabel = eb.where_used ? (EDGEBAND_WHERE_USED_LABEL[eb.where_used] ?? eb.where_used) : "";
-        return { code, edgeband_name: data?.name ?? "", supplier: data?.supplier ?? "", thickness: data?.thickness ?? "", where_used_label: whereUsedLabel, notes: eb.notes ?? "" };
+        /*
+          What the PM typed beats what the catalogue says, per field.
+
+          The editable edgeband table lets someone override any cell — because the
+          shop does run a band the catalogue does not list, and because a part number
+          on a shop sheet has to be the one on the roll. Falling back to the catalogue
+          per field rather than per row means a PM who corrects only the part number
+          does not lose the supplier and thickness that were already right.
+        */
+        return {
+          code,
+          edgeband_name: eb.description || (data?.name ?? ""),
+          supplier:      eb.mfr         || (data?.supplier ?? ""),
+          thickness:     eb.thick       || (data?.thickness ?? ""),
+          part_no:       eb.part_no     || "",
+          where_used_label: whereUsedLabel,
+          notes: eb.notes ?? "",
+        };
       });
     } else {
       // Legacy/fallback: flat column only
       const ebData = g.edgeband_id ? edgebandIdx.get(g.edgeband_id) : undefined;
       const ebCode = g.edgeband_id ? (ebCodeMap.get(g.edgeband_id) ?? "") : "";
-      ebEntries = ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", where_used_label: "", notes: "" }] : [];
+      ebEntries = ebCode ? [{ code: ebCode, edgeband_name: ebData?.name ?? "", supplier: ebData?.supplier ?? "", thickness: ebData?.thickness ?? "", part_no: "", where_used_label: "", notes: "" }] : [];
     }
 
     return {

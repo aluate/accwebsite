@@ -24,7 +24,12 @@ export type FinishView = {
 export type MaterialView = { role: string; role_label: string; name: string; where_used: string; notes: string };
 export type DoorFrontView = { role: string; role_label: string; slot_label: string; style_name: string; material_name: string; oe_name: string; ie_name: string; panel_name: string; grain: string; vendor: string; notes: string };
 export type DrawerView = { role: string; role_label: string; slot_label: string; drawer_box_name: string; slides_name: string; notes: string };
-export type EdgebandView = { code: string; edgeband_name: string; supplier: string; thickness: string; where_used_label: string; notes: string };
+/*
+  `part_no` is the number a PM typed in the editable edgeband table. Empty when they
+  did not, in which case pdf-spec derives one from the product name — the stored value
+  has to win, because a part number on a shop sheet must be the one on the roll.
+*/
+export type EdgebandView = { code: string; edgeband_name: string; supplier: string; thickness: string; part_no: string; where_used_label: string; notes: string };
 export type HardwareView = { role: string; role_label: string; slot_label: string; hardware_name: string; brand: string; qty: number | null; location: string; vendor: string; notes: string };
 export type CountertopView = { location: string; style_name: string; edge_name: string; splash_style: string; splash_edge_name: string; material_name: string; buildup_in: number | null; core_substrate: string; brackets: string; notes: string };
 export type MoldingView = { molding_type: string; type_label: string; profile_name: string; size_in: number | null; material_name: string; qty_lf: number | null; where_used: string[]; notes: string };
@@ -195,6 +200,12 @@ const WS = StyleSheet.create({
   specRow:     { flexDirection: "row", borderBottomWidth: 0.3, borderBottomColor: HAIR },
   specLabel:   { width: 105, fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#555", padding: 3, textTransform: "uppercase", letterSpacing: 0.2 },
   specValue:   { flex: 1, fontSize: 7, color: DARK, padding: 3 },
+  // WO SPECS is a three-column table now: what it is, what it is made of, and what
+  // edgeband goes on it. Karl: "call out carcass interior like it is, then add a
+  // column for EB right there."
+  specEb:      { width: 88, fontSize: 6.5, color: DARK, padding: 3, borderLeftWidth: 0.3, borderLeftColor: HAIR },
+  specHdrRow:  { flexDirection: "row", backgroundColor: HEAD_BG },
+  specHdrTx:   { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: "#fff", padding: 3, textTransform: "uppercase", letterSpacing: 0.5 },
   pullSubHead: { backgroundColor: BAND_BG, paddingHorizontal: 4, paddingVertical: 2, marginTop: 3 },
   pullSubTx:   { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: DARK, textTransform: "uppercase", letterSpacing: 0.6 },
   roomPillRow: { flexDirection: "row", flexWrap: "wrap", padding: 4 },
@@ -268,8 +279,17 @@ export function deriveWOEdgebands(fg: FinishGroupView): WOEbRow[] {
       : "";
   }
 
-  // Interior edgeband based on carcass
-  const carcassName = (fg.materials.find(m => m.role === "cab_ext")?.name ?? "").toLowerCase();
+  /*
+    Interior edgeband follows the carcass: plywood or birch boxes get prefinished
+    maple, particleboard gets hardrock.
+
+    This looked up role "cab_ext" — a role that was deliberately removed from the
+    vocabulary ("the carcass material IS the cab ext"), and which spec-data.ts has
+    never emitted. So carcassName was always "", the condition was always false, and
+    every work order printed HARDROCK MAPLE regardless of what the boxes are made of.
+    Silent, and wrong on every plywood job.
+  */
+  const carcassName = (fg.materials.find(m => m.role === "cab_int")?.name ?? "").toLowerCase();
   const interiorDesc = (carcassName.includes("plywood") || carcassName.includes("birch"))
     ? "PF MAPLE" : "HARDROCK MAPLE";
 
@@ -949,23 +969,44 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
   //     any user edits made via the BUG-004 editable edgeband table.
   const STANDARD_EB_CODES = ["D","E","I","V","U","B","C","X"];
   const isPaintOrStain = fg.finish_type === "paint" || fg.finish_type === "stain";
+  /*
+    Until 2026-08, this branch could never be taken. lib/spec-data.ts overwrote every
+    stored `code` with a synthetic "EB1"/"EB2" whenever the row named an edgeband
+    product, so no row ever carried a standard letter, `hasStoredWORows` was always
+    false, and the work order silently printed derived defaults over the top of
+    whatever a PM had typed in the editable edgeband table. Fixed in spec-data; this
+    code was correct all along and simply never ran.
+
+    KNOWN GAP, deliberately left: paint and stain groups still bypass stored rows
+    entirely. Task #50 fixed their thickness to blank rather than "3.0", and a stored
+    row that inherited 3.0 from a catalogue product would reintroduce it. Telling
+    "inherited from the catalogue" apart from "a person typed this" needs the two kept
+    separate all the way through the view, which is a larger change than this.
+  */
   const hasStoredWORows = !isPaintOrStain && fg.edgebands.some(eb => STANDARD_EB_CODES.includes(eb.code));
   const derivedRows = deriveWOEdgebands(fg);
   const ebRows: WOEbRow[] = hasStoredWORows
     ? STANDARD_EB_CODES.map(code => {
         const stored = fg.edgebands.find(eb => eb.code === code);
+        const derived = derivedRows.find(r => r.code === code);
         if (stored) {
+          // Per field, not per row: a PM who corrected only the part number keeps the
+          // supplier and thickness that were already right, instead of blanking them.
           return {
             code: stored.code,
-            thickness: stored.thickness || "",
-            manufacturer: stored.supplier || "",
-            part_no: stored.edgeband_name ? extractEbPartNo(stored.supplier, stored.edgeband_name) : "",
-            description: stored.edgeband_name || "",
-            where_used: stored.where_used_label || (derivedRows.find(r => r.code === code)?.where_used ?? ""),
+            thickness: stored.thickness || derived?.thickness || "",
+            manufacturer: stored.supplier || derived?.manufacturer || "",
+            // A typed part number is the one on the roll. Only guess from the product
+            // name when nobody has said otherwise.
+            part_no: stored.part_no
+                  || (stored.edgeband_name ? extractEbPartNo(stored.supplier, stored.edgeband_name) : "")
+                  || derived?.part_no || "",
+            description: stored.edgeband_name || derived?.description || "",
+            where_used: stored.where_used_label || derived?.where_used || "",
             notes: stored.notes || "",
           } as WOEbRow;
         }
-        return derivedRows.find(r => r.code === code) ?? { code, thickness: "", manufacturer: "", part_no: "", description: "", where_used: "", notes: "" };
+        return derived ?? { code, thickness: "", manufacturer: "", part_no: "", description: "", where_used: "", notes: "" };
       })
     : derivedRows;
   const moldings    = fg.moldings.filter(m => m.qty_lf || m.type_label);
@@ -976,10 +1017,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
 
   // Finish type label for header
   const finishTypeLabel = fg.finish_type === "paint" ? "PAINT" : fg.finish_type === "stain" ? "STAIN" : "MELAMINE";
-
-  // Touchup kit
-  const touchupKit  = fg.finish_type === "paint" ? "PENS TO MATCH"
-                    : fg.finish_type === "stain" ? "STAINS TO MATCH" : "N/A";
 
   // Rooms assigned to this FG
   const fgRooms = data.rooms.filter(r => r.finishes.some(f => f.finish_group_id === fg.id));
@@ -1051,6 +1088,17 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
       {/* ── Meta bar ────────────────────────────────────────────────────── */}
       <View style={WS.metaBar}>
         {[
+          /*
+            JOB # first, and it is data.job_number — the five-digit number that comes
+            from Tradesoft when the job is released to engineering. NOT data.job_id,
+            which is the internal key ("ACC-2026-0260") and means nothing to anyone
+            outside this database. A shop sheet showing that invites someone to write
+            it on a box or quote it back to a builder.
+
+            Blank until Tradesoft issues one, shown as an em dash like PM and Engineer
+            so the box reads "not assigned yet" rather than looking broken.
+          */
+          { label: "JOB #",    value: data.job_number || "—" },
           { label: "WO #",     value: fg.wo_number || "" },
           { label: "PM",       value: data.pm || "—" },
           { label: "Engineer", value: data.engineer || "—" },
@@ -1094,28 +1142,73 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         <View style={WS.bodyLeft}>
           <Text style={WS.secHead}>WORK ORDER SPECS</Text>
           {(() => {
-            const ebLine = fg.finish_type === "paint" ? "Paint to match"
-                         : fg.finish_type === "stain" ? "Stain to match"
-                         : fg.finish_type === "melamine" ? (colorName || "Matches carcass") : "—";
-            const rows: { label: string; value: string }[] = [
-              { label: "Carcass / Interior", value: cabInt },
-              { label: "Edgebanding",        value: ebLine },
-              { label: "Touchup Kit",        value: touchupKit },
+            /*
+              Two rows that matter, each with its own edgeband, per Karl:
+
+                INTERIOR   what the boxes are made of, and the edgeband that goes on
+                           the inside — prefinished or hardrock maple depending.
+                EXTERIOR   what the cabinet IS, which is the colour, and the edgeband
+                           we actually selected for it.
+
+              The exterior row did not exist. There was one "Edgebanding" row that
+              printed the colour name for melamine — so the sheet named the colour in
+              a row labelled Edgebanding, and never said what the exterior was.
+
+              Both edgeband values come off `ebRows`, NOT from a second call to
+              deriveWOEdgebands. That distinction is the whole point: ebRows prefers
+              the rows a PM edited by hand in the editable edgeband table and only
+              falls back to the derived defaults. Re-deriving here would print the
+              default and quietly ignore the override.
+
+              Worth knowing: until this row existed, `ebRows` was computed on every
+              work order and rendered nowhere. The 8-row edgeband schedule it was
+              built for was removed from this sheet in 69f6ba3 (the WO rebuild) to
+              make room for the door and drawer schedules, and nothing replaced it —
+              so the thickness, manufacturer, part number and where-used detail for
+              each band is still resolved on every render and still prints nowhere.
+              This summary quotes only the description. Restoring the schedule is a
+              question for Karl, not a silent addition: this sheet is exactly one
+              page and eight more rows would not be.
+
+              Touchup kit is gone. Karl: "we don't need the touch up kit here."
+            */
+            const faceEb     = ebRows.find((r) => r.code === "D");
+            const interiorEb = ebRows.find((r) => r.code === "I");
+
+            const exteriorMaterial = colorName
+              || (fg.finish_type === "paint" ? "Paint — colour not set"
+                : fg.finish_type === "stain" ? "Stain — colour not set" : "—");
+
+            const rows: { label: string; value: string; eb: string }[] = [
+              { label: "Interior", value: cabInt || "—", eb: interiorEb?.description || "—" },
+              { label: "Exterior", value: exteriorMaterial, eb: faceEb?.description || "—" },
             ];
-            // Countertop rows (from free-entry ct_ fields)
+
+            // Countertop rows (from free-entry ct_ fields). No edgeband on a countertop.
             const ct = fg.countertops[0];
             if (ct) {
-              if (ct.material_name) rows.push({ label: "CT Material", value: ct.material_name });
-              if (ct.style_name)    rows.push({ label: "CT Style",    value: ct.style_name });
-              if (ct.edge_name)     rows.push({ label: "CT Edge",     value: ct.edge_name });
-              if (ct.splash_style)  rows.push({ label: "CT Splash",   value: ct.splash_style });
+              if (ct.material_name) rows.push({ label: "CT Material", value: ct.material_name, eb: "" });
+              if (ct.style_name)    rows.push({ label: "CT Style",    value: ct.style_name,    eb: "" });
+              if (ct.edge_name)     rows.push({ label: "CT Edge",     value: ct.edge_name,     eb: "" });
+              if (ct.splash_style)  rows.push({ label: "CT Splash",   value: ct.splash_style,  eb: "" });
             }
-            return rows.map(({ label, value }, i) => (
-              <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
-                <Text style={WS.specLabel}>{label}</Text>
-                <Text style={WS.specValue}>{value}</Text>
-              </View>
-            ));
+
+            return (
+              <>
+                <View style={WS.specHdrRow}>
+                  <Text style={[WS.specHdrTx, { width: 105 }]}>Item</Text>
+                  <Text style={[WS.specHdrTx, { flex: 1 }]}>Material</Text>
+                  <Text style={[WS.specHdrTx, { width: 88 }]}>Edgebanding</Text>
+                </View>
+                {rows.map(({ label, value, eb }, i) => (
+                  <View key={i} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                    <Text style={WS.specLabel}>{label}</Text>
+                    <Text style={WS.specValue}>{value}</Text>
+                    <Text style={WS.specEb}>{eb}</Text>
+                  </View>
+                ))}
+              </>
+            );
           })()}
 
 

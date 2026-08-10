@@ -164,6 +164,138 @@ try {
     }
   }
 
+  // ── what the work order actually SAYS ──────────────────────────────────────
+  //
+  // Everything above this line is structural: page counts and a count of embedded
+  // images. That is blind to the bug class that has cost the most here — the sheet
+  // renders, it looks right, and it says the wrong thing. deriveWOEdgebands looked
+  // up material role "cab_ext", a role removed from the vocabulary and never emitted
+  // by spec-data, so `carcassName` was always "" and every work order printed
+  // HARDROCK MAPLE for the interior edgeband no matter what the boxes were made of.
+  // That is wrong on every plywood job, and the catalog itself records why it
+  // matters: CAR-001's note says ambiguous "Plywood Box" language caused a $70k
+  // error on the Spivey job.
+  //
+  // So these assertions read the words back off the page.
+  console.log("\nthe work order says what it means");
+  {
+    const { pdfText, squash, assertDecodable } = await import("./_pdf-text.mjs");
+
+    // One job, one finish group, driven by carcass_id. `spec-data` builds the
+    // materials array from finish_groups.carcass_id resolved through the
+    // colors_carcass catalog — there is no finish_group_materials row involved.
+    const tJob = "job-" + uid(), tSpec = "spec-" + uid(), tFg = "fg-" + uid();
+    const now = new Date().toISOString();
+    try {
+      await sql`INSERT INTO jobs (id, created_at, client_name, site_address, job_number)
+                VALUES (${tJob}, ${now}, 'Carcass Text Test', '1 Text St', '26104')`;
+      await sql`INSERT INTO residential_specs (id, job_id, created_at, updated_at)
+                VALUES (${tSpec}, ${tJob}, ${now}, ${now})`;
+      await sql`INSERT INTO finish_groups (id, spec_id, label, finish_type, sort_order, carcass_id)
+                VALUES (${tFg}, ${tSpec}, 'MEL-1', 'melamine', 0, 'CAR-002')`;
+
+      const sheet = async () => {
+        const d = await loadSpecPDFData(tSpec);
+        return squash(await pdfText(await renderWorkOrderPDFBuffer(d, d.finish_groups[0])));
+      };
+
+      let txt = await sheet();
+
+      // If the renderer's glyph encoding ever changes, every assertion below would
+      // pass vacuously against an empty string. Fail here instead.
+      assertDecodable(txt, "WORK ORDER SPECS", "work order text");
+      check("the sheet's words can be read back out of the PDF", txt.length > 100, `${txt.length} chars`);
+
+      // Karl: a 5th box, first position, for the Tradesoft number.
+      check("the meta bar carries all five labels",
+            ["JOB #", "WO #", "PM", "ENGINEER", "DATE"].every((l) => txt.includes(l)),
+            ["JOB #", "WO #", "PM", "ENGINEER", "DATE"].filter((l) => !txt.includes(l)).join(", ") || "?");
+      check("the Tradesoft job number prints", txt.includes("26104"));
+
+      // WO SPECS is a table now, with the two rows Karl asked for.
+      check("WO SPECS has an Edgebanding column", txt.includes("EDGEBANDING"));
+      check("WO SPECS names the interior and the exterior",
+            txt.includes("INTERIOR") && txt.includes("EXTERIOR"));
+      check("the touch-up kit row is gone", !txt.includes("TOUCHUP") && !txt.includes("TOUCH UP"));
+
+      // THE regression. Plywood carcass -> PF MAPLE, and specifically NOT the
+      // hardcoded value that used to print on every sheet.
+      check("a plywood carcass prints its own material",
+            txt.includes("PREFINISHED MAPLE PLYWOOD"), "carcass name missing from the sheet");
+      check("a plywood carcass yields PF MAPLE edgebanding", txt.includes("PF MAPLE"));
+      check("a plywood carcass does NOT print HARDROCK MAPLE", !txt.includes("HARDROCK MAPLE"),
+            "this is the bug: the interior edgeband was hardcoded regardless of the carcass");
+
+      // Particleboard still gets hardrock — the fix must not have inverted it.
+      await sql`UPDATE finish_groups SET carcass_id = 'CAR-001' WHERE id = ${tFg}`;
+      txt = await sheet();
+      check("a particleboard carcass yields HARDROCK MAPLE edgebanding", txt.includes("HARDROCK MAPLE"));
+      check("and does not claim PF MAPLE", !txt.includes("PF MAPLE"));
+
+      // ── the summary and the table cannot disagree ────────────────────────────
+      //
+      // WO SPECS quotes the exterior edgeband, and the full edgeband table further
+      // down the sheet lists it again. For a melamine group `ebRows` prefers rows a
+      // PM edited by hand over the derived defaults. An earlier draft of the summary
+      // called deriveWOEdgebands(fg) a second time, which would have printed the
+      // default in the summary and the edit in the table — two different edgebands
+      // on one sheet, and the shop believes whichever it read first.
+      //
+      // Store an edit under code D and require it to appear TWICE.
+      const EB = JSON.parse(readFileSync(resolve(__dirname, "../data/catalogs/edgeband.json"), "utf8"));
+      const picked = EB.find((e) => e.id === "EB-ESI-3103") ?? EB.find((e) => e.product_name && e.supplier);
+      check("an edgeband to store the edit with", !!picked, "edgeband catalog empty");
+      if (picked) {
+        await sql`INSERT INTO finish_group_edgebands (id, finish_group_id, code, edgeband_id, where_used, sort_order)
+                  VALUES (${"eb-" + uid()}, ${tFg}, 'D', ${picked.id}, NULL, 0)`;
+        const edited = await loadSpecPDFData(tSpec);
+
+        // THE BUG UNDERNEATH. spec-data overwrote the stored code with a synthetic
+        // "EB1" for any row that named an edgeband product. The table is keyed
+        // (finish_group_id, code) on the work-order letters, and pdf-spec matches on
+        // those letters to prefer a stored row over a derived default — so rewriting
+        // "D" to "EB1" meant the editable edgeband table wrote to the database and
+        // nothing ever printed it. Every override a PM typed was silently discarded.
+        const stored = edited.finish_groups[0].edgebands.find((e) => e.code === "D");
+        check("a stored work-order letter code survives the view",
+              !!stored,
+              `codes present: ${edited.finish_groups[0].edgebands.map((e) => e.code).join(",") || "(none)"}` +
+              ` — "EB1" here means the letter code was overwritten again`);
+        check("the stored edgeband row reaches the view",
+              (stored?.edgeband_name ?? "") === picked.product_name,
+              `${JSON.stringify(stored?.edgeband_name)} vs ${JSON.stringify(picked.product_name)}`);
+
+        txt = squash(await pdfText(await renderWorkOrderPDFBuffer(edited, edited.finish_groups[0])));
+        check("a PM's chosen edgeband reaches the work order at all", txt.includes(squash(picked.product_name)),
+              "the derived default printed over the top of the stored row");
+
+        // A typed override beats the catalogue, per field. The sheet's summary prints
+        // the description only, so thickness / manufacturer / part number are asserted
+        // on the view — they are resolved on every render and, since the 8-row
+        // edgeband schedule was removed from this sheet in 69f6ba3, printed nowhere.
+        // Asserted anyway: they are what the schedule would need if it comes back, and
+        // they are what proved the stored row is being read at all.
+        const TYPED = "ZZ-99-ROLL";
+        await sql`UPDATE finish_group_edgebands SET part_no = ${TYPED}, mfr = ${"BENCH SUPPLY"}, thick = ${"2.0"}
+                  WHERE finish_group_id = ${tFg} AND code = 'D'`;
+        const typed = await loadSpecPDFData(tSpec);
+        const tRow = typed.finish_groups[0].edgebands.find((e) => e.code === "D");
+        check("a typed part number reaches the view", (tRow?.part_no ?? "") === TYPED, JSON.stringify(tRow?.part_no));
+        check("a typed manufacturer overrides the catalogue's supplier",
+              (tRow?.supplier ?? "") === "BENCH SUPPLY", JSON.stringify(tRow?.supplier));
+        check("a typed thickness overrides the catalogue's",
+              (tRow?.thickness ?? "") === "2.0", JSON.stringify(tRow?.thickness));
+        check("and the untouched description still comes from the catalogue",
+              (tRow?.edgeband_name ?? "") === picked.product_name,
+              "a per-row override would have blanked this");
+        check("the sheet still renders with overrides applied",
+              (await renderWorkOrderPDFBuffer(typed, typed.finish_groups[0])).length > 1000);
+      }
+    } finally {
+      await sql`DELETE FROM jobs WHERE id = ${tJob}`.catch(() => {});
+    }
+  }
+
   // ── the split-brain assertion ──────────────────────────────────────────────
   // This is the test that would have caught the original bug. An admin edit to a
   // catalog used to reach the spec builder page and never the work order, because
