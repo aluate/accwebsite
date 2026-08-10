@@ -1,31 +1,50 @@
 /**
  * scripts/migrate-room-trim-notes.mjs
  *
- * Moves room_trim.material -> room_trim.notes for rows written before the columns
- * were told apart.
+ * Sorts out room_trim rows written before `material` and `notes` were told apart.
+ * Reports by default. Moves nothing unless you name what to move.
  *
- * What happened: the Rooms tab had one input, labelled "Notes", with the placeholder
+ * WHAT HAPPENED. The Rooms tab had one input, labelled "Notes", with the placeholder
  * "Special conditions, stick counts, install notes..." — and it wrote to the
- * `material` column. `room_trim.notes` existed and was never used. So every value a
- * PM ever typed into that box is stored as the material. Production has a row whose
- * material reads "KITCHEN".
+ * `material` column. `room_trim.notes` existed and was never used. So whatever a PM
+ * typed into that box is stored as the material.
  *
- * It stayed invisible until finish-group trim defaults started filling `material`,
- * at which point a derived species would appear inside a box labelled Notes.
+ * WHY THIS IS NO LONGER A BULK MOVE. The first version of this script moved every
+ * such value to `notes`, on the reasoning that "nobody typed a species into a field
+ * captioned install notes on purpose". The production dry run falsified that
+ * flatly. Of 28 rows:
  *
- * The move is safe because the label was never anything else. Nobody typed a species
- * into a field captioned "install notes" on purpose, and nothing has ever written
- * `material` programmatically before this week.
+ *   12 x "USED AS CROWN/APPLIED TOP PANEL"   a note. Belongs in notes.
+ *   15 x "Poplar - Paint Grade"              a MATERIAL. Belongs where it already is.
+ *    1 x "KITCHEN"                           neither — a room name in a material field.
  *
- * Conservative on both sides:
- *   - only rows where material IS NOT NULL and notes IS NULL are touched, so a real
- *     note already in `notes` is never overwritten
- *   - it PRINTS every row it is about to move, before moving it
- *   - --dry-run shows the plan and writes nothing
- *   - material is then cleared, so finish-group defaults can fill it correctly
+ * People typed the material into the only free-text box the row had. Moving
+ * "Poplar - Paint Grade" to `notes` would blank a correct material on 15 rows and
+ * file real material information as a comment — and because finish-group trim
+ * defaults fill an absent material, the next propagation would then quietly
+ * substitute the finish group's species for what somebody actually specified.
  *
- * Run:  node scripts/migrate-room-trim-notes.mjs --dry-run
- *       node scripts/migrate-room-trim-notes.mjs
+ * So the value decides, not the column, and only a person can read the value. This
+ * groups the distinct values, shows what each one affects, and does nothing until
+ * told. There are only ever a handful of distinct values, so this is a short read
+ * rather than a chore.
+ *
+ *   node scripts/migrate-room-trim-notes.mjs
+ *       report only — group the distinct values, write nothing
+ *
+ *   node scripts/migrate-room-trim-notes.mjs --move="USED AS CROWN/APPLIED TOP PANEL"
+ *       this value is a note: copy it to notes and clear material, so finish-group
+ *       defaults can fill the material correctly
+ *
+ *   node scripts/migrate-room-trim-notes.mjs --clear="KITCHEN"
+ *       this value is neither: clear material and keep no note. Use for junk that
+ *       would otherwise print on a work order as the trim material.
+ *
+ * Repeat either flag for several values. A value that matches no row is a refusal,
+ * not a no-op, so a typo cannot look like success. Anything you do not name is left
+ * exactly as it is — including every real material, which needs no migration at all.
+ *
+ * Never touches a row that already has a note, and never touches qty_lf.
  */
 import postgres from "postgres";
 import { resolve, dirname } from "path";
@@ -36,6 +55,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, "../.env.local") });
 
 const DRY = process.argv.includes("--dry-run");
+
+const argValues = (flag) =>
+  process.argv.filter((a) => a.startsWith(`${flag}=`)).map((a) => a.slice(flag.length + 1));
+const MOVE  = argValues("--move");
+const CLEAR = argValues("--clear");
 const url = process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL;
 if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
 const isLocal = url.includes("localhost") || url.includes("127.0.0.1");
@@ -64,23 +88,68 @@ async function main() {
     return;
   }
 
-  console.log("  These values will move from material to notes:\n");
+  // Group by the value, because the value is what decides. A material and a note
+  // look identical to a column and completely different to a person.
+  const groups = new Map();
   for (const c of candidates) {
-    console.log(`    ${String(c.client_name).slice(0, 22).padEnd(24)} ${String(c.room_name).slice(0, 16).padEnd(18)} ${String(c.trim_type).padEnd(16)} ${JSON.stringify(c.material)}`);
+    const key = String(c.material);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(c);
   }
 
-  if (DRY) {
-    console.log(`\n  Dry run — ${candidates.length} row(s) would move. Re-run without --dry-run to apply.`);
+  const named = new Set([...MOVE, ...CLEAR]);
+  const unknown = [...named].filter((v) => !groups.has(v));
+  if (unknown.length) {
+    console.error(`  No room_trim row has material exactly:`);
+    for (const u of unknown) console.error(`    ${JSON.stringify(u)}`);
+    console.error(`\n  Nothing was written. The values present are listed by a plain run.`);
+    console.error(`  Match them exactly, quotes included — a near miss must not look like a success.`);
+    process.exit(1);
+  }
+  const both = [...MOVE].filter((v) => CLEAR.includes(v));
+  if (both.length) {
+    console.error(`  ${JSON.stringify(both[0])} was given to both --move and --clear. Nothing was written.`);
+    process.exit(1);
+  }
+
+  console.log(`  ${groups.size} distinct value(s) sitting in material with no note:\n`);
+  for (const [value, rows] of [...groups].sort((a, b) => b[1].length - a[1].length)) {
+    const action = MOVE.includes(value) ? "-> notes" : CLEAR.includes(value) ? "-> cleared" : "left alone";
+    console.log(`    ${String(rows.length).padStart(3)} x  ${JSON.stringify(value)}`);
+    console.log(`         ${action}`);
+    const where = new Map();
+    for (const r of rows) {
+      const k = `${r.client_name} — ${r.room_name}`;
+      where.set(k, (where.get(k) ?? 0) + 1);
+    }
+    for (const [k, n] of [...where].slice(0, 6)) console.log(`         ${k}${n > 1 ? ` (${n} rows)` : ""}`);
+    if (where.size > 6) console.log(`         …and ${where.size - 6} more room(s)`);
+    console.log();
+  }
+
+  const moveRows  = MOVE.flatMap((v) => groups.get(v));
+  const clearRows = CLEAR.flatMap((v) => groups.get(v));
+
+  if (moveRows.length === 0 && clearRows.length === 0) {
+    console.log(`  Nothing named, so nothing written.\n`);
+    console.log(`  Read the values above and decide per value:`);
+    console.log(`    a note      -> --move="the value"     (goes to notes, material cleared)`);
+    console.log(`    a material  -> nothing to do           (it is already in the right column)`);
+    console.log(`    neither     -> --clear="the value"     (material cleared, no note kept)\n`);
     return;
   }
 
-  const ids = candidates.map((c) => c.id);
-  const moved = await sql`
-    UPDATE room_trim
-    SET notes = material, material = NULL
-    WHERE id IN ${sql(ids)}
-    RETURNING id
-  `;
+  if (DRY) {
+    console.log(`  Dry run — ${moveRows.length} row(s) would move to notes, ${clearRows.length} would be cleared.`);
+    return;
+  }
+
+  if (moveRows.length) {
+    await sql`UPDATE room_trim SET notes = material, material = NULL WHERE id IN ${sql(moveRows.map((r) => r.id))}`;
+  }
+  if (clearRows.length) {
+    await sql`UPDATE room_trim SET material = NULL WHERE id IN ${sql(clearRows.map((r) => r.id))}`;
+  }
 
   const [after] = await sql`SELECT COUNT(*)::int AS n FROM room_trim`;
   if (after.n !== total.n) {
@@ -88,15 +157,17 @@ async function main() {
     process.exit(1);
   }
 
-  const [leftover] = await sql`
+  const [remaining] = await sql`
     SELECT COUNT(*)::int AS n FROM room_trim
     WHERE material IS NOT NULL AND btrim(material) <> '' AND (notes IS NULL OR btrim(notes) = '')
   `;
 
-  console.log(`\n  moved ${moved.length} row(s)`);
+  console.log(`  moved ${moveRows.length} row(s) to notes`);
+  console.log(`  cleared ${clearRows.length} row(s)`);
   console.log(`  row count unchanged (${after.n})`);
-  console.log(`  remaining material-with-no-note rows: ${leftover.n}`);
-  console.log(`\n  material is now blank on those rows, so finish-group defaults will fill it.`);
+  console.log(`  still holding a material with no note: ${remaining.n} — untouched on purpose`);
+  console.log(`\n  Where material was cleared, finish-group trim defaults will fill it on the next`);
+  console.log(`  propagation. qty_lf was never named by any statement here.`);
   console.log("\nDone.");
 }
 
