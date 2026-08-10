@@ -61,6 +61,8 @@ type PipelineJob = {
   id: string; client_name: string; site_address: string; city: string;
   status: string; job_number: string | null; pm: string | null;
   delivery_date: string | null; install_start_date: string | null;
+  /** First scheduled install event, or null if the job is not on the calendar yet. Read-only. */
+  scheduled_install_date?: string | null;
   anticipated_delivery: string | null;
   estimate_id: string | null;
   estimated_value: number | null;
@@ -1225,16 +1227,36 @@ export default function PipelineClient() {
                         <span className={countInstall(job) ? "" : "opacity-30 line-through"}><EditableNumber value={job.install_hrs} suffix="h" onSave={v => patchJob(job.id, {install_hrs:v})} /></span>
                       )}
                     </td>
+                    {/* Delivery. This cell used to display the schedule-derived
+                        anticipated_delivery and write a field called
+                        anticipated_delivery, which is not a column — so every edit
+                        500'd, and the optimistic update made it look like it had
+                        saved until the reload. An editable cell now shows exactly
+                        the value it edits: jobs.delivery_date. When the calendar
+                        disagrees, the calendar's date is shown under it, read-only,
+                        because that is the one the shop is working to. */}
                     <td className="px-2 py-2 min-w-[90px]">
-                      <EditableDate value={job.anticipated_delivery ?? job.delivery_date} onSave={v => patchJob(job.id, {anticipated_delivery:v})} />
-                      {job.anticipated_delivery && job.anticipated_delivery !== job.delivery_date &&
-                        <div className="text-white/20 text-[8px]">sched</div>}
+                      <EditableDate value={job.delivery_date} onSave={v => patchJob(job.id, {delivery_date:v})} />
+                      {job.scheduled_install_date && job.scheduled_install_date !== job.delivery_date && (
+                        <div className="text-amber-300/50 text-[8px] leading-tight"
+                             title="From the install event on the schedule. Change it on the calendar, not here.">
+                          sched {job.scheduled_install_date}
+                        </div>
+                      )}
                     </td>
                     <td className="px-2 py-2 min-w-[90px]">
                       {isPlh ? (
                         <span className="text-white/20 text-[9px]">—</span>
                       ) : (
-                        <EditableDate value={job.install_start_date} placeholder="Set start" onSave={v => patchJob(job.id, {install_start_date:v})} />
+                        <>
+                          <EditableDate value={job.install_start_date} placeholder="Set start" onSave={v => patchJob(job.id, {install_start_date:v})} />
+                          {job.scheduled_install_date && job.scheduled_install_date !== job.install_start_date && (
+                            <div className="text-amber-300/50 text-[8px] leading-tight"
+                                 title="The install event on the schedule starts on this date. Nothing syncs the two, so they can drift.">
+                              sched {job.scheduled_install_date}
+                            </div>
+                          )}
+                        </>
                       )}
                     </td>
                     <td className="px-1 py-2 w-10">

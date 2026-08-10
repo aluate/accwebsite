@@ -681,6 +681,10 @@ async function main() {
   for (const stmt of [
     `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_type TEXT`,
     `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS install_start_date TEXT`,
+    // Exists in production but had never been written down here, so a fresh
+    // environment could not even load the PM dashboard — that page SELECTs it
+    // unconditionally. Found by scripts/check-job-fields.mjs.
+    `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS bid_number TEXT`,
   ]) {
     try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
   }

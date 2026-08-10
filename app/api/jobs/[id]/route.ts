@@ -6,6 +6,33 @@ import { logActivity } from "@/lib/activity-log";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
 import { requireBuilderApi, guardApi } from "@/lib/auth";
 
+/**
+ * Columns a PATCH may write. Every name here must be a real column on `jobs`:
+ * the update is built as `UPDATE jobs SET ${sql(updates)}`, so a name that is not
+ * a column raises Postgres 42703 and the whole request 500s.
+ *
+ * That is not theoretical. "anticipated_delivery" sat in this list and has never
+ * been a column — it is a computed alias in /api/admin/pipeline, COALESCEing the
+ * first scheduled install event with jobs.delivery_date. The pipeline board's
+ * delivery-date cell wrote to it, so editing a delivery date there failed every
+ * single time. The board updates optimistically and then reloads, so the date
+ * appeared to take and then snapped back: "it isn't saving".
+ *
+ * scripts/check-job-fields.mjs now asserts every name below exists in the schema,
+ * and runs in prebuild. Add a column before you add it here.
+ */
+export const JOB_PATCH_FIELDS = [
+  "job_number", "status", "job_type", "client_name", "client_email", "client_phone",
+  "site_address", "city", "pm", "builder_name", "builder_email",
+  "builder_phone", "builder_company", "delivery_date", "notes",
+  "notes_install", "notes_finishing", "notes_shop", "notes_client",
+  "mod_residential", "mod_commercial", "mod_trim", "mod_doors",
+  "install_type", "install_start_date", "install_duration_days",
+  "bid_number", "estimated_value", "pm_complexity", "box_count", "wo_count",
+  "shop_hrs", "install_hrs", "builder_id",
+  "placeholder_id", "engineer",
+] as const;
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireBuilderApi();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,20 +48,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
 
-  const allowed = [
-    "job_number", "status", "job_type", "client_name", "client_email", "client_phone",
-    "site_address", "city", "pm", "builder_name", "builder_email",
-    "builder_phone", "builder_company", "delivery_date", "notes",
-    "notes_install", "notes_finishing", "notes_shop", "notes_client",
-    "mod_residential", "mod_commercial", "mod_trim", "mod_doors",
-    "install_type", "install_start_date", "install_duration_days",
-    "bid_number", "estimated_value", "pm_complexity", "box_count", "wo_count",
-    "shop_hrs", "install_hrs", "anticipated_delivery", "builder_id",
-    "placeholder_id", "engineer",
-  ];
-
-  const fields = Object.keys(body).filter((k) => allowed.includes(k));
-  if (fields.length === 0) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
+  const fields = Object.keys(body).filter((k) => (JOB_PATCH_FIELDS as readonly string[]).includes(k));
+  if (fields.length === 0) {
+    // Name what was rejected. "Nothing to update" on its own sent whoever was
+    // debugging this looking at the database instead of at the field name.
+    const offered = Object.keys(body).filter((k) => !k.startsWith("_"));
+    return NextResponse.json({
+      error: offered.length
+        ? `No writable field in the request. Not accepted: ${offered.join(", ")}.`
+        : "Nothing to update",
+      writable_fields: JOB_PATCH_FIELDS,
+    }, { status: 400 });
+  }
 
   const MOD_FIELDS = new Set(["mod_residential", "mod_commercial", "mod_trim", "mod_doors"]);
   const updates: Record<string, unknown> = {};

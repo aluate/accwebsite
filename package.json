@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "sync-catalogs": "node scripts/sync-catalogs.mjs",
-    "prebuild": "node scripts/sync-catalogs.mjs && node scripts/check-catalogs.mjs",
+    "prebuild": "node scripts/sync-catalogs.mjs && node scripts/check-catalogs.mjs && node scripts/check-job-fields.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -28,7 +28,8 @@
     "check-catalogs": "node scripts/check-catalogs.mjs",
     "seed-catalog-libraries": "node scripts/seed-catalog-libraries.mjs",
     "typecheck": "tsc --noEmit",
-    "check-routes": "node scripts/check-route-auth.mjs"
+    "check-routes": "node scripts/check-route-auth.mjs",
+    "check-job-fields": "node scripts/check-job-fields.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

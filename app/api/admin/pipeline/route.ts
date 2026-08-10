@@ -44,7 +44,17 @@ export async function GET() {
          JOIN residential_specs rs ON rs.id = fg.spec_id
          WHERE rs.job_id = j.id AND fg.box_count > 0
         ) AS fg_boxes,
-        -- Anticipated delivery: prefer schedule install event, then jobs.delivery_date
+        -- The scheduled install, on its own. Returned separately from the COALESCE
+        -- below because the board has to be able to tell "no event, falling back to
+        -- delivery_date" apart from "an event that happens to match delivery_date".
+        -- Without that it cannot say which value an edit is about to change, which is
+        -- how the delivery-date cell ended up writing to a computed alias.
+        (SELECT je.date_start FROM job_events je
+         WHERE je.job_id = j.id AND je.event_type = 'install' AND je.date_start IS NOT NULL
+         ORDER BY je.date_start ASC LIMIT 1) AS scheduled_install_date,
+        -- Anticipated delivery: prefer schedule install event, then jobs.delivery_date.
+        -- Derived, and read-only. Grouping, month filters and the ENG warning all use
+        -- it, because "when does this actually ship" is the schedule's answer.
         COALESCE(
           (SELECT je.date_start FROM job_events je
            WHERE je.job_id = j.id AND je.event_type = 'install' AND je.date_start IS NOT NULL
