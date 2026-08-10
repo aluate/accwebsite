@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import { DoorSpecClient } from "@/components/DoorSpecClient";
 
 type SpecRow = {
@@ -52,6 +52,7 @@ export default async function DoorSpecEditorPage({
     sort_order:     r.sort_order,
   }));
 
+  const catalogs = await getCatalogs();
   const catalog = catalogs.doorCatalog();
 
   return (

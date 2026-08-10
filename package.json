@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "sync-catalogs": "node scripts/sync-catalogs.mjs",
-    "prebuild": "node scripts/sync-catalogs.mjs",
+    "prebuild": "node scripts/sync-catalogs.mjs && node scripts/check-catalogs.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -24,7 +24,11 @@
     "db:push": "node scripts/db-push.mjs",
     "smoke": "node scripts/smoke.mjs",
     "sync-builders": "node scripts/sync-builders.mjs",
-    "sync-paint-colors": "node scripts/sync-paint-colors.mjs"
+    "sync-paint-colors": "node scripts/sync-paint-colors.mjs",
+    "check-catalogs": "node scripts/check-catalogs.mjs",
+    "seed-catalog-libraries": "node scripts/seed-catalog-libraries.mjs",
+    "typecheck": "tsc --noEmit",
+    "check-routes": "node scripts/check-route-auth.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

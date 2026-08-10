@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
-import { catalogs, loadCatalog } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import { ResidentialSpecClient } from "@/components/ResidentialSpecClient";
 
 type SpecRow    = { id: string; job_id: string; name: string; status: string; updated_at: string };
@@ -254,22 +254,10 @@ export default async function SpecEditorPage({
       notes:           m.notes ?? "",
     }));
 
-  const [
-    doorStylesData, hardwarePullsData, carcassMaterialsData, drawerBoxesData,
-    edgebandsData, roomsData, moldingTypesData, moldingProfilesData,
-    moldingMaterialsData, speciesData,
-  ] = await Promise.all([
-    loadCatalog("door_styles"),
-    loadCatalog("hardware_pulls"),
-    loadCatalog("colors_carcass"),
-    loadCatalog("drawer_box"),
-    loadCatalog("edgeband"),
-    loadCatalog("rooms"),
-    loadCatalog("molding_types"),
-    loadCatalog("molding_profiles"),
-    loadCatalog("molding_materials"),
-    loadCatalog("species"),
-  ]);
+  // Ten separate loadCatalog() round trips used to happen here, alongside seven
+  // catalogs.X() file reads in the object below — the same page answering the
+  // same question two different ways. One snapshot now serves both.
+  const catalogs = await getCatalogs();
 
   const revaAccessories = await (async () => {
     const rows = await sql<{id:string;name:string;brand:string;series:string|null;category:string;width_options:string|null;finish_opts:string|null;hand:string|null;image_url:string|null;price_slp:number|null;price_date:string|null;notes:string|null;active:boolean}[]>`
@@ -288,20 +276,20 @@ export default async function SpecEditorPage({
     paintColors:      catalogs.paintColors(),
     stainColors:      catalogs.stainColors(),
     melamineColors:   catalogs.melamineColors(),
-    doorStyles:       doorStylesData,
-    hardwarePulls:    hardwarePullsData,
+    doorStyles:       catalogs.doorStyles(),
+    hardwarePulls:    catalogs.hardwarePulls(),
     revaAccessories,
     cabinetFamilies:  catalogs.cabinetFamilies(),
-    carcassMaterials: carcassMaterialsData,
-    drawerBoxes:      drawerBoxesData,
-    edgebands:        edgebandsData,
-    rooms:            roomsData,
-    moldingTypes:     moldingTypesData,
-    moldingProfiles:  moldingProfilesData,
-    moldingMaterials: moldingMaterialsData,
+    carcassMaterials: catalogs.carcassMaterials(),
+    drawerBoxes:      catalogs.drawerBoxes(),
+    edgebands:        catalogs.edgebands(),
+    rooms:            catalogs.rooms(),
+    moldingTypes:     catalogs.moldingTypes(),
+    moldingProfiles:  catalogs.moldingProfiles(),
+    moldingMaterials: catalogs.moldingMaterials(),
     cabDoorEdges:     catalogs.cabDoorEdgeDetails(),
     cabDoorProfiles:  catalogs.cabDoorInsideProfiles(),
-    species:          speciesData,
+    species:          catalogs.species(),
     cabDoorPanels:    catalogs.cabDoorPanels(),
   };
 

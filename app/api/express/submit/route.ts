@@ -5,7 +5,7 @@ import { sql, nextJobId, uid } from "@/lib/db";
 import { getBuilder } from "@/lib/auth";
 import { renderOrderPDF } from "@/lib/pdf-order";
 import { sendOrderEmail } from "@/lib/mailer";
-import { catalogs } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import type { OrderData } from "@/lib/pdf-order";
 
 export const runtime = 'nodejs';
@@ -197,6 +197,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Build family_code → display_name lookup ───────────────────────────────
+  const catalogs = await getCatalogs();
   const familyMap = Object.fromEntries(
     catalogs.cabinetFamilies().map((f) => [f.family_code, f.display_name])
   );

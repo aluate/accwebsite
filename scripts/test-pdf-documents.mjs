@@ -102,6 +102,44 @@ try {
   // A work order must never carry the client's signature block: it is shop
   // paperwork, and a signature line on it invites someone to sign the wrong thing.
   check("a work order is not the client document", woPageCounts[0] !== clientPages || clientPages === 1);
+
+  // ── the split-brain assertion ──────────────────────────────────────────────
+  // This is the test that would have caught the original bug. An admin edit to a
+  // catalog used to reach the spec builder page and never the work order, because
+  // the page read the database and the document read the JSON file. Write a
+  // sentinel into catalog_libraries and require the work order's drawer box to
+  // carry it. If the two loaders ever come apart again, this fails.
+  //
+  // It asserts on the object the renderer consumes rather than on the rendered
+  // bytes, because @react-pdf writes text into Flate-compressed content streams.
+  // The structural claims above are what cover the document itself.
+  const SENTINEL = "SENTINEL DRAWER BOX " + uid().slice(0, 6);
+  const [savedDrawerBox] = await sql`SELECT data FROM catalog_libraries WHERE name = 'drawer_box'`;
+  try {
+    await sql`
+      INSERT INTO catalog_libraries (name, data, updated_at)
+      VALUES ('drawer_box', ${sql.json([
+        { id: "DBX-001", name: SENTINEL, construction: "other", species: null, prefinish: null, notes: null, is_other: false },
+      ])}, NOW())
+      ON CONFLICT (name) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+    `;
+    const { invalidateCatalogCache } = await import("../lib/catalogs.ts");
+    invalidateCatalogCache();
+
+    const edited = await loadSpecPDFData(specId);
+    const drawerRows = edited.finish_groups.flatMap((fg) => fg.drawers ?? []);
+    check("a database catalog edit reaches the work order's drawer schedule",
+          drawerRows.some((r) => r.drawer_box_name === SENTINEL),
+          `drawer box names seen: ${[...new Set(drawerRows.map((r) => r.drawer_box_name))].join(" | ") || "(none)"}`);
+  } finally {
+    if (savedDrawerBox) {
+      await sql`UPDATE catalog_libraries SET data = ${sql.json(savedDrawerBox.data)} WHERE name = 'drawer_box'`;
+    } else {
+      await sql`DELETE FROM catalog_libraries WHERE name = 'drawer_box'`;
+    }
+    const { invalidateCatalogCache } = await import("../lib/catalogs.ts");
+    invalidateCatalogCache();
+  }
 } catch (e) {
   console.error("\nHARNESS ERROR:", e);
   fail++;

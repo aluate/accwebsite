@@ -14,7 +14,7 @@
  */
 
 import { sql, uid } from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import {
   deriveRoomTrim,
   retrimForFinishGroupSwap,
@@ -36,7 +36,8 @@ type FgRow = {
   id: string; finish_type: string | null; species: string | null; color_name: string | null;
 };
 
-function moldingTypeRows(): MoldingTypeRow[] {
+async function moldingTypeRows(): Promise<MoldingTypeRow[]> {
+  const catalogs = await getCatalogs();
   return catalogs.moldingTypes().map((m) => ({
     id: String((m as { id: unknown }).id),
     display_name: String((m as { display_name?: unknown }).display_name ?? ""),
@@ -107,7 +108,7 @@ export async function propagateTrimDefaults(
   if (!fg) return { rooms: 0, added: 0, updated: 0, orphaned: [] };
 
   const fgDefaults = await loadDefaults(finishGroupId);
-  const moldingTypes = moldingTypeRows();
+  const moldingTypes = await moldingTypeRows();
 
   // Rooms linked through room_finishes, or through the legacy flat column.
   const rooms = await sql<{ id: string; name: string }[]>`
@@ -155,7 +156,7 @@ export async function retrimRoomForFinishGroup(
   const result = retrimForFinishGroupSwap({
     fg,
     fgDefaults: await loadDefaults(finishGroupId),
-    moldingTypes: moldingTypeRows(),
+    moldingTypes: await moldingTypeRows(),
     existing: await loadRoomTrim(roomId),
   });
 

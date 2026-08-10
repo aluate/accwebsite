@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
 import { asArray } from "@/lib/catalogs";
 
 // GET /api/specs?job_id=ACC-2026-0001

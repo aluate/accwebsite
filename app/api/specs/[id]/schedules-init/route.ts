@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
  */
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import { requireBuilder } from "@/lib/auth";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -38,6 +38,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return { materials, door_fronts, drawers, edgebands, hardware, countertops };
   })();
 
+  const catalogs = await getCatalogs();
   const cats = {
     carcassMaterials:      catalogs.carcassMaterials(),
     drawerBoxes:           catalogs.drawerBoxes(),

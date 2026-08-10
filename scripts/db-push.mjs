@@ -22,6 +22,15 @@ async function main() {
   console.log("Pushing schema to Supabase...");
 
   await sql.unsafe(`
+    -- Every catalog the app reads, one jsonb document per catalog. The JSON in
+    -- data/catalogs/ is the seed and the fallback; this is what wins when a row
+    -- exists. Created here so a fresh environment has it before anything asks.
+    CREATE TABLE IF NOT EXISTS catalog_libraries (
+      name       TEXT PRIMARY KEY,
+      data       JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS schema_version (
       version     INTEGER PRIMARY KEY,
       applied_at  TEXT NOT NULL,
@@ -739,6 +748,19 @@ async function main() {
   await sql`
     CREATE INDEX IF NOT EXISTS idx_room_trim_room ON room_trim(room_id)
   `;
+  // 'fg_default' means the size/material came from the finish group and may be
+  // re-derived; 'manual' means someone typed it and nothing may overwrite it.
+  // Applied to production by scripts/migrate-room-trim-source.mjs; repeated here
+  // so a fresh environment gets the same schema. qty_lf is never derived either way.
+  await sql`
+    ALTER TABLE room_trim ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'manual'
+  `;
+  try {
+    await sql`
+      ALTER TABLE room_trim
+      ADD CONSTRAINT room_trim_source_check CHECK (source IN ('fg_default', 'manual'))
+    `;
+  } catch { /* already present */ }
 
   await sql`
     CREATE TABLE IF NOT EXISTS spec_appliances (

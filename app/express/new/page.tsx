@@ -1,26 +1,18 @@
+export const dynamic = "force-dynamic";
+
 import { requireBuilder } from "@/lib/auth";
-import { catalogs } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import { ExpressWizard } from "@/components/ExpressWizard";
-import path from "path";
-import fs from "fs";
 
-type ExpressColor = { id: string; name: string; hex?: string | null };
-type ExpressColorBook = {
-  paint: ExpressColor[];
-  stain: ExpressColor[];
-  melamine: ExpressColor[];
-};
-
-function loadExpressColors(): ExpressColorBook {
-  const file = path.join(process.cwd(), "data/catalogs/express_colors.json");
-  return JSON.parse(fs.readFileSync(file, "utf-8")) as ExpressColorBook;
-}
-
+// express_colors.json used to be read here with its own inline readFileSync,
+// which meant the express wizard could not be edited from /admin/libraries even
+// once every other catalog could. It goes through the loader now.
 export default async function ExpressNewPage() {
   const builder = await requireBuilder();
+  const catalogs = await getCatalogs();
 
   const catalogData = {
-    expressColors:   loadExpressColors(),
+    expressColors:   catalogs.expressColors(),
     doorStyles:      catalogs.doorStyles(),
     cabinetFamilies: catalogs.cabinetFamilies(),
     doorCatalog:     catalogs.doorCatalog(),

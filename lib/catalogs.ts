@@ -1,6 +1,11 @@
 import path from "path";
 import fs from "fs";
 import { sql } from "@/lib/db";
+import {
+  resolveCatalogRows,
+  resolveCatalogObject,
+  type CatalogSource,
+} from "@/lib/catalog-resolve";
 
 // Catalogs stored in DB (editable from admin). Falls back to JSON file if not in DB yet.
 const DB_CATALOG_NAMES = new Set([
@@ -39,24 +44,16 @@ const DB_CATALOG_NAMES = new Set([
   "paint_colors_sw",
 ]);
 
-/** Load a catalog from DB, falling back to the JSON file. */
-export async function loadCatalog<T>(name: string): Promise<T[]> {
-  if (DB_CATALOG_NAMES.has(name)) {
-    try {
-      const [row] = await sql<{ data: T[] }[]>`
-        SELECT data FROM catalog_libraries WHERE name = ${name}
-      `;
-      if (row?.data) return row.data as T[];
-    } catch { /* fall through to file */ }
-  }
-  return load<T>(name);
-}
-
 const DIR = path.join(process.cwd(), "data/catalogs");
 
 function load<T>(name: string): T[] {
   const file = path.join(DIR, `${name}.json`);
   return JSON.parse(fs.readFileSync(file, "utf-8")) as T[];
+}
+
+function loadObject<T>(name: string): T {
+  const file = path.join(DIR, `${name}.json`);
+  return JSON.parse(fs.readFileSync(file, "utf-8")) as T;
 }
 
 // Helper: many catalog fields are auto-arrayed by sync-catalogs.mjs when a
@@ -390,86 +387,220 @@ export type CountertopStyle    = { id: string; name: string; description: string
 export type CountertopEdge     = { id: string; name: string; description: string | null; notes: string | null };
 export type CountertopMaterial = { id: string; name: string; category: string | null; brand_examples: string | string[] | null; notes: string | null };
 
-// -- Loader registry ----------------------------------------------------------
-
-export const catalogs = {
-  paintColors:    () => load<PaintColor>("colors_paint"),
-  stainColors:    () => load<StainColor>("colors_stain"),
-  melamineColors: () => load<MelamineColor>("colors_melamine"),
-  species:        () => load<Species>("species"),
-  doorStyles:     () => load<DoorStyle>("door_styles"),
-  hardwarePulls:  () => load<HardwarePull>("hardware_pulls"),
-  revaAccessories:() => load<RevaAccessory>("accessories_reva"),
-
-  carcassMaterials: () => load<CarcassMaterial>("colors_carcass"),
-  drawerBoxes:      () => load<DrawerBox>("drawer_box"),
-  rooms:            () => load<Room>("rooms"),
-
-  moldingTypes:    () => load<MoldingType>("molding_types"),
-  moldingProfiles: () => load<MoldingProfile>("molding_profiles"),
-  edgebands:       () => load<Edgeband>("edgeband"),
-  builderProfiles: () => load<BuilderProfile>("builder_profiles"),
-
-  cabDoorInsideProfiles: () => load<CabDoorInsideProfile>("cabdoor_inside_profiles"),
-  cabDoorPanels:         () => load<CabDoorPanel>("cabdoor_panels"),
-  cabDoorEdgeDetails:    () => load<CabDoorEdgeDetail>("cabdoor_edge_details"),
-  cabDoorMitrePatterns:  () => load<CabDoorMitrePattern>("cabdoor_mitre_patterns"),
-  cabDoorPresets:        () => load<CabDoorPreset>("cabdoor_presets"),
-
-  // Spec form expansion v2 (2026-05-06).
-  sheens:           () => load<Sheen>("sheens"),
-  drawerSlides:     () => load<DrawerSlide>("drawer_slides"),
-  glazes:           () => load<Glaze>("glazes"),
-  topcoats:         () => load<Topcoat>("topcoats"),
-  doorMaterials:    () => load<DoorMaterial>("door_materials"),
-  moldingMaterials: () => load<MoldingMaterial>("molding_materials"),
-
-  // Hardware split into 11 per-role CSVs per Karl's CSV-libraries-human-editable
-  // preference. Form renders the right catalog based on the finish_group_hardware.role value.
-  hardwareHinges:        () => load<HardwareRow>("hardware_hinges"),
-  hardwareDrawerSlides:  () => load<HardwareRow>("hardware_drawer_slides"),
-  hardwareRolloutSlides: () => load<HardwareRow>("hardware_rollout_slides"),
-  hardwareClosetRods:    () => load<HardwareRow>("hardware_closet_rods"),
-  hardwareTrashPullouts: () => load<HardwareRow>("hardware_trash_pullouts"),
-  hardwareBasePullouts:  () => load<HardwareRow>("hardware_base_pullouts"),
-  hardwareBlindCorners:  () => load<HardwareRow>("hardware_blind_corners"),
-  hardwareShelfClips:    () => load<HardwareRow>("hardware_shelf_clips"),
-  hardwareDoorPulls:     () => load<HardwareRow>("hardware_door_pulls"),
-  hardwareDrawerPulls:   () => load<HardwareRow>("hardware_drawer_pulls"),
-  hardwareMisc:          () => load<HardwareRow>("hardware_misc"),
-
-  /**
-   * Resolve a hardware row by role + id. Form/PDF code uses this to look up
-   * the right catalog for any finish_group_hardware row.
-   */
-  hardwareByRole(role: string): HardwareRow[] {
-    switch (role) {
-      case "hinges":          return load<HardwareRow>("hardware_hinges");
-      case "drawer_slides":   return load<HardwareRow>("hardware_drawer_slides");
-      case "rollout_slides":  return load<HardwareRow>("hardware_rollout_slides");
-      case "closet_rod":      return load<HardwareRow>("hardware_closet_rods");
-      case "trash_pullout":   return load<HardwareRow>("hardware_trash_pullouts");
-      case "base_pullout":    return load<HardwareRow>("hardware_base_pullouts");
-      case "blind_corner":    return load<HardwareRow>("hardware_blind_corners");
-      case "shelf_clips":     return load<HardwareRow>("hardware_shelf_clips");
-      case "door_pulls":      return load<HardwareRow>("hardware_door_pulls");
-      case "drawer_pulls":    return load<HardwareRow>("hardware_drawer_pulls");
-      case "misc":            return load<HardwareRow>("hardware_misc");
-      default: return [];
-    }
-  },
-
-  countertopStyles:    () => load<CountertopStyle>("countertop_styles"),
-  countertopEdges:     () => load<CountertopEdge>("countertop_edges"),
-  countertopMaterials: () => load<CountertopMaterial>("countertop_materials"),
-
-  doorCatalog: (): DoorCatalog => {
-    const file = path.join(DIR, "doors_catalog.json");
-    return JSON.parse(fs.readFileSync(file, "utf-8")) as DoorCatalog;
-  },
-  cabinetFamilies: (): CabinetFamily[] => {
-    const file = path.join(DIR, "cabinets_catalog.json");
-    const raw = JSON.parse(fs.readFileSync(file, "utf-8")) as Record<string, Omit<CabinetFamily, "family_code">>;
-    return Object.entries(raw).map(([family_code, data]) => ({ family_code, ...data }));
-  },
+export type ExpressColor = { id: string; name: string; hex?: string | null };
+export type ExpressColorBook = {
+  paint: ExpressColor[];
+  stain: ExpressColor[];
+  melamine: ExpressColor[];
 };
+
+// -- Resolution ---------------------------------------------------------------
+//
+// The rules live in lib/catalog-resolve.ts, which imports nothing so they can be
+// tested without a database (scripts/test-catalog-resolve.mjs). Re-exported here
+// because this is the module everything already imports.
+
+export type { CatalogSource, CatalogResolution } from "@/lib/catalog-resolve";
+export { resolveCatalogRows, resolveCatalogObject, keyFieldFor, CATALOG_KEY_FIELD } from "@/lib/catalog-resolve";
+
+// -- Cache --------------------------------------------------------------------
+//
+// One query fetches every catalog the database holds (all of them together are
+// under a megabyte as JSON), held for CACHE_TTL_MS per server instance. The
+// accessors stay synchronous, which is what keeps this a 10-line change at the
+// call sites instead of a rewrite of every .find() in the codebase.
+//
+// The cost of the cache is that an admin edit can take up to the TTL to appear
+// on a server instance that did not serve the write. invalidateCatalogCache()
+// clears the instance that did. For a colour-name lookup that is a fine trade;
+// specs store the id and a denormalised name, so no document changes under
+// anyone mid-render.
+//
+// This also removes a hot-loop file read. Every catalogs.X() call used to do a
+// readFileSync plus a JSON.parse, and hardwareByRole() was called once per
+// hardware row — a spec PDF re-parsed the same JSON dozens of times.
+
+const CACHE_TTL_MS = 15_000;
+
+let dbCache: { at: number; map: Map<string, unknown> } | null = null;
+let warnedUnreadable = false;
+
+/** Drop the cached database snapshot on this instance. Called after an admin write. */
+export function invalidateCatalogCache(): void {
+  dbCache = null;
+}
+
+async function fetchDbCatalogs(): Promise<Map<string, unknown>> {
+  const now = Date.now();
+  if (dbCache && now - dbCache.at < CACHE_TTL_MS) return dbCache.map;
+
+  const map = new Map<string, unknown>();
+  try {
+    const rows = await sql<{ name: string; data: unknown }[]>`
+      SELECT name, data FROM catalog_libraries
+    `;
+    for (const r of rows) {
+      if (r?.name != null) map.set(r.name, r.data);
+    }
+  } catch (e) {
+    // Table missing, or the database is down. Every catalog falls back to its
+    // file, so the app still works — but say so once, because silently serving
+    // stale files is exactly the failure this module exists to prevent.
+    if (!warnedUnreadable) {
+      warnedUnreadable = true;
+      console.warn(
+        "[catalogs] catalog_libraries unreadable — serving all catalogs from data/catalogs/*.json.",
+        (e as Error)?.message ?? e,
+      );
+    }
+  }
+  dbCache = { at: now, map };
+  return map;
+}
+
+export type Catalogs = ReturnType<typeof makeSnapshot>;
+
+function makeSnapshot(db: Map<string, unknown>) {
+  const memoRows = new Map<string, unknown[]>();
+  const memoObj = new Map<string, unknown>();
+  const sources = new Map<string, CatalogSource>();
+
+  function rows<T>(name: string): T[] {
+    const hit = memoRows.get(name);
+    if (hit) return hit as T[];
+    const r = resolveCatalogRows<T>(name, db.get(name), () => load<T>(name));
+    if (r.note) console.warn(`[catalogs] ${r.note}`);
+    memoRows.set(name, r.rows as unknown[]);
+    sources.set(name, r.source);
+    return r.rows;
+  }
+
+  function obj<T>(name: string): T {
+    if (memoObj.has(name)) return memoObj.get(name) as T;
+    const r = resolveCatalogObject<T>(name, db.get(name), () => loadObject<T>(name));
+    if (r.note) console.warn(`[catalogs] ${r.note}`);
+    memoObj.set(name, r.value);
+    sources.set(name, r.source);
+    return r.value;
+  }
+
+  return {
+    paintColors:    () => rows<PaintColor>("colors_paint"),
+    stainColors:    () => rows<StainColor>("colors_stain"),
+    melamineColors: () => rows<MelamineColor>("colors_melamine"),
+    species:        () => rows<Species>("species"),
+    doorStyles:     () => rows<DoorStyle>("door_styles"),
+    hardwarePulls:  () => rows<HardwarePull>("hardware_pulls"),
+
+    carcassMaterials: () => rows<CarcassMaterial>("colors_carcass"),
+    drawerBoxes:      () => rows<DrawerBox>("drawer_box"),
+    rooms:            () => rows<Room>("rooms"),
+
+    moldingTypes:    () => rows<MoldingType>("molding_types"),
+    moldingProfiles: () => rows<MoldingProfile>("molding_profiles"),
+    edgebands:       () => rows<Edgeband>("edgeband"),
+
+    cabDoorInsideProfiles: () => rows<CabDoorInsideProfile>("cabdoor_inside_profiles"),
+    cabDoorPanels:         () => rows<CabDoorPanel>("cabdoor_panels"),
+    cabDoorEdgeDetails:    () => rows<CabDoorEdgeDetail>("cabdoor_edge_details"),
+    // No caller yet — the mitre/preset picker is not built. Kept because the
+    // data is real and the UI is planned, unlike the two below.
+    cabDoorMitrePatterns:  () => rows<CabDoorMitrePattern>("cabdoor_mitre_patterns"),
+    cabDoorPresets:        () => rows<CabDoorPreset>("cabdoor_presets"),
+
+    // Spec form expansion v2 (2026-05-06).
+    sheens:           () => rows<Sheen>("sheens"),
+    drawerSlides:     () => rows<DrawerSlide>("drawer_slides"),
+    glazes:           () => rows<Glaze>("glazes"),
+    topcoats:         () => rows<Topcoat>("topcoats"),
+    doorMaterials:    () => rows<DoorMaterial>("door_materials"),
+    moldingMaterials: () => rows<MoldingMaterial>("molding_materials"),
+
+    // Hardware split into 11 per-role CSVs per Karl's CSV-libraries-human-editable
+    // preference. Form renders the right catalog based on the finish_group_hardware.role value.
+    hardwareHinges:        () => rows<HardwareRow>("hardware_hinges"),
+    hardwareDrawerSlides:  () => rows<HardwareRow>("hardware_drawer_slides"),
+    hardwareRolloutSlides: () => rows<HardwareRow>("hardware_rollout_slides"),
+    hardwareClosetRods:    () => rows<HardwareRow>("hardware_closet_rods"),
+    hardwareTrashPullouts: () => rows<HardwareRow>("hardware_trash_pullouts"),
+    hardwareBasePullouts:  () => rows<HardwareRow>("hardware_base_pullouts"),
+    hardwareBlindCorners:  () => rows<HardwareRow>("hardware_blind_corners"),
+    hardwareShelfClips:    () => rows<HardwareRow>("hardware_shelf_clips"),
+    hardwareDoorPulls:     () => rows<HardwareRow>("hardware_door_pulls"),
+    hardwareDrawerPulls:   () => rows<HardwareRow>("hardware_drawer_pulls"),
+    hardwareMisc:          () => rows<HardwareRow>("hardware_misc"),
+
+    /**
+     * Resolve a hardware row by role + id. Form/PDF code uses this to look up
+     * the right catalog for any finish_group_hardware row.
+     */
+    hardwareByRole(role: string): HardwareRow[] {
+      switch (role) {
+        case "hinges":          return rows<HardwareRow>("hardware_hinges");
+        case "drawer_slides":   return rows<HardwareRow>("hardware_drawer_slides");
+        case "rollout_slides":  return rows<HardwareRow>("hardware_rollout_slides");
+        case "closet_rod":      return rows<HardwareRow>("hardware_closet_rods");
+        case "trash_pullout":   return rows<HardwareRow>("hardware_trash_pullouts");
+        case "base_pullout":    return rows<HardwareRow>("hardware_base_pullouts");
+        case "blind_corner":    return rows<HardwareRow>("hardware_blind_corners");
+        case "shelf_clips":     return rows<HardwareRow>("hardware_shelf_clips");
+        case "door_pulls":      return rows<HardwareRow>("hardware_door_pulls");
+        case "drawer_pulls":    return rows<HardwareRow>("hardware_drawer_pulls");
+        case "misc":            return rows<HardwareRow>("hardware_misc");
+        default: return [];
+      }
+    },
+
+    countertopStyles:    () => rows<CountertopStyle>("countertop_styles"),
+    countertopEdges:     () => rows<CountertopEdge>("countertop_edges"),
+    countertopMaterials: () => rows<CountertopMaterial>("countertop_materials"),
+
+    // Three catalogs are objects rather than row arrays, so they resolve
+    // through obj() and cannot be replaced by an array written by mistake.
+    doorCatalog: (): DoorCatalog => obj<DoorCatalog>("doors_catalog"),
+
+    cabinetFamilies: (): CabinetFamily[] => {
+      const raw = obj<Record<string, Omit<CabinetFamily, "family_code">>>("cabinets_catalog");
+      return Object.entries(raw).map(([family_code, data]) => ({ family_code, ...data }));
+    },
+
+    /** Express wizard colour book — previously read with its own inline readFileSync. */
+    expressColors: (): ExpressColorBook => obj<ExpressColorBook>("express_colors"),
+
+    /** Which catalogs this snapshot is serving from the database. Diagnostics only. */
+    dbBackedNames: (): string[] => [...db.keys()].sort(),
+
+    /** Where a catalog came from, once something has asked for it. */
+    sourceOf: (name: string): CatalogSource | null => sources.get(name) ?? null,
+  };
+}
+
+/**
+ * The catalogs, as of this request. One database round trip (cached), then
+ * every accessor is synchronous — so existing `.find()` / `.map()` code needs
+ * no change beyond the one `await` that produces the snapshot.
+ *
+ *   const catalogs = await getCatalogs();
+ *   const eb = catalogs.edgebands().find((e) => e.id === id);
+ */
+export async function getCatalogs(): Promise<Catalogs> {
+  return makeSnapshot(await fetchDbCatalogs());
+}
+
+/** Every catalog name the loader knows about, for the seeder and the admin UI. */
+export const CATALOG_NAMES: readonly string[] = [...DB_CATALOG_NAMES].sort();
+
+/**
+ * Catalogs that appear in /admin/libraries but that nothing reads from there,
+ * because a dedicated table and a dedicated admin page took over. Editing them
+ * on the Libraries page did nothing at all — the row saved, and the app carried
+ * on reading somewhere else. The accessors are gone and the API refuses the
+ * write, so the decoy is closed rather than merely documented.
+ */
+export const SUPERSEDED_CATALOGS: Record<string, { table: string; editAt: string }> = {
+  builder_profiles: { table: "catalog_builder_profiles", editAt: "/admin/builder-profiles" },
+  accessories_reva: { table: "accessories_catalog",      editAt: "/admin/accessories" },
+};
+
+/** The three catalogs stored as an object rather than a row array. */
+export const OBJECT_CATALOGS: readonly string[] = ["doors_catalog", "cabinets_catalog", "express_colors"];

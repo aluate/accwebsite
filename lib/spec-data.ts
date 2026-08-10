@@ -1,5 +1,5 @@
 import sql from "@/lib/db";
-import { catalogs } from "@/lib/catalogs";
+import { getCatalogs } from "@/lib/catalogs";
 import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry, HardwareView } from "@/lib/pdf-spec";
 import { ACC_HARDWARE_STANDARDS, HARDWARE_ROLE_LABEL } from "@/lib/acc-standards";
 import { canonicalTrimType } from "@/lib/trim-types";
@@ -60,6 +60,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   const rfs  = roomIds.length ? await sql<RoomFinishRow[]>`SELECT * FROM room_finishes    WHERE room_id IN ${sql(roomIds)}` : [] as RoomFinishRow[];
   const accs = roomIds.length ? await sql<AccRow[]>        `SELECT * FROM room_accessories WHERE room_id IN ${sql(roomIds)}` : [] as AccRow[];
 
+  const catalogs = await getCatalogs();
   const carcassIdx=new Map(catalogs.carcassMaterials().map(c=>[c.id,c.name]));
   const drawerBoxIdx=new Map(catalogs.drawerBoxes().map(d=>[d.id,d.name]));
   const edgebandIdx=new Map(catalogs.edgebands().map(e=>[e.id,{name:e.product_name,supplier:e.supplier,thickness:e.thickness_mm??""}]));

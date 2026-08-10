@@ -30,8 +30,11 @@ type CatalogData = {
   edgebands: Edgeband[];
   rooms: RoomCatalogEntry[];
   cabDoorEdges?: { id: string; name: string }[];
-  cabDoorProfiles?: { id: string; name: string }[];
-  cabDoorPanels?: { id: string; name: string }[];
+  // Inside profiles and panels have no display name in the catalog — the id *is*
+  // the name (e.g. "P-101"), which is why the <option> renders `p.name || p.id`.
+  // Declaring `name` required was a lie that the old unknown[] plumbing hid.
+  cabDoorProfiles?: { id: string; name?: string }[];
+  cabDoorPanels?: { id: string; name?: string }[];
   species?: { id: string; name: string; grades: string | string[] | null; finish_types?: string | string[] | null; sort_order?: number }[];
   // Already passed in by app/jobs/[id]/residential/[specId]/page.tsx — it was just
   // never declared here, so the trim dropdowns each carried their own hardcoded
