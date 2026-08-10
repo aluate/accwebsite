@@ -24,6 +24,15 @@ export type AddEventFormProps = {
   mode?: "add" | "edit";
   initialEvent?: JobEventWithJoins;
   onUpdated?: (event: JobEventWithJoins) => void;
+  /**
+   * The server may come back offering to make a moved install date official. This form
+   * is always rendered by ScheduleWallClient, which owns that modal — bubble it up
+   * rather than growing a second copy of the same dialog here.
+   */
+  onInstallDatePrompt?: (prompt: {
+    job_id: string; job_label: string; event_id: string;
+    official: string | null; scheduled: string;
+  }) => void;
   onDeleted?: (id: string) => void;
 };
 
@@ -137,6 +146,7 @@ export function AddEventForm({
   mode = "add",
   initialEvent,
   onUpdated,
+  onInstallDatePrompt,
   onDeleted,
 }: AddEventFormProps) {
   const today = new Date().toISOString().slice(0, 10);
@@ -269,6 +279,7 @@ export function AddEventForm({
         return;
       }
       setConflicts(body.conflicts ?? []);
+      if (body.install_date_prompt) onInstallDatePrompt?.(body.install_date_prompt);
       if (body.event) setSavedEvent(body.event);
       setSubmitState("ok");
       if ((body.conflicts ?? []).length === 0) {

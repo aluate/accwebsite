@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
  */
 import { NextRequest, NextResponse } from "next/server";
 import { requireBuilder } from "@/lib/auth";
+import { installDatePromptFor } from "@/lib/install-date";
 import {
   updateEvent,
   deleteEvent,
@@ -62,10 +63,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!result.ok) {
     return NextResponse.json({ ok: false, error: result.error }, { status: 400 });
   }
+
+  // Moving an install on the calendar does not change the official date — the pipeline
+  // owns that. It offers to. Only when this is the event the board reads and the two
+  // actually disagree, because a prompt that fires when nothing has diverged teaches
+  // people to dismiss prompts unread.
+  let install_date_prompt = null;
+  if (body.date_start !== undefined || body.date_end !== undefined || body.event_type !== undefined) {
+    try {
+      install_date_prompt = await installDatePromptFor(id);
+    } catch {
+      install_date_prompt = null;   // never fail a saved move over the prompt
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     event: result.event,
     conflicts: result.conflicts ?? [],
+    ...(install_date_prompt ? { install_date_prompt } : {}),
   });
 }
 

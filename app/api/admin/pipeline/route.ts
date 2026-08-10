@@ -52,10 +52,16 @@ export async function GET() {
         (SELECT je.date_start FROM job_events je
          WHERE je.job_id = j.id AND je.event_type = 'install' AND je.date_start IS NOT NULL
          ORDER BY je.date_start ASC LIMIT 1) AS scheduled_install_date,
-        -- Anticipated delivery: prefer schedule install event, then jobs.delivery_date.
-        -- Derived, and read-only. Grouping, month filters and the ENG warning all use
-        -- it, because "when does this actually ship" is the schedule's answer.
+        -- Anticipated delivery: the official install date first, then whatever is on
+        -- the calendar, then the manual delivery date. Derived and read-only; month
+        -- grouping, the capacity rollups and the "ships in Nw — needs ENG" warning all
+        -- read it.
+        --
+        -- The official date leads because the pipeline owns install (Karl, 2026-08-10).
+        -- It used to lead with the calendar, which meant the cell you edit and the month
+        -- bucket the job sat in could disagree.
         COALESCE(
+          j.install_start_date,
           (SELECT je.date_start FROM job_events je
            WHERE je.job_id = j.id AND je.event_type = 'install' AND je.date_start IS NOT NULL
            ORDER BY je.date_start ASC LIMIT 1),

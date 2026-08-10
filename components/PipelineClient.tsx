@@ -768,7 +768,27 @@ export default function PipelineClient() {
         setSaveFlash("⚠ Save failed: " + (err.error ?? r.status));
         load();
       } else {
-        setSaveFlash("Saved ✓");
+        const body = await r.json().catch(() => ({} as Record<string, unknown>));
+        // The board owns the install date and the calendar follows automatically, so
+        // say what moved. An automatic change nobody is told about is indistinguishable
+        // from a bug the first time someone notices the schedule shifted.
+        const sync = body.install_sync as
+          | { moved: true; from: string | null; to: string; conflicts?: unknown[] }
+          | { moved: false; reason: string }
+          | undefined;
+        if (sync?.moved) {
+          const n = sync.conflicts?.length ?? 0;
+          setSaveFlash(
+            n > 0
+              ? `Saved ✓ — install event moved to ${sync.to}, but it now clashes with ${n} other booking${n === 1 ? "" : "s"}`
+              : `Saved ✓ — install event moved ${sync.from ?? "?"} → ${sync.to}`,
+          );
+          load();
+        } else if (sync && !sync.moved) {
+          setSaveFlash(`Saved ✓ — ${sync.reason}`);
+        } else {
+          setSaveFlash("Saved ✓");
+        }
         // If we just linked a job to a placeholder, reload to get updated counts
         if ("placeholder_id" in updates) load();
       }
@@ -777,7 +797,9 @@ export default function PipelineClient() {
       load();
     }
     if (flashTimer.current) clearTimeout(flashTimer.current);
-    flashTimer.current = setTimeout(() => setSaveFlash(null), 2500);
+    // A message about the calendar moving, or about a clash, needs longer than the
+    // 2.5s a plain "Saved" gets.
+    flashTimer.current = setTimeout(() => setSaveFlash(null), "install_start_date" in updates ? 9000 : 2500);
   }
 
   async function linkJobToPlaceholder(jobId: string, placeholderId: string) {

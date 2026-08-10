@@ -378,6 +378,14 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
   const [priorityDropIdx, setPriorityDropIdx] = useState<number | null>(null);
   const priorityDragModeRef = useRef(false);
 
+  // Moving an install on the calendar does not change the official date — the pipeline
+  // owns that — so the server offers, and this is the offer.
+  const [installPrompt, setInstallPrompt] = useState<{
+    job_id: string; job_label: string; event_id: string;
+    official: string | null; scheduled: string;
+  } | null>(null);
+  const [installSaving, setInstallSaving] = useState(false);
+
   const [conflictPrompt, setConflictPrompt] = useState<{
     eventId: string; conflicts: JobEventWithJoins[];
   } | null>(null);
@@ -605,6 +613,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
       if (Array.isArray(body.conflicts) && body.conflicts.length > 0) {
         setConflictPrompt({ eventId, conflicts: body.conflicts });
       }
+      if (body.install_date_prompt) setInstallPrompt(body.install_date_prompt);
     } catch (e) {
       setForwardEvents(prevForward);
       setOnDeckEvents(prevOnDeck);
@@ -1174,6 +1183,62 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
         </div>
       )}
 
+      {/* Make-it-official modal. The calendar has already moved; this only decides
+          whether jobs.install_start_date follows. */}
+      {installPrompt && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-[#f08122]/30 rounded p-6 max-w-md w-full mx-4">
+            <h3 className="text-white font-condensed uppercase tracking-widest mb-3">Official install date?</h3>
+            <p className="text-white/60 text-sm mb-4">
+              {installPrompt.job_label} is now scheduled to install{" "}
+              <span className="text-white">{installPrompt.scheduled}</span>.
+              {installPrompt.official
+                ? <> The pipeline still says <span className="text-amber-300">{installPrompt.official}</span>.</>
+                : <> The pipeline has no install date set.</>}
+            </p>
+            <p className="text-white/30 text-xs mb-5">
+              The event has already moved either way. This decides what the board, the
+              month grouping and the ENG warning use.
+            </p>
+            <div className="flex gap-2">
+              <button
+                disabled={installSaving}
+                onClick={async () => {
+                  setInstallSaving(true);
+                  try {
+                    const r = await fetch(`/api/jobs/${installPrompt.job_id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        install_start_date: installPrompt.scheduled,
+                        _actor: "schedule", _actorRole: "pm",
+                      }),
+                    });
+                    if (!r.ok) {
+                      const d = await r.json().catch(() => ({}));
+                      setErrorPrompt(d.error ?? `Could not update the job (${r.status})`);
+                    }
+                  } catch (e) {
+                    setErrorPrompt(String((e as Error).message ?? e));
+                  } finally {
+                    setInstallSaving(false);
+                    setInstallPrompt(null);
+                  }
+                }}
+                className="bg-[#f08122] text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded disabled:opacity-50">
+                {installSaving ? "Saving…" : "Make it official"}
+              </button>
+              <button
+                disabled={installSaving}
+                onClick={() => setInstallPrompt(null)}
+                className="border border-white/15 text-white/50 hover:text-white font-condensed uppercase tracking-widest text-xs px-4 py-2 rounded">
+                Leave the pipeline alone
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Conflict modal */}
       {conflictPrompt && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -1213,6 +1278,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
       {/* Add event form */}
       {showAddForm && isAdmin && (
         <AddEventForm
+          onInstallDatePrompt={setInstallPrompt}
           crews={crews}
           jobs={jobs}
           onClose={() => setShowAddForm(false)}
@@ -1229,6 +1295,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
       {/* Edit event form */}
       {editingEvent && isAdmin && (
         <AddEventForm
+          onInstallDatePrompt={setInstallPrompt}
           mode="edit"
           initialEvent={editingEvent}
           crews={crews}
@@ -1253,6 +1320,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
       {/* Duplicate event form — same job/type/crew/duration, blank dates */}
       {duplicatingEvent && isAdmin && (
         <AddEventForm
+          onInstallDatePrompt={setInstallPrompt}
           mode="add"
           initialEvent={{ ...duplicatingEvent, id: "", date_start: null, date_end: null }}
           crews={crews}

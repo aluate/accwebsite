@@ -5,6 +5,7 @@ import { sql } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
 import { requireBuilderApi, guardApi } from "@/lib/auth";
+import { syncInstallEventToOfficialDate } from "@/lib/install-date";
 
 /**
  * Columns a PATCH may write. Every name here must be a real column on `jobs`:
@@ -143,7 +144,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
   }
 
-  return NextResponse.json({ ok: true });
+  // The pipeline owns the install date, so a change here drags the scheduled install
+  // event with it — automatically, keeping its length and crew. Karl's call: fewer
+  // clicks beats a confirmation, because the alternative is a crew reading a date the
+  // office has already changed.
+  //
+  // Reported rather than silent. The move can double-book a crew, and an automatic
+  // change that hides a conflict is worse than no sync at all.
+  let install_sync: Awaited<ReturnType<typeof syncInstallEventToOfficialDate>> | undefined;
+  if ("install_start_date" in updates) {
+    try {
+      install_sync = await syncInstallEventToOfficialDate(
+        internalId,
+        updates.install_start_date as string | null,
+        actor,
+      );
+    } catch (e) {
+      // The job itself saved. Say the schedule did not follow rather than failing the
+      // whole request and making it look like the date did not save.
+      install_sync = { moved: false, reason: `the schedule could not be updated: ${(e as Error)?.message ?? e}` };
+    }
+  }
+
+  return NextResponse.json({ ok: true, ...(install_sync ? { install_sync } : {}) });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
