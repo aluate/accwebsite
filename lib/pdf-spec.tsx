@@ -31,6 +31,14 @@ export type MoldingView = { molding_type: string; type_label: string; profile_na
 
 export type FinishGroupView = {
   id: string; label: string; finish_type: string; notes: string; species: string;
+  /** The colour as stored on the finish group — catalog or custom, denormalised. */
+  color_name: string;
+  /**
+   * Absolute path to the melamine swatch, or "" when there is none. Resolved in
+   * spec-data.ts and only set when the file exists on disk: @react-pdf throws on a
+   * missing image, and a work order that will not render beats one without a picture.
+   */
+  color_image: string;
   wo_number: string | null;
   grain_orientation: string | null;
   applied_panels: string | null;
@@ -365,6 +373,12 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   const COL = {
     fg:       0.9,
     color:    1.6,
+    // Karl's placement: right of Color / Finish, before Species. 0.7 of ~13.3 total
+    // flex on landscape LETTER lands at about half an inch, which is what the 400px
+    // swatches were sized for — 400px over 0.5in is 800dpi, past what any printer
+    // resolves. Paint and stain have no photograph, so the cell is simply empty for
+    // them rather than showing a placeholder nobody asked about.
+    swatch:   0.7,
     species:  0.8,
     carcass:  1.3,
     doorSpec: 2.8,   // stacked: Doors / DF / Applied Ends
@@ -388,6 +402,7 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
           <View style={S.colHdr}>
             <Text style={[S.colHdrTx, { flex: COL.fg }]}>Finish Group</Text>
             <Text style={[S.colHdrTx, { flex: COL.color }]}>Color / Finish</Text>
+            <Text style={[S.colHdrTx, { flex: COL.swatch }]}> </Text>
             <Text style={[S.colHdrTx, { flex: COL.species }]}>Species</Text>
             <Text style={[S.colHdrTx, { flex: COL.carcass }]}>Carcass</Text>
             <Text style={[S.colHdrTx, { flex: COL.doorSpec }]}>Doors · DF · Applied Ends</Text>
@@ -458,6 +473,18 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
               <View key={fg.id} style={rowStyle} wrap={false}>
                 <Text style={[S.cell, { flex: COL.fg, fontFamily: "Helvetica-Bold", color: ORANGE }]}>{fg.label}</Text>
                 <Text style={[S.cell, { flex: COL.color }]}>{d(colorName)}</Text>
+
+                {/*
+                  The colour, as a picture. A client choosing a finish is choosing what
+                  it LOOKS like, and a sheet that says "MOAB RIFT" asks them to trust a
+                  name. Empty for paint and stain, which have no photograph — an empty
+                  cell is quieter than a placeholder.
+                */}
+                <View style={{ flex: COL.swatch, padding: 3, alignItems: "center", justifyContent: "center" }}>
+                  {fg.color_image
+                    ? <Image src={fg.color_image} style={{ width: 34, height: 34, borderWidth: 0.3, borderColor: HAIR }} />
+                    : null}
+                </View>
                 {/*
                   Species on a melamine group used to print "—" because
                   finish_groups.species is only filled for paint and stain. But a
@@ -949,7 +976,6 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
 
   // Finish type label for header
   const finishTypeLabel = fg.finish_type === "paint" ? "PAINT" : fg.finish_type === "stain" ? "STAIN" : "MELAMINE";
-  const finishLabel     = `${finishTypeLabel}${colorName ? ` — ${colorName.toUpperCase()}` : ""}`;
 
   // Touchup kit
   const touchupKit  = fg.finish_type === "paint" ? "PENS TO MATCH"
@@ -994,11 +1020,31 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
           )}
         </View>
 
-        {/* Finish Group */}
+        {/*
+          Finish group.
+
+          This read "MEL-1" then "MELAMINE — MOAB RIFT" on the line below. The word
+          MELAMINE is redundant on a sheet whose whole left column is melamine specs,
+          and it pushed the thing the shop actually needs — the colour — into small
+          type. It now reads MEL-1 = MOAB RIFT, with the swatch beside it, so someone
+          at a machine can see what they are building rather than matching a name
+          against a sample board across the room.
+        */}
         <View style={WS.hdrRight}>
           <Text style={WS.hdrFgLabel}>FINISH GROUP</Text>
-          <Text style={WS.hdrFinish}>{fg.label}</Text>
-          <Text style={[WS.hdrFinish, { fontSize: 8, marginTop: 2 }]}>{finishLabel}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }}>
+            {fg.color_image
+              ? <Image src={fg.color_image} style={{ width: 30, height: 30, marginRight: 5, borderWidth: 0.4, borderColor: "#999" }} />
+              : null}
+            <View>
+              <Text style={WS.hdrFinish}>
+                {fg.label}{colorName ? ` = ${colorName.toUpperCase()}` : ""}
+              </Text>
+              {!colorName && (
+                <Text style={[WS.hdrFinish, { fontSize: 8, marginTop: 2 }]}>{finishTypeLabel}</Text>
+              )}
+            </View>
+          </View>
         </View>
       </View>
 

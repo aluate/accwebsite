@@ -1,3 +1,5 @@
+import path from "path";
+import { existsSync } from "fs";
 import sql from "@/lib/db";
 import { getCatalogs } from "@/lib/catalogs";
 import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, MoldingRollupRow, SpecPullRow, SpecAccessoryRow, SpecHardwareRow, FGPullRow, RoomTrimEntry, ApplianceEntry, HardwareView } from "@/lib/pdf-spec";
@@ -138,9 +140,24 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
     hardwareByFg.set(h.finish_group_id, arr);
   }
 
+  // Melamine/TFL colours carry a photograph. Resolve it to an absolute path here,
+  // because @react-pdf opens a filesystem path (that is how the logo works) and the
+  // renderer has no business knowing where public/ is.
+  //
+  // Only when the file really exists: a missing image makes @react-pdf throw, and a
+  // work order that fails to render is far worse than one without a swatch. The
+  // catalog and the files on disk went out of step once already this week.
+  const melamineImageIdx = new Map<string, string>();
+  for (const c of catalogs.melamineColors()) {
+    if (!c.image_url) continue;
+    const abs = path.join(process.cwd(), "public", c.image_url.replace(/^\//, ""));
+    if (existsSync(abs)) melamineImageIdx.set(c.id, abs);
+  }
+
   const fgViews: FinishGroupView[] = fgs.map((g) => {
     // Color display: use stored color_name directly (handles both catalog and custom)
     const colorName = g.color_name ?? "";
+    const colorImage = g.color_id ? (melamineImageIdx.get(g.color_id) ?? "") : "";
     const isStain = g.finish_type === "stain";
     const carcassName = g.carcass_id ? (carcassIdx.get(g.carcass_id) ?? g.carcass_id) : "";
     const doorName = g.door_style_id ? (doorStyleIdx.get(g.door_style_id) ?? g.door_style_id) : "";
@@ -167,6 +184,8 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
 
     return {
       id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
+      color_name: colorName,
+      color_image: colorImage,
       wo_number: g.wo_number ?? null,
       grain_orientation: g.grain_orientation ?? null,
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,

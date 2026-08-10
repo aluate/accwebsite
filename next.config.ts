@@ -8,7 +8,12 @@ const nextConfig: NextConfig = {
   // Next.js file tracer cannot statically resolve dynamic paths, so we must explicitly
   // include them so Vercel bundles the JSON files into the Lambda output.
   outputFileTracingIncludes: {
-    "/**": ["./data/catalogs/**"],
+    // The comment above applies just as much to the melamine swatches: the PDF
+    // renderer opens public/melamines/<whatever colour this finish group is>.jpg,
+    // which is a dynamic path the tracer cannot see. Without this line the images
+    // render on a developer's machine and are silently absent in production —
+    // which is the only place they matter. ~6MB of 400px jpgs.
+    "/**": ["./data/catalogs/**", "./public/melamines/**", "./public/logo.png"],
   },
   turbopack: {
     root: path.resolve(__dirname),

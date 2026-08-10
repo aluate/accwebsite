@@ -13,6 +13,7 @@
  *   DATABASE_URL=postgres://... npx tsx scripts/test-trim-propagate.mjs
  */
 import postgres from "postgres";
+import { readFileSync } from "fs";
 import { randomBytes } from "node:crypto";
 import { deriveRoomTrim, retrimForFinishGroupSwap } from "../lib/trim-defaults.ts";
 
@@ -151,6 +152,29 @@ try {
 } finally {
   await sql`DELETE FROM jobs WHERE id = ${jobId}`.catch(() => {});
   await sql.end({ timeout: 5 });
+}
+
+
+// ── the wiring, not the engine ────────────────────────────────────────────────
+//
+// Everything above proves propagateTrimDefaults does the right thing. None of it
+// proved anything CALLED it, and that was the actual bug Karl hit: the function, the
+// API route and three modes all existed, and no save invoked any of them, so a room
+// added after its finish group's trim was filled in came up blank.
+//
+// A source assertion is weaker than an HTTP test and it is what is available without
+// an auth harness — but it fails if someone removes the call, which is the regression
+// that matters.
+{
+  const src = readFileSync(new URL("../app/api/specs/[id]/save/route.ts", import.meta.url), "utf8");
+  check("the spec save imports propagateTrimDefaults",
+        /import\s*\{[^}]*propagateTrimDefaults[^}]*\}\s*from\s*"@\/lib\/trim-propagate"/.test(src));
+  check("the spec save actually calls it",
+        /await\s+propagateTrimDefaults\s*\(/.test(src));
+  check("it is called with overwrite=false, so it can only fill blanks",
+        /propagateTrimDefaults\(\s*id\s*,\s*fgId\s*,\s*false\s*\)/.test(src));
+  check("a propagation failure cannot fail the save",
+        /try\s*\{[\s\S]{0,200}propagateTrimDefaults[\s\S]{0,300}catch/.test(src));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

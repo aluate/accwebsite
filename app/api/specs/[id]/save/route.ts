@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { seedAccStandards } from "@/lib/acc-standards-seed";
+import { propagateTrimDefaults } from "@/lib/trim-propagate";
 
 // -- Payload types
 
@@ -456,6 +457,33 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             `;
           }
         } catch (_) { /* seeding failure -- skip */ }
+      }
+
+      // Push this finish group's trim defaults onto the rooms that use it.
+      //
+      // This is the piece that was missing. propagateTrimDefaults existed, and so did
+      // an API route with three modes, and nothing called either from a save — so the
+      // only way trim ever reached a room was to fill in the finish group's defaults
+      // AFTER the room already existed. Do it in the order anyone actually works in
+      // — define the finish group, then add rooms — and every room came up blank.
+      //
+      // It belongs here rather than on the room's finish-group dropdown because rooms
+      // are client-side state until this route runs: at dropdown time the room has an
+      // id the database has never seen. Here, every room and room_finishes row is
+      // already written, so "which rooms use this group" is answerable.
+      //
+      // overwrite=false: fills blanks only. Never touches a size or material someone
+      // typed, and qty_lf is not named by any statement it runs — a defaulted linear
+      // foot reads as measured and goes straight to a cut list.
+      //
+      // Idempotent, so running it on every save is not a problem: the second pass
+      // finds the rows already there and changes nothing.
+      try {
+        await propagateTrimDefaults(id, fgId, false);
+      } catch (e) {
+        // The spec itself is saved. Trim defaults are a convenience; losing them is
+        // not worth failing the save the PM just made.
+        console.error(`[save] trim propagation failed for finish group ${fgId}:`, e);
       }
 
       // ACC standard hinges and slides, the pulls the PM chose, and the drawer /

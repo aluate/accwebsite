@@ -19,6 +19,11 @@
 import postgres from "postgres";
 import { randomBytes } from "node:crypto";
 import { PDFDocument } from "pdf-lib";
+import { readFileSync, existsSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const url = process.env.DATABASE_URL;
 if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
@@ -102,6 +107,62 @@ try {
   // A work order must never carry the client's signature block: it is shop
   // paperwork, and a signature line on it invites someone to sign the wrong thing.
   check("a work order is not the client document", woPageCounts[0] !== clientPages || clientPages === 1);
+
+  // ── the colour swatch reaches both documents ───────────────────────────────
+  //
+  // Asserted by counting embedded image objects in the PDF, not by file size. My
+  // first version of this used size and set the threshold at 5KB on the assumption
+  // that the ~16KB jpg would embed whole — it does not, @react-pdf re-encodes to the
+  // rendered box, so the real growth was 3.3KB and a correct implementation failed
+  // its own test. Counting /Subtype /Image asks the question directly: is there a
+  // picture in this document, yes or no.
+  console.log("\nthe colour swatch is embedded in both documents");
+  {
+    const cat = JSON.parse(readFileSync(resolve(__dirname, "../data/catalogs/colors_melamine.json"), "utf8"));
+    const withImg = cat.find((c) => {
+      if (!c.image_url) return false;
+      return existsSync(resolve(__dirname, "..", "public", c.image_url.replace(/^\//, "")));
+    });
+    check("the catalog has a colour whose swatch file exists", !!withImg, "none found on disk");
+
+    if (withImg) {
+      // Same spec, once with a colour that has a photograph and once without.
+      await sql`UPDATE finish_groups SET finish_type = 'melamine', color_id = ${withImg.id}, color_name = ${withImg.color_name} WHERE spec_id = ${specId}`;
+      const withData = await loadSpecPDFData(specId);
+      const withPath = withData.finish_groups[0]?.color_image ?? "";
+      check("spec-data resolves an absolute swatch path", withPath.endsWith(".jpg") || withPath.endsWith(".png"), JSON.stringify(withPath));
+
+      // The logo is one image object; each swatch is another. Count them.
+      const imageCount = (buf) =>
+        (Buffer.from(buf).toString("latin1").match(/\/Subtype\s*\/Image/g) ?? []).length;
+
+      const bigClient = await renderClientSpecPDFBuffer(withData);
+      const bigWo     = await renderWorkOrderPDFBuffer(withData, withData.finish_groups[0]);
+
+      // A colour id that is not in the catalog — the guard must leave color_image
+      // empty rather than handing @react-pdf a path that does not exist.
+      await sql`UPDATE finish_groups SET color_id = ${"MEL-DOES-NOT-EXIST"} WHERE spec_id = ${specId}`;
+      const bareData = await loadSpecPDFData(specId);
+      check("an unknown colour id yields no image rather than a bad path",
+            (bareData.finish_groups[0]?.color_image ?? "") === "",
+            JSON.stringify(bareData.finish_groups[0]?.color_image));
+
+      const smallClient = await renderClientSpecPDFBuffer(bareData);
+      const smallWo     = await renderWorkOrderPDFBuffer(bareData, bareData.finish_groups[0]);
+
+      const cWith = imageCount(bigClient),   cWithout = imageCount(smallClient);
+      const wWith = imageCount(bigWo),       wWithout = imageCount(smallWo);
+
+      check("the client spec embeds more images with a swatch than without",
+            cWith > cWithout, `${cWithout} -> ${cWith} image object(s)`);
+      check("the work order embeds more images with a swatch than without",
+            wWith > wWithout, `${wWithout} -> ${wWith} image object(s)`);
+      check("both documents already carried the logo",
+            cWithout >= 1 && wWithout >= 1,
+            `client ${cWithout}, wo ${wWithout} — if this is 0 the logo is missing too`);
+      check("the document without a swatch still renders", smallWo.length > 1000, `${smallWo.length} bytes`);
+    }
+  }
 
   // ── the split-brain assertion ──────────────────────────────────────────────
   // This is the test that would have caught the original bug. An admin edit to a
