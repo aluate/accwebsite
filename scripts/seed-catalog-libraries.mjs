@@ -28,6 +28,13 @@
  *   node scripts/seed-catalog-libraries.mjs --force       # also overwrite existing
  *   node scripts/seed-catalog-libraries.mjs --only=edgeband,colors_melamine
  *   node scripts/seed-catalog-libraries.mjs --repair    # only fix double-encoded rows
+ *   node scripts/seed-catalog-libraries.mjs --data-from=<dir>   # read catalogs from another checkout
+ *
+ * WHICH TREE THE DATA COMES FROM MATTERS. The database wins over the file once a
+ * row exists, so seeding from a stale checkout does not just fail to help — it
+ * overwrites what is deployed with something older, silently. This script refuses
+ * to run from a tree that is behind origin/main. Use --data-from to point it at a
+ * checkout of what is actually live.
  *
  * REPAIR. The admin save route used to write `${JSON.stringify(rows)}::jsonb`,
  * which postgres.js double-encodes: the stored jsonb is a *string* holding the
@@ -41,11 +48,38 @@ import { readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { config } from "dotenv";
+import { resolveTree, assertTreeIsCurrent, ALLOW_STALE } from "./_tree.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Credentials always come from the tree this script lives in — that is where
+// .env.local is. The catalog DATA may come from somewhere else; see --data-from.
 config({ path: resolve(__dirname, "../.env.local") });
 
 const DRY = process.argv.includes("--dry-run");
+
+/**
+ * Where to read data/catalogs and lib from. Defaults to this script's own repo.
+ *
+ * This flag exists because of a near miss. Karl's working tree sits permanently on
+ * a feature branch and was months behind main: its colors_melamine.json held the
+ * OLD 205-colour catalog while production had just deployed the new 366-colour one.
+ * Seeding from that tree would have written 205 old rows into catalog_libraries —
+ * and the database now WINS over the file, so production would have silently
+ * reverted to a melamine catalog whose ids resolve to no photography at all, hours
+ * after shipping the new one. Nothing would have errored.
+ *
+ * So: point this at a checkout of what is actually deployed.
+ *
+ *   git fetch origin main
+ *   git worktree add %TEMP%\accseed origin/main --detach
+ *   node scripts/seed-catalog-libraries.mjs --data-from=%TEMP%\accseed --dry-run
+ *   git worktree remove %TEMP%\accseed
+ */
+const DATA_FROM = (process.argv.find((a) => a.startsWith("--data-from=")) ?? "")
+  .replace("--data-from=", "")
+  .trim();
+const TREE = resolveTree(import.meta.url);
 const REPAIR_ONLY = process.argv.includes("--repair");
 const FORCE = process.argv.includes("--force");
 const ONLY = (process.argv.find((a) => a.startsWith("--only=")) ?? "")
@@ -118,12 +152,12 @@ const OBJECT_CATALOGS = new Set(["doors_catalog", "cabinets_catalog", "express_c
 // working tree sitting on another branch. Missing files are a skipped check with
 // a warning, not a crash, because the seeding itself does not depend on them.
 function readIfPresent(rel) {
-  const p = resolve(__dirname, rel);
+  const p = resolve(TREE, rel);
   return existsSync(p) ? readFileSync(p, "utf8") : null;
 }
 
 function assertNamesMatchLoader() {
-  const src = readIfPresent("../lib/catalogs.ts");
+  const src = readIfPresent("lib/catalogs.ts");
   if (!src) {
     console.warn("  ! lib/catalogs.ts not found — skipping the catalog-list drift check.\n");
     return;
@@ -142,7 +176,7 @@ function assertNamesMatchLoader() {
 
   // Same check for the identity columns. Getting these out of step would mean the
   // seeder validating a different field from the one the API validates.
-  const resolveSrc = readIfPresent("../lib/catalog-resolve.ts");
+  const resolveSrc = readIfPresent("lib/catalog-resolve.ts");
   if (!resolveSrc) {
     console.warn("  ! lib/catalog-resolve.ts not found — skipping the identity-column drift check.\n");
     return;
@@ -165,7 +199,7 @@ function assertNamesMatchLoader() {
 }
 
 function fileData(name) {
-  const p = resolve(__dirname, `../data/catalogs/${name}.json`);
+  const p = resolve(TREE, `data/catalogs/${name}.json`);
   if (!existsSync(p)) return { ok: false, reason: "no JSON file" };
   let parsed;
   try { parsed = JSON.parse(readFileSync(p, "utf8")); }
@@ -212,6 +246,9 @@ function dbCount(data, name) {
 }
 
 async function main() {
+  if (DATA_FROM) console.log(`\nreading catalogs from ${TREE}\n`);
+  assertTreeIsCurrent(TREE, import.meta.url);
+  if (ALLOW_STALE) console.warn("  ! the database will win over whatever is live.\n");
   assertNamesMatchLoader();
 
   const targets = ONLY.length ? ONLY : CATALOG_NAMES;

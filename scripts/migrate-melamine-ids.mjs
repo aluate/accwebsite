@@ -23,15 +23,34 @@
  *
  *   node scripts/migrate-melamine-ids.mjs --dry-run    # show the plan
  *   node scripts/migrate-melamine-ids.mjs
+ *   node scripts/migrate-melamine-ids.mjs --data-from=<dir>   # read the catalog from another checkout
+ *
+ * The catalog MUST come from the checkout that is deployed — see the note below and
+ * scripts/_tree.mjs. This refuses to run from a tree behind origin/main.
  */
 import postgres from "postgres";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { config } from "dotenv";
+import { resolveTree, assertTreeIsCurrent } from "./_tree.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, "../.env.local") });
+
+/**
+ * WHICH CHECKOUT THE "NEW" CATALOG COMES FROM IS THE WHOLE MIGRATION.
+ *
+ * Run from a tree that is behind main, this reads the OLD colors_melamine.json as its
+ * definition of "new". Every existing spec still holds an old id, so every one is
+ * classified "already points at a valid new id" and skipped, and the script reports a
+ * clean no-op. You would conclude the migration was unnecessary and move on, leaving
+ * every melamine spec pointing at ids the deployed catalog does not contain.
+ *
+ * A silent no-op that looks like success is worse than a crash. Hence the guard.
+ */
+const TREE = resolveTree(import.meta.url);
+assertTreeIsCurrent(TREE, import.meta.url);
 
 const DRY = process.argv.includes("--dry-run");
 const url = process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL;
@@ -42,7 +61,9 @@ const sql = postgres(url, { ssl: isLocal ? false : "require", max: 1, prepare: f
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 async function main() {
-  const catalog = JSON.parse(readFileSync(resolve(__dirname, "../data/catalogs/colors_melamine.json"), "utf8"));
+  const catalogPath = resolve(TREE, "data/catalogs/colors_melamine.json");
+  const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
+  console.log(`new catalog read from ${catalogPath}`);
   const byName = new Map();
   for (const c of catalog) {
     const k = norm(c.color_name);
