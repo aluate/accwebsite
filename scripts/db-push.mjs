@@ -430,6 +430,11 @@ async function main() {
   for (const stmt of [
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_start TEXT`,
     `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS actual_end   TEXT`,
+    // lib/schedule.ts writes duration_days in both createEvent and updateEvent, so
+    // without this column every calendar event create and every drag on the schedule
+    // wall raises Postgres 42703 and the whole request fails. It was never declared
+    // here. Additive and idempotent: a no-op where the column already exists.
+    `ALTER TABLE job_events ADD COLUMN IF NOT EXISTS duration_days INTEGER DEFAULT 1`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS must_change_pw INTEGER NOT NULL DEFAULT 0`,
   ]) {
