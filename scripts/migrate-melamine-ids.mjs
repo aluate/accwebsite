@@ -53,6 +53,23 @@ const TREE = resolveTree(import.meta.url);
 assertTreeIsCurrent(TREE, import.meta.url);
 
 const DRY = process.argv.includes("--dry-run");
+
+/**
+ * Explicit picks, for the cases the matcher refuses to guess:
+ *
+ *   --set=<finish_group_id>:<catalog_id>
+ *
+ * Repeatable. The catalog id is validated against the catalog, and the finish group
+ * against the database, so a typo is a refusal rather than a wrong colour.
+ */
+const SETS = process.argv
+  .filter((a) => a.startsWith("--set="))
+  .map((a) => a.replace("--set=", "").trim())
+  .map((pair) => {
+    const i = pair.lastIndexOf(":");
+    if (i < 1) { console.error(`--set expects <finish_group_id>:<catalog_id>, got "${pair}"`); process.exit(1); }
+    return { fgId: pair.slice(0, i), catalogId: pair.slice(i + 1) };
+  });
 const url = process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL;
 if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
 const isLocal = url.includes("localhost") || url.includes("127.0.0.1");
@@ -64,10 +81,22 @@ async function main() {
   const catalogPath = resolve(TREE, "data/catalogs/colors_melamine.json");
   const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
   console.log(`new catalog read from ${catalogPath}`);
+  // One name can belong to several rows, so this is a list, not a winner.
+  //
+  // The comment that used to sit here said "first wins; ids are unique per colour".
+  // That is false: 36 names in this catalog appear on more than one row, covering 102
+  // of 366 rows. "Black" is on 13. "Winter Fun!" is on two — MEL-TAF-009 in HighGloss
+  // and MEL-TAF-010 in Prelude, which are different panels at different prices.
+  //
+  // First-wins would have silently picked one. On this run it happens not to bite,
+  // because the three names that matched are each unique — but that is luck, not
+  // design, and the next spec that says "BLACK" would have been assigned one of
+  // thirteen with nothing to indicate a choice had been made.
   const byName = new Map();
   for (const c of catalog) {
     const k = norm(c.color_name);
-    if (!byName.has(k)) byName.set(k, c);   // first wins; ids are unique per colour
+    if (!byName.has(k)) byName.set(k, []);
+    byName.get(k).push(c);
   }
   const validIds = new Set(catalog.map((c) => c.id));
   console.log(`New catalog: ${catalog.length} colours, ${byName.size} distinct names.\n`);
@@ -83,13 +112,43 @@ async function main() {
   console.log(`${groups.length} melamine/plam finish group(s) in the database.\n`);
   if (groups.length === 0) { console.log("Nothing to do."); return; }
 
-  const remap = [], already = [], unmatched = [], noName = [];
+  // Explicit picks first, so they win over anything the matcher would have said.
+  const byId = new Map(catalog.map((c) => [c.id, c]));
+  const setFor = new Map();
+  for (const { fgId, catalogId } of SETS) {
+    const target = byId.get(catalogId);
+    if (!target) {
+      console.error(`--set: "${catalogId}" is not an id in this catalog. Nothing was written.`);
+      process.exit(1);
+    }
+    const g = groups.find((x) => x.id === fgId);
+    if (!g) {
+      console.error(`--set: no melamine finish group with id "${fgId}". Nothing was written.`);
+      console.error(`  ids in play: ${groups.map((x) => x.id).join(", ")}`);
+      process.exit(1);
+    }
+    setFor.set(fgId, target);
+  }
+
+  const remap = [], already = [], unmatched = [], ambiguous = [], noName = [], chosen = [];
   for (const g of groups) {
+    const pick = setFor.get(g.id);
+    if (pick) { chosen.push({ g, to: pick }); continue; }
     if (g.color_id && validIds.has(g.color_id)) { already.push(g); continue; }
     if (!g.color_name || !norm(g.color_name)) { noName.push(g); continue; }
-    const hit = byName.get(norm(g.color_name));
-    if (hit) remap.push({ g, to: hit });
+    const hits = byName.get(norm(g.color_name)) ?? [];
+    if (hits.length === 1) remap.push({ g, to: hits[0] });
+    else if (hits.length > 1) ambiguous.push({ g, candidates: hits });
     else unmatched.push(g);
+  }
+
+  if (chosen.length) {
+    console.log(`  CHOSEN BY HAND (--set) — ${chosen.length}:\n`);
+    for (const { g, to } of chosen) {
+      const detail = [to.finish_type, to.color_code].filter(Boolean).join(" / ");
+      console.log(`    ${String(g.client_name).slice(0,20).padEnd(22)} ${String(g.label).padEnd(8)} ${String(g.color_name).slice(0,26).padEnd(28)} -> ${to.id}  ${detail}`);
+    }
+    console.log();
   }
 
   if (already.length) console.log(`  ${already.length} already point at a valid new id — skipped.\n`);
@@ -102,10 +161,26 @@ async function main() {
     console.log();
   }
 
+  if (ambiguous.length) {
+    console.log(`  AMBIGUOUS — ${ambiguous.length} name(s) match more than one catalog row. Not guessed:\n`);
+    for (const { g, candidates } of ambiguous) {
+      console.log(`    ${String(g.client_name).slice(0,20).padEnd(22)} ${String(g.label).padEnd(8)} ${g.color_name}`);
+      console.log(`      finish group id: ${g.id}`);
+      for (const c of candidates) {
+        const detail = [c.finish_type, c.color_code].filter(Boolean).join(" / ");
+        console.log(`        ${c.id.padEnd(14)} ${detail}`);
+      }
+    }
+    console.log(`\n    Same name, different panel — finish and code are what separate them, and`);
+    console.log(`    that is a material difference, not a cosmetic one. Pick one per job in the`);
+    console.log(`    spec's melamine picker, or pass --set=<finish group id>:<catalog id> here.\n`);
+  }
+
   if (unmatched.length) {
     console.log(`  NOT MATCHED — ${unmatched.length} left untouched, for Karl to map by hand:\n`);
     for (const g of unmatched) {
       console.log(`    ${String(g.client_name).slice(0,20).padEnd(22)} ${String(g.label).padEnd(8)} ${String(g.color_name).slice(0,30).padEnd(32)} (${g.color_id ?? "null"})`);
+      console.log(`      finish group id: ${g.id}   --set=${g.id}:<catalog id>`);
     }
     console.log(`\n    These keep their stored colour name, so their documents still print correctly.`);
     console.log(`    They will show an empty picker until someone re-selects the colour.\n`);
@@ -114,13 +189,15 @@ async function main() {
   if (noName.length) console.log(`  ${noName.length} group(s) have no colour name at all — nothing to match on.\n`);
 
   if (DRY) {
-    console.log(`Dry run. ${remap.length} would change, ${unmatched.length} would be left alone.`);
+    const left = unmatched.length + ambiguous.length + noName.length;
+    console.log(`Dry run. ${chosen.length + remap.length} would change (${chosen.length} by hand, ${remap.length} by name), ${left} left alone (${ambiguous.length} ambiguous, ${unmatched.length} unmatched, ${noName.length} with no name).`);
     return;
   }
-  if (remap.length === 0) { console.log("No automatic remaps to apply."); return; }
+  const toWrite = [...chosen, ...remap];
+  if (toWrite.length === 0) { console.log("Nothing to apply."); return; }
 
   let n = 0;
-  for (const { g, to } of remap) {
+  for (const { g, to } of toWrite) {
     // color_name is rewritten to the catalog's spelling so the picker matches
     // exactly on the next open. The colour itself is unchanged.
     await sql`UPDATE finish_groups SET color_id = ${to.id}, color_name = ${to.color_name} WHERE id = ${g.id}`;
