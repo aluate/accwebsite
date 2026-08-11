@@ -960,8 +960,50 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
   const fgPulls     = (data.finish_group_pulls ?? {})[fg.id] ?? [];
   // fgHw = this finish group's own hardware record. hw = spec-level extras a PM
   // typed in, which apply across finish groups. Pulls come from a third table.
-  const fgHw        = (fg.hardware ?? []).filter((h) => h.role !== "door_pulls" && h.role !== "drawer_pulls");
+  const fgHwRaw     = (fg.hardware ?? []).filter((h) => h.role !== "door_pulls" && h.role !== "drawer_pulls");
   const hw          = data.spec_hardware ?? [];
+
+  /*
+    ONE SLIDE, ONE NAME. Karl: the hardware block reads what the drawer/rollout
+    schedule reads; pulls stay as they are.
+
+    Each finish group records the same slide twice, in two columns resolved against
+    two different catalogs:
+
+      finish_group_hardware.hardware_id  role=drawer_slides   HDS-BLU-001
+        -> hardware_drawer_slides        "Blum Tandem Plus Blumotion"
+      finish_group_drawers.slides_id     role=drawer_box      DS-ACC-STD
+        -> drawer_slides                 "ACC Standard Undermount Soft-Close"
+
+    Same for rollouts: HRS-KV-001 "Knape & Vogt 3132 Full Extension" against
+    DS-ACC-RO "ACC Standard Rollout Slide - Side-Mount Ball-Bearing". So one sheet
+    named the same slide twice, differently, in two blocks — and someone comparing
+    the hardware block against the drawer schedule had no way to tell whether that
+    was two names for one slide or two different slides.
+
+    The schedule's record wins. Not arbitrarily:
+      - lib/lifecycle.ts validateForRelease() gates on slides_id and never checks
+        the hardware row's drawer_slides/rollout_slides at all, so slides_id is
+        already the field the system treats as the fact.
+      - DS-* entries name WHAT the slide is and leave the length/SKU to the shop,
+        which is what belongs on a spec; HDS-* rows carry per-length pricing.
+      - Nothing loses an override: in the mounted app neither column is editable.
+        The only UI that writes either is components/SpecSchedulesPanel.tsx, which
+        is imported nowhere. Both are populated solely by seedAccStandards on save.
+
+    Falls back to the hardware name when the schedule has no slide, because a blank
+    where a slide belongs is worse than a differently-worded name.
+  */
+  const slideFromSchedule = (hwRole: string): string => {
+    const drawerRole = hwRole === "drawer_slides" ? "drawer_box"
+                     : hwRole === "rollout_slides" ? "rollout" : null;
+    if (!drawerRole) return "";
+    return (fg.drawers ?? []).find((d) => d.role === drawerRole)?.slides_name ?? "";
+  };
+  const fgHw = fgHwRaw.map((h) => {
+    const fromSchedule = slideFromSchedule(h.role);
+    return fromSchedule ? { ...h, hardware_name: fromSchedule } : h;
+  });
   // Task #55 — prefer stored WO edgeband rows over re-derived defaults, BUT:
   //   - Paint/stain FGs: ALWAYS use derivedRows so Task #50 thickness fix ("" not "3.0") applies.
   //     Stored rows for paint/stain may have been saved with old values and would bypass the fix.

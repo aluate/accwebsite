@@ -291,6 +291,65 @@ try {
         check("the sheet still renders with overrides applied",
               (await renderWorkOrderPDFBuffer(typed, typed.finish_groups[0])).length > 1000);
       }
+
+      // ── one slide, one name ──────────────────────────────────────────────────
+      //
+      // The same slide is stored twice per finish group, in two columns resolved
+      // against two different catalogs, and the work order printed both spellings in
+      // two different blocks:
+      //
+      //   finish_group_hardware  role=drawer_slides  HDS-BLU-001
+      //     -> "Blum Tandem Plus Blumotion"          (WORK ORDER HARDWARE)
+      //   finish_group_drawers   role=drawer_box     DS-ACC-STD
+      //     -> "ACC Standard Undermount Soft-Close"  (DRAWER & ROLLOUT SCHEDULE)
+      //
+      // Karl's rule: the hardware block reads what the schedule reads. Someone
+      // comparing the two blocks must not have to wonder whether that is two names
+      // for one slide or two different slides.
+      // A hinge row goes in alongside, as the control: the rule must rewrite exactly
+      // the two slide roles and leave every other role resolving as it always did.
+      await sql`INSERT INTO finish_group_hardware (id, finish_group_id, role, hardware_id, sort_order)
+                VALUES (${"hw-" + uid()}, ${tFg}, 'hinges',         'HH-BLU-110',  0),
+                       (${"hw-" + uid()}, ${tFg}, 'drawer_slides',  'HDS-BLU-001', 1),
+                       (${"hw-" + uid()}, ${tFg}, 'rollout_slides', 'HRS-KV-001',  2)`;
+      await sql`INSERT INTO finish_group_drawers (id, finish_group_id, role, drawer_box_id, slides_id, sort_order)
+                VALUES (${"dr-" + uid()}, ${tFg}, 'drawer_box', 'DBX-001', 'DS-ACC-STD', 0),
+                       (${"dr-" + uid()}, ${tFg}, 'rollout',    'DBX-001', 'DS-ACC-RO',  1)`;
+
+      const twoWay = await loadSpecPDFData(tSpec);
+      const dualTxt = squash(await pdfText(await renderWorkOrderPDFBuffer(twoWay, twoWay.finish_groups[0])));
+
+      check("the drawer slide is named from the schedule's record",
+            dualTxt.includes("ACC STANDARD UNDERMOUNT SOFT-CLOSE"),
+            "the hardware block is still resolving HDS-BLU-001 against its own catalog");
+      check("the hardware block no longer prints a second name for that slide",
+            !dualTxt.includes("BLUM TANDEM PLUS BLUMOTION"),
+            "both spellings are on the sheet — this is the bug");
+      check("the rollout slide is named from the schedule's record",
+            dualTxt.includes("ACC STANDARD ROLLOUT SLIDE"),
+            "rollout still resolving HRS-KV-001");
+      check("and not from the hardware catalog", !dualTxt.includes("KNAPE"));
+
+      // The hardware block must still LIST slides — Karl asked for them to agree,
+      // not to disappear.
+      check("the hardware block still lists both slide roles",
+            dualTxt.includes("DRAWER SLIDES") && dualTxt.includes("ROLLOUT SLIDES"),
+            "the rule renames a row, it does not remove one");
+
+      // The control. The hinge resolves through hardwareByRole exactly as before, so
+      // if its name went missing the mapping is rewriting more than the two slide
+      // roles it is scoped to.
+      check("a hinge row is untouched by the slide rule",
+            dualTxt.includes("BLUM 110 CLIP TOP BLUMOTION SOFT CLOSE"),
+            `hinge name absent — the mapping is not scoped to the slide roles. text: ${dualTxt.slice(0, 200)}`);
+
+      // If the schedule has no slide, the hardware name is better than a blank.
+      await sql`UPDATE finish_group_drawers SET slides_id = NULL WHERE finish_group_id = ${tFg}`;
+      const noSched = await loadSpecPDFData(tSpec);
+      const fbTxt = squash(await pdfText(await renderWorkOrderPDFBuffer(noSched, noSched.finish_groups[0])));
+      check("with no slide on the schedule it falls back rather than printing a blank",
+            fbTxt.includes("BLUM TANDEM PLUS BLUMOTION"),
+            "a gap where a slide belongs is worse than a differently-worded name");
     } finally {
       await sql`DELETE FROM jobs WHERE id = ${tJob}`.catch(() => {});
     }

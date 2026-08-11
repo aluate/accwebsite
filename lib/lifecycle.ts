@@ -54,9 +54,9 @@ async function validateForRelease(specId: string): Promise<string | null> {
         FROM finish_group_door_fronts WHERE finish_group_id IN ${sql(fgIds)}` as Promise<
       { finish_group_id: string; role: string; style_id: string | null; material_id: string | null }[]
     >,
-    sql`SELECT finish_group_id, drawer_box_id, slides_id
+    sql`SELECT finish_group_id, role, drawer_box_id, slides_id
         FROM finish_group_drawers WHERE finish_group_id IN ${sql(fgIds)}` as Promise<
-      { finish_group_id: string; drawer_box_id: string | null; slides_id: string | null }[]
+      { finish_group_id: string; role: string; drawer_box_id: string | null; slides_id: string | null }[]
     >,
     sql`SELECT finish_group_id, role, hardware_id
         FROM finish_group_hardware WHERE finish_group_id IN ${sql(fgIds)}` as Promise<
@@ -70,8 +70,17 @@ async function validateForRelease(specId: string): Promise<string | null> {
     const tag = labelOf[fgId];
     const baseDoor = (doorFronts as { finish_group_id: string; role: string; style_id: string | null; material_id: string | null }[])
       .find((d) => d.finish_group_id === fgId && d.role === "base");
-    const drawer = (drawers as { finish_group_id: string; drawer_box_id: string | null; slides_id: string | null }[])
-      .find((d) => d.finish_group_id === fgId);
+    /*
+      role === "drawer_box" matters. This picked the first finish_group_drawers row
+      for the group with no role filter, and a group can also carry a `rollout` row.
+      Ordering is not guaranteed, so on a group whose rollout row came back first,
+      the rollout's box and slides satisfied the "drawer box" and "drawer slides"
+      checks and the actual drawers were never verified at all — a spec reaching
+      engineering with no drawer box specified, which is the one thing this gate
+      exists to prevent.
+    */
+    const drawer = (drawers as { finish_group_id: string; role: string; drawer_box_id: string | null; slides_id: string | null }[])
+      .find((d) => d.finish_group_id === fgId && d.role === "drawer_box");
     const hingeRow = (hardware as { finish_group_id: string; role: string; hardware_id: string | null }[])
       .find((h) => h.finish_group_id === fgId && h.role === "hinges");
 

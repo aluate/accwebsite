@@ -29,7 +29,9 @@
     "seed-catalog-libraries": "node scripts/seed-catalog-libraries.mjs",
     "typecheck": "tsc --noEmit",
     "check-routes": "node scripts/check-route-auth.mjs",
-    "check-job-fields": "node scripts/check-job-fields.mjs"
+    "check-job-fields": "node scripts/check-job-fields.mjs",
+    "test": "node scripts/test-all.mjs",
+    "test:unit": "node scripts/test-all.mjs --unit"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
