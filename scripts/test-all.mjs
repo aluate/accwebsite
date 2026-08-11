@@ -40,14 +40,17 @@ const SUITES = [
   { file: "test-door-front-roles.mjs",  db: true,  what: "doors / drawer fronts / applied ends" },
   { file: "test-door-front-save.mjs",   db: true,  what: "callout rows persist without destroying" },
   { file: "test-pdf-documents.mjs",     db: true,  what: "what the documents say" },
+  { file: "test-trim-save-sequence.mjs", db: true,  http: true, what: "trim survives the form's save sequence" },
 ];
 
 const unitOnly = process.argv.includes("--unit");
 const hasDb = !!process.env.DATABASE_URL;
+// An http suite drives the real endpoints and needs a running server.
+const hasHttp = !!process.env.BASE_URL && !!process.env.SESSION_TOKEN;
 
 const results = [];
 for (const s of SUITES) {
-  if (s.db && (unitOnly || !hasDb)) {
+  if ((s.db && (unitOnly || !hasDb)) || (s.http && (unitOnly || !hasHttp))) {
     results.push({ ...s, status: "skipped" });
     continue;
   }
@@ -76,7 +79,8 @@ if (skipped.length) {
   console.log(`  Skipped here means UNTESTED: the catalog loader, the install-date rule, the`);
   console.log(`  engineering release gate and every assertion about what the PDFs actually say.`);
   console.log(`  Only test-catalog-resolve runs without a database. Do not read this as a pass.\n`);
-  console.log(`  Point it at a database:  DATABASE_URL=postgres://... npm test\n`);
+  console.log(`  Point it at a database:  DATABASE_URL=postgres://... npm test`);
+  console.log(`  For the http suite also:  BASE_URL=http://127.0.0.1:3000 SESSION_TOKEN=<token>\n`);
 }
 
 process.exit(failed.length ? 1 : 0);

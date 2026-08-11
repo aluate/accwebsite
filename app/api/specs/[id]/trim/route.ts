@@ -56,7 +56,7 @@ export async function POST(
   const guard = await guardApi(["admin", "pm"]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
-  const body = await req.json() as { room_id: string; trim: TrimPayload[] };
+  const body = await req.json() as { room_id: string; trim: TrimPayload[]; known_ids?: string[] };
   const { room_id, trim } = body;
 
   if (!room_id) {
@@ -70,7 +70,39 @@ export async function POST(
       return NextResponse.json({ error: "room not found on this spec" }, { status: 404 });
     }
 
-    await sql`DELETE FROM room_trim WHERE room_id = ${room_id}`;
+    /*
+      DELETE ONLY WHAT THE CALLER COULD SEE.
+
+      This deleted every row for the room and re-inserted the payload. That is safe
+      only if the caller's list is complete, and the spec form's is not: finish-group
+      trim defaults are propagated onto rooms SERVER-side, the form never refetches
+      after a save, so its `trim` array stays empty — and the next save posted an
+      empty list and wiped every propagated row. Trim could never stick. Worse, both
+      requests went out in one Promise.all, so the wipe and the propagation raced and
+      the result depended on which landed last.
+
+      So a blind delete is out. The caller now declares what it knew about:
+
+        known_ids   the row ids it was rendering. Rows outside this set are left
+                    alone, because a caller cannot intend to delete a row it never
+                    had. An informed caller that wants a row gone simply omits it
+                    from `trim` while still listing it in `known_ids`.
+
+      With no `known_ids`, only `manual` rows are replaced and propagated
+      `fg_default` rows survive. That is the conservative reading of a legacy or
+      partial caller, and it fails toward keeping trim rather than losing it.
+    */
+    const knownIds = Array.isArray(body.known_ids)
+      ? body.known_ids.filter((x): x is string => typeof x === "string" && !!x)
+      : null;
+    const sentIds = (trim ?? []).map((t) => t.id).filter((x): x is string => typeof x === "string" && !!x);
+    const deletable = knownIds ? [...new Set([...knownIds, ...sentIds])] : null;
+
+    if (deletable === null) {
+      await sql`DELETE FROM room_trim WHERE room_id = ${room_id} AND COALESCE(source, 'manual') <> 'fg_default'`;
+    } else if (deletable.length > 0) {
+      await sql`DELETE FROM room_trim WHERE room_id = ${room_id} AND id IN ${sql(deletable)}`;
+    }
 
     for (let i = 0; i < (trim ?? []).length; i++) {
       const t = trim[i];

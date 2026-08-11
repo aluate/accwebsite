@@ -211,6 +211,27 @@ const SELECT = INPUT;
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
+/**
+ * An id for a row whose table declares `id UUID`.
+ *
+ * uid() above returns an 8-character base-36 string, which is fine for the TEXT id
+ * columns most of this schema uses and is REJECTED by Postgres on a uuid column with
+ * 22P02. finish_group_trim_defaults is uuid, so every trim default the form created
+ * made its save 500 — after the route had already deleted the old rows. Trim defaults
+ * could not be saved at all.
+ *
+ * randomUUID needs a secure context (https or localhost), which the app always has;
+ * the fallback keeps a dev-over-LAN session working rather than throwing.
+ */
+function uuid(): string {
+  const c = globalThis.crypto as Crypto | undefined;
+  if (c?.randomUUID) return c.randomUUID();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (ch) => {
+    const r = (Math.random() * 16) | 0;
+    return (ch === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
+
 function parseArith(raw: string): number | null {
   const cleaned = raw.replace(/[^0-9+\-*/. ()]/g, "").trim();
   if (!cleaned) return null;
@@ -920,6 +941,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [savedAt, setSavedAt] = useState(lastSaved);
   const [showViolations, setShowViolations] = useState(false);
   const [genState, setGenState] = useState<"idle" | "generating" | "done" | "error">("idle");
+  /** What actually went wrong, shown to the user instead of just the word "error". */
+  const [genError, setGenError] = useState<string>("");
 
   function markDirty() { setDirty(true); setSaveState("idle"); }
 
@@ -1094,32 +1117,69 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
           })
         ),
-        // Save trim for ALL rooms (empty array clears DB rows for that room)
-        ...rooms.map(r =>
-          fetch(`/api/specs/${specId}/trim`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ room_id: r.id, trim: r.trim ?? [] }),
-          })
-        ),
-        // Save trim defaults for all finish groups
-        ...groups.map(g =>
-          fetch(`/api/specs/${specId}/trim-defaults`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              finish_group_id: g.id,
-              trim_defaults: fgTrimDefaults.filter(d => d.finish_group_id === g.id),
-            }),
-          })
-        ),
       ]);
+
+      /*
+        TRIM IS ORDERED, NOT RACED.
+
+        Room trim and finish-group trim defaults used to go out inside the same
+        Promise.all above. They fight: POST /trim replaces a room's rows from this
+        form's state, and POST /trim-defaults propagates finish-group defaults back
+        ONTO those rooms. Whichever landed last won, so trim appeared and vanished
+        depending on network timing.
+
+        Defaults go last on purpose. A room's own edits are the more specific fact,
+        and propagation only ever fills a blank, so running it after is both correct
+        and idempotent.
+      */
+      for (const r of rooms) {
+        await fetch(`/api/specs/${specId}/trim`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            room_id: r.id,
+            trim: r.trim ?? [],
+            // What this form was actually rendering. The route deletes only within
+            // this set, so rows it never loaded — propagated defaults, most of all —
+            // are not destroyed by a save that could not have known about them.
+            known_ids: (r.trim ?? []).map(t => t.id).filter(Boolean),
+          }),
+        });
+      }
+      for (const g of groups) {
+        await fetch(`/api/specs/${specId}/trim-defaults`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            finish_group_id: g.id,
+            trim_defaults: fgTrimDefaults.filter(d => d.finish_group_id === g.id),
+          }),
+        });
+      }
+
+      /*
+        Then read back what the server actually holds.
+
+        This is the half that made the bug permanent rather than transient. Trim
+        defaults are propagated server-side, so after a save the database has rows
+        this form has never seen. Without a refetch the Rooms tab shows nothing —
+        which is exactly what Karl reported — and the NEXT save posts its empty list
+        and wipes them again.
+      */
+      try {
+        const res = await fetch(`/api/specs/${specId}/trim`);
+        if (res.ok) {
+          const { trim: byRoom } = await res.json() as { trim: Record<string, TrimRow[]> };
+          setRooms(prev => prev.map(r => ({ ...r, trim: byRoom[r.id] ?? [] })));
+        }
+      } catch { /* the write succeeded; a failed refetch is stale UI, not lost data */ }
+
       setSaveAllState("saved");
       setTimeout(() => setSaveAllState("idle"), 2000);
     } catch {
       setSaveAllState("error");
     }
-  }, [save, specId, appliances, specHW, specAccs, pulls, rooms, ebOverrides, violations.length]);
+  }, [save, specId, appliances, specHW, specAccs, pulls, rooms, groups, fgTrimDefaults, ebOverrides, violations.length]);
 
   // Dual-UI sync (2026-05-06): the Schedules · v2 tab and the inline Materials
   // sub-section both write to finish_group_materials via different endpoints.
@@ -1161,20 +1221,34 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             body: JSON.stringify({ finish_group_id: fgId, pulls: rows }),
           })
         ),
-        // Save trim for ALL rooms (empty array clears DB rows for that room)
+        // Save trim for ALL rooms. known_ids is what this form was rendering — the
+        // route deletes only inside that set, so generating a PDF cannot destroy trim
+        // that was propagated onto a room server-side and never loaded here.
         ...rooms.map(r =>
           fetch(`/api/specs/${specId}/trim`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ room_id: r.id, trim: r.trim ?? [] }),
+            body: JSON.stringify({
+              room_id: r.id,
+              trim: r.trim ?? [],
+              known_ids: (r.trim ?? []).map(t => t.id).filter(Boolean),
+            }),
           })
         ),
       ]);
     }
+    setGenError("");          // a retry must not show the previous failure's reason
     setGenState("generating");
     try {
       const res = await fetch(`/api/specs/${specId}/generate`, { method: "POST" });
-      if (!res.ok) { setGenState("error"); return; }
+      if (!res.ok) {
+        // Say what the server said. This threw away the reason and left the button
+        // reading "error", so a refusal was indistinguishable from a crash.
+        const why = await res.json().catch(() => null) as { error?: string } | null;
+        setGenError(why?.error || `The server refused to generate (HTTP ${res.status}).`);
+        setGenState("error");
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
@@ -1182,7 +1256,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       // File was saved to job folder — show link if file_id came back
       const savedId = res.headers.get("X-File-Id");
       if (savedId) setContractFileId("");  // don't clobber a contract link
-    } catch {
+    } catch (e) {
+      // A thrown request is a different failure from a refused one, and the user
+      // needs to be able to tell them apart before deciding whether to retry.
+      setGenError(`The request did not complete: ${(e as Error)?.message ?? e}`);
       setGenState("error");
     }
   }, [specId, dirty, violations.length, save, specAccs, specHW, appliances, pulls, rooms]);
@@ -1720,7 +1797,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           <button
             onClick={() => save()}
             disabled={!canSave}
-            title={blockedReason || (dirty ? "Save spec only — does NOT save Schedules tab edits" : "Nothing to save")}
+            title={blockedReason || (dirty ? "Save the spec form only — use Save All for trim, pulls, accessories and appliances" : "Nothing to save")}
             className={`font-condensed uppercase tracking-widest text-xs py-2 px-3 rounded border transition-colors ${
               canSave
                 ? "border-white/20 hover:border-white/40 text-white/60 hover:text-white"
@@ -1740,17 +1817,38 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           >
             Archive Snapshot
           </button>
+          {/*
+            NOT disabled when the spec is incomplete.
+
+            Karl: "NOW WHEN I HIT GENERATE SPEC NOTHING HAPPENS." It was disabled, and
+            a disabled button fires no click — so the reason (which existed, in the
+            hover `title`) never reached anyone. A control that silently does nothing
+            reads as broken software, and on a half-filled spec that is the state it
+            was in most of the time.
+
+            It now always clicks. With something missing it opens the violations list
+            and still produces the sheet, watermarked DRAFT — the server keeps its own
+            completeness gate (lib/spec-completeness.ts, where the $70k guard lives),
+            so nothing unsafe gets out regardless of what this button allows.
+          */}
           <button
             onClick={generateSpec}
-            disabled={!canGen}
-            title={canGen ? "Save and generate the spec PDF (opens inline in a new tab)" : blockedReason}
+            disabled={genState === "generating"}
+            title={
+              genState === "generating" ? "Working..."
+                : violations.length > 0
+                  ? `Will generate a DRAFT — still missing:\n${violations.map((v) => `- ${v.tag}: ${v.field}`).join("\n")}`
+                  : "Save and generate the spec PDF (opens inline in a new tab)"
+            }
             className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
-              canGen
-                ? "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white border border-[#f08122]"
-                : "bg-white/5 text-white/20 cursor-not-allowed border border-transparent"
+              genState === "generating"
+                ? "bg-white/5 text-white/20 cursor-wait border border-transparent"
+                : violations.length > 0
+                  ? "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white/70 border border-yellow-500/50"
+                  : "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white border border-[#f08122]"
             }`}
           >
-            {genLabel}
+            {genState === "generating" ? "Generating..." : violations.length > 0 ? "Generate Draft" : genLabel}
           </button>
           <button
             onClick={generateCombined}
@@ -1802,6 +1900,23 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           {excelErr && <span className="text-red-400 text-[10px] font-condensed uppercase tracking-widest" title={excelErr}>{excelErr.length > 40 ? excelErr.slice(0,40) + "..." : excelErr}</span>}
         </div>
       </div>
+
+      {/*
+        Why generation failed, in words. genState went to "error" and the only sign was
+        the button relabelling itself "Error - retry", which says nothing about whether
+        the server refused, the spec is incomplete, or the request never landed.
+      */}
+      {genState === "error" && genError && (
+        <div className="bg-red-900/20 border border-red-700/40 rounded p-4 mb-6">
+          <div className="flex items-start justify-between mb-1">
+            <p className="text-red-300/80 text-xs font-condensed uppercase tracking-widest">
+              The spec did not generate
+            </p>
+            <button onClick={() => { setGenState("idle"); setGenError(""); }} className="text-red-300/40 hover:text-red-300 text-xs">x</button>
+          </div>
+          <p className="text-red-100/80 text-xs whitespace-pre-wrap">{genError}</p>
+        </div>
+      )}
 
       {showViolations && violations.length > 0 && (
         <div className="bg-yellow-900/20 border border-yellow-700/30 rounded p-4 mb-6">
@@ -1967,7 +2082,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                   <div>
                     <label className={LABEL}>
                       Door Style{" "}
-                      <span className="text-white/30 normal-case font-normal">(set detail in Schedules tab)</span>
+                      <span className="text-white/30 normal-case font-normal">(add callouts below for extra styles)</span>
                       {g.finish_type === "melamine" && (
                         <span className="ml-1 text-[#f08122]/70 normal-case font-normal text-[10px]">— slab only</span>
                       )}
@@ -2196,7 +2311,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         <option value="">-- Select Edgeband --</option>
                         <optgroup label="Common choices">
                           <option value="MATCH_PAINT_STAIN">Paint / Stain to Match</option>
-                          <option value="PVC_SPECIFY">PVC (specify on Schedules tab)</option>
+                          <option value="PVC_SPECIFY">PVC (specify on Spec Details tab)</option>
                           <option value="OTHER_EDGEBAND">Other / Non-standard (add note)</option>
                         </optgroup>
                         <optgroup label="Catalog">
@@ -2271,7 +2386,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         // vocabulary drifts clean as people work rather than needing
                         // a migration over documents the shop already built from.
                         if (idx >= 0) { const next = [...prev]; next[idx] = { ...next[idx], trim_type: type, ...patch }; return next; }
-                        return [...prev, { id: uid(), finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0, ...patch }];
+                        return [...prev, { id: uuid(), finish_group_id: g.id, trim_type: type, species_material: "", size_desc: "", notes: "", sort_order: 0, ...patch }];
                       });
                       markDirty();
                     }
@@ -2285,7 +2400,8 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     function addTrimDefault(type: string) {
                       const isOther = /^other/i.test(type);
                       setFgTrimDefaults(prev => [...prev, {
-                        id: uid(), finish_group_id: g.id,
+                        // uuid(), not uid(): this table's id column is UUID.
+                        id: uuid(), finish_group_id: g.id,
                         // "Other (specify)" starts blank so the PM names it; anything
                         // else is a real catalog type and keeps its name.
                         trim_type: isOther ? "" : type,
@@ -2787,7 +2903,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             <p className="text-white/30 text-xs mt-3 leading-relaxed">
               Rollout slides apply only to finish groups that have rollouts. These are
               substituted only when a client specifically asks — change them on the
-              Schedules tab and leave a note saying why.
+              Spec Details tab and leave a note saying why.
             </p>
           </div>
 

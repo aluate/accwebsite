@@ -59,18 +59,49 @@ export async function POST(
       return NextResponse.json({ error: "finish_group not found on this spec" }, { status: 404 });
     }
 
+    /*
+      THE BUG THAT MADE FINISH-GROUP TRIM UNUSABLE.
+
+      finish_group_trim_defaults.id is a UUID column. This route used the client's id
+      verbatim (`t.id || crypto.randomUUID()`), and the spec form generates ids with
+      its own uid() helper — an 8-character base-36 string like "k3j2h8s1", which is
+      not a UUID. So every INSERT here raised 22P02 "invalid input syntax for type
+      uuid" and the whole request 500'd.
+
+      And because the DELETE above had already run, the failure was DESTRUCTIVE: the
+      finish group's existing trim defaults were removed and the new ones never
+      landed. Nothing propagated to the rooms, because there was nothing left to
+      propagate. Karl: "THE TRIM STILL ISN'T PULLING WHEN I'VE ADDED IT TO THE FG."
+
+      Two changes, both needed:
+
+        1. Ids are normalised BEFORE anything is deleted. A client id is honoured only
+           when it is actually a UUID; anything else gets a fresh one. Ids on this
+           table are server-owned, so a caller has no business dictating the format.
+        2. The rows are built and validated first, so the DELETE cannot run and then
+           be followed by a failing INSERT. No transaction needed to make the
+           dangerous ordering impossible — just do the fallible part first.
+    */
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const rows = (trim_defaults ?? []).map((t, i) => ({
+      id: typeof t.id === "string" && UUID_RE.test(t.id) ? t.id : crypto.randomUUID(),
+      trim_type: t.trim_type || "Custom",
+      species_material: t.species_material || null,
+      size_desc: t.size_desc || null,
+      notes: t.notes || null,
+      sort_order: t.sort_order ?? i,
+    }));
+
     await sql`DELETE FROM finish_group_trim_defaults WHERE finish_group_id = ${finish_group_id}`;
 
-    for (let i = 0; i < (trim_defaults ?? []).length; i++) {
-      const t = trim_defaults[i];
-      const rowId = t.id || crypto.randomUUID();
+    for (const r of rows) {
       await sql`
         INSERT INTO finish_group_trim_defaults
           (id, finish_group_id, trim_type, species_material, size_desc, notes, sort_order)
         VALUES
-          (${rowId}, ${finish_group_id}, ${t.trim_type || "Custom"},
-           ${t.species_material || null}, ${t.size_desc || null},
-           ${t.notes || null}, ${t.sort_order ?? i})
+          (${r.id}, ${finish_group_id}, ${r.trim_type},
+           ${r.species_material}, ${r.size_desc},
+           ${r.notes}, ${r.sort_order})
       `;
     }
 
