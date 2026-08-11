@@ -14,6 +14,7 @@ import {
   Document, Page, View, Text, Image, StyleSheet, renderToBuffer,
 } from "@react-pdf/renderer";
 import { HARDWARE_ROLE_LABEL as HW_ROLE_LABEL_PDF } from "@/lib/acc-standards";
+import { ROLE_BASE, ROLE_DRAWER_FRONT, ROLE_APPLIED_END } from "@/lib/door-front-roles";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -446,35 +447,75 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
             // Door / DF / Applied Ends stacked lines
             const doorLines: { label: string; val: string }[] = [];
 
-            // Doors (base role, grouped — take distinct styles)
-            const baseDoors = fg.door_fronts.filter(df => df.role === "base");
-            if (baseDoors.length > 0) {
-              const bd = baseDoors[0];
-              const val = [bd.style_name, bd.material_name].filter(v => v && v !== "—").join(" / ") || "—";
-              doorLines.push({ label: "Doors", val });
+            /*
+              Every callout gets its own line, tagged with its slot label.
+
+              A finish group can carry several rows per role, which is the whole point
+              of Karl's ask: "if I have my 12in drawers 5 piece and the 6in drawers
+              slab I need to be able to call it out". This used to take [0] and drop
+              the rest, so the second callout existed in the database and appeared on
+              no document.
+
+              With one row per role the output is unchanged — "Doors", "DF" — so a
+              simple job reads exactly as it did. With two, the slot label
+              disambiguates: `DF · 12" DRAWERS`.
+            */
+            const styleOf = (df: DoorFrontView) =>
+              [df.style_name, df.material_name].filter(v => v && v !== "—").join(" / ");
+            const tag = (base: string, df: DoorFrontView, many: boolean) =>
+              many && df.slot_label ? `${base} · ${df.slot_label}` : base;
+
+            const baseDoors = fg.door_fronts.filter(df => df.role === ROLE_BASE);
+            for (const bd of baseDoors) {
+              doorLines.push({ label: tag("Doors", bd, baseDoors.length > 1), val: styleOf(bd) || "—" });
             }
 
-            // Drawer Fronts — look for role "drawer_front"; fall back to first non-base door front
-            const dfFronts = fg.door_fronts.filter(df => df.role === "drawer_front");
-            const dfSource = dfFronts.length > 0 ? dfFronts : fg.door_fronts.filter(df => df.role !== "base" && df.role !== "applied_end");
+            /*
+              Drawer fronts.
+
+              The fallback used to be "the first row that is not base and not
+              applied_end" — comparing against a role NOTHING has ever written. Rows
+              are stored as `applied_ends`, so that exclusion never fired and an
+              Applied Ends row was printed as the Drawer Front. On Karl's own case,
+              slab everywhere with a shaker panel on the kitchen applied ends, the
+              document the CLIENT SIGNS named the wrong drawer front style.
+
+              Roles are normalized in spec-data now, so these compare against the
+              canonical constants and there is only one list left to be wrong in.
+
+              The fallback stays: a group may carry only an `upper` or a legacy
+              `slab_df` row, and borrowing that beats printing nothing. It must never
+              borrow an applied end, which describes a panel on the side of a cabinet.
+            */
+            const dfFronts = fg.door_fronts.filter(df => df.role === ROLE_DRAWER_FRONT);
+            const dfSource = dfFronts.length > 0
+              ? dfFronts
+              : fg.door_fronts.filter(df => df.role !== ROLE_BASE && df.role !== ROLE_APPLIED_END);
+            const baseVal = baseDoors[0] ? styleOf(baseDoors[0]) : "";
             if (dfSource.length > 0) {
-              const df0 = dfSource[0];
-              const val = [df0.style_name, df0.material_name].filter(v => v && v !== "—").join(" / ") || "—";
-              // Only show if different from base doors
-              if (!baseDoors[0] || val !== [baseDoors[0].style_name, baseDoors[0].material_name].filter(v => v && v !== "—").join(" / ")) {
-                doorLines.push({ label: "DF", val });
-              } else {
-                doorLines.push({ label: "DF", val: "Match Doors" });
+              for (const df of dfSource) {
+                const val = styleOf(df) || "—";
+                const label = tag("DF", df, dfSource.length > 1);
+                // A single drawer front identical to the base doors is worth saying as
+                // "Match Doors" rather than repeating the style. With several rows each
+                // is an explicit callout, so print what it actually says.
+                doorLines.push({
+                  label,
+                  val: dfSource.length === 1 && baseVal && val === baseVal ? "Match Doors" : val,
+                });
               }
             } else if (baseDoors.length > 0) {
               doorLines.push({ label: "DF", val: "Match Doors" });
             }
 
-            // Applied Ends — look for role "applied_end" or use fg.applied_panels
-            const appliedEndDf = fg.door_fronts.find(df => df.role === "applied_end");
-            if (appliedEndDf) {
-              const val = [appliedEndDf.style_name, appliedEndDf.material_name].filter(v => v && v !== "—").join(" / ") || fmtAppliedPanels(fg.applied_panels);
-              doorLines.push({ label: "Appl. Ends", val });
+            const appliedEnds = fg.door_fronts.filter(df => df.role === ROLE_APPLIED_END);
+            if (appliedEnds.length > 0) {
+              for (const ae of appliedEnds) {
+                doorLines.push({
+                  label: tag("Appl. Ends", ae, appliedEnds.length > 1),
+                  val: styleOf(ae) || fmtAppliedPanels(fg.applied_panels) || "—",
+                });
+              }
             } else if (fg.applied_panels) {
               doorLines.push({ label: "Appl. Ends", val: fmtAppliedPanels(fg.applied_panels) });
             }
@@ -899,7 +940,7 @@ function SignOffPage({ data }: { data: SpecPDFData }) {
         <Text style={[S.colHdrTx, { flex: 1.4 }]}>Rooms</Text>
       </View>
       {fgs.map((fg, i) => {
-        const base    = fg.door_fronts.find((df) => df.role === "base");
+        const base    = fg.door_fronts.find((df) => df.role === ROLE_BASE);
         const box     = fg.drawers.find((dr) => dr.role === "drawer_box");
         const rollout = fg.drawers.find((dr) => dr.role === "rollout");
         const rooms   = (data.rooms ?? [])

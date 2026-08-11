@@ -37,6 +37,7 @@ const SUITES = [
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-install-date.mjs",      db: true,  what: "one official install date per job" },
   { file: "test-release-gate.mjs",      db: true,  what: "the five fields engineering needs" },
+  { file: "test-door-front-roles.mjs",  db: true,  what: "doors / drawer fronts / applied ends" },
   { file: "test-pdf-documents.mjs",     db: true,  what: "what the documents say" },
 ];
 

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "sync-catalogs": "node scripts/sync-catalogs.mjs",
-    "prebuild": "node scripts/sync-catalogs.mjs && node scripts/check-catalogs.mjs && node scripts/check-job-fields.mjs",
+    "prebuild": "node scripts/sync-catalogs.mjs && node scripts/check-catalogs.mjs && node scripts/check-job-fields.mjs && node scripts/check-role-vocab.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -31,7 +31,8 @@
     "check-routes": "node scripts/check-route-auth.mjs",
     "check-job-fields": "node scripts/check-job-fields.mjs",
     "test": "node scripts/test-all.mjs",
-    "test:unit": "node scripts/test-all.mjs --unit"
+    "test:unit": "node scripts/test-all.mjs --unit",
+    "check-role-vocab": "node scripts/check-role-vocab.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

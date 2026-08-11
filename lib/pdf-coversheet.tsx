@@ -7,6 +7,7 @@ import {
   Document, Page, View, Text, StyleSheet, renderToBuffer,
 } from "@react-pdf/renderer";
 import type { FinishGroupView } from "@/lib/pdf-spec";
+import { ROLE_BASE } from "@/lib/door-front-roles";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -140,8 +141,16 @@ function CoversheetPage({ job, fg, workOrders, fgIndex, generatedAt, rooms }: Co
 
   // Derive values
   const colorName = fg.finish.stain_name || fg.finish.paint_name || "";
-  const carcass   = fg.materials.find(m => m.role === "cab_ext")?.name ?? "";
-  const doorStyle = fg.door_fronts.find(d2 => d2.role === "base")?.style_name ?? "";
+  /*
+    Same dead role as deriveWOEdgebands had. `cab_ext` was removed from the vocabulary
+    and spec-data has only ever emitted `cab_int` for the carcass, so this lookup
+    always missed and the coversheet's Carcass field was permanently blank — on a
+    sheet whose job is to state what the cabinets are made of. `cab_ext` is kept as a
+    fallback in case a row somewhere still carries it.
+  */
+  const carcass   = fg.materials.find(m => m.role === "cab_int")?.name
+                 ?? fg.materials.find(m => m.role === "cab_ext")?.name ?? "";
+  const doorStyle = fg.door_fronts.find(d2 => d2.role === ROLE_BASE)?.style_name ?? "";
   const drawerBox = fg.drawers.find(d2 => d2.role === "drawer_box")?.drawer_box_name ?? "";
 
   // Rooms for this FG

@@ -1,6 +1,7 @@
 import sql, { uid } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
 import { hasDoorMaterial, describeMissingDoorMaterial } from "@/lib/door-material";
+import { normalizeDoorFrontRole, ROLE_BASE } from "@/lib/door-front-roles";
 
 export const LIFECYCLE_STATES = ["DRAFT", "CLIENT_APPROVED", "RELEASED_TO_ENG", "ENGINEERED", "RELEASED_TO_SHOP"] as const;
 export type LifecycleState = (typeof LIFECYCLE_STATES)[number];
@@ -69,7 +70,9 @@ async function validateForRelease(specId: string): Promise<string | null> {
   for (const fgId of fgIds) {
     const tag = labelOf[fgId];
     const baseDoor = (doorFronts as { finish_group_id: string; role: string; style_id: string | null; material_id: string | null }[])
-      .find((d) => d.finish_group_id === fgId && d.role === "base");
+      // Normalized: this reads raw rows straight from the table rather than the view,
+      // so a legacy spelling has to be resolved here too or the gate looks past it.
+      .find((d) => d.finish_group_id === fgId && normalizeDoorFrontRole(d.role) === ROLE_BASE);
     /*
       role === "drawer_box" matters. This picked the first finish_group_drawers row
       for the group with no role filter, and a group can also carry a `rollout` row.

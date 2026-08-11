@@ -6,6 +6,7 @@ import type { SpecPDFData, FinishGroupView, RoomView, AccessoryRollupRow, Moldin
 import { ACC_HARDWARE_STANDARDS, HARDWARE_ROLE_LABEL } from "@/lib/acc-standards";
 import { canonicalTrimType } from "@/lib/trim-types";
 import { resolveDoorMaterial } from "@/lib/door-material";
+import { normalizeDoorFrontRole, doorFrontRoleLabel, DOOR_FRONT_ROLE_LABEL, ROLE_BASE } from "@/lib/door-front-roles";
 
 type SpecRow = { id: string; job_id: string; name: string; status: string; lifecycle_state: string | null };
 type JobRow = { id: string; job_number: string | null; client_name: string; client_email: string | null; builder_name: string | null; builder_company: string | null; pm: string | null; engineer: string | null; site_address: string; city: string | null; delivery_date: string | null; notes: string | null; notes_install: string | null; notes_finishing: string | null; notes_shop: string | null; notes_client: string | null };
@@ -35,7 +36,13 @@ type RawAccRow  = { id: string; type: string|null; part_number: string|null; des
 type DBHardwareRow = { id: string; spec_id: string; type: string; part_no: string|null; room: string|null; qty: number; notes: string|null; sort_order: number };
 
 const MATERIAL_ROLE_LABEL: Record<string, string> = { cab_ext:"Cabinet Exterior", cab_int:"Cabinet Interior", cab_ext2:"Cab Exterior 2", cab_int2:"Cab Interior 2" };
-const DOOR_FRONT_ROLE_LABEL: Record<string, string> = { base:"Base Doors", upper:"Upper Doors", applied_ends:"Applied Ends", slab_df:"Slab DF", "5pc_df":"5 PC DF" };
+/*
+  The door-front role vocabulary now lives in lib/door-front-roles.ts, imported by
+  both the writers and the readers. This local copy said `applied_ends` while
+  lib/pdf-spec.tsx compared against `applied_end`, and there was nothing to notice.
+  `slab_df` and `5pc_df` are not in the canonical list and do not need to be:
+  doorFrontRoleLabel() falls back to the raw value, so an old row still renders.
+*/
 const DRAWER_ROLE_LABEL: Record<string, string> = { drawer_box:"Drawer Box", rollout:"Rollout" };
 const MOLDING_TYPE_LABEL: Record<string, string> = { toe_skin:"Toe Skin", filler_1:"Filler 1", filler_2:"Filler 2", crown_1:"Crown 1", crown_2:"Crown 2", crown_nailer:"Crown Nailer", light_rail:"Light Rail", shelf_cleating:"Shelf Cleating", base_shoe:"Base Shoe", scribe:"Scribe Molding", base:"Base" };
 const EDGEBAND_WHERE_USED_LABEL: Record<string, string> = { applied_ends_doors_dwr_fronts:"Applied Ends / Doors & Drawer Fronts", cabinet_body_parts:"Cabinet Body Parts", adjustable_shelves:"Adjustable Shelves", bottom_upper_fe:"Bottom of Upper F.E.", bottom_upper_unfe:"Bottom of Upper Un-F.E.", drawer_box_sides:"Drawer Box Sides", drawer_box_front_back:"Drawer Box Front/Back", misc:"Misc — see notes" };
@@ -241,8 +248,10 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
         const tableDfs = doorFrontsByFg.get(g.id) ?? [];
         if (tableDfs.length > 0) {
           return tableDfs.map(df => ({
-            role: df.role,
-            role_label: DOOR_FRONT_ROLE_LABEL[df.role] ?? df.role,
+            // Normalized here, once, so every consumer downstream compares against
+            // the canonical value and no reader has to know the legacy spellings.
+            role: normalizeDoorFrontRole(df.role),
+            role_label: doorFrontRoleLabel(df.role),
             slot_label: df.slot_label ?? "",
             style_name: df.style_id ? (doorStyleIdx.get(df.style_id) ?? df.style_id) : "",
             // Door material follows the finish group -- species for paint and
@@ -261,7 +270,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
           }));
         }
         // Legacy flat-column fallback
-        return doorName ? [{ role: "base", role_label: "Base Doors", slot_label: "", style_name: doorName, material_name: "", oe_name: "", ie_name: "", panel_name: "", grain: "", vendor: "", notes: "" }] : [];
+        return doorName ? [{ role: ROLE_BASE, role_label: DOOR_FRONT_ROLE_LABEL[ROLE_BASE], slot_label: "", style_name: doorName, material_name: "", oe_name: "", ie_name: "", panel_name: "", grain: "", vendor: "", notes: "" }] : [];
       })(),
       drawers: (() => {
         const tableDrs = drawersByFg.get(g.id) ?? [];
