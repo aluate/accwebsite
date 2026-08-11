@@ -38,6 +38,8 @@ type MoldingRoomRow = { molding_id: string; room_id: string };
 type MaterialRow = { id: string; finish_group_id: string; role: string; material_id: string | null; where_used: string | null; notes: string | null };
 type FgEdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string|null; where_used: string|null; notes: string|null; thick: string|null; mfr: string|null; part_no: string|null; description: string|null; sort_order: number };
 type FgTrimDefaultRow = { id: string; finish_group_id: string; trim_type: string; species_material: string|null; size_desc: string|null; notes: string|null; sort_order: number };
+/** A door / drawer-front / applied-end callout beyond the base door. */
+type FgDoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string|null; style_id: string|null; sort_order: number };
 
 export default async function SpecEditorPage({
   params,
@@ -97,6 +99,7 @@ export default async function SpecEditorPage({
   let specHardwareRows: SpecHardwareRow[] = [];
   let fgEdgebandRows: FgEdgebandRow[] = [];
   let fgTrimDefaultRows: FgTrimDefaultRow[] = [];
+  let fgDoorFrontRows: FgDoorFrontRow[] = [];
   try {
     fgPullRows = fgIds.length
       ? await sql`SELECT * FROM finish_group_pulls WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FGPullRow[]
@@ -112,6 +115,15 @@ export default async function SpecEditorPage({
       : [];
     fgTrimDefaultRows = fgIds.length
       ? await sql`SELECT * FROM finish_group_trim_defaults WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FgTrimDefaultRow[]
+      : [];
+    // Callout rows beyond the base door. The base row is excluded: it is not editable
+    // here — it comes from the Door Style dropdown — and offering it as a removable
+    // row would let someone delete the thing the release gate requires.
+    fgDoorFrontRows = fgIds.length
+      ? await sql`SELECT id, finish_group_id, role, slot_label, style_id, sort_order
+                  FROM finish_group_door_fronts
+                  WHERE finish_group_id IN ${sql(fgIds)} AND role <> 'base'
+                  ORDER BY finish_group_id, sort_order` as FgDoorFrontRow[]
       : [];
   } catch {
     // Tables not yet created — will be created on first db-push
@@ -318,6 +330,7 @@ export default async function SpecEditorPage({
         initialHardware={initialHardware}
         initialFgEdgebands={fgEdgebandRows}
         initialFgTrimDefaults={fgTrimDefaultRows}
+        initialDoorFronts={fgDoorFrontRows}
         catalogs={catalogData}
         lastSaved={spec.updated_at}
       />

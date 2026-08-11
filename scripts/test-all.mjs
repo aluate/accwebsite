@@ -38,6 +38,7 @@ const SUITES = [
   { file: "test-install-date.mjs",      db: true,  what: "one official install date per job" },
   { file: "test-release-gate.mjs",      db: true,  what: "the five fields engineering needs" },
   { file: "test-door-front-roles.mjs",  db: true,  what: "doors / drawer fronts / applied ends" },
+  { file: "test-door-front-save.mjs",   db: true,  what: "callout rows persist without destroying" },
   { file: "test-pdf-documents.mjs",     db: true,  what: "what the documents say" },
 ];
 

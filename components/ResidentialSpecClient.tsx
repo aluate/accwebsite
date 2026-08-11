@@ -8,6 +8,10 @@ import type {
 import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
 import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES } from "@/lib/trim-types";
 import { speciesAllowedFor } from "@/lib/door-material";
+import {
+  DOOR_FRONT_ROLE_LABEL, DOOR_FRONT_ROLE_HINT,
+  ROLE_BASE, ROLE_UPPER, ROLE_DRAWER_FRONT, ROLE_APPLIED_END,
+} from "@/lib/door-front-roles";
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
@@ -150,6 +154,25 @@ export type FgEdgebandRow = {
   where_used: string|null; notes: string|null;
 };
 
+/**
+ * One door / drawer-front / applied-end callout beyond the base door.
+ *
+ * Karl: "if I have my 12in drawers 5 piece and the 6in drawers slab I need to be able
+ * to call it out. OR if the applied panels are slabs EVERYWHERE BUT THE KITCHEN then I
+ * need to call out the shaker panel on the applied ends."
+ *
+ * slot_label is free text on purpose. The shop's vocabulary for where a door goes is
+ * not something to enumerate, and every enum here has drifted at least once.
+ */
+export type DoorFrontRow = {
+  id: string;
+  finish_group_id: string;
+  role: string;
+  slot_label: string | null;
+  style_id: string | null;
+  sort_order: number;
+};
+
 export type Room = {
   id: string; name: string;
   finish_group_id: string;
@@ -175,6 +198,9 @@ type Props = {
   initialHardware?: SpecHardwareItem[];
   initialFgEdgebands: FgEdgebandRow[];
   initialFgTrimDefaults: FgTrimDefault[];
+  /** Door / drawer-front / applied-end callouts beyond the base door. Excludes the
+   *  base row, which comes from the Door Style dropdown and is not editable here. */
+  initialDoorFronts?: DoorFrontRow[];
   catalogs: CatalogData;
   lastSaved: string;
 };
@@ -751,7 +777,104 @@ function AccessoryPickerRow({
   );
 }
 
-export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, initialFgEdgebands, initialFgTrimDefaults, catalogs, lastSaved }: Props) {
+/**
+ * Extra door / drawer-front / applied-end callouts for one finish group.
+ *
+ * Karl: "right below the first door entry an option to add a 2nd door type, same for
+ * drawers and applied ends. Then I can call them out however I want."
+ *
+ * The three buttons name the thing being added rather than offering a generic "add
+ * row" with a type dropdown, because the question a PM has in mind is already "the
+ * 6-inch drawers are slab" — not "add a row, then say what kind".
+ *
+ * "Where" is free text. The shop's vocabulary for where a door goes ("EVERYWHERE BUT
+ * THE KITCHEN", '12" DRAWERS') is not something to enumerate, and every enum in this
+ * schema has drifted at least once.
+ */
+function DoorFrontCallouts({
+  fgId, finishType, rows, doorStyles, onAdd, onUpdate, onRemove,
+}: {
+  fgId: string;
+  finishType: string;
+  rows: DoorFrontRow[];
+  doorStyles: CatalogData["doorStyles"];
+  onAdd: (fgId: string, role: string) => void;
+  onUpdate: (rowId: string, patch: Partial<DoorFrontRow>) => void;
+  onRemove: (rowId: string) => void;
+}) {
+  // Melamine is slab-only, the same rule the dropdown above enforces. Applying it here
+  // too stops a callout quietly specifying a shaker panel on a melamine job.
+  const styles = doorStyles.filter((d) => (finishType === "melamine" ? d.construction === "slab" : true));
+
+  const ADD: { role: string; label: string }[] = [
+    { role: ROLE_BASE,         label: "+ Door" },
+    { role: ROLE_UPPER,        label: "+ Upper" },
+    { role: ROLE_DRAWER_FRONT, label: "+ Drawer Front" },
+    { role: ROLE_APPLIED_END,  label: "+ Applied End" },
+  ];
+
+  return (
+    <div className="mt-3 border-t border-white/10 pt-2.5">
+      {rows.length > 0 && (
+        <div className="space-y-1.5 mb-2">
+          {rows.map((r) => (
+            <div key={r.id} className="flex gap-1.5 items-center">
+              <span
+                className="shrink-0 w-[104px] text-[10px] font-condensed uppercase tracking-wider text-[#f08122]/80 truncate"
+                title={DOOR_FRONT_ROLE_HINT[r.role] ?? ""}
+              >
+                {DOOR_FRONT_ROLE_LABEL[r.role] ?? r.role}
+              </span>
+              <input
+                value={r.slot_label ?? ""}
+                onChange={(e) => onUpdate(r.id, { slot_label: e.target.value })}
+                placeholder="where — e.g. KITCHEN"
+                className="w-[136px] shrink-0 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
+              />
+              <select
+                value={r.style_id ?? ""}
+                onChange={(e) => onUpdate(r.id, { style_id: e.target.value })}
+                className="flex-1 min-w-0 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]"
+              >
+                <option value="">-- Style --</option>
+                {styles.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+              <button
+                type="button"
+                onClick={() => onRemove(r.id)}
+                title="Remove this callout"
+                aria-label={`Remove ${DOOR_FRONT_ROLE_LABEL[r.role] ?? r.role} callout`}
+                className="shrink-0 px-2 py-1 text-xs text-white/40 hover:text-red-400 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-1.5">
+        {ADD.map(({ role, label }) => (
+          <button
+            key={role}
+            type="button"
+            onClick={() => onAdd(fgId, role)}
+            title={DOOR_FRONT_ROLE_HINT[role]}
+            className="px-2 py-1 text-[10px] font-condensed uppercase tracking-widest text-white/50 border border-white/15 rounded hover:border-[#f08122]/60 hover:text-[#f08122] transition-colors"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {rows.length === 0 && (
+        <p className="text-white/25 text-[10px] mt-1.5 font-condensed uppercase tracking-widest">
+          Add a callout when something differs — a second door style, 5-piece vs slab drawer fronts, applied ends in one room.
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, initialRooms, initialMaterials, initialPulls, initialAppliances, initialAccessories2, initialHardware, initialFgEdgebands, initialFgTrimDefaults, initialDoorFronts, catalogs, lastSaved }: Props) {
   const [tab, setTab]       = useState<"finishes" | "rooms" | "specDetails" | "summary">("finishes");
   const [groups, setGroups] = useState<FinishGroup[]>(initialFinishGroups);
   const [rooms, setRooms]   = useState<Room[]>(initialRooms);
@@ -770,6 +893,28 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     return map;
   });
   const [fgTrimDefaults, setFgTrimDefaults] = useState<FgTrimDefault[]>(initialFgTrimDefaults ?? []);
+  /*
+    Door / drawer-front / applied-end callouts, and the ids of the ones removed.
+
+    Removals are tracked rather than inferred. The save route deletes only ids it is
+    given, because "absent from the payload means delete" would wipe rows on any
+    request that happened to send a short list — and this table also carries columns
+    this UI does not edit (material_id, oe_id, ie_id, panel_id, grain, vendor, notes)
+    that a wholesale rebuild would blank.
+  */
+  const [doorFronts, setDoorFronts] = useState<DoorFrontRow[]>(initialDoorFronts ?? []);
+  const [deletedDoorFronts, setDeletedDoorFronts] = useState<string[]>([]);
+  /*
+    Which callout rows exist server-side. Seeded from what the page loaded and updated
+    after each successful save.
+
+    Checking `initialDoorFronts` directly would be wrong after the first save: a row
+    added, saved, then removed without a page reload does exist in the database but is
+    not in the initial prop, so its deletion would never be sent and it would reappear
+    on the next page load.
+  */
+  const [serverDoorFrontIds, setServerDoorFrontIds] =
+    useState<Set<string>>(() => new Set((initialDoorFronts ?? []).map((r) => r.id)));
   const [dirty, setDirty]   = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
@@ -777,6 +922,38 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [genState, setGenState] = useState<"idle" | "generating" | "done" | "error">("idle");
 
   function markDirty() { setDirty(true); setSaveState("idle"); }
+
+  // ── door / drawer-front / applied-end callouts ─────────────────────────────
+  function addDoorFront(fgId: string, role: string) {
+    const rows = doorFronts.filter((r) => r.finish_group_id === fgId);
+    setDoorFronts((prev) => [...prev, {
+      // Generated here so the row has a stable identity before it is ever saved:
+      // the route upserts by id, so a client-side id makes the first save an INSERT
+      // and every later one an UPDATE of the same row.
+      id: `df-${uid()}`,
+      finish_group_id: fgId,
+      role,
+      slot_label: "",
+      style_id: "",
+      sort_order: rows.length + 1,
+    }]);
+    markDirty();
+  }
+
+  function updateDoorFront(rowId: string, patch: Partial<DoorFrontRow>) {
+    setDoorFronts((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...patch } : r)));
+    markDirty();
+  }
+
+  function removeDoorFront(rowId: string) {
+    // Only rows that exist server-side need naming for deletion. One added and removed
+    // without an intervening save was never written, so sending its id would ask the
+    // server to delete something that does not exist.
+    const existedOnServer = serverDoorFrontIds.has(rowId);
+    setDoorFronts((prev) => prev.filter((r) => r.id !== rowId));
+    if (existedOnServer) setDeletedDoorFronts((prev) => prev.includes(rowId) ? prev : [...prev, rowId]);
+    markDirty();
+  }
 
   async function saveEbCell(fgId: string, code: string, patch: Partial<FgEdgebandRow>) {
     const key = `${fgId}::${code}`;
@@ -820,7 +997,17 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
         // force=true means the user asked for a draft save. The server keeps
           // integrity checks but downgrades completeness to warnings, so partial
           // work persists instead of 400ing and being lost on navigate.
-          body: JSON.stringify({ finish_groups: groups, rooms: roomsForSave, materials, draft: force === true }),
+          body: JSON.stringify({
+            finish_groups: groups,
+            rooms: roomsForSave,
+            materials,
+            // A row with neither a style nor a label is an empty row someone opened and
+            // did not fill in. Dropping it here keeps it out of the database rather than
+            // printing a blank callout on a work order.
+            door_fronts: doorFronts.filter((r) => (r.style_id ?? "").trim() || (r.slot_label ?? "").trim()),
+            door_fronts_deleted: deletedDoorFronts,
+            draft: force === true,
+          }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -835,6 +1022,21 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           body: JSON.stringify({ label: archive }),
         });
       }
+      /*
+        The write succeeded, so the pending removals are done. Clearing them stops
+        every later save re-sending ids for rows that are already gone, and stops a
+        deleted id lingering long enough to collide with a row someone else added.
+
+        The rows that were just written now exist server-side, so they join the set
+        removeDoorFront() consults to decide whether a removal needs to be sent.
+      */
+      setDeletedDoorFronts([]);
+      setServerDoorFrontIds((prev) => {
+        const next = new Set(prev);
+        for (const r of doorFronts) next.add(r.id);
+        for (const gone of deletedDoorFronts) next.delete(gone);
+        return next;
+      });
       setDirty(false);
       setSaveState("saved");
       setSavedAt(new Date().toISOString());
@@ -843,7 +1045,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       setSaveState("error");
       return false;
     }
-  }, [specId, groups, rooms, moldings, materials, violations.length]);
+    // doorFronts and deletedDoorFronts are in the deps: without them the callback
+    // closes over the arrays as they were on mount and every save posts stale rows.
+  }, [specId, groups, rooms, moldings, materials, doorFronts, deletedDoorFronts, violations.length]);
 
   const saveAll = useCallback(async () => {
     setSaveAllState("saving");
@@ -1786,6 +1990,36 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         Door style reset — melamine finish uses slab doors only.
                       </p>
                     )}
+
+                  </div>
+
+                  {/*
+                    Additional callouts, directly below the door entry — Karl: "right
+                    below the first door entry an option to add a 2nd door type, same
+                    for drawers and applied ends. Then I can call them out however I
+                    want."
+
+                    sm:col-span-3 so the rows get the full width of the card. Nested
+                    inside the Door Style column it was one third as wide, and the
+                    style dropdown truncated "#116 Standard Shaker" to "#1" — a PM
+                    could not see which style a callout was actually set to, which
+                    defeats the point of being able to call it out.
+
+                    The dropdown above is the base door for the whole group. Each row
+                    here is one extra callout: what kind, where it applies, which
+                    style. Nothing is required — a group with no callouts prints
+                    exactly as it did before.
+                  */}
+                  <div className="sm:col-span-3">
+                    <DoorFrontCallouts
+                      fgId={g.id}
+                      finishType={g.finish_type}
+                      rows={doorFronts.filter((r) => r.finish_group_id === g.id)}
+                      doorStyles={catalogs.doorStyles}
+                      onAdd={addDoorFront}
+                      onUpdate={updateDoorFront}
+                      onRemove={removeDoorFront}
+                    />
                   </div>
 
                   {/* Cab Door Custom Options — shown only when DS-CD-CUSTOM is selected */}

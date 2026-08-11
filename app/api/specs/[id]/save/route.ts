@@ -5,6 +5,7 @@ import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { seedAccStandards } from "@/lib/acc-standards-seed";
 import { propagateTrimDefaults } from "@/lib/trim-propagate";
+import { isDoorFrontRole, ROLE_BASE } from "@/lib/door-front-roles";
 
 // -- Payload types
 
@@ -92,11 +93,30 @@ type MaterialPayload = {
   notes: string;
 };
 
+/**
+ * One door / drawer-front / applied-end callout row. The UI owns exactly these three
+ * fields; every other column on finish_group_door_fronts is left untouched, which is
+ * why these are upserted by id rather than the table being rebuilt.
+ */
+type DoorFrontPayload = {
+  id: string;
+  finish_group_id: string;
+  role: string;
+  slot_label: string | null;
+  style_id: string | null;
+};
+
 type SavePayload = {
   finish_groups: FinishGroupPayload[];
   rooms: RoomPayload[];
   moldings?: MoldingPayload[];
   materials?: MaterialPayload[];
+  /** Callout rows beyond the base door. Omit the key entirely to leave existing
+   *  rows alone — same contract as `moldings`. */
+  door_fronts?: DoorFrontPayload[];
+  /** Ids the user removed. Explicit, because "absent from the payload" would wipe
+   *  every row on any request that happened to send a short list. */
+  door_fronts_deleted?: string[];
   /** Save an incomplete spec on purpose. Completeness warnings are returned
    *  in the response instead of rejecting the write. Integrity errors still
    *  block. PDF generation remains gated -- see lib/spec-completeness.ts. */
@@ -188,6 +208,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const body = (await req.json()) as SavePayload;
   const clientSentMoldings = 'moldings' in body;
+  // Same contract as moldings: an absent key means "this client has no UI for these",
+  // so existing rows are preserved rather than silently wiped.
+  const clientSentDoorFronts = 'door_fronts' in body;
   const { finish_groups, rooms, moldings = [], materials = [] } = body;
 
   const violations = validate(body);
@@ -443,20 +466,114 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // null hardware_id, is treated as a decision already made.
     //
     // Wrapped in individual try/catch so a seeding failure never breaks the save.
+    /*
+      Callout rows the user removed.
+
+      Scoped to this spec's finish groups in the statement itself, not just filtered in
+      JS: `id IN (...)` alone would let a client delete any door-front row in the
+      database by guessing an id, on a route a PM can reach. The subquery makes that
+      impossible regardless of what arrives.
+
+      A base row is never deleted here. The UI does not offer to remove it — the base
+      door comes from the Door Style dropdown — and letting it through would break the
+      release gate for a reason nobody could see.
+    */
+    if (clientSentDoorFronts) {
+      const toDelete = (body.door_fronts_deleted ?? []).filter((x) => typeof x === "string" && x);
+      if (toDelete.length > 0) {
+        try {
+          await sql`
+            DELETE FROM finish_group_door_fronts
+            WHERE id IN ${sql(toDelete)}
+              AND role <> ${ROLE_BASE}
+              AND finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${id})
+          `;
+        } catch (e) {
+          console.error("[save] removing door-front callouts failed:", e);
+        }
+      }
+    }
+
     for (const g of finish_groups) {
       const fgId = g.id;
 
-      // door_fronts -- seed one "base" row from door_style_id
+      /*
+        door_fronts — seed one "base" row from door_style_id.
+
+        THE GUARD IS NOW PER-ROLE. It counted rows for the WHOLE finish group, so once
+        the group had any other row — an applied-end callout, a second drawer front —
+        the count was non-zero and the base row could never be seeded. Since
+        validateForRelease() requires a base door style, that would block the spec from
+        reaching engineering permanently, and the more callouts a PM added the more
+        certain it became.
+
+        Same off-by-scope bug lib/acc-standards-seed.ts already documents fixing for
+        hardware and drawers ("counted rows across the entire table for a finish
+        group"). It survived here because until now nothing could add a second row.
+      */
       if (g.door_style_id) {
         try {
-          const cnt = await sql`SELECT COUNT(*) AS c FROM finish_group_door_fronts WHERE finish_group_id = ${fgId}`;
+          const cnt = await sql`
+            SELECT COUNT(*) AS c FROM finish_group_door_fronts
+            WHERE finish_group_id = ${fgId} AND role = ${ROLE_BASE}
+          `;
           if (Number((cnt[0] as { c: string | number }).c) === 0) {
             await sql`
               INSERT INTO finish_group_door_fronts (id, finish_group_id, role, style_id, sort_order)
-              VALUES (${uid()}, ${fgId}, ${'base'}, ${g.door_style_id}, ${0})
+              VALUES (${uid()}, ${fgId}, ${ROLE_BASE}, ${g.door_style_id}, ${0})
             `;
           }
         } catch (_) { /* seeding failure -- skip */ }
+      }
+
+      /*
+        Additional door / drawer-front / applied-end callouts, from the builder UI.
+
+        Karl: "right below the first door entry an option to add a 2nd door type, same
+        for drawers and applied ends. Then I can call them out however I want."
+
+        UPSERT BY ID, never delete-and-replace. The other child tables in this file are
+        rebuilt wholesale, which is safe when the UI owns every column. It does not
+        here: finish_group_door_fronts also carries material_id, oe_id, ie_id,
+        panel_id, grain, vendor and notes, which this UI does not edit. A wholesale
+        rebuild would blank all of them on the first save.
+
+        So each row is matched by id and only the three fields the UI owns are written.
+        Removals are explicit — the client sends the ids it deleted — because inferring
+        "absent from the payload means delete" would wipe every row on any request that
+        happened to send a short list.
+
+        The key is optional and checked with `in`, following the moldings precedent
+        above: a client with no UI for this omits it, and existing rows are left alone
+        rather than silently wiped.
+      */
+      if (clientSentDoorFronts) {
+        const rows = (body.door_fronts ?? []).filter((r) => r.finish_group_id === fgId);
+        for (const [i, r] of rows.entries()) {
+          // A role outside the canonical list is refused rather than stored. This
+          // table has no enum and no UNIQUE, so a typo would sit there rendering as a
+          // raw identifier on a customer-facing sheet.
+          if (!isDoorFrontRole(r.role)) continue;
+          const styleId  = r.style_id?.trim() || null;
+          const slot     = r.slot_label?.trim() || null;
+          try {
+            const existing = await sql`
+              SELECT id FROM finish_group_door_fronts WHERE id = ${r.id} AND finish_group_id = ${fgId}
+            `;
+            if (existing.length > 0) {
+              await sql`
+                UPDATE finish_group_door_fronts
+                SET role = ${r.role}, slot_label = ${slot}, style_id = ${styleId}, sort_order = ${i + 1}
+                WHERE id = ${r.id}
+              `;
+            } else {
+              await sql`
+                INSERT INTO finish_group_door_fronts (id, finish_group_id, role, slot_label, style_id, sort_order)
+                VALUES (${r.id}, ${fgId}, ${r.role}, ${slot}, ${styleId}, ${i + 1})
+              `;
+            }
+          } catch (_) { /* one bad callout row must not fail the whole save */ }
+        }
       }
 
       // Push this finish group's trim defaults onto the rooms that use it.
