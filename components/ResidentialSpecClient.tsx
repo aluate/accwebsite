@@ -754,17 +754,53 @@ function AccessoryPickerRow({
       {/* Row 2: item info / warning badge */}
       {selectedItem && !isCustom && (
         <div className="flex items-center gap-2 px-1">
-          {/* Image placeholder / actual image */}
-          <div className="w-10 h-10 bg-[#222] rounded flex-shrink-0 overflow-hidden">
-            <img
-              src={selectedItem.image_url ?? ""}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-            />
-          </div>
+          {/*
+            The image, and NOTHING where there is no image.
+
+            This kept the grey 40x40 box whether or not a picture loaded — the onError
+            hid the <img> and left the placeholder behind. Every accessory in the
+            catalog points at a `.webp` that does not exist (the 22 files on disk are
+            ACC-1xx…ACC-5xx .jpg, a different numbering entirely), so the picker showed
+            25 identical grey squares. Karl read that as "using the old info, not the
+            new stuff I built with... images". The data is his new data; the pictures
+            are the broken part.
+
+            The box now removes itself on error, so a missing photo looks like no photo
+            rather than a failure. scripts/remap-accessory-images.mjs pairs the files up
+            — by hand, because 22 files against 25 rows in two different numbering
+            schemes has no mapping to derive, and a wrong photo on a document a client
+            signs is worse than none.
+          */}
+          {selectedItem.image_url && (
+            <div className="w-10 h-10 bg-[#222] rounded flex-shrink-0 overflow-hidden">
+              <img
+                src={selectedItem.image_url}
+                alt={selectedItem.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const box = (e.target as HTMLImageElement).parentElement;
+                  if (box) box.style.display = "none";
+                }}
+              />
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-white/70 text-xs truncate">{selectedItem.brand} · Series {selectedItem.series}</p>
+            <p className="text-white/70 text-xs truncate">
+              {[selectedItem.brand, selectedItem.series && `Series ${selectedItem.series}`]
+                .filter(Boolean).join(" · ")}
+            </p>
+            {/*
+              finish_options is on all 25 rows of Karl's catalog and was read by
+              nothing. Shown rather than selectable: there is no finish column on
+              room_accessories, and inventing one to hold a value no document prints
+              would be a bigger change than the gap deserves. Visible at least means a
+              PM can put it in the notes when it matters.
+            */}
+            {asArr(selectedItem.finish_options).length > 0 && (
+              <p className="text-white/40 text-[10px] truncate">
+                Finishes: {asArr(selectedItem.finish_options).join(", ")}
+              </p>
+            )}
             {selectedItem.price_slp && (
               <p className="text-white/40 text-[10px]">SLP ${selectedItem.price_slp} ({selectedItem.price_date})</p>
             )}
