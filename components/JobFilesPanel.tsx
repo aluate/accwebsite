@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { uploadJobFile } from "@/lib/upload-job-file";
 
 type FileEntry = {
   id: string;
@@ -79,20 +80,17 @@ export function JobFilesPanel({ jobId, isAdmin = false, defaultKind = "00_field_
     setErr("");
     setUploading(true);
     try {
+      // uploadJobFile picks the route: small files as multipart, anything that would
+      // hit Vercel's 4.5 MB body ceiling goes straight to storage through a signed
+      // URL. A 4.6 MB site photo used to come back as a bare 413 — rejected at the
+      // edge, so no log line, no reason, just "Upload failed".
       for (const file of files) {
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("kind", kind);
-        const res = await fetch(`/api/jobs/${jobId}/files`, { method: "POST", body: fd });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          setErr(body.error ?? "Upload failed");
-          break;
-        }
+        const r = await uploadJobFile(jobId, file, kind);
+        if (!r.ok) { setErr(`${file.name} — ${r.error}`); break; }
       }
       await refresh();
-    } catch {
-      setErr("Upload failed");
+    } catch (e) {
+      setErr(`Upload failed: ${(e as Error)?.message ?? e}`);
     } finally {
       setUploading(false);
       e.target.value = "";

@@ -6,32 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-const BUCKET = "job-files";
-
-// Z drive mirror — 17 folders in sort order
-const VALID_KINDS = new Set([
-  "00_field_dims",
-  "01_plan",
-  "02_quote",
-  "03_job_specs",
-  "04_appliances",
-  "05_drawings",
-  "05a_redlines",
-  "06_as_builts",
-  "07_correspondence",
-  "08_project_mgmt",
-  "09_site_photos",
-  "10_billing",
-  "11_punch_list",
-  "12_cost_quality",
-  "13_installation",
-  "14_prod_docs",
-  "14_wo_pdfs",
-  "14_ship_ticket",
-  "14_install_drawings",
-  "15_contract",
-  "16_eng_drawings", // approved drawings for engineering release
-]);
+import { BUCKET, VALID_KINDS, safeFilename, storagePath } from "./shared";
 
 function supabaseAdmin() {
   return createClient(
@@ -40,14 +15,7 @@ function supabaseAdmin() {
   );
 }
 
-function storagePath(jobId: string, kind: string, filename: string): string {
-  const ts = Date.now();
-  return `jobs/${jobId}/${kind}/${ts}-${filename}`;
-}
 
-function safeFilename(name: string): string {
-  return name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 200);
-}
 
 /** Resolve a job by internal id OR job_number. Returns canonical id or null. */
 async function resolveJobId(id: string): Promise<string | null> {

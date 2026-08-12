@@ -33,6 +33,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 */
 const SUITES = [
   { file: "test-catalog-resolve.mjs",   db: false, what: "db-vs-file catalog resolution (pure)" },
+  { file: "test-upload-paths.mjs",      db: false, what: "where an uploaded file may land (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-install-date.mjs",      db: true,  what: "one official install date per job" },
