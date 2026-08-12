@@ -170,6 +170,25 @@ export type DoorFrontRow = {
   role: string;
   slot_label: string | null;
   style_id: string | null;
+  /*
+    The Cab Door Custom options, PER ROW — edge detail, inside profile, panel.
+
+    Karl: "the ONLY one that works with the cab door library right now is the first
+    door style. I need to be able to do that to any of the new ones and I need all
+    that to pull through to the spec."
+
+    It was worse than that. The UI wrote these to the FINISH GROUP
+    (cabdoor_edge_id / cabdoor_profile_id / cabdoor_panel_id); lib/spec-data.ts reads
+    them from the door-front ROW (oe_id / ie_id / panel_id); and lib/pdf-spec.tsx
+    printed them nowhere. Three halves that never met, so a custom cab door reached
+    no document at all — not even for the first door.
+
+    oe_id/ie_id/panel_id are the columns spec-data already reads, so this is where
+    they belong.
+  */
+  oe_id: string | null;
+  ie_id: string | null;
+  panel_id: string | null;
   sort_order: number;
 };
 
@@ -813,12 +832,16 @@ function AccessoryPickerRow({
  * schema has drifted at least once.
  */
 function DoorFrontCallouts({
-  fgId, finishType, rows, doorStyles, onAdd, onUpdate, onRemove,
+  fgId, finishType, rows, doorStyles, cabDoorEdges, cabDoorProfiles, cabDoorPanels,
+  onAdd, onUpdate, onRemove,
 }: {
   fgId: string;
   finishType: string;
   rows: DoorFrontRow[];
   doorStyles: CatalogData["doorStyles"];
+  cabDoorEdges: CatalogData["cabDoorEdges"];
+  cabDoorProfiles: CatalogData["cabDoorProfiles"];
+  cabDoorPanels: CatalogData["cabDoorPanels"];
   onAdd: (fgId: string, role: string) => void;
   onUpdate: (rowId: string, patch: Partial<DoorFrontRow>) => void;
   onRemove: (rowId: string) => void;
@@ -839,7 +862,8 @@ function DoorFrontCallouts({
       {rows.length > 0 && (
         <div className="space-y-1.5 mb-2">
           {rows.map((r) => (
-            <div key={r.id} className="flex gap-1.5 items-center">
+            <div key={r.id}>
+              <div className="flex gap-1.5 items-center mb-1">
               <span
                 className="shrink-0 w-[104px] text-[10px] font-condensed uppercase tracking-wider text-[#f08122]/80 truncate"
                 title={DOOR_FRONT_ROLE_HINT[r.role] ?? ""}
@@ -869,6 +893,40 @@ function DoorFrontCallouts({
               >
                 ×
               </button>
+              </div>
+
+              {/*
+                The cab door library, on THIS row.
+
+                Karl: "the ONLY one that works with the cab door library right now is
+                the first door style. I need to be able to do that to any of the new
+                ones." These write oe_id / ie_id / panel_id on the row — the columns
+                lib/spec-data.ts already reads — so a custom door on any callout now
+                reaches the work order.
+              */}
+              {r.style_id === "DS-CD-CUSTOM" && (
+                <div className="ml-[104px] mb-1 grid sm:grid-cols-3 gap-1.5 bg-[#1a1a1a] rounded p-2 border border-[#f08122]/20">
+                  <p className="sm:col-span-3 text-[#f08122]/60 text-[9px] font-condensed uppercase tracking-widest">
+                    Cab Door Custom — {DOOR_FRONT_ROLE_LABEL[r.role] ?? r.role}{r.slot_label ? ` · ${r.slot_label}` : ""}
+                  </p>
+                  {([
+                    { field: "oe_id"    as const, label: "Edge Detail",    opts: cabDoorEdges ?? [] },
+                    { field: "ie_id"    as const, label: "Inside Profile", opts: cabDoorProfiles ?? [] },
+                    { field: "panel_id" as const, label: "Panel",          opts: cabDoorPanels ?? [] },
+                  ]).map(({ field, label, opts }) => (
+                    <select
+                      key={field}
+                      value={r[field] ?? ""}
+                      onChange={(e) => onUpdate(r.id, { [field]: e.target.value } as Partial<DoorFrontRow>)}
+                      aria-label={label}
+                      className="w-full bg-[#1a1a1a] border border-white/15 rounded px-2 py-1 text-[11px] text-white focus:outline-none focus:border-[#f08122]"
+                    >
+                      <option value="">{`-- ${label} --`}</option>
+                      {opts.map((o) => <option key={o.id} value={o.id}>{o.name || o.id}</option>)}
+                    </select>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -958,6 +1016,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       role,
       slot_label: "",
       style_id: "",
+      oe_id: "", ie_id: "", panel_id: "",
       sort_order: rows.length + 1,
     }]);
     markDirty();
@@ -2131,6 +2190,62 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       </p>
                     )}
 
+                    {/*
+                      Drawer style and applied panels, STACKED under the door style.
+
+                      Karl: "door style like it is in the image, but drawer style and
+                      applied panels should be stacked vertically under it. Then we get
+                      grain and species below. That way I'm forced to pick door,
+                      drawer, and applied panel styles."
+
+                      They were two more cells in a three-across grid, so they read as
+                      unrelated fields sitting beside the pull and the WO number. Under
+                      the door style they read as what they are: the other two front
+                      types on the same cabinet.
+
+                      Both still have a working default — "Same as Door" and "Slab" —
+                      because that is genuinely the common answer and making them hard
+                      requirements would block every spec already saved. What they get
+                      instead is a visible note when they are still on the default, so
+                      an unconsidered value cannot pass for a decision.
+                    */}
+                    <div className="mt-3 pl-3 border-l-2 border-[#f08122]/25 space-y-3">
+                      <div>
+                        <label className={LABEL}>
+                          Drawer Front Style
+                          {!g.drawer_style_id && (
+                            <span className="ml-1 text-white/30 normal-case font-normal text-[10px]">— defaulting to the door</span>
+                          )}
+                        </label>
+                        <select
+                          value={g.drawer_style_id ?? ""}
+                          onChange={(e) => updateGroup(g.id, { drawer_style_id: e.target.value })}
+                          className={SELECT}
+                        >
+                          <option value="">Same as Door</option>
+                          {catalogs.doorStyles
+                            .filter((d) => (g.finish_type === "melamine" ? d.construction === "slab" : true))
+                            .map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={LABEL}>
+                          Applied Panel Style
+                          {(g.applied_panels ?? "slab") === "slab" && (
+                            <span className="ml-1 text-white/30 normal-case font-normal text-[10px]">— defaulting to slab</span>
+                          )}
+                        </label>
+                        <select
+                          value={g.applied_panels ?? "slab"}
+                          onChange={(e) => updateGroup(g.id, { applied_panels: e.target.value as "slab" | "match_door" })}
+                          className={SELECT}
+                        >
+                          <option value="slab">Slab</option>
+                          <option value="match_door">Match door style</option>
+                        </select>
+                      </div>
+                    </div>
+
                   </div>
 
                   {/*
@@ -2156,6 +2271,9 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                       finishType={g.finish_type}
                       rows={doorFronts.filter((r) => r.finish_group_id === g.id)}
                       doorStyles={catalogs.doorStyles}
+                      cabDoorEdges={catalogs.cabDoorEdges}
+                      cabDoorProfiles={catalogs.cabDoorProfiles}
+                      cabDoorPanels={catalogs.cabDoorPanels}
                       onAdd={addDoorFront}
                       onUpdate={updateDoorFront}
                       onRemove={removeDoorFront}
@@ -2190,28 +2308,6 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                     </div>
                   )}
 
-                  <div>
-                    <label className={LABEL}>Drawer Style <span className="text-white/30 normal-case font-normal">(if different from door)</span></label>
-                    <select
-                      value={g.drawer_style_id ?? ""}
-                      onChange={(e) => updateGroup(g.id, { drawer_style_id: e.target.value })}
-                      className={SELECT}
-                    >
-                      <option value="">Same as Door</option>
-                      {catalogs.doorStyles.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={LABEL}>Applied Panels</label>
-                    <select
-                      value={g.applied_panels ?? "slab"}
-                      onChange={(e) => updateGroup(g.id, { applied_panels: e.target.value as "slab" | "match_door" })}
-                      className={SELECT}
-                    >
-                      <option value="slab">Slab</option>
-                      <option value="match_door">Match door style</option>
-                    </select>
-                  </div>
                   <div>
                     <label className={LABEL}>Grain Orientation</label>
                     <select

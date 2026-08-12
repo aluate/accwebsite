@@ -1498,25 +1498,46 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
       })()}
 
       {/* ── DOOR & DF SCHEDULE ──────────────────────────────────────────── */}
-      {fg.door_fronts.filter(df => df.style_name || df.material_name || df.notes).length > 0 && (
+      {fg.door_fronts.filter(df => df.style_name || df.material_name || df.notes
+                                 || df.oe_name || df.ie_name || df.panel_name).length > 0 && (
         <View style={{ marginBottom: 4 }}>
           <Text style={WS.fullSecHead}>DOOR &amp; DRAWER FRONT SCHEDULE</Text>
           <View style={{ flexDirection: "row", backgroundColor: HEAD_BG }}>
-            <Text style={[WS.th, { flex: 1.6 }]}>Type</Text>
-            <Text style={[WS.th, { flex: 1.8 }]}>Style</Text>
-            <Text style={[WS.th, { flex: 1.8 }]}>Material / Species</Text>
-            <Text style={[WS.th, { flex: 1 }]}>Grain</Text>
-            <Text style={[WS.th, { flex: 1.8 }]}>Notes</Text>
+            {/*
+              Type is the widest column because it carries role AND slot label —
+              "Drawer Fronts — 12\" DRAWERS". At 1.6 the new Edge/Inside/Panel column
+              squeezed it enough that @react-pdf hyphenated mid-word: the sheet read
+              `12" DRAW-ERS`. The data was all there; it was just unreadable, which on
+              a shop sheet is the same problem.
+            */}
+            <Text style={[WS.th, { flex: 2.4 }]}>Type</Text>
+            <Text style={[WS.th, { flex: 1.7 }]}>Style</Text>
+            <Text style={[WS.th, { flex: 1.5 }]}>Material / Species</Text>
+            {/*
+              Edge / Inside / Panel — the Cab Door Custom options.
+
+              oe_name, ie_name and panel_name have been on DoorFrontView since it was
+              written and printed on NO document. So a custom cab door — the one thing
+              on this sheet that cannot be inferred from a catalog name — reached the
+              shop as bare "Cab Door Custom" and someone had to ring the office. Karl:
+              "I need all that to pull through to the spec."
+            */}
+            <Text style={[WS.th, { flex: 1.4 }]}>Edge / Inside / Panel</Text>
+            <Text style={[WS.th, { flex: 0.7 }]}>Grain</Text>
+            <Text style={[WS.th, { flex: 1.2 }]}>Notes</Text>
           </View>
           {fg.door_fronts.map((df, i) => (
             <View key={i} style={i % 2 === 0 ? WS.tableRow : WS.tableRowAlt}>
-              <Text style={[WS.tdBold, { flex: 1.6 }]}>
+              <Text style={[WS.tdBold, { flex: 2.4 }]}>
                 {df.role_label}{df.slot_label ? ` — ${df.slot_label}` : ""}
               </Text>
-              <Text style={[WS.td, { flex: 1.8 }]}>{d(df.style_name)}</Text>
-              <Text style={[WS.td, { flex: 1.8 }]}>{d(df.material_name)}</Text>
-              <Text style={[WS.td, { flex: 1 }]}>{d(df.grain || fg.grain_orientation)}</Text>
-              <Text style={[WS.tdMu, { flex: 1.8 }]}>{d(df.notes)}</Text>
+              <Text style={[WS.td, { flex: 1.7 }]}>{d(df.style_name)}</Text>
+              <Text style={[WS.td, { flex: 1.5 }]}>{d(df.material_name)}</Text>
+              <Text style={[WS.td, { flex: 1.4 }]}>
+                {[df.oe_name, df.ie_name, df.panel_name].filter(Boolean).join(" / ") || "—"}
+              </Text>
+              <Text style={[WS.td, { flex: 0.7 }]}>{d(df.grain || fg.grain_orientation)}</Text>
+              <Text style={[WS.tdMu, { flex: 1.2 }]}>{d(df.notes)}</Text>
             </View>
           ))}
         </View>

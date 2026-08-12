@@ -64,10 +64,15 @@ async function save(specId, fgIds, body) {
     const toDelete = (body.door_fronts_deleted ?? []).filter((x) => typeof x === "string" && x);
     if (toDelete.length > 0) {
       await sql`
-        DELETE FROM finish_group_door_fronts
-        WHERE id IN ${sql(toDelete)}
-          AND role <> ${ROLE_BASE}
-          AND finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${specId})
+        DELETE FROM finish_group_door_fronts df
+        WHERE df.id IN ${sql(toDelete)}
+          AND df.finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${specId})
+          AND df.id <> (
+            SELECT p.id FROM finish_group_door_fronts p
+            WHERE p.finish_group_id = df.finish_group_id AND p.role = ${ROLE_BASE}
+            ORDER BY p.sort_order ASC, p.id ASC
+            LIMIT 1
+          )
       `;
     }
   }
@@ -92,19 +97,26 @@ async function save(specId, fgIds, body) {
       if (!isDoorFrontRole(r.role)) continue;
       const styleId = r.style_id?.trim() || null;
       const slot = r.slot_label?.trim() || null;
+      const isCustom = styleId === "DS-CD-CUSTOM";
+      const oeId    = isCustom ? (r.oe_id?.trim()    || null) : null;
+      const ieId    = isCustom ? (r.ie_id?.trim()    || null) : null;
+      const panelId = isCustom ? (r.panel_id?.trim() || null) : null;
       const existing = await sql`
         SELECT id FROM finish_group_door_fronts WHERE id = ${r.id} AND finish_group_id = ${fgId}
       `;
       if (existing.length > 0) {
         await sql`
           UPDATE finish_group_door_fronts
-          SET role = ${r.role}, slot_label = ${slot}, style_id = ${styleId}, sort_order = ${i + 1}
+          SET role = ${r.role}, slot_label = ${slot}, style_id = ${styleId},
+              oe_id = ${oeId}, ie_id = ${ieId}, panel_id = ${panelId},
+              sort_order = ${i + 1}
           WHERE id = ${r.id}
         `;
       } else {
         await sql`
-          INSERT INTO finish_group_door_fronts (id, finish_group_id, role, slot_label, style_id, sort_order)
-          VALUES (${r.id}, ${fgId}, ${r.role}, ${slot}, ${styleId}, ${i + 1})
+          INSERT INTO finish_group_door_fronts
+            (id, finish_group_id, role, slot_label, style_id, oe_id, ie_id, panel_id, sort_order)
+          VALUES (${r.id}, ${fgId}, ${r.role}, ${slot}, ${styleId}, ${oeId}, ${ieId}, ${panelId}, ${i + 1})
         `;
       }
     }
@@ -168,11 +180,23 @@ async function main() {
     check("the edited fields are written",
           row.slot_label === '6" DRAWERS' && row.style_id === "DS-SLAB-MDF",
           JSON.stringify([row.slot_label, row.style_id]));
-    for (const [col, want] of [["material_id","MAT-X"],["oe_id","OE-X"],["ie_id","IE-X"],
-                               ["panel_id","PNL-X"],["grain","vertical"],["vendor","Acme Doors"],
-                               ["notes","do not substitute"]]) {
+    /*
+      material_id, grain, vendor and notes are NOT edited by this UI, so an edit to the
+      style or the slot label must leave them exactly as they were.
+
+      oe_id / ie_id / panel_id used to be in this list. They are now UI-owned — the
+      Cab Door Custom selects write them per row — and the route CLEARS them whenever
+      the style is not DS-CD-CUSTOM. That is deliberate: a leftover inside profile
+      riding along on a catalog door prints on the work order as if somebody chose it,
+      and the shop cuts to what the sheet says. Asserted in its own section below.
+    */
+    for (const [col, want] of [["material_id","MAT-X"],["grain","vertical"],
+                               ["vendor","Acme Doors"],["notes","do not substitute"]]) {
       check(`  ${col} survives the edit`, row[col] === want, `${row[col]} (wanted ${want})`);
     }
+    check("  and the stale cab-door options are cleared on a catalog style",
+          !row.oe_id && !row.ie_id && !row.panel_id,
+          `oe=${row.oe_id} ie=${row.ie_id} panel=${row.panel_id} — style is DS-SLAB-MDF, not custom`);
   }
 
   console.log("\nnothing is deleted unless it is named\n");
@@ -216,12 +240,29 @@ async function main() {
     check("a valid id from another spec is not deleted", still.length === 1,
           "the delete escaped its spec — any PM could remove any row by guessing an id");
 
-    // And the base row is protected even within the right spec.
-    const [base] = await sql`SELECT id FROM finish_group_door_fronts WHERE finish_group_id = ${a.fgId} AND role = ${ROLE_BASE}`;
+    // And the PRIMARY door is protected even within the right spec.
+    const [base] = await sql`SELECT id FROM finish_group_door_fronts
+                             WHERE finish_group_id = ${a.fgId} AND role = ${ROLE_BASE}
+                             ORDER BY sort_order ASC, id ASC LIMIT 1`;
     await save(a.specId, [a.fgId], { door_fronts: [], door_fronts_deleted: [base.id] });
     const baseStill = await sql`SELECT id FROM finish_group_door_fronts WHERE id = ${base.id}`;
-    check("the base row cannot be deleted", baseStill.length === 1,
+    check("the primary door row cannot be deleted", baseStill.length === 1,
           "removing it blocks the release gate for a reason nobody can see");
+
+    /*
+      But a SECOND door style must be removable. "+ Door" adds another base row —
+      that is what a second door style is — and the old guard excluded every base row
+      from deletion, so an extra door could be added and never taken away.
+    */
+    const extra = "extra-door-" + uid();
+    await sql`INSERT INTO finish_group_door_fronts (id, finish_group_id, role, slot_label, style_id, sort_order)
+              VALUES (${extra}, ${a.fgId}, ${ROLE_BASE}, 'MASTER BATH', 'DS-CD-113', 5)`;
+    await save(a.specId, [a.fgId], { door_fronts: [], door_fronts_deleted: [extra] });
+    check("a second door style CAN be deleted",
+          (await sql`SELECT id FROM finish_group_door_fronts WHERE id = ${extra}`).length === 0,
+          "an extra door style could be added and never removed");
+    check("and the primary is still standing",
+          (await sql`SELECT id FROM finish_group_door_fronts WHERE id = ${base.id}`).length === 1);
   }
 
   console.log("\nan omitted key changes nothing\n");
@@ -254,6 +295,57 @@ async function main() {
           "no enum and no UNIQUE on this table, so a typo would render as a raw identifier on a client sheet");
   }
 
+  console.log("\nthe cab door library works on ANY door row, not just the first\n");
+  {
+    const { specId, fgId } = await fixture();
+    await save(specId, [fgId], {});
+    const rowId = "cd-" + uid();
+
+    // A second door, Cab Door Custom, with its own edge / inside profile / panel.
+    await save(specId, [fgId], {
+      door_fronts: [{
+        id: rowId, finish_group_id: fgId, role: ROLE_BASE, slot_label: "MASTER BATH",
+        style_id: "DS-CD-CUSTOM", oe_id: "E-2", ie_id: "P-1", panel_id: "Pnl-1",
+      }],
+    });
+    const [row] = await sql`SELECT style_id, oe_id, ie_id, panel_id FROM finish_group_door_fronts WHERE id = ${rowId}`;
+    check("a second door row stores its own edge detail", row?.oe_id === "E-2", JSON.stringify(row));
+    check("its own inside profile", row?.ie_id === "P-1");
+    check("and its own panel", row?.panel_id === "Pnl-1");
+
+    /*
+      Switching away from Cab Door Custom must clear them. A stale inside profile
+      riding along on a catalog door would print on the work order as if someone had
+      chosen it, and the shop would cut to it.
+    */
+    await save(specId, [fgId], {
+      door_fronts: [{
+        id: rowId, finish_group_id: fgId, role: ROLE_BASE, slot_label: "MASTER BATH",
+        style_id: "DS-CD-116", oe_id: "E-2", ie_id: "P-1", panel_id: "Pnl-1",
+      }],
+    });
+    const [after] = await sql`SELECT style_id, oe_id, ie_id, panel_id FROM finish_group_door_fronts WHERE id = ${rowId}`;
+    check("a catalog style clears the custom options",
+          !after?.oe_id && !after?.ie_id && !after?.panel_id, JSON.stringify(after));
+    check("and keeps the style that was chosen", after?.style_id === "DS-CD-116");
+
+    // And they reach the document — these three fields printed nowhere until now.
+    await sql`UPDATE finish_group_door_fronts SET style_id = 'DS-CD-CUSTOM',
+              oe_id = 'E-2', ie_id = 'P-1', panel_id = 'Pnl-1' WHERE id = ${rowId}`;
+    const { loadSpecPDFData } = await import("../lib/spec-data.ts");
+    const { renderWorkOrderPDFBuffer } = await import("../lib/pdf-spec.tsx");
+    const { pdfText, squash } = await import("./_pdf-text.mjs");
+    const data = await loadSpecPDFData(specId);
+    const view = data.finish_groups[0].door_fronts.find((x) => x.slot_label === "MASTER BATH");
+    check("the view carries the edge detail", view?.oe_name === "E-2", JSON.stringify(view?.oe_name));
+    const txt = squash(await pdfText(await renderWorkOrderPDFBuffer(data, data.finish_groups[0])));
+    check("the work order prints the Edge / Inside / Panel column", txt.includes("EDGE / INSIDE / PANEL"),
+          "the column header is missing");
+    check("and the chosen values appear on the sheet",
+          txt.includes("E-2") && txt.includes("P-1") && txt.includes("PNL-1"),
+          "a custom cab door reached the shop as bare 'Cab Door Custom' before this");
+  }
+
   /*
     A transcription that has drifted from the route is worse than no test: it goes on
     passing while proving something about code nobody runs. So assert that the route
@@ -270,9 +362,10 @@ async function main() {
       ["rows are matched by id before writing",        /SELECT id FROM finish_group_door_fronts WHERE id = \$\{r\.id\} AND finish_group_id = \$\{fgId\}/],
       ["an existing row is UPDATEd, not replaced",     /UPDATE finish_group_door_fronts\s*\n\s*SET role =/],
       ["deletes are scoped to this spec by subquery",  /DELETE FROM finish_group_door_fronts[\s\S]{0,240}finish_group_id IN \(SELECT id FROM finish_groups WHERE spec_id = \$\{id\}\)/],
-      ["deletes exclude the base row",                /DELETE FROM finish_group_door_fronts[\s\S]{0,200}role <> \$\{ROLE_BASE\}/],
+      ["deletes protect the PRIMARY door only",       /DELETE FROM finish_group_door_fronts df[\s\S]{0,400}ORDER BY p\.sort_order ASC, p\.id ASC/],
       ["the role is validated before writing",        /isDoorFrontRole\(r\.role\)/],
-      ["only the three UI-owned columns are written",  /SET role = \$\{r\.role\}, slot_label = \$\{slot\}, style_id = \$\{styleId\}, sort_order/],
+      ["the UI-owned columns are written",             /SET role = \$\{r\.role\}, slot_label = \$\{slot\}, style_id = \$\{styleId\}/],
+      ["cab door options are cleared off a non-custom style", /const isCustom = styleId === "DS-CD-CUSTOM"/],
     ];
     for (const [what, re] of must) {
       check(what, re.test(src), "the route no longer does this — update the transcription in this file");

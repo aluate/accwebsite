@@ -104,6 +104,10 @@ type DoorFrontPayload = {
   role: string;
   slot_label: string | null;
   style_id: string | null;
+  /** Cab Door Custom options for THIS row — edge detail, inside profile, panel. */
+  oe_id: string | null;
+  ie_id: string | null;
+  panel_id: string | null;
 };
 
 type SavePayload = {
@@ -474,19 +478,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       database by guessing an id, on a route a PM can reach. The subquery makes that
       impossible regardless of what arrives.
 
-      A base row is never deleted here. The UI does not offer to remove it — the base
-      door comes from the Door Style dropdown — and letting it through would break the
-      release gate for a reason nobody could see.
+      THE PRIMARY door row is never deleted here — the one seeded from the Door Style
+      dropdown. Letting it through would break the release gate for a reason nobody
+      could see.
+
+      But only THAT row. This excluded every row with role='base', and "+ Door" adds
+      another base row, because a second door style IS a base door. So an extra door
+      style could not be removed once added. The primary is the base row with the
+      lowest sort_order, id as a stable tie-break — the same rule the page loader uses
+      to decide which row it will not hand to the form.
     */
     if (clientSentDoorFronts) {
       const toDelete = (body.door_fronts_deleted ?? []).filter((x) => typeof x === "string" && x);
       if (toDelete.length > 0) {
         try {
           await sql`
-            DELETE FROM finish_group_door_fronts
-            WHERE id IN ${sql(toDelete)}
-              AND role <> ${ROLE_BASE}
-              AND finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${id})
+            DELETE FROM finish_group_door_fronts df
+            WHERE df.id IN ${sql(toDelete)}
+              AND df.finish_group_id IN (SELECT id FROM finish_groups WHERE spec_id = ${id})
+              AND df.id <> (
+                SELECT p.id FROM finish_group_door_fronts p
+                WHERE p.finish_group_id = df.finish_group_id AND p.role = ${ROLE_BASE}
+                ORDER BY p.sort_order ASC, p.id ASC
+                LIMIT 1
+              )
           `;
         } catch (e) {
           console.error("[save] removing door-front callouts failed:", e);
@@ -556,6 +571,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           if (!isDoorFrontRole(r.role)) continue;
           const styleId  = r.style_id?.trim() || null;
           const slot     = r.slot_label?.trim() || null;
+          // Cab door options are only meaningful on a custom door. Clearing them when
+          // the style is anything else stops a stale edge profile riding along after
+          // someone switches a callout from Cab Door Custom to a catalog style.
+          const isCustom = styleId === "DS-CD-CUSTOM";
+          const oeId    = isCustom ? (r.oe_id?.trim()    || null) : null;
+          const ieId    = isCustom ? (r.ie_id?.trim()    || null) : null;
+          const panelId = isCustom ? (r.panel_id?.trim() || null) : null;
           try {
             const existing = await sql`
               SELECT id FROM finish_group_door_fronts WHERE id = ${r.id} AND finish_group_id = ${fgId}
@@ -563,13 +585,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             if (existing.length > 0) {
               await sql`
                 UPDATE finish_group_door_fronts
-                SET role = ${r.role}, slot_label = ${slot}, style_id = ${styleId}, sort_order = ${i + 1}
+                SET role = ${r.role}, slot_label = ${slot}, style_id = ${styleId},
+                    oe_id = ${oeId}, ie_id = ${ieId}, panel_id = ${panelId},
+                    sort_order = ${i + 1}
                 WHERE id = ${r.id}
               `;
             } else {
               await sql`
-                INSERT INTO finish_group_door_fronts (id, finish_group_id, role, slot_label, style_id, sort_order)
-                VALUES (${r.id}, ${fgId}, ${r.role}, ${slot}, ${styleId}, ${i + 1})
+                INSERT INTO finish_group_door_fronts
+                  (id, finish_group_id, role, slot_label, style_id, oe_id, ie_id, panel_id, sort_order)
+                VALUES (${r.id}, ${fgId}, ${r.role}, ${slot}, ${styleId}, ${oeId}, ${ieId}, ${panelId}, ${i + 1})
               `;
             }
           } catch (_) { /* one bad callout row must not fail the whole save */ }

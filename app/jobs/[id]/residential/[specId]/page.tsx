@@ -39,7 +39,7 @@ type MaterialRow = { id: string; finish_group_id: string; role: string; material
 type FgEdgebandRow = { id: string; finish_group_id: string; code: string; edgeband_id: string|null; where_used: string|null; notes: string|null; thick: string|null; mfr: string|null; part_no: string|null; description: string|null; sort_order: number };
 type FgTrimDefaultRow = { id: string; finish_group_id: string; trim_type: string; species_material: string|null; size_desc: string|null; notes: string|null; sort_order: number };
 /** A door / drawer-front / applied-end callout beyond the base door. */
-type FgDoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string|null; style_id: string|null; sort_order: number };
+type FgDoorFrontRow = { id: string; finish_group_id: string; role: string; slot_label: string|null; style_id: string|null; oe_id: string|null; ie_id: string|null; panel_id: string|null; sort_order: number };
 
 export default async function SpecEditorPage({
   params,
@@ -116,14 +116,32 @@ export default async function SpecEditorPage({
     fgTrimDefaultRows = fgIds.length
       ? await sql`SELECT * FROM finish_group_trim_defaults WHERE finish_group_id IN ${sql(fgIds)} ORDER BY finish_group_id, sort_order` as FgTrimDefaultRow[]
       : [];
-    // Callout rows beyond the base door. The base row is excluded: it is not editable
-    // here — it comes from the Door Style dropdown — and offering it as a removable
-    // row would let someone delete the thing the release gate requires.
+    /*
+      Callout rows, excluding THE PRIMARY door — the one seeded from the Door Style
+      dropdown. It is not editable here and offering it as a removable row would let
+      someone delete the thing the release gate requires.
+
+      "Excluding the primary", not "excluding every base row". This filtered on
+      `role <> 'base'`, and "+ Door" adds another BASE row — that is what a second
+      door style IS. So a second door saved correctly and then vanished on reload,
+      because the loader refused to hand it back. Karl: "if I want to add another door
+      style to the FG I can hit ADD DOOR right?"
+
+      The primary is the base row with the lowest sort_order (the seed writes 0;
+      callouts start at 1), with id as a stable tie-break.
+    */
     fgDoorFrontRows = fgIds.length
-      ? await sql`SELECT id, finish_group_id, role, slot_label, style_id, sort_order
-                  FROM finish_group_door_fronts
-                  WHERE finish_group_id IN ${sql(fgIds)} AND role <> 'base'
-                  ORDER BY finish_group_id, sort_order` as FgDoorFrontRow[]
+      ? await sql`
+          SELECT id, finish_group_id, role, slot_label, style_id, oe_id, ie_id, panel_id, sort_order
+          FROM finish_group_door_fronts df
+          WHERE finish_group_id IN ${sql(fgIds)}
+            AND df.id <> (
+              SELECT p.id FROM finish_group_door_fronts p
+              WHERE p.finish_group_id = df.finish_group_id AND p.role = 'base'
+              ORDER BY p.sort_order ASC, p.id ASC
+              LIMIT 1
+            )
+          ORDER BY finish_group_id, sort_order` as FgDoorFrontRow[]
       : [];
   } catch {
     // Tables not yet created — will be created on first db-push
