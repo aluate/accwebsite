@@ -389,6 +389,66 @@ try {
     }
   }
 
+  // ── JOB # appears exactly once, and always in the same place ───────────────
+  //
+  // Karl: "JOB # should appear in one place, the same way every time."
+  //
+  // It headed the banner AND sat in the meta bar. Worse, the shape changed with the
+  // data: with a Tradesoft number the banner read "JOB # 88888" and demoted the
+  // project name to a subtitle; without one the project name was the title and the
+  // number appeared only in the meta bar. Two layouts for one document.
+  console.log("\nJOB # appears once, in the same place either way");
+  {
+    const { pdfText, squash, assertDecodable } = await import("./_pdf-text.mjs");
+    const mkJob = async (number) => {
+      const jid = "jn-job-" + uid(), sid = "jn-spec-" + uid();
+      const n = new Date().toISOString();
+      await sql`INSERT INTO jobs (id, created_at, client_name, site_address, job_number)
+                VALUES (${jid}, ${n}, 'Numbering Test', '1 St', ${number})`;
+      await sql`INSERT INTO residential_specs (id, job_id, created_at, updated_at)
+                VALUES (${sid}, ${jid}, ${n}, ${n})`;
+      await sql`INSERT INTO finish_groups (id, spec_id, label, finish_type, sort_order, carcass_id)
+                VALUES (${"jn-fg-" + uid()}, ${sid}, 'MEL-1', 'melamine', 0, 'CAR-001')`;
+      const d = await loadSpecPDFData(sid);
+      const txt = squash(await pdfText(await renderWorkOrderPDFBuffer(d, d.finish_groups[0])));
+      await sql`DELETE FROM jobs WHERE id = ${jid}`;
+      return txt;
+    };
+
+    const withNum = await mkJob("77777");
+    assertDecodable(withNum, "WORK ORDER SPECS", "work order text");
+    const labelHits = withNum.split("JOB #").length - 1;
+    check("the label JOB # appears exactly once", labelHits === 1, `${labelHits} time(s)`);
+    /*
+      The number itself appears twice, and that is correct: once in the meta bar as
+      JOB #, and once in the page footer's document trace ("SPEC 77777 · MEL-1 · Work
+      Order Spec"). The footer line is not a JOB # field — it is how you identify a
+      loose sheet that has come off a stack — so it does not count as a second place
+      for the same fact. What must not recur is the LABELLED field, asserted above.
+
+      My first version of this demanded exactly one occurrence anywhere and failed on
+      the footer, i.e. it failed correct code. Checked what the second hit actually was
+      before touching anything.
+    */
+    const numHits = withNum.split("77777").length - 1;
+    check("the number appears in the meta bar and the footer trace, and nowhere else",
+          numHits === 2, `${numHits} time(s)`);
+    check("the banner no longer repeats it as a heading",
+          !withNum.includes("JOB # 77777NUMBERING") && !withNum.startsWith("JOB #"),
+          withNum.slice(0, 120));
+    check("it is the meta bar's copy that survived", withNum.includes("JOB #77777") || withNum.includes("JOB # 77777"),
+          withNum.slice(0, 160));
+
+    // Without a number the layout must be the SAME, not a different arrangement.
+    const noNum = await mkJob(null);
+    check("with no Tradesoft number the label is still there once",
+          (noNum.split("JOB #").length - 1) === 1, `${noNum.split("JOB #").length - 1} time(s)`);
+    check("and the internal ACC id is NOT printed as the job number",
+          !/JOB #\s*ACC-/.test(noNum), noNum.slice(0, 160));
+    check("the client name still heads the sheet either way",
+          withNum.includes("NUMBERING TEST") && noNum.includes("NUMBERING TEST"));
+  }
+
   // ── the generated file names ───────────────────────────────────────────────
   //
   // Karl, looking at the Files panel: "Right now they're just a string." The names

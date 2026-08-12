@@ -196,7 +196,6 @@ const WS = StyleSheet.create({
   hdrRight:    { flex: 1.4, padding: 6, justifyContent: "center" },
   hdrLabel:    { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8 },
   hdrTitle:    { fontSize: 13, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 3 },
-  hdrSub:      { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 2 },
   hdrAddr:     { fontSize: 7, color: MUTED, marginTop: 2 },
   hdrFinish:   { fontSize: 9.5, fontFamily: "Helvetica-Bold", color: ORANGE, marginTop: 2 },
   hdrFgLabel:  { fontSize: 5.5, fontFamily: "Helvetica-Bold", color: MUTED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 },
@@ -1128,24 +1127,27 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
           <Image src={LOGO_PATH} style={WS.hdrLogoImg} />
         </View>
 
-        {/* Job # + Builder + Address */}
+        {/* Builder + Address. The job number lives in the meta bar, and only there. */}
         <View style={WS.hdrLeft}>
           {/*
-            This printed data.job_id — the internal key, "ACC-2026-0260". A job's
-            real number comes from Tradesoft when it is released to engineering, and
-            until then it does not have one. Printing the internal id in a JOB #
-            field invites someone on the floor to write it on a box or quote it back
-            to a builder, and it means nothing outside this database.
+            JOB # IS NOT HERE. Karl: "JOB # should appear in one place, the same way
+            every time."
 
-            job_number is the fact; job_id is a key. Only facts print. When there is
-            no number yet the field is blank, which is honest.
+            It used to head this banner AND sit in the meta bar, so the sheet stated it
+            twice — and worse, inconsistently: with a Tradesoft number the banner read
+            "JOB # 88888" and demoted the project name to a subtitle, while without one
+            the project name was the title and the number appeared only in the meta bar.
+            Two layouts for the same document depending on whether engineering had
+            issued a number yet.
+
+            The banner now always names the project, the meta bar always carries JOB #.
+            One place, one shape, whether or not the number exists yet.
+
+            (What it printed before all this was data.job_id — the internal key,
+            "ACC-2026-0260". That means nothing outside this database and invited
+            someone on the floor to write it on a box. job_number is the fact.)
           */}
-          {data.job_number
-            ? <><Text style={WS.hdrTitle}>JOB # {data.job_number}</Text>
-                <Text style={WS.hdrSub}>{projectName}</Text></>
-            /* No number yet: promote the project name so the sheet still has a
-               heading rather than a gap where the job number would be. */
-            : <Text style={WS.hdrTitle}>{projectName}</Text>}
+          <Text style={WS.hdrTitle}>{projectName}</Text>
           {(data.site_address || data.city) && (
             <Text style={WS.hdrAddr}>
               {[data.site_address, data.city].filter(Boolean).join(", ")}
