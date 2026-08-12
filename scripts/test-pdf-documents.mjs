@@ -389,6 +389,38 @@ try {
     }
   }
 
+  // ── the generated file names ───────────────────────────────────────────────
+  //
+  // Karl, looking at the Files panel: "Right now they're just a string." The names
+  // were `spec-client-2026-08-11T20-04-49.pdf` — you cannot tell whose job that is.
+  // This transcribes the naming from app/api/specs/[id]/generate/route.ts.
+  console.log("\nthe generated files are named so you can read the list");
+  {
+    const safeName = (t) => t.replace(/[^A-Za-z0-9 ._-]+/g, " ").replace(/\s+/g, " ").trim() || "untitled";
+    const datePrefix = "26.08.11";
+    let seq = 1;
+    const mk = (builder, client, what) =>
+      `${safeName(builder)} - ${safeName(client)} - ${safeName(what)} - ${datePrefix}.${String(seq++).padStart(2, "0")}.pdf`;
+
+    const a = mk("Stancraft", "ZZ TOP", "CLIENT SPEC");
+    const b = mk("Stancraft", "ZZ TOP", "MEL-1 WO SPEC");
+    check("the client spec reads builder - client - what - serial",
+          a === "Stancraft - ZZ TOP - CLIENT SPEC - 26.08.11.01.pdf", a);
+    check("a work order names its finish group",
+          b === "Stancraft - ZZ TOP - MEL-1 WO SPEC - 26.08.11.02.pdf", b);
+    check("the serial increments within one run", a.includes(".01.") && b.includes(".02."));
+
+    // The separator has to survive sanitising, or the name becomes one hyphen run.
+    check("spaces around the separator survive", a.includes(" - "), a);
+    // A builder with punctuation must not break the storage key or eat the separator.
+    const messy = mk("O'Brien & Sons, LLC", "Smith / Jones #2", "CLIENT SPEC");
+    check("punctuation is flattened, not dropped", !/[&/#,']/.test(messy), messy);
+    check("and the shape still holds", messy.split(" - ").length === 4, messy);
+    check("a missing builder does not produce a leading separator",
+          !mk("", "ZZ TOP", "CLIENT SPEC").startsWith(" - "),
+          mk("", "ZZ TOP", "CLIENT SPEC"));
+  }
+
   // ── the split-brain assertion ──────────────────────────────────────────────
   // This is the test that would have caught the original bug. An admin edit to a
   // catalog used to reach the spec builder page and never the work order, because

@@ -12,6 +12,7 @@
  *   npx tsx scripts/test-trim-defaults.mjs
  */
 import { deriveRoomTrim, retrimForFinishGroupSwap, defaultSizeFor, defaultMaterialFor } from "../lib/trim-defaults.ts";
+import { defaultTrimSize, trimMaterialForFinishGroup, FG_TRIM_DEFAULT_TYPES, canonicalTrimType } from "../lib/trim-types.ts";
 
 let pass = 0, fail = 0;
 const check = (name, cond, detail = "") => {
@@ -144,6 +145,65 @@ console.log("\n7. Running twice changes nothing the second time");
   check("no rows added on the second pass", second.added.length === 0);
   check("no rows updated on the second pass", second.updated.length === 0, JSON.stringify(second.updated));
   check("the LF entered between passes survives", settled.every((r) => r.qty_lf === 100));
+}
+
+// ── 8. What a NEW finish-group trim row arrives pre-filled with ─────────────
+//
+// Karl: "the fillers, toekicks, and light valance should all have default sizes.
+// 2.5x2.5 for filler, .75x4.5 for toe kick, and .75x2 for valance. Crown varies too
+// much for us to have a default." And: "THE SPECIES/MATERIAL SHOULD AUTO POPULATE TO
+// MATCH THE FG NAME."
+//
+// Half of these guard the ABSENCE of a default. A number sitting in a size box reads
+// as decided — nobody re-checks a filled field — and trim gets cut from it.
+console.log("\n8. The sizes a new trim row starts with");
+{
+  check("filler is 2.5 x 2.5",   defaultTrimSize("Filler")     === '2.5" × 2.5"',  defaultTrimSize("Filler"));
+  check("toe skin is .75 x 4.5", defaultTrimSize("Toe Skin")   === '0.75" × 4.5"', defaultTrimSize("Toe Skin"));
+  check("light rail is .75 x 2", defaultTrimSize("Light Rail") === '0.75" × 2"',   defaultTrimSize("Light Rail"));
+
+  check("crown molding has NO default", defaultTrimSize("Crown Molding") === "",
+    `got ${JSON.stringify(defaultTrimSize("Crown Molding"))} — "crown varies too much for us to have a default"`);
+  check("an unknown type has no default", defaultTrimSize("Scribe Molding") === "");
+  check("blank and null do not throw", defaultTrimSize("") === "" && defaultTrimSize(null) === "");
+
+  // The trim vocabulary has been renamed before. A legacy spelling must still find
+  // its size rather than quietly falling back to an empty box.
+  for (const legacy of ["toe skin", "TOE SKIN", " Toe Skin "]) {
+    check(`"${legacy}" still resolves`, defaultTrimSize(legacy) === '0.75" × 4.5"',
+      `canonical=${canonicalTrimType(legacy)}`);
+  }
+}
+
+console.log("\n9. The species/material a new trim row starts with");
+{
+  check("paint names the group, not just the grade",
+    trimMaterialForFinishGroup({ finish_type: "paint", label: "PNT-1" }) === "Paint Grade PNT-1",
+    trimMaterialForFinishGroup({ finish_type: "paint", label: "PNT-1" }));
+  check("a second paint group is distinguishable",
+    trimMaterialForFinishGroup({ finish_type: "paint", label: "PNT-2" }) === "Paint Grade PNT-2",
+    "two paint groups on one job are two different colours");
+  check("stain uses the species",
+    trimMaterialForFinishGroup({ finish_type: "stain", species: "Alder", label: "STN-1" }) === "Alder");
+  check("melamine uses the colour",
+    trimMaterialForFinishGroup({ finish_type: "melamine", color_name: "H3790 Honey Carini Walnut", label: "MEL-1" })
+      === "H3790 Honey Carini Walnut");
+
+  check("a stain group with no species yet stays blank",
+    trimMaterialForFinishGroup({ finish_type: "stain", label: "STN-1" }) === "",
+    "better an empty box than the label pretending to be a species");
+  check("a melamine group with no colour yet stays blank",
+    trimMaterialForFinishGroup({ finish_type: "melamine", label: "MEL-1" }) === "");
+  check("no finish type at all stays blank", trimMaterialForFinishGroup({ label: "X" }) === "");
+  check("an unrecognised finish type stays blank",
+    trimMaterialForFinishGroup({ finish_type: "plam", label: "PL-1" }) === "");
+  check("paint with no label still says Paint Grade",
+    trimMaterialForFinishGroup({ finish_type: "paint" }) === "Paint Grade");
+
+  check("all four grid types are canonical names",
+    FG_TRIM_DEFAULT_TYPES.every((t) => canonicalTrimType(t) === t));
+  check("three of the four come with a size",
+    FG_TRIM_DEFAULT_TYPES.filter((t) => defaultTrimSize(t)).length === 3);
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

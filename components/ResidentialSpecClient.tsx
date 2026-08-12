@@ -6,7 +6,7 @@ import type {
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
 } from "@/lib/catalogs";
 import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
-import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES } from "@/lib/trim-types";
+import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES, defaultTrimSize, trimMaterialForFinishGroup } from "@/lib/trim-types";
 import { speciesAllowedFor } from "@/lib/door-material";
 import {
   DOOR_FRONT_ROLE_LABEL, DOOR_FRONT_ROLE_HINT,
@@ -1190,7 +1190,16 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // pattern). Tracking previous tab via useRef avoids triggering on the
   // initial mount, and we only refetch when leaving 'schedules' specifically.
 
-  const generateSpec = useCallback(async () => {
+  /*
+    Which document the button asks for. Karl: "we should split the buttons for generate
+    spec into generate client spec, and generate WO specs."
+
+    One call still renders and files the whole matched set — a client copy and the shop
+    sheets from the same moment — because a client copy from Tuesday and a work order
+    regenerated on Thursday is how a spec and its shop paperwork drift apart. The
+    parameter only decides which one OPENS.
+  */
+  const generateSpec = useCallback(async (doc: "client" | "wo" = "client") => {
     if (violations.length > 0) { setShowViolations(true); }  // flag but don't block — DRAFT watermark will show
     // Always save ALL sections before generating — prevents stale DB state
     // (spec_accessories, spec_hardware, appliances are NOT part of the main save payload)
@@ -1240,7 +1249,7 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
     setGenError("");          // a retry must not show the previous failure's reason
     setGenState("generating");
     try {
-      const res = await fetch(`/api/specs/${specId}/generate`, { method: "POST" });
+      const res = await fetch(`/api/specs/${specId}/generate?doc=${doc}`, { method: "POST" });
       if (!res.ok) {
         // Say what the server said. This threw away the reason and left the button
         // reading "error", so a refusal was indistinguishable from a crash.
@@ -1831,25 +1840,41 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             completeness gate (lib/spec-completeness.ts, where the $70k guard lives),
             so nothing unsafe gets out regardless of what this button allows.
           */}
-          <button
-            onClick={generateSpec}
-            disabled={genState === "generating"}
-            title={
-              genState === "generating" ? "Working..."
-                : violations.length > 0
-                  ? `Will generate a DRAFT — still missing:\n${violations.map((v) => `- ${v.tag}: ${v.field}`).join("\n")}`
-                  : "Save and generate the spec PDF (opens inline in a new tab)"
-            }
-            className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
-              genState === "generating"
-                ? "bg-white/5 text-white/20 cursor-wait border border-transparent"
-                : violations.length > 0
-                  ? "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white/70 border border-yellow-500/50"
-                  : "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white border border-[#f08122]"
-            }`}
-          >
-            {genState === "generating" ? "Generating..." : violations.length > 0 ? "Generate Draft" : genLabel}
-          </button>
+          {/*
+            Two buttons, because they are two different audiences. The client spec is
+            what someone signs; the WO specs are what the shop builds from. One button
+            producing "the spec" made it easy to hand over the wrong one — which is the
+            same confusion that once put shop paperwork in front of a client to sign.
+
+            Both still generate and file the complete set; they differ in what opens.
+          */}
+          {([
+            { doc: "client" as const, label: "Client Spec", hint: "The document the client signs." },
+            { doc: "wo" as const,     label: "WO Specs",    hint: "Every finish group's shop sheet, in one PDF." },
+          ]).map(({ doc, label, hint }) => (
+            <button
+              key={doc}
+              onClick={() => generateSpec(doc)}
+              disabled={genState === "generating"}
+              title={
+                genState === "generating" ? "Working..."
+                  : violations.length > 0
+                    ? `${hint}\nWill generate a DRAFT — still missing:\n${violations.map((v) => `- ${v.tag}: ${v.field}`).join("\n")}`
+                    : `${hint} Saves to the job folder and opens in a new tab.`
+              }
+              className={`font-condensed uppercase tracking-widest text-xs py-2 px-4 rounded transition-colors ${
+                genState === "generating"
+                  ? "bg-white/5 text-white/20 cursor-wait border border-transparent"
+                  : violations.length > 0
+                    ? "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white/70 border border-yellow-500/50"
+                    : "bg-[#3d3d3d] hover:bg-[#4d4d4d] text-white border border-[#f08122]"
+              }`}
+            >
+              {genState === "generating"
+                ? "Generating..."
+                : violations.length > 0 ? `Draft ${label}` : `Generate ${label}`}
+            </button>
+          ))}
           <button
             onClick={generateCombined}
             disabled={!canGen || combineState === "working"}
@@ -2405,10 +2430,23 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         // "Other (specify)" starts blank so the PM names it; anything
                         // else is a real catalog type and keeps its name.
                         trim_type: isOther ? "" : type,
-                        species_material: "",
-                        // Prefill the catalog's typical size — it is what the size box
-                        // would have been filled with by hand nine times in ten.
-                        size_desc: (catalogs.moldingTypes ?? []).find(m => m.display_name === type)?.typical_size ?? "",
+                        // Trim is made of whatever the finish group is: "Paint Grade
+                        // PNT-1" on paint, the species on stain, the colour on
+                        // melamine. Karl: "THE SPECIES/MATERIAL SHOULD AUTO POPULATE
+                        // TO MATCH THE FG NAME."
+                        species_material: isOther ? "" : trimMaterialForFinishGroup(g),
+                        /*
+                          ACC's own size first, then the catalog's typical size.
+                          Karl gave three: filler 2.5x2.5, toe skin .75x4.5, light rail
+                          .75x2. Crown deliberately has none — "crown varies too much
+                          for us to have a default" — and a blank box is an honest
+                          prompt where a wrong default would look decided.
+                        */
+                        size_desc: isOther ? "" : (
+                          defaultTrimSize(type)
+                          || (catalogs.moldingTypes ?? []).find(m => m.display_name === type)?.typical_size
+                          || ""
+                        ),
                         notes: "", sort_order: fgDefs.length,
                       }]);
                       markDirty();

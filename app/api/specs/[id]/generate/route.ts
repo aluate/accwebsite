@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
-import { renderClientSpecPDFBuffer, renderWorkOrderPDFBuffer } from "@/lib/pdf-spec";
+import { renderClientSpecPDFBuffer, renderWorkOrderPDFBuffer, renderAllWorkOrdersPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData, SpecDataError } from "@/lib/spec-data";
 import { requireBuilderApi, guardApi } from "@/lib/auth";
 import { checkSpecCompleteness, describeViolations } from "@/lib/spec-completeness";
@@ -62,21 +62,66 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // always holds a matched set from the same moment -- a client copy and the shop
   // sheets that agree with it, rather than a client copy from Tuesday and a work
   // order regenerated on Thursday.
-  const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const safe = (t: string) => t.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "fg";
+  /*
+    FILE NAMES YOU CAN READ IN A LIST.
+
+    These were `spec-client-2026-08-11T20-04-49.pdf` and `wo-MEL-1-<same stamp>.pdf`.
+    Karl, looking at the Files panel: "Right now they're just a string." You cannot
+    tell whose job a file belongs to without opening it.
+
+    Now:  Stancraft - ZZ TOP - CLIENT SPEC - 26.08.11.01.pdf
+          Stancraft - ZZ TOP - MEL-1 WO SPEC - 26.08.11.02.pdf
+
+    Serial is YY.MM.DD.NN, counted per job per day, so a second run the same day reads
+    03, 04 rather than colliding with the first. It goes on the END because the name
+    is what people scan for; the serial is the tiebreak.
+  */
+  const safeName = (t: string) =>
+    // Spaces are kept — a filename is for reading, and " - " is the separator that
+    // makes it readable. Everything else that could upset a storage key goes.
+    t.replace(/[^A-Za-z0-9 ._-]+/g, " ").replace(/\s+/g, " ").trim() || "untitled";
+
+  const now = new Date();
+  const datePrefix = [
+    String(now.getFullYear()).slice(2),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join(".");
+
+  /*
+    Next serial for this job today, read from what is already stored rather than held
+    in a counter — so it stays correct across deploys and cannot drift from reality.
+  */
+  let nextSeq = 1;
+  try {
+    const prior = await sql<{ filename: string }[]>`
+      SELECT filename FROM job_files
+      WHERE job_id = ${data.job_internal_id} AND filename LIKE ${`%${datePrefix}.%`}
+    `;
+    const seqRe = new RegExp(`${datePrefix.replace(/\./g, "\\.")}\\.(\\d+)`);
+    for (const p of prior) {
+      const m = p.filename.match(seqRe);
+      if (m) nextSeq = Math.max(nextSeq, Number(m[1]) + 1);
+    }
+  } catch { /* a naming nicety must never stop the document being produced */ }
+
+  const builder = safeName(data.builder_company || data.builder_name || "ACC");
+  const client  = safeName(data.client_name || "Client");
+  const named = (what: string) =>
+    `${builder} - ${client} - ${safeName(what)} - ${datePrefix}.${String(nextSeq++).padStart(2, "0")}.pdf`;
 
   const docs: { key: string; fgId: string | null; filename: string; buffer: Buffer }[] = [];
   docs.push({
     key: "client",
     fgId: null,
-    filename: `spec-client-${ts}.pdf`,
+    filename: named("CLIENT SPEC"),
     buffer: await renderClientSpecPDFBuffer(data),
   });
   for (const fg of data.finish_groups) {
     docs.push({
       key: "wo",
       fgId: fg.id,
-      filename: `wo-${safe(fg.label)}-${ts}.pdf`,
+      filename: named(`${fg.label} WO SPEC`),
       buffer: await renderWorkOrderPDFBuffer(data, fg),
     });
   }
@@ -112,13 +157,39 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Generate button has always shown.
   const want  = req.nextUrl.searchParams.get("doc") ?? "client";
   const wantFg = req.nextUrl.searchParams.get("fg");
-  const chosen =
-    want === "wo"
-      ? (docs.find(dd => dd.fgId === wantFg) ?? docs.find(dd => dd.key === "wo"))
-      : docs[0];
+
+  /*
+    `doc=wo` with no `fg` hands back EVERY work order in one PDF.
+
+    It used to return the first finish group's sheet and nothing else, so on a job with
+    MEL-1, MEL-2 and STN-1 the button quietly produced one third of the shop paperwork.
+    All three were still written to the job folder as separate files — which is right,
+    the shop wants them per finish group — but what opened in the browser was
+    incomplete, and nothing said so.
+
+    Karl asked for the button to be split into "generate client spec" and "generate WO
+    specs", plural. This is the plural.
+  */
+  let chosen: { key: string; fgId: string | null; filename: string; buffer: Buffer } | undefined;
+  if (want === "wo") {
+    const woDocs = docs.filter(dd => dd.key === "wo");
+    if (wantFg) {
+      chosen = woDocs.find(dd => dd.fgId === wantFg) ?? woDocs[0];
+    } else if (woDocs.length === 1) {
+      chosen = woDocs[0];
+    } else if (woDocs.length > 1) {
+      chosen = {
+        key: "wo", fgId: null,
+        filename: named("ALL WO SPECS"),
+        buffer: await renderAllWorkOrdersPDFBuffer(data),
+      };
+    }
+  } else {
+    chosen = docs[0];
+  }
 
   if (!chosen) {
-    return NextResponse.json({ error: "No work order to return -- the spec has no finish groups." }, { status: 400 });
+    return NextResponse.json({ error: "No work order to return — the spec has no finish groups." }, { status: 400 });
   }
 
   const headers: Record<string, string> = {

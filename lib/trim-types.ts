@@ -101,3 +101,55 @@ export const FG_TRIM_DEFAULT_TYPES = [
   "Crown Molding",
   "Light Rail",
 ] as const;
+
+// ── Shop defaults for the finish-group trim grid ─────────────────────────────
+
+/**
+ * The sizes ACC uses unless a job says otherwise, keyed by canonical trim type.
+ *
+ * Karl: "the fillers, toekicks, and light valance should all have default sizes.
+ * 2.5x2.5 for filler, .75x4.5 for toe kick, and .75x2 for valance. Crown varies too
+ * much for us to have a default."
+ *
+ * Crown Molding is deliberately absent — an empty cell is an honest prompt, and a
+ * wrong default on crown is worse than no default because it looks decided.
+ */
+export const FG_TRIM_DEFAULT_SIZES: Record<string, string> = {
+  "Filler":     '2.5" × 2.5"',
+  "Toe Skin":   '0.75" × 4.5"',
+  "Light Rail": '0.75" × 2"',
+};
+
+/** The default size for a trim type, or "" when there is no sensible one. */
+export function defaultTrimSize(trimType: string | null | undefined): string {
+  return FG_TRIM_DEFAULT_SIZES[canonicalTrimType(trimType)] ?? "";
+}
+
+/**
+ * What the trim is made of, derived from the finish group.
+ *
+ * Karl: "THE SPECIES/MATERIAL SHOULD AUTO POPULATE TO MATCH THE FG NAME. so on the
+ * paint for this one the species/material should be paint grade PNT-1."
+ *
+ *   paint     -> "Paint Grade PNT-1"   the group label matters: two paint groups on
+ *                                      one job are two different colours, and trim
+ *                                      that says only "Paint Grade" cannot be sorted
+ *                                      at the bench.
+ *   stain     -> the species            "Alder". Trim is milled from the same stock.
+ *   melamine  -> the colour             "H3790 Honey Carini Walnut".
+ *
+ * Returns "" when the group cannot answer yet, so the PM sees an empty box to fill
+ * rather than a confident guess.
+ */
+export function trimMaterialForFinishGroup(fg: {
+  finish_type?: string | null;
+  label?: string | null;
+  species?: string | null;
+  color_name?: string | null;
+}): string {
+  const type = (fg.finish_type ?? "").toLowerCase();
+  if (type === "paint")    return `Paint Grade${fg.label ? ` ${fg.label}` : ""}`;
+  if (type === "stain")    return (fg.species ?? "").trim();
+  if (type === "melamine") return (fg.color_name ?? "").trim();
+  return "";
+}
