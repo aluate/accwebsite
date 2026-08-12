@@ -122,8 +122,27 @@ async function main() {
   if (missing.length) {
     console.log(`  MISSING FROM THE DATABASE — ${missing.length}:\n`);
     for (const m of missing) console.log(`    ${m.table}.${m.column}`);
-    console.log(`\n    db-push declares these and the database does not have them. Run`);
-    console.log(`    \`node scripts/db-push.mjs\` — it is additive and idempotent.\n`);
+    console.log(`\n    db-push declares these and the database does not have them.`);
+    console.log(`    Run \`node scripts/db-push.mjs\` — it is additive and idempotent.\n`);
+    /*
+      This used to stop at "run db-push". That advice is wrong often enough to matter,
+      and wrong in a way that reads as success: db-push finishes, reports nothing, and
+      the column is still missing.
+    */
+    console.log(`    IF db-push DOES NOT FIX IT, look at how the column is declared.`);
+    console.log(`    \`CREATE TABLE IF NOT EXISTS\` is a NO-OP on a table that already`);
+    console.log(`    exists — it does NOT add a column. A column that appears only inside`);
+    console.log(`    a CREATE TABLE body reaches a brand new database and no existing one,`);
+    console.log(`    and db-push reports success either way. Add, next to the CREATE TABLE:\n`);
+    for (const m of missing.slice(0, 6)) {
+      if (m.column === "(whole table)") continue;
+      console.log(`      \`ALTER TABLE ${m.table} ADD COLUMN IF NOT EXISTS ${m.column} <type>\`,`);
+    }
+    if (missing.length > 6) console.log(`      …and the same for the rest.`);
+    console.log(`\n    That is exactly how finish_group_edgebands.where_used and`);
+    console.log(`    catalog_builder_profiles.default_finish_type / .is_residential_default`);
+    console.log(`    stayed missing in production while db-push kept reporting success:`);
+    console.log(`    19 consecutive 500s on edgeband saves, and a 500 on /api/builders.\n`);
   } else {
     console.log(`  nothing db-push declares is missing from the database\n`);
   }

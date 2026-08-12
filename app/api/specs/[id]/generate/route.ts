@@ -87,7 +87,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const supabase = supabaseAdmin();
     for (const doc of docs) {
-      const storagePath = `jobs/${data.job_id}/03_job_specs/${doc.filename}`;
+      // job_internal_id, NOT job_id. job_id is the Tradesoft display number on any
+      // job that has one, and using it here wrote job_files rows with job_id=88888,
+      // which violates the FK to jobs and threw away every generated spec sheet.
+      const storagePath = `jobs/${data.job_internal_id}/03_job_specs/${doc.filename}`;
       const { error: upErr } = await supabase.storage
         .from("job-files")
         .upload(storagePath, doc.buffer, { contentType: "application/pdf", upsert: false });
@@ -96,7 +99,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       const fileId = uid();
       await sql`
         INSERT INTO job_files (id, job_id, kind, filename, storage_path, size, uploaded_at)
-        VALUES (${fileId}, ${data.job_id}, '03_job_specs', ${doc.filename}, ${storagePath},
+        VALUES (${fileId}, ${data.job_internal_id}, '03_job_specs', ${doc.filename}, ${storagePath},
                 ${doc.buffer.length}, ${new Date().toISOString()})
       `;
       saved[doc.fgId ?? "client"] = fileId;

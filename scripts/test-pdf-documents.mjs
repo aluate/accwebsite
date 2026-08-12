@@ -77,6 +77,40 @@ try {
   check(`fixture loaded with ${FGS.length} finish groups`, data.finish_groups.length === FGS.length,
         `got ${data.finish_groups.length}`);
 
+  /*
+    job_id vs job_internal_id. `job_id` is a DISPLAY string — job_number when the job
+    has one — and the generate route used it for the job_files foreign key and the
+    storage path. On any job with a Tradesoft number that wrote job_id=88888 and blew
+    up on job_files_job_id_fkey, so the generated spec was never recorded and the file
+    could not be found. The endpoint still returned 200.
+  */
+  check("job_internal_id is the real jobs.id", data.job_internal_id === jobId,
+        `${data.job_internal_id} vs ${jobId}`);
+  check("and job_id is free to be the display number", typeof data.job_id === "string");
+
+  // THE regression, on a job that HAS a Tradesoft number — the only case that broke.
+  // With job_number set, job_id becomes "88888" and using it as the foreign key threw
+  // job_files_job_id_fkey: Key (job_id)=(88888) is not present in table "jobs".
+  {
+    const numberedJob = "job-num-" + uid();
+    const numberedSpec = "spec-num-" + uid();
+    const now2 = new Date().toISOString();
+    await sql`INSERT INTO jobs (id, created_at, client_name, site_address, job_number)
+              VALUES (${numberedJob}, ${now2}, 'Numbered Job', '1 St', '88888')`;
+    await sql`INSERT INTO residential_specs (id, job_id, created_at, updated_at)
+              VALUES (${numberedSpec}, ${numberedJob}, ${now2}, ${now2})`;
+    const nd = await loadSpecPDFData(numberedSpec);
+    check("with a Tradesoft number, job_id IS the display number", nd.job_id === "88888", nd.job_id);
+    check("but job_internal_id is still the real key", nd.job_internal_id === numberedJob,
+          `${nd.job_internal_id} — if this is "88888" the FK to jobs will fail and the generated spec is lost`);
+    // Prove it: the value used for the FK must actually exist in jobs.
+    const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM jobs WHERE id = ${nd.job_internal_id}`;
+    check("and it resolves to a real row in jobs", n === 1, `${n} row(s)`);
+    const [{ n: bad }] = await sql`SELECT COUNT(*)::int AS n FROM jobs WHERE id = ${nd.job_id}`;
+    check("while job_id does NOT — which is why the insert blew up", bad === 0, `${bad} row(s)`);
+    await sql`DELETE FROM jobs WHERE id = ${numberedJob}`;
+  }
+
   const clientBuf = await renderClientSpecPDFBuffer(data);
   const clientPages = await pages(clientBuf);
 

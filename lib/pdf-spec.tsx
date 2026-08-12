@@ -78,7 +78,20 @@ export type RoomTrimEntry = { id: string; room_id: string; trim_type: string; si
 export type ApplianceEntry = { id: string; appliance_type: string; manufacturer: string; model_no: string; room_name: string; notes: string; cutout_w: number | null; cutout_h: number | null; cutout_d: number | null; sort_order: number };
 
 export type SpecPDFData = {
-  job_id: string; job_number: string | null; spec_name: string; generated_at: string;
+  /*
+    CAREFUL. `job_id` here is a DISPLAY string — `job.job_number ?? spec.job_id` — so
+    on a job with a Tradesoft number it holds "88888", not a key. It exists for
+    document footers.
+
+    `job_internal_id` is the actual jobs.id. Anything that writes a foreign key, a
+    storage path, or a database lookup must use that one. The generate route used
+    `job_id` for both and produced
+        job_files_job_id_fkey ... Key (job_id)=(88888) is not present in table "jobs"
+    — so every generated spec for a job WITH a Tradesoft number failed to record,
+    while the endpoint still returned 200. That is why generated files could not be
+    found: they were never listed.
+  */
+  job_id: string; job_internal_id: string; job_number: string | null; spec_name: string; generated_at: string;
   client_name: string; client_email: string | null;
   builder_name: string | null; builder_company: string | null;
   pm: string | null; engineer: string | null; site_address: string; city: string | null;

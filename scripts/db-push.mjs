@@ -973,6 +973,89 @@ async function main() {
                                                                     is_residential_default  BOOLEAN NOT NULL DEFAULT false
                                                                         )`,
         `CREATE INDEX IF NOT EXISTS idx_cbp_company ON catalog_builder_profiles(LOWER(builder_company))`,
+    /*
+      ADD COLUMN, not just CREATE TABLE.
+
+      These three columns exist only inside CREATE TABLE bodies above, and
+      `CREATE TABLE IF NOT EXISTS` is a NO-OP on a table that already exists — it does
+      not add a missing column. So on any environment where the table predates the
+      column, running db-push changed nothing and the errors kept coming:
+
+        column "where_used" of relation "finish_group_edgebands" does not exist
+          -> PATCH .../edgebands/[code] returned 500. Nineteen consecutive failures in
+             production on 2026-08-11: every edgeband edit in that session was lost.
+        column "default_finish_type" does not exist
+          -> GET /api/builders returned 500.
+        column "is_residential_default" does not exist
+          -> the residential builder-profile lookup failed on every spec page load.
+
+      Declaring a column in a CREATE TABLE is only ever enough for a brand new
+      database. Every column added after a table ships needs an ALTER as well.
+    */
+    `ALTER TABLE finish_group_edgebands    ADD COLUMN IF NOT EXISTS where_used TEXT`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS default_finish_type    TEXT NOT NULL DEFAULT 'paint'`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS default_carcass_id     TEXT`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS default_drawer_box_id  TEXT`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS default_pull_id        TEXT`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS default_paint_brand    TEXT`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS notes                  TEXT`,
+    `ALTER TABLE catalog_builder_profiles  ADD COLUMN IF NOT EXISTS is_residential_default BOOLEAN NOT NULL DEFAULT false`,
+    /*
+      `builders` is a DIFFERENT table from `catalog_builder_profiles`, and both carry a
+      column called is_residential_default — with different types, on purpose:
+
+        builders.is_residential_default                  INTEGER, the admin Builder
+          Companies page reads it as `=== 1`
+        catalog_builder_profiles.is_residential_default  BOOLEAN, the residential spec
+          page queries it as `WHERE is_residential_default = true`
+
+      GET /api/builders selects eight columns FROM builders that its CREATE TABLE never
+      declared, so the endpoint returned 500 every time. I first added ALTERs only to
+      catalog_builder_profiles and would have shipped a half fix — the residential page
+      would have recovered and /api/builders would still have been broken.
+    */
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_finish_type            TEXT NOT NULL DEFAULT 'paint'`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_carcass_id             TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_drawer_box_id          TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_pull_id                TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_paint_brand            TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_accessories            TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS preferred_cabdoor_usage_groups TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS is_residential_default         INTEGER NOT NULL DEFAULT 0`,
+
+    /*
+      If catalog_builder_profiles.is_residential_default already exists with the WRONG
+      type, ADD COLUMN IF NOT EXISTS does nothing and the residential spec page keeps
+      failing with
+
+          operator does not exist: integer = boolean
+
+      because it queries `WHERE is_residential_default = true`. Production threw both
+      that AND "column does not exist" on the same lookup at different times of day,
+      which is what a column created once with the wrong type looks like.
+
+      Converting 0/1 to boolean is lossless and this only fires when the type is
+      actually wrong, so it is safe to leave in a script that runs repeatedly.
+    */
+    `DO $$
+     BEGIN
+       IF EXISTS (
+         SELECT 1 FROM information_schema.columns
+         WHERE table_schema = 'public'
+           AND table_name   = 'catalog_builder_profiles'
+           AND column_name  = 'is_residential_default'
+           AND data_type   <> 'boolean'
+       ) THEN
+         ALTER TABLE catalog_builder_profiles
+           ALTER COLUMN is_residential_default DROP DEFAULT;
+         ALTER TABLE catalog_builder_profiles
+           ALTER COLUMN is_residential_default TYPE BOOLEAN
+           USING (is_residential_default::int <> 0);
+         ALTER TABLE catalog_builder_profiles
+           ALTER COLUMN is_residential_default SET DEFAULT false;
+       END IF;
+     END $$`,
+
     // Bug reports
     `CREATE TABLE IF NOT EXISTS bug_reports (
       id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
