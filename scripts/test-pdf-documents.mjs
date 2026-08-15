@@ -377,6 +377,48 @@ try {
             dualTxt.includes("BLUM 110 CLIP TOP BLUMOTION SOFT CLOSE"),
             `hinge name absent — the mapping is not scoped to the slide roles. text: ${dualTxt.slice(0, 200)}`);
 
+      // ── one role, one answer ────────────────────────────────────────────────
+      //
+      // Found live on ZZ TOP MEL-1 (2026-08-15): the WORK ORDER HARDWARE block listed
+      // HINGES twice and DRAWER SLIDES twice, because finish_group_hardware and
+      // spec_hardware were rendered back to back with nothing reconciling them. The
+      // sheet named two different hinges and gave the shop no way to tell which one
+      // to build.
+      //
+      // Karl's call: spec level wins. A role named at spec level suppresses the finish
+      // group's row for that role. A role only one side names still prints.
+      await sql`INSERT INTO spec_hardware (id, spec_id, type, part_no, sort_order)
+                VALUES (${"sh-" + uid()}, ${tSpec}, 'HINGES',      'BLUM 170 DEGREE',      0),
+                       (${"sh-" + uid()}, ${tSpec}, 'CLOSET RODS', 'GOLD RODS EVERYWHERE', 1)`;
+      const dupe    = await loadSpecPDFData(tSpec);
+      const dupeTxt = squash(await pdfText(await renderWorkOrderPDFBuffer(dupe, dupe.finish_groups[0])));
+
+      check("a role named at spec level suppresses the finish group's row for it",
+            !dupeTxt.includes("BLUM 110 CLIP TOP BLUMOTION SOFT CLOSE"),
+            "both hinges are on the sheet — the shop cannot tell which to build");
+      check("and the spec-level hinge is the one that prints",
+            dupeTxt.includes("BLUM 170 DEGREE"));
+      check("HINGES appears exactly once as a label",
+            (dupeTxt.match(/HINGES/g) || []).length === 1,
+            `HINGES x${(dupeTxt.match(/HINGES/g) || []).length}`);
+      // Two controls: a spec-level role the finish group never names must still print,
+      // and a finish group role spec level never names must still print.
+      check("a spec-level-only role still prints",
+            dupeTxt.includes("CLOSET RODS") && dupeTxt.includes("GOLD RODS EVERYWHERE"));
+      check("a finish-group-only role is untouched by the override",
+            dupeTxt.includes("ROLLOUT SLIDES") && dupeTxt.includes("ACC STANDARD ROLLOUT SLIDE"),
+            "suppression is reaching past the roles spec level actually claimed");
+
+      // A near miss must NOT suppress. Failing visibly beats failing silently.
+      await sql`UPDATE spec_hardware SET type = 'Hinge' WHERE spec_id = ${tSpec} AND type = 'HINGES'`;
+      const nearMiss = await loadSpecPDFData(tSpec);
+      const nmTxt = squash(await pdfText(await renderWorkOrderPDFBuffer(nearMiss, nearMiss.finish_groups[0])));
+      check("a role spelled differently does not silently drop the finish group's record",
+            nmTxt.includes("BLUM 110 CLIP TOP BLUMOTION SOFT CLOSE"),
+            "'Hinge' matched 'hinges' and swallowed the real record");
+
+      await sql`DELETE FROM spec_hardware WHERE spec_id = ${tSpec}`;
+
       // If the schedule has no slide, the hardware name is better than a blank.
       await sql`UPDATE finish_group_drawers SET slides_id = NULL WHERE finish_group_id = ${tFg}`;
       const noSched = await loadSpecPDFData(tSpec);

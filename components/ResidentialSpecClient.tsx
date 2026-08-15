@@ -1945,7 +1945,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           */}
           {([
             { doc: "client" as const, label: "Client Spec", hint: "The document the client signs." },
-            { doc: "wo" as const,     label: "WO Specs",    hint: "Every finish group's shop sheet, in one PDF." },
+            // One file per finish group, not one combined PDF — Karl's call, so the
+            // shop can hand out and reprint a single group's sheet on its own. The
+            // hint said "in one PDF" and the code never did that.
+            { doc: "wo" as const,     label: "WO Specs",    hint: "One shop sheet per finish group, filed separately." },
           ]).map(({ doc, label, hint }) => (
             <button
               key={doc}

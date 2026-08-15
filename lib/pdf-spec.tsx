@@ -270,6 +270,35 @@ function extractEbPartNo(supplier: string, productName: string): string {
   return normalized.split(/\s+/)[0] || "";
 }
 
+/**
+ * Collapse a hardware role to a comparison key. spec_hardware.type is free text
+ * ("DRAWER SLIDES"); finish_group_hardware.role is controlled ("drawer_slides").
+ * Both become DRAWER_SLIDES so the two sides can be paired.
+ */
+export function hardwareRoleKey(s: string): string {
+  return String(s ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "_").replace(/^_|_$/g, "");
+}
+
+/**
+ * Which finish group hardware rows survive alongside spec-level hardware.
+ *
+ * Spec level wins (Karl, 2026-08-15): a role a PM typed at spec level overrides the
+ * finish group's record for that role, so the finish group's row is dropped and the
+ * shop sees exactly one answer. Roles only one side names are untouched.
+ *
+ * Exported so the rule can be tested without a database — the WO page that uses it
+ * needs a fully seeded catalog to render at all.
+ */
+export function reconcileWOHardware<T extends { role: string; role_label: string }>(
+  fgHw: readonly T[],
+  specHw: readonly { type: string }[],
+): T[] {
+  const claimed = new Set(specHw.map((h) => hardwareRoleKey(h.type)).filter(Boolean));
+  return fgHw.filter(
+    (h) => !claimed.has(hardwareRoleKey(h.role)) && !claimed.has(hardwareRoleKey(h.role_label)),
+  );
+}
+
 /** Derive the 8 standard WO edgeband rows from a finish group. */
 export function deriveWOEdgebands(fg: FinishGroupView): WOEbRow[] {
   const faceEb = fg.edgebands[0];
@@ -1057,6 +1086,30 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
     const fromSchedule = slideFromSchedule(h.role);
     return fromSchedule ? { ...h, hardware_name: fromSchedule } : h;
   });
+
+  /*
+    ONE ROLE, ONE ANSWER. Until now this block printed fgHw and hw back to back with
+    nothing reconciling them, so a finish group that recorded HINGES and a spec whose
+    spec_hardware also said HINGES put two different hinges on the same shop sheet.
+    Observed live on ZZ TOP MEL-1: the sheet named both "Blum 110 CLIP top Blumotion
+    Soft Close" and "Blum 170°", and both "ACC Standard Undermount Soft-Close" and
+    "Blum Tandem Plus Blumotion". Nothing on the page said which one to build.
+
+    Karl's call: SPEC-LEVEL WINS. A PM typing hardware at spec level is overriding the
+    finish group's record, so that row is what the shop sees and the finish group's row
+    for the same role is suppressed. Roles only one side names are untouched — CLOSET
+    RODS typed at spec level still prints, and a finish group role no spec row mentions
+    still prints.
+
+    Matching is exact-after-normalising, deliberately. spec_hardware.type is free text
+    ("DRAWER SLIDES") while finish_group_hardware.role is a controlled value
+    ("drawer_slides"); collapsing both to DRAWER_SLIDES pairs them. A PM who types
+    "Hinge" rather than "HINGES" will NOT match and the sheet falls back to printing
+    both. That is the safe direction to fail: a visible duplicate asks a question,
+    while silently dropping the finish group's real record answers it wrongly.
+  */
+  const fgHwShown = reconcileWOHardware(fgHw, hw);
+
   // Task #55 — prefer stored WO edgeband rows over re-derived defaults, BUT:
   //   - Paint/stain FGs: ALWAYS use derivedRows so Task #50 thickness fix ("" not "3.0") applies.
   //     Stored rows for paint/stain may have been saved with old values and would bypass the fix.
@@ -1315,30 +1368,36 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         {/* RIGHT: Work Order Hardware */}
         <View style={WS.bodyRight}>
           <Text style={WS.secHead}>WORK ORDER HARDWARE</Text>
-          {fgHw.length === 0 && hw.length === 0 && fgPulls.length === 0 ? (
+          {fgHwShown.length === 0 && hw.length === 0 && fgPulls.length === 0 ? (
             <Text style={[WS.tdMu, { padding: 4 }]}>No hardware specified.</Text>
           ) : (
             <>
               {/*
-                THIS finish group's hardware, from finish_group_hardware. Until now
-                this block rendered spec-level free text only, so a hinge changed on
-                the Schedules tab never reached the work order. Per-FG comes first
-                because it is the authoritative record for the sheet being built.
+                Spec-level hardware first, because it wins. A PM who typed a role here
+                is overriding the finish group, so their row is the one the shop reads
+                and the finish group's row for that role never renders — see the
+                fgHwShown comment above for why a near-miss prints both instead.
               */}
-              {fgHw.map((h, i) => (
-                <View key={`fg-${i}`} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+              {hw.map((h, i) => (
+                <View key={`spec-${i}`} style={[WS.specRow, i % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
+                  <Text style={[WS.specLabel, { width: 90 }]}>{h.type}</Text>
+                  <Text style={WS.specValue}>{h.part_no || h.notes || "—"}</Text>
+                </View>
+              ))}
+              {/*
+                THIS finish group's own record, from finish_group_hardware, for every
+                role spec level did not claim. Until 2026-08 this block rendered
+                spec-level free text only, so a hinge changed on the Schedules tab
+                never reached the work order at all.
+              */}
+              {fgHwShown.map((h, i) => (
+                <View key={`fg-${i}`} style={[WS.specRow, (hw.length + i) % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
                   <Text style={[WS.specLabel, { width: 90 }]}>
                     {h.role_label}{h.slot_label ? ` · ${h.slot_label}` : ""}
                   </Text>
                   <Text style={WS.specValue}>
                     {[h.hardware_name, h.qty ? `× ${h.qty}` : "", h.notes].filter(Boolean).join(" · ") || "—"}
                   </Text>
-                </View>
-              ))}
-              {hw.map((h, i) => (
-                <View key={`spec-${i}`} style={[WS.specRow, (fgHw.length + i) % 2 === 1 ? { backgroundColor: STRIPE } : {}]}>
-                  <Text style={[WS.specLabel, { width: 90 }]}>{h.type}</Text>
-                  <Text style={WS.specValue}>{h.part_no || h.notes || "—"}</Text>
                 </View>
               ))}
               {fgPulls.length > 0 && (
