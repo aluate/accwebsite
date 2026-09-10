@@ -541,6 +541,19 @@ check("approvals: edge legality + happy-path", () => {
 });
 
 // ── TypeScript compile ───────────────────────────────────────────────────────
+check("inputs: INPUT_FIELD_MAP.md covers every jobs column", () => {
+  // The map is only useful if it stays true. Drift fails here rather than
+  // being discovered months later by someone trusting a stale row.
+  const r = spawnSync(process.execPath, [join(REPO, "scripts", "check-input-map.mjs")], {
+    cwd: REPO, encoding: "utf-8",
+  });
+  if (r.status !== 0) {
+    const all = ((r.stdout || "") + "\n" + (r.stderr || "")).split("\n").filter(Boolean).slice(0, 10);
+    throw new Error(all.join(" | "));
+  }
+  return (r.stdout || "").trim().split("\n").pop();
+});
+
 check("typescript: tsc --noEmit", () => {
   // Windows: npx is a .cmd shim that doesn't always return clean exit codes
   // through spawnSync. Call tsc directly via node_modules/.bin for reliability.

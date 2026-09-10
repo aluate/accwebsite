@@ -32,7 +32,8 @@
     "check-job-fields": "node scripts/check-job-fields.mjs",
     "test": "node scripts/test-all.mjs",
     "test:unit": "node scripts/test-all.mjs --unit",
-    "check-role-vocab": "node scripts/check-role-vocab.mjs"
+    "check-role-vocab": "node scripts/check-role-vocab.mjs",
+    "check-input-map": "node scripts/check-input-map.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
