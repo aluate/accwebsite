@@ -14,6 +14,7 @@ const ADMIN_LINKS = [
   { href: "/admin/schedule",          label: "Schedule Admin",    desc: "Crew management, change requests, on-deck queue" },
   { href: "/admin/billing",           label: "Billing",           desc: "Past-due invoices, payment status, outstanding balances" },
   { href: "/admin/documents",         label: "Document Library",  desc: "Upload boilerplate docs — warranty, disclosure, payment terms — auto-attached to client emails" },
+  { href: "/admin/notifications",     label: "Automated Emails",  desc: "Who gets each automated email, and a test mode that sends all of it to you instead" },
 ];
 
 export default async function AdminIndexPage() {

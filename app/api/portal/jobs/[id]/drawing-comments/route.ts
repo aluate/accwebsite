@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requirePortalAccessToJob } from "@/lib/portal-auth";
 import { sendEmail } from "@/lib/mailer";
+import { portalCommentConfirmation } from "@/lib/email-templates";
 
 // GET ?file=... — list comments on a specific drawing file (latest only,
 // per Karl's spec: only latest version visible to builder)
@@ -41,16 +42,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Confirmation email back to the builder (if they have an email on file).
   if (user.contact_email) {
-    void sendEmail({
-      to: user.contact_email,
-      template: "comment-confirmation",
-      vars: {
-        display_name: user.display_name,
-        job_id: id,
-        comment_body: text,
-        portal_url: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
-      },
+    const t = portalCommentConfirmation({
+      displayName: user.display_name,
+      jobLabel: id,
+      commentBody: text,
+      portalUrl: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
     });
+    void sendEmail({ to: user.contact_email, subject: t.subject, text: t.text, html: t.html, audience: "builder", event: "portal_comment_confirmation" });
   }
 
   return NextResponse.json({ ok: true, id: cid });

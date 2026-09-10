@@ -149,7 +149,8 @@ export async function POST(
     subject,
     text,
     html,
-    // No attachments — client reviews inline on the signoff page
+    // No attachments — client reviews inline on the signoff page,
+    audience: "client", event: "contract_sent",
   });
 
   if (!result.ok) {

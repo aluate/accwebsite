@@ -626,6 +626,46 @@ async function main() {
     )
   `;
 
+  // ── notification routing ─────────────────────────────────────────────────────
+  //
+  // Who gets each automated email. The defaults live in
+  // lib/notification-events.ts; a row here is an override set from
+  // /admin/notifications, so changing who receives the engineering release no
+  // longer means editing a route and deploying.
+  //
+  // Roles are stored, not addresses — "the client" resolves against the job at
+  // send time. to_fixed carries the literal addresses that used to be written
+  // into the source.
+  await sql`
+    CREATE TABLE IF NOT EXISTS notification_routes (
+      event_key  TEXT PRIMARY KEY,
+      to_roles   JSONB NOT NULL DEFAULT '[]'::jsonb,
+      to_fixed   JSONB NOT NULL DEFAULT '[]'::jsonb,
+      cc_roles   JSONB NOT NULL DEFAULT '[]'::jsonb,
+      cc_fixed   JSONB NOT NULL DEFAULT '[]'::jsonb,
+      enabled    INTEGER NOT NULL DEFAULT 1,
+      updated_at TEXT
+    )
+  `;
+
+  // One row, id = 1. While it is active every outbound email is redirected to
+  // the tester by role, so a walk through the whole lifecycle lands in four
+  // readable inboxes instead of a client's.
+  await sql`
+    CREATE TABLE IF NOT EXISTS notification_test_mode (
+      id               INTEGER PRIMARY KEY,
+      active           INTEGER NOT NULL DEFAULT 0,
+      role_addresses   JSONB NOT NULL DEFAULT '{}'::jsonb,
+      fallback_address TEXT,
+      updated_at       TEXT
+    )
+  `;
+  await sql`
+    INSERT INTO notification_test_mode (id, active, role_addresses, fallback_address)
+    VALUES (1, 0, '{}'::jsonb, NULL)
+    ON CONFLICT (id) DO NOTHING
+  `;
+
   // ── engineering_releases (FIFO log) ──────────────────────────────────────────
   await sql`
     CREATE TABLE IF NOT EXISTS engineering_releases (

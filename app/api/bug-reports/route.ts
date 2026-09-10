@@ -268,6 +268,7 @@ export async function POST(req: NextRequest) {
         `Triage in admin: https://advancedcabinets.org/admin/bugs`,
         GH_TOKEN ? `GitHub: https://github.com/${GH_OWNER}/${GH_REPO}/blob/main/bugs/${serial}.md` : "",
       ].filter(Boolean).join("\n"),
+      audience: "karl", event: "bug_report",
     });
   } catch {
     // Email failure doesn't fail the request

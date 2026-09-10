@@ -252,6 +252,7 @@ export async function POST(req: NextRequest, { params }: Params) {
       ``,
       `View job: ${appUrl}/jobs/${signoff.job_id}`,
     ].filter(Boolean).join("\n"),
+    audience: "pm", event: "signoff_signed",
   }).catch(() => {});
 
   return NextResponse.json({ ok: true, signed_file_id: signedFileId });

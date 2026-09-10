@@ -10,6 +10,9 @@
  * without live credentials).
  */
 
+import { loadTestMode, applyTestRouting } from "@/lib/notification-routing";
+import type { NotificationRole } from "@/lib/notification-events";
+
 export type SendResult =
   | { ok: true; messageId: string | null; previewMode?: boolean }
   | { ok: false; error: string };
@@ -40,7 +43,16 @@ export async function sendOrderEmail(opts: {
   /** PDF as a Buffer — attached directly, no local filesystem needed (Vercel-safe). */
   pdfBuffer?: Buffer;
 }): Promise<SendResult> {
-  const to = process.env.PM_EMAIL ?? process.env.GMAIL_USER ?? "residential@advancedcabinets.net";
+  const realTo = process.env.PM_EMAIL ?? process.env.GMAIL_USER ?? "residential@advancedcabinets.net";
+
+  /*
+    This path used to ignore TEST_EMAIL_OVERRIDE entirely — the one send that
+    could still reach a real inbox with everything else redirected. It goes
+    through the same test routing as the rest now.
+  */
+  const mode = await loadTestMode();
+  const routed = applyTestRouting(mode, { to: [realTo], cc: [], audience: "residential" });
+  const to = (process.env.TEST_EMAIL_OVERRIDE ? [process.env.TEST_EMAIL_OVERRIDE] : routed.to).join(", ");
 
   if (isPreviewMode()) {
     console.log(
@@ -53,10 +65,11 @@ export async function sendOrderEmail(opts: {
 
   try {
     const t = await transport();
-    const subject = `${opts.jobId} — ${opts.clientName} — Express order received`;
+    const subject = (routed.subjectPrefix ?? "") + `${opts.jobId} — ${opts.clientName} — Express order received`;
     const body =
       `Express order received for ${opts.clientName} ` +
-      `(${opts.builderCompany ?? opts.builderName}).\n\nJob ID: ${opts.jobId}\n`;
+      `(${opts.builderCompany ?? opts.builderName}).\n\nJob ID: ${opts.jobId}\n` +
+      (routed.redirected ? routed.bodyNote : "");
 
     const attachments: Array<{ filename: string; content: Buffer }> = [];
     if (opts.pdfBuffer) {
@@ -78,40 +91,74 @@ export async function sendOrderEmail(opts: {
 
 // ── Generic email sender ────────────────────────────────────────────────────
 export async function sendEmail(opts: {
-  to: string;
+  to: string | string[];
   subject: string;
   text: string;
   html?: string;
-  cc?: string;
+  cc?: string | string[];
   replyTo?: string;
   attachments?: Array<{ filename: string; content: Buffer }>;
+  /**
+   * Whose email this is, so test mode can redirect it to the right stand-in
+   * inbox. Omit it and test mode still catches the send — it just goes to the
+   * fallback address rather than the pseudo-client or pseudo-builder one.
+   */
+  audience?: NotificationRole;
+  /** Per-address roles, when one message goes to people in different roles. */
+  roleOf?: (address: string) => NotificationRole | undefined;
+  /** For the log line, so a redirected message says which email it was. */
+  event?: string;
 }): Promise<SendResult> {
-  // TEST_EMAIL_OVERRIDE: redirect ALL outbound email to a single address for testing.
-  // Set this Vercel env var temporarily when testing email flows; clear it for prod.
-  const testOverride = process.env.TEST_EMAIL_OVERRIDE;
-  const effectiveTo = testOverride ?? opts.to;
-  const effectiveCc = testOverride ? undefined : opts.cc;
-  const subjectPrefix = testOverride ? `[TEST → ${opts.to}] ` : "";
+  const toList = (Array.isArray(opts.to) ? opts.to : [opts.to]).filter(Boolean);
+  const ccList = (Array.isArray(opts.cc) ? opts.cc : opts.cc ? [opts.cc] : []).filter(Boolean);
+
+  /*
+    THE CHOKE POINT.
+
+    Test mode is applied here rather than at each call site on purpose: this is
+    the one function every email goes through, so nothing escapes because a
+    route was not updated. Redirection is by role, so a lifecycle walk lands as
+    four distinguishable inboxes instead of one pile — and the message says, in
+    its own body, who it would really have gone to.
+  */
+  const mode = await loadTestMode();
+  const routed = applyTestRouting(mode, { to: toList, cc: ccList, audience: opts.audience, roleOf: opts.roleOf });
+
+  // The old env-var override still works and still wins — one address, no
+  // roles, for when someone wants everything in one place without touching
+  // the settings screen.
+  const envOverride = process.env.TEST_EMAIL_OVERRIDE;
+  const finalTo = envOverride ? [envOverride] : routed.to;
+  const finalCc = envOverride ? [] : routed.cc;
+  const prefix = envOverride ? `[TEST → ${toList.join(", ")}] ` : routed.subjectPrefix;
+  const text = opts.text + (routed.redirected ? routed.bodyNote : "");
 
   if (isPreviewMode()) {
     console.log("\n[mailer/preview] Would send email:");
-    console.log(`  To: ${effectiveTo}${testOverride ? ` (overriding ${opts.to})` : ""}`);
-    if (effectiveCc) console.log(`  Cc: ${effectiveCc}`);
-    console.log(`  Subject: ${subjectPrefix}${opts.subject}`);
-    console.log(`  ---\n${opts.text}\n  ---`);
+    console.log(`  Event: ${opts.event ?? "(unnamed)"}`);
+    console.log(`  To: ${finalTo.join(", ")}${routed.redirected ? `  (test mode; really ${toList.join(", ")})` : ""}`);
+    if (finalCc.length) console.log(`  Cc: ${finalCc.join(", ")}`);
+    console.log(`  Subject: ${prefix}${opts.subject}`);
+    console.log(`  ---\n${text}\n  ---`);
     return { ok: true, messageId: null, previewMode: true };
+  }
+
+  if (finalTo.length === 0) {
+    return { ok: false, error: "no recipient — nobody is configured for this email" };
   }
 
   try {
     const t = await transport();
     const info = await t.sendMail({
       from: `"ACC" <${process.env.GMAIL_USER}>`,
-      to: effectiveTo,
-      cc: effectiveCc,
+      to: finalTo.join(", "),
+      cc: finalCc.length ? finalCc.join(", ") : undefined,
       replyTo: opts.replyTo,
-      subject: subjectPrefix + opts.subject,
-      text: opts.text,
-      html: opts.html,
+      subject: prefix + opts.subject,
+      text,
+      html: routed.redirected && opts.html
+        ? opts.html + `<hr><p style="font:12px sans-serif;color:#666">${routed.bodyNote.replace(/\n/g, "<br>")}</p>`
+        : opts.html,
       attachments: opts.attachments,
     });
     return { ok: true, messageId: info.messageId };

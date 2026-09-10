@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       source: body.source,
     });
     const to = process.env.PM_EMAIL ?? "residential@advancedcabinets.net";
-    const result = await sendEmail({ to, subject: alertSubject, text, html });
+    const result = await sendEmail({ to, subject: alertSubject, text, html, audience: "residential", event: "lead_alert" });
     return NextResponse.json({ ok: result.ok, action: "alert_pm" });
   }
 
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     subject,
     text: emailBody,
     replyTo: process.env.PM_EMAIL,
+    audience: "client", event: "lead_response",
   });
 
   if (!result.ok) {

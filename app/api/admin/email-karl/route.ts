@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       to: to ?? "karlv@advancedcabinets.net",
       subject,
       text,
+      audience: "karl", event: "email_karl",
     });
     return NextResponse.json(result);
   } catch (e) {

@@ -749,6 +749,105 @@ export function scheduleDateChanged(data: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// BUILDER PORTAL: account templates
+//
+// These three had no template at all. The routes called
+// sendEmail({ to, template: "portal-welcome", vars: {...} }) — parameters that
+// do not exist on sendEmail and no renderer anywhere for those names — so the
+// subject and body went out undefined while the admin screen reported the
+// account had been emailed. A builder was created and their temporary password
+// never reached them.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function portalWelcome(data: {
+  displayName: string;
+  builderCompany: string | null;
+  username: string;
+  tempPassword: string;
+  portalUrl: string;
+}): TemplateResult {
+  const subject = "Your Advanced Cabinets portal login";
+  const rows = infoTable([
+    infoRow("Username", h(data.username)),
+    infoRow("Temporary password", `<code style="font-size:14px;">${h(data.tempPassword)}</code>`),
+    ...(data.builderCompany ? [infoRow("Company", h(data.builderCompany))] : []),
+  ]);
+  const html = layout({
+    heading: "Your portal login",
+    subheading: data.builderCompany ?? undefined,
+    body:
+      para(`Hi ${h(data.displayName)},`) +
+      para("We have set up your access to the Advanced Cabinets builder portal, where you can see your jobs, upload what we need from you, and comment on drawings.") +
+      rows +
+      highlight("You will be asked to choose your own password the first time you sign in."),
+    ctaLabel: "Open the portal",
+    ctaUrl: data.portalUrl,
+  });
+  const text =
+    `Hi ${data.displayName},\n\n` +
+    `We have set up your access to the Advanced Cabinets builder portal.\n\n` +
+    `Username: ${data.username}\n` +
+    `Temporary password: ${data.tempPassword}\n\n` +
+    `You will be asked to choose your own password the first time you sign in.\n` +
+    `${data.portalUrl}\n`;
+  return { subject, text, html };
+}
+
+export function portalPasswordReset(data: {
+  displayName: string;
+  username: string;
+  tempPassword: string;
+  portalUrl: string;
+}): TemplateResult {
+  const subject = "Your Advanced Cabinets portal password has been reset";
+  const html = layout({
+    heading: "Password reset",
+    body:
+      para(`Hi ${h(data.displayName)},`) +
+      para("Your portal password has been reset. Sign in with the temporary password below and you will be asked to choose a new one.") +
+      infoTable([
+        infoRow("Username", h(data.username)),
+        infoRow("Temporary password", `<code style="font-size:14px;">${h(data.tempPassword)}</code>`),
+      ]) +
+      para("If you did not ask for this, tell us and we will lock the account."),
+    ctaLabel: "Sign in",
+    ctaUrl: data.portalUrl,
+  });
+  const text =
+    `Hi ${data.displayName},\n\n` +
+    `Your portal password has been reset.\n\n` +
+    `Username: ${data.username}\n` +
+    `Temporary password: ${data.tempPassword}\n\n` +
+    `You will be asked to choose a new one when you sign in.\n${data.portalUrl}\n\n` +
+    `If you did not ask for this, tell us and we will lock the account.\n`;
+  return { subject, text, html };
+}
+
+export function portalCommentConfirmation(data: {
+  displayName: string;
+  jobLabel: string;
+  commentBody: string;
+  portalUrl: string;
+}): TemplateResult {
+  const subject = `${data.jobLabel} — we have your comment`;
+  const html = layout({
+    heading: "Comment received",
+    subheading: data.jobLabel,
+    body:
+      para(`Hi ${h(data.displayName)},`) +
+      para("Your comment is with the project manager. You will get a reply in the portal.") +
+      highlight(h(data.commentBody)),
+    ctaLabel: "View the job",
+    ctaUrl: data.portalUrl,
+  });
+  const text =
+    `Hi ${data.displayName},\n\n` +
+    `Your comment on ${data.jobLabel} is with the project manager.\n\n` +
+    `"${data.commentBody}"\n\n${data.portalUrl}\n`;
+  return { subject, text, html };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // NOTIFICATION_TRIGGERS — registry of all trigger types for settings UI
 // ─────────────────────────────────────────────────────────────────────────────
 

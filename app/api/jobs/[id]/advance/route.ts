@@ -29,6 +29,7 @@ import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
 import { createDraftInvoice, invoiceExists } from "@/lib/invoices";
+import { resolveRecipients, jobRoleAddresses } from "@/lib/notification-routing";
 
 type JobRow = JobMeta & {
   status: string;
@@ -37,16 +38,15 @@ type JobRow = JobMeta & {
   bid_number?: string | null;
 };
 
-function resolveRecipient(key: string, job: JobRow): string | null {
-  switch (key) {
-    case "client":      return job.client_email ?? null;
-    case "pm":          return process.env.PM_EMAIL ?? null;
-    case "eng":         return process.env.ENG_EMAIL ?? process.env.PM_EMAIL ?? null;
-    case "shop":        return process.env.SHOP_EMAIL ?? process.env.PM_EMAIL ?? null;
-    case "residential": return process.env.RESIDENTIAL_EMAIL ?? process.env.PM_EMAIL ?? null;
-    default:            return null;
-  }
-}
+/*
+  Recipients come from the notification settings now, not from this file.
+
+  This route used to map a gate's recipient keys onto env vars itself, which
+  meant "who gets the delivery email" was a question you answered by reading
+  code and changed by deploying. The gates still say WHICH email fires; who it
+  reaches is one row in notification_routes, editable at /admin/notifications,
+  with the same defaults this switch had.
+*/
 
 function parseWoNumber(filename: string): { woNumber: string; woType: "wo" | "co" } | null {
   const m = filename.match(/^(WO|CO)(\d+)\./i);
@@ -171,26 +171,24 @@ export async function POST(
   // ── 6. Fire emails ─────────────────────────────────────────────────────────
   const emailErrors: string[] = [];
   if (gate) {
-    const toAddress = gate.recipients
-      .map((k) => resolveRecipient(k, job))
-      .filter(Boolean)
-      .join(", ");
+    const eventKey = `advance.${toStatus}`;
+    const resolved = await resolveRecipients(eventKey, jobRoleAddresses(job));
+    const toAddress = resolved.to.join(", ");
+    const ccAddress = resolved.cc.length ? resolved.cc.join(", ") : undefined;
 
-    const ccAddress = (gate.ccKeys ?? [])
-      .map((k) => resolveRecipient(k, job))
-      .filter(Boolean)
-      .join(", ") || undefined;
-
-    if (toAddress) {
+    if (toAddress && resolved.enabled) {
       let emailOpts: Parameters<typeof sendEmail>[0];
+      // roleOf keeps the client copy and the PM copy distinguishable when test
+      // mode splits them into separate inboxes.
+      const roleOf = (address: string) => resolved.roleByAddress[address.toLowerCase()];
 
       if (toStatus === "engineering") {
         const { subject, text, html, attachments } = await buildEngineeringEmail(job, internalId, note);
-        emailOpts = { to: toAddress, cc: ccAddress, subject, text, html, attachments: attachments.length ? attachments : undefined };
+        emailOpts = { to: resolved.to, cc: resolved.cc, subject, text, html, attachments: attachments.length ? attachments : undefined, roleOf, event: eventKey };
       } else {
         const subject = gate.subject(job);
         const text    = gate.body(job, note);
-        emailOpts = { to: toAddress, cc: ccAddress, subject, text };
+        emailOpts = { to: resolved.to, cc: resolved.cc, subject, text, roleOf, event: eventKey };
       }
 
       const result = await sendEmail(emailOpts);

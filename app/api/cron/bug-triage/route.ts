@@ -94,6 +94,7 @@ export async function GET(req: NextRequest) {
       subject: `ACC Bugs — All clear · ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
       text: `ACC BUG TRIAGE — ${today}\n\nAll clear — no open bugs. ✓\n\nView log: https://www.advancedcabinets.org/admin/bugs`,
       html: `<p><strong>ACC Bug Triage — ${today}</strong></p><p>All clear — no open bugs. ✓</p><p><a href="https://www.advancedcabinets.org/admin/bugs">View bug log →</a></p>`,
+      audience: "karl", event: "bug_digest",
     });
     return NextResponse.json({ ok: true, sent: 0 });
   }
@@ -155,6 +156,7 @@ export async function GET(req: NextRequest) {
     subject: `ACC Bugs — ${bugs.length} open (${blockers.length} blockers) · ${subjectDate}`,
     text: body,
     html,
+    audience: "karl", event: "bug_digest",
   });
 
   return NextResponse.json({ ok: true, sent: bugs.length });

@@ -5,6 +5,7 @@ import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { hashPassword } from "@/lib/portal-auth";
 import { sendEmail } from "@/lib/mailer";
+import { portalWelcome, portalPasswordReset } from "@/lib/email-templates";
 
 export async function GET() {
   await requireRole("admin");
@@ -37,18 +38,14 @@ export async function POST(req: NextRequest) {
 
   // Welcome email with the temp password (preview-mode safe — falls back to console if SMTP not configured).
   if (email) {
-    void sendEmail({
-      to: email,
-      template: "portal-welcome",
-      vars: {
-        display_name: displayName,
-        builder_company: company,
-        username,
-        temp_password: password,
-        portal_url: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
-        job_id: "(any)",
-      },
+    const t = portalWelcome({
+      displayName,
+      builderCompany: company,
+      username,
+      tempPassword: password,
+      portalUrl: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
     });
+    void sendEmail({ to: email, subject: t.subject, text: t.text, html: t.html, audience: "builder", event: "portal_welcome" });
   }
 
   return NextResponse.json({ id, must_change_pw: true, emailed: !!email }, { status: 201 });
@@ -69,16 +66,13 @@ export async function PATCH(req: NextRequest) {
       SELECT username, display_name, contact_email FROM builder_portal_accounts WHERE id = ${id}
     `;
     if (acct?.contact_email) {
-      void sendEmail({
-        to: acct.contact_email,
-        template: "portal-password-reset",
-        vars: {
-          display_name: acct.display_name,
-          username: acct.username,
-          temp_password: String(b.password),
-          portal_url: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
-        },
+      const t = portalPasswordReset({
+        displayName: acct.display_name,
+        username: acct.username,
+        tempPassword: String(b.password),
+        portalUrl: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
       });
+      void sendEmail({ to: acct.contact_email, subject: t.subject, text: t.text, html: t.html, audience: "builder", event: "portal_password_reset" });
     }
   }
   if (b.display_name) {

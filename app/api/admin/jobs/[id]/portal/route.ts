@@ -84,6 +84,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           `We've confirmed receipt of "${inp?.label ?? "(item)"}" for job ${job.id} (${job.client_name}).\n\n` +
           `${outstandingSummary}\n\n` +
           `View your portal: ${process.env.PORTAL_URL ?? "https://www.advancedcabinets.org"}\n`,
+        audience: "builder", event: "portal_input_received",
       });
     }
   }
@@ -164,6 +165,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           `${cabinetRef ? ` — ${cabinetRef}${pageRef}` : ""}:\n\n` +
           `"${String(b.acc_comment_reply.body)}"\n\n` +
           `View your portal: ${process.env.PORTAL_URL ?? "https://www.advancedcabinets.org"}\n`,
+        audience: "builder", event: "portal_comment",
       });
     }
   }

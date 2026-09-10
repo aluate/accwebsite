@@ -97,6 +97,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     subject,
     text,
     html,
+    audience: "client", event: "invoice_sent",
   });
 
   if (!result.ok) {

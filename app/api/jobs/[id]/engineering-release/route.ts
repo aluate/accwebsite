@@ -6,12 +6,18 @@ import { isComplete } from "@/lib/engineering-release-checklist";
 import { computeAutoChecked, mergeChecklist } from "@/lib/engineering-autocheck";
 import { addWorkingDays } from "@/lib/schedule-utils";
 import { createClient } from "@supabase/supabase-js";
+import { resolveRecipients, jobRoleAddresses } from "@/lib/notification-routing";
 
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
-const ENG_EMAIL  = "joshl@advancedcabinets.net";
-const DEPT_EMAIL = "residential@advancedcabinets.net";
+/*
+  These two addresses used to be the recipients, written here in the source, so
+  changing who the engineering release reaches meant editing this file and
+  deploying. They are the DEFAULT now, declared in lib/notification-events.ts
+  under "engineering_release" and editable at /admin/notifications — the same
+  people until someone says otherwise.
+*/
 
 function supabaseAdmin() {
   return createClient(
@@ -148,17 +154,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const emailText = lines.join("\n");
 
   // ── 7. Send email ────────────────────────────────────────────────────────
-  // CC: department inbox + the releasing PM's own email (makes reply chains easy)
-  const ccAddresses = [DEPT_EMAIL];
-  if (session.email && session.email !== DEPT_EMAIL) ccAddresses.push(session.email);
-  const ccString = ccAddresses.join(", ");
+  // Who this reaches is configuration, not code. `sender` is the releasing PM,
+  // cc'd by default so the reply chain includes them.
+  const resolved = await resolveRecipients(
+    "engineering_release",
+    jobRoleAddresses(job, { sender: session.email ?? null }),
+  );
+
+  if (!resolved.enabled || resolved.to.length === 0) {
+    return NextResponse.json(
+      { error: "Nobody is set to receive the engineering release. Set a recipient in Admin → Automated Emails." },
+      { status: 400 },
+    );
+  }
 
   const result = await sendEmail({
-    to:          ENG_EMAIL,
-    cc:          ccString,
+    to:          resolved.to,
+    cc:          resolved.cc,
     subject,
     text:        emailText,
     attachments,
+    roleOf:      (a) => resolved.roleByAddress[a.toLowerCase()],
+    event:       "engineering_release",
   });
 
   if (!result.ok) {
@@ -178,7 +195,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       ${releaseId}, ${id}, ${now}, ${actor},
       ${notes || null},
       ${JSON.stringify(canonDrawings.map((d) => d.id))}::jsonb,
-      ${ENG_EMAIL}, ${ccString}
+      ${resolved.to.join(", ")}, ${resolved.cc.join(", ") || null}
     )
   `;
 

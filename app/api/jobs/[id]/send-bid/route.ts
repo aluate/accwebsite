@@ -124,6 +124,7 @@ export async function POST(
     text,
     html,
     attachments: attachments.length ? attachments : undefined,
+    audience: "client", event: "bid_sent",
   });
 
   if (!result.ok) {
