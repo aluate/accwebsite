@@ -41,6 +41,7 @@ const SUITES = [
   { file: "test-slab-door.mjs",         db: false, what: "a melamine group ends up with a door style (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
+  { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },
   { file: "test-install-date.mjs",      db: true,  what: "one official install date per job" },
   { file: "test-release-gate.mjs",      db: true,  what: "the five fields engineering needs" },
   { file: "test-door-front-roles.mjs",  db: true,  what: "doors / drawer fronts / applied ends" },
