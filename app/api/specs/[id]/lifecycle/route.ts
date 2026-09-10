@@ -70,8 +70,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }, { status: 403 });
   }
 
-  // Gate: before CLIENT_APPROVED or RELEASED_TO_ENG, Schedules tab must have
-  // at least one door-front row — proof the PM completed the spec.
+  /*
+    Gate: before CLIENT_APPROVED or RELEASED_TO_ENG there must be at least one
+    door-front row — proof the PM completed the spec.
+
+    The message used to send them to the Schedules tab. That tab is imported
+    nowhere; it does not exist in the app. So a PM blocked here was told to open
+    a tab that is not on the screen, go looking, and find nothing — on a spec
+    where the door style sits on the Finishes tab, which is where the base door
+    row is actually seeded from.
+  */
   if (to === "CLIENT_APPROVED" || to === "RELEASED_TO_ENG") {
     const [doorFrontCheck] = await sql`
       SELECT COUNT(*)::int AS cnt
@@ -83,7 +91,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     if (!doorFrontCheck || doorFrontCheck.cnt === 0) {
       return NextResponse.json({
-        error: "Schedules tab incomplete — door fronts must be specified before advancing. Open the spec, go to the Schedules tab, and fill in door front details.",
+        error: "No door fronts on this spec yet — set the door style on each finish group (Finishes tab) and save; the base door row is created from it.",
       }, { status: 400 });
     }
   }

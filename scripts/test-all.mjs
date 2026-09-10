@@ -38,6 +38,7 @@ const SUITES = [
   { file: "test-wo-hardware.mjs",       db: false, what: "one role, one answer on the work order (pure)" },
   { file: "test-paste-jobs.mjs",        db: false, what: "what a pasted spreadsheet turns into (pure)" },
   { file: "test-spec-approval.mjs",     db: false, what: "the DRAFT watermark answers to the real states (pure)" },
+  { file: "test-slab-door.mjs",         db: false, what: "a melamine group ends up with a door style (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-install-date.mjs",      db: true,  what: "one official install date per job" },
@@ -47,6 +48,7 @@ const SUITES = [
   { file: "test-pdf-documents.mjs",     db: true,  what: "what the documents say" },
   { file: "test-trim-save-sequence.mjs", db: true,  http: true, what: "trim survives the form's save sequence" },
   { file: "test-job-create-fields.mjs", db: true,  http: true, what: "the create form's fields all survive the save" },
+  { file: "test-melamine-release.mjs",  db: true,  http: true, what: "a melamine spec can actually reach engineering" },
 ];
 
 const unitOnly = process.argv.includes("--unit");

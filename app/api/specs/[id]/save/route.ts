@@ -6,6 +6,8 @@ import { sql, uid } from "@/lib/db";
 import { seedAccStandards } from "@/lib/acc-standards-seed";
 import { propagateTrimDefaults } from "@/lib/trim-propagate";
 import { isDoorFrontRole, ROLE_BASE } from "@/lib/door-front-roles";
+import { isSlabOnlyFinishType, soleSlabDoorStyleId } from "@/lib/slab-door";
+import { getCatalogs } from "@/lib/catalogs";
 
 // -- Payload types
 
@@ -526,7 +528,25 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         hardware and drawers ("counted rows across the entire table for a finish
         group"). It survived here because until now nothing could add a second row.
       */
-      if (g.door_style_id) {
+      /*
+        A melamine or PLAM group whose door style is blank gets the one slab
+        style rather than no base door row at all. The form now fills this in,
+        but every spec saved before it did is still sitting there with an empty
+        door_style_id and a release that will be refused for "base door style".
+        Doing it here as well means those specs repair themselves on the next
+        save, without anyone having to know why.
+      */
+      let doorStyleId = g.door_style_id;
+      if (!doorStyleId && isSlabOnlyFinishType(g.finish_type)) {
+        try {
+          const cat = await getCatalogs();
+          doorStyleId = soleSlabDoorStyleId(cat.doorStyles() as { id: string; construction?: string | null }[]) ?? "";
+        } catch (e) {
+          console.error("[save] slab door style lookup failed:", e);
+        }
+      }
+
+      if (doorStyleId) {
         try {
           const cnt = await sql`
             SELECT COUNT(*) AS c FROM finish_group_door_fronts
@@ -535,7 +555,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           if (Number((cnt[0] as { c: string | number }).c) === 0) {
             await sql`
               INSERT INTO finish_group_door_fronts (id, finish_group_id, role, style_id, sort_order)
-              VALUES (${uid()}, ${fgId}, ${ROLE_BASE}, ${g.door_style_id}, ${0})
+              VALUES (${uid()}, ${fgId}, ${ROLE_BASE}, ${doorStyleId}, ${0})
             `;
           }
         } catch (_) { /* seeding failure -- skip */ }

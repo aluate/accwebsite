@@ -15,6 +15,7 @@ import {
 import { CabinetsDrawingsView } from "@/components/CabinetsDrawingsView";
 import { LifecyclePanel } from "@/components/LifecyclePanel";
 import { MaterialsSubsection, type FinishMaterial } from "@/components/MaterialsSubsection";
+import { doorStyleForFinishType } from "@/lib/slab-door";
 
 // Kept for backward compat with existing moldings data; tab removed from UI
 type FinishMolding = {
@@ -2120,14 +2121,19 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
                         const countOfType = groups.filter((x) => x.id !== g.id && x.finish_type === newType).length;
                         const autoLabel = newType ? `${typePrefix}-${countOfType + 1}` : "";
                         const patch: Partial<FinishGroup> = { finish_type: newType, label: autoLabel, color_id: "", color_name: "", edgeband_id: "" };
-                        // When switching to melamine, check if current door style is a slab;
-                        // if not, clear it so the user must re-pick from the restricted list.
-                        if (newType === "melamine" && g.door_style_id) {
-                          const currentDoor = catalogs.doorStyles.find((d) => d.id === g.door_style_id);
-                          if (currentDoor && currentDoor.construction !== "slab") {
-                            patch.door_style_id = "";
-                          }
-                        }
+                        /*
+                          Melamine and PLAM fronts are slab by construction, so the door
+                          style list below filters to slab only. This used to clear the
+                          door style and make the PM re-pick from that list — a list of
+                          one. What it actually did was leave door_style_id empty, which
+                          means no base door-front row is seeded, which means the release
+                          to engineering is refused for "base door style" on a spec the
+                          form itself had filled in. One legal answer is chosen here
+                          instead; if the catalog ever holds two slab styles the choice
+                          is real again and it clears, as before.
+                        */
+                        const nextDoor = doorStyleForFinishType(newType, g.door_style_id, catalogs.doorStyles);
+                        if (nextDoor !== undefined) patch.door_style_id = nextDoor;
                         updateGroup(g.id, patch);
                       }}
                       className={SELECT}
