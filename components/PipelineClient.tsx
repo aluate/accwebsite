@@ -283,8 +283,74 @@ function EditablePm({ value, pms, onSave }: { value:string|null; pms:Pm[]; onSav
 }
 
 // ── Quick-add modal ───────────────────────────────────────────────────────────
+/*
+  Builder field for the create forms.
+
+  The Add Job form had no builder field at all — not because the create route
+  could not take one (it has accepted builder_id/company/contact since the
+  beginning), but because nobody put the input on the form. So every job added
+  from the Pipeline arrived with no builder and had to be opened and fixed one
+  at a time, which is the opposite of what a quick-add is for.
+
+  Free text is allowed on purpose: a builder that is not in the list yet still
+  needs to go on the job now. Picking from the list additionally sets builder_id
+  and the contact name, which is what the portal lookup and the spec defaults
+  need. Typing over a picked builder clears the id rather than leaving it
+  pointing at someone else.
+*/
+function BuilderPickerField({ company, onChange }: {
+  company: string;
+  onChange: (v: { builder_id: string; builder_company: string; builder_name: string }) => void;
+}) {
+  const [results, setResults] = useState<{ id: string; company: string; contact_name: string }[]>([]);
+  const [open, setOpen] = useState(false);
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function search(val: string) {
+    onChange({ builder_id: "", builder_company: val, builder_name: "" });
+    if (debounce.current) clearTimeout(debounce.current);
+    if (val.trim().length < 2) { setResults([]); setOpen(false); return; }
+    debounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/builders?q=${encodeURIComponent(val)}`);
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data.slice(0, 8) : []);
+        setOpen(true);
+      } catch { setResults([]); setOpen(false); }
+    }, 200);
+  }
+
+  return (
+    <div className="relative">
+      <input
+        className="w-full bg-white/10 border border-white/15 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#f08122]/60 placeholder-white/20"
+        placeholder="Type to search, or type a new builder"
+        value={company}
+        onChange={(e) => search(e.target.value)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+      />
+      {open && results.length > 0 && (
+        <div className="absolute z-50 top-full left-0 mt-0.5 bg-[#1e1f20] border border-white/15 rounded shadow-xl w-full max-h-48 overflow-y-auto">
+          {results.map((b) => (
+            <button key={b.id} type="button"
+              onMouseDown={() => {
+                onChange({ builder_id: b.id, builder_company: b.company, builder_name: b.contact_name ?? "" });
+                setOpen(false);
+              }}
+              className="w-full text-left px-2 py-1.5 text-[11px] text-white hover:bg-white/10 transition-colors">
+              <div className="font-medium">{b.company}</div>
+              {b.contact_name && <div className="text-white/40">{b.contact_name}</div>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => void; onAdded: () => void }) {
-  const blank = { client_name:"", job_number:"", city:"", pm:"", status:"intake",
+  const blank = { client_name:"", job_number:"", site_address:"", city:"", pm:"", status:"intake",
+    builder_id:"", builder_company:"", builder_name:"",
     estimated_value:"", box_count:"", shop_hrs:"", install_type:"", install_hrs:"",
     delivery_date:"", install_start_date:"" };
   const [form, setForm] = useState(blank);
@@ -298,12 +364,25 @@ function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => vo
     if (!form.client_name.trim()) { setError("Client name is required"); return; }
     setSaving(true); setError("");
     try {
+      /*
+        One save, every field.
+
+        This used to POST the whole form and then immediately PATCH shop_hrs and
+        install_hrs back in, because the create route did not persist them. It
+        did not persist install_start_date, install_type or box_count either —
+        those had no follow-up PATCH, so a PM typed them and they were gone with
+        no error. The create route now writes all five; the second request is
+        deleted rather than extended, so there is one save path to keep honest.
+      */
       const body: Record<string, unknown> = {
         client_name: form.client_name.trim(),
-        city: form.city.trim() || "",
-        site_address: "",
+        site_address: form.site_address.trim(),
+        city: form.city.trim(),
         pm: form.pm || null,
         status: form.status || "intake",
+        builder_id: form.builder_id || null,
+        builder_company: form.builder_company.trim(),
+        builder_name: form.builder_name.trim(),
         install_type: form.install_type || null,
         delivery_date: form.delivery_date || null,
         install_start_date: form.install_start_date || null,
@@ -316,17 +395,6 @@ function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => vo
 
       const r = await fetch("/api/jobs", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
       if (!r.ok) { const d = await r.json(); setError(d.error ?? "Save failed"); setSaving(false); return; }
-
-      if (form.shop_hrs || form.install_hrs) {
-        const job = await r.json();
-        const jobId = job.id;
-        if (jobId) {
-          const patch: Record<string, unknown> = {};
-          if (form.shop_hrs) patch.shop_hrs = parseFloat(form.shop_hrs);
-          if (form.install_hrs) patch.install_hrs = parseFloat(form.install_hrs);
-          await fetch(`/api/jobs/${jobId}`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(patch) });
-        }
-      }
 
       onAdded();
       setForm(blank);
@@ -353,6 +421,19 @@ function QuickAddModal({ pms, onClose, onAdded }: { pms: Pm[]; onClose: () => vo
             <div>
               <label className={lbl}>Job #</label>
               <input className={inp} placeholder="26400" value={form.job_number} onChange={e=>set("job_number",e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className={lbl}>Site Address</label>
+              <input className={inp} placeholder="5712 Davenport St" value={form.site_address} onChange={e=>set("site_address",e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Builder</label>
+              <BuilderPickerField
+                company={form.builder_company}
+                onChange={(v) => setForm(f => ({ ...f, ...v }))}
+              />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-3">

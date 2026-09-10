@@ -44,6 +44,7 @@ const SUITES = [
   { file: "test-door-front-save.mjs",   db: true,  what: "callout rows persist without destroying" },
   { file: "test-pdf-documents.mjs",     db: true,  what: "what the documents say" },
   { file: "test-trim-save-sequence.mjs", db: true,  http: true, what: "trim survives the form's save sequence" },
+  { file: "test-job-create-fields.mjs", db: true,  http: true, what: "the create form's fields all survive the save" },
 ];
 
 const unitOnly = process.argv.includes("--unit");

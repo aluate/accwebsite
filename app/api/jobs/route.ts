@@ -72,6 +72,32 @@ export async function POST(req: NextRequest) {
   const now = new Date().toISOString();
   const jobNumber = (body.job_number as string | undefined)?.trim() || null;
 
+  /*
+    Numbers and dates the create form actually collects.
+
+    These five columns were absent from the INSERT below while the Pipeline's
+    Add Job form sent all five in its body. The route returned 201 and dropped
+    install_start_date, install_type and box_count on the floor every time; the
+    form worked around it for shop_hrs and install_hrs only, by firing a second
+    PATCH immediately after the create. Nobody went back for the other three, and
+    nothing failed loudly enough to say so.
+
+    A column that a form collects and the route silently discards is the worst
+    shape of bug in this app: the user did the work, the screen said it saved,
+    and the value is gone. scripts/test-job-create-fields.mjs now posts the real
+    form payload and asserts every field comes back.
+  */
+  const num = (v: unknown): number | null => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  const boxCount   = num(body.box_count);
+  const shopHrs    = num(body.shop_hrs);
+  const installHrs = num(body.install_hrs);
+  const installStartDate = (body.install_start_date as string | undefined) || null;
+  const installType      = (body.install_type as string | undefined) || null;
+
   const isPlaceholder = body.is_placeholder ? true : false;
   const placeholderUnitCount = body.placeholder_unit_count != null ? Number(body.placeholder_unit_count) : 1;
   const placeholderPerUnitValue = body.placeholder_per_unit_value != null ? Number(body.placeholder_per_unit_value) : 0;
@@ -89,6 +115,7 @@ export async function POST(req: NextRequest) {
       mod_residential, mod_commercial, mod_trim, mod_doors,
       job_number,
       estimated_value, pm_complexity,
+      install_start_date, install_type, box_count, shop_hrs, install_hrs,
       notes_install, notes_finishing, notes_shop, notes_client,
       is_placeholder, placeholder_unit_count, placeholder_per_unit_value,
       placeholder_per_unit_boxes, placeholder_per_unit_shop_hrs, placeholder_per_unit_install_hrs,
@@ -106,6 +133,7 @@ export async function POST(req: NextRequest) {
       ${body.mod_trim ? 1 : 0}, ${body.mod_doors ? 1 : 0},
       ${jobNumber},
       ${body.estimated_value ?? null}, ${body.pm_complexity ?? 0},
+      ${installStartDate}, ${installType}, ${boxCount}, ${shopHrs}, ${installHrs},
       ${body.notes_install ?? ""}, ${body.notes_finishing ?? ""}, ${body.notes_shop ?? ""}, ${body.notes_client ?? ""},
       ${isPlaceholder}, ${placeholderUnitCount}, ${placeholderPerUnitValue},
       ${placeholderPerUnitBoxes}, ${placeholderPerUnitShopHrs}, ${placeholderPerUnitInstallHrs},
