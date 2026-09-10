@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import PasteJobsModal from "./PasteJobsModal";
 
 const STATUS_ORDER = ["intake","bid","design","field_dims","engineering","procurement","production","delivery","install","punch","complete","cancelled"];
 const STATUS_LABEL: Record<string,string> = {
@@ -800,6 +801,7 @@ export default function PipelineClient() {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterStatuses, setFilterStatuses] = useState<string[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showPaste, setShowPaste] = useState(false);
   const [showPlaceholderAdd, setShowPlaceholderAdd] = useState(false);
   const [linkModal, setLinkModal] = useState<PipelineJob | null>(null);
 
@@ -1013,6 +1015,13 @@ export default function PipelineClient() {
   return (
     <div className="min-h-screen bg-[#0d0e0f] text-white px-4 py-8 max-w-7xl mx-auto">
       {showAdd && <QuickAddModal pms={pms} onClose={() => setShowAdd(false)} onAdded={() => { load(); }} />}
+      {showPaste && (
+        <PasteJobsModal
+          existingJobNumbers={jobs.map(j => j.job_number).filter((n): n is string => !!n)}
+          onClose={() => setShowPaste(false)}
+          onDone={() => { load(); }}
+        />
+      )}
       {showPlaceholderAdd && <NewPlaceholderModal pms={pms} onClose={() => setShowPlaceholderAdd(false)} onAdded={() => { load(); }} />}
       {linkModal && (
         <LinkJobModal
@@ -1036,6 +1045,10 @@ export default function PipelineClient() {
           <button onClick={() => setShowAdd(true)}
             className="bg-[#f08122] hover:bg-[#d9711e] text-white text-xs font-condensed uppercase tracking-widest rounded px-3 py-1.5 transition-colors">
             + Add Job
+          </button>
+          <button onClick={() => setShowPaste(true)}
+            className="border border-[#f08122]/40 hover:border-[#f08122] text-[#f08122] text-xs font-condensed uppercase tracking-widest rounded px-3 py-1.5 transition-colors">
+            ⇥ Paste Rows
           </button>
           <button onClick={exportCSV}
             className="text-white/40 hover:text-[#f08122] text-xs font-condensed uppercase tracking-widest border border-white/15 hover:border-[#f08122]/40 rounded px-3 py-1.5 transition-colors">

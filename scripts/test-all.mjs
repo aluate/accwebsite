@@ -36,6 +36,7 @@ const SUITES = [
   { file: "test-upload-paths.mjs",      db: false, what: "where an uploaded file may land (pure)" },
   { file: "test-trim-defaults.mjs",     db: false, what: "trim sizes, species, and what stays blank" },
   { file: "test-wo-hardware.mjs",       db: false, what: "one role, one answer on the work order (pure)" },
+  { file: "test-paste-jobs.mjs",        db: false, what: "what a pasted spreadsheet turns into (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-install-date.mjs",      db: true,  what: "one official install date per job" },

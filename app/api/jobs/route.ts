@@ -98,6 +98,25 @@ export async function POST(req: NextRequest) {
   const installStartDate = (body.install_start_date as string | undefined) || null;
   const installType      = (body.install_type as string | undefined) || null;
 
+  /*
+    A duplicate job number is a person's mistake, not a server fault.
+
+    jobs.job_number carries a unique index, so a second job with the same number
+    throws out of the INSERT and the caller gets a 500 with a Postgres string in
+    it. That is survivable when creating one job by hand and useless when
+    importing twenty rows out of a sheet, where "which row?" is the only
+    question worth answering.
+  */
+  if (jobNumber) {
+    const [clash] = await sql`SELECT id FROM jobs WHERE job_number = ${jobNumber} LIMIT 1`;
+    if (clash) {
+      return NextResponse.json(
+        { error: `Job #${jobNumber} already exists (${(clash as { id: string }).id})` },
+        { status: 409 },
+      );
+    }
+  }
+
   const isPlaceholder = body.is_placeholder ? true : false;
   const placeholderUnitCount = body.placeholder_unit_count != null ? Number(body.placeholder_unit_count) : 1;
   const placeholderPerUnitValue = body.placeholder_per_unit_value != null ? Number(body.placeholder_per_unit_value) : 0;
