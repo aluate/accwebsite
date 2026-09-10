@@ -560,6 +560,42 @@ try {
     const { invalidateCatalogCache } = await import("../lib/catalogs.ts");
     invalidateCatalogCache();
   }
+  /*
+    The DRAFT watermark, and the state it answers to.
+
+    Every page asked whether lifecycle_state === "APPROVED". No such state
+    exists — the five are DRAFT, CLIENT_APPROVED, RELEASED_TO_ENG, ENGINEERED
+    and RELEASED_TO_SHOP — so the answer was always "still a draft" and every
+    document printed the watermark, including specs a client had signed and
+    specs already released to the shop floor.
+
+    Structural assertions could not see it: the page count is identical either
+    way. This reads the words back off the rendered page, which is the only
+    thing that could have caught it.
+  */
+  {
+    const { pdfText, squash } = await import("./_pdf-text.mjs");
+    const words = async () => squash(await pdfText(await renderClientSpecPDFBuffer(await loadSpecPDFData(specId))));
+
+    await sql`UPDATE residential_specs SET lifecycle_state = 'DRAFT' WHERE id = ${specId}`;
+    const draftTxt = await words();
+    check("a DRAFT spec says DRAFT on the page", /DRAFT/i.test(draftTxt));
+    check("...and says PENDING APPROVAL in the title block", /PENDING APPROVAL/i.test(draftTxt));
+
+    await sql`UPDATE residential_specs SET lifecycle_state = 'CLIENT_APPROVED' WHERE id = ${specId}`;
+    const approvedTxt = await words();
+    check("a client-approved spec does NOT say PENDING APPROVAL", !/PENDING APPROVAL/i.test(approvedTxt),
+          "the client signed this and the document still calls itself a draft");
+    check("...and says APPROVED instead", /APPROVED/i.test(approvedTxt));
+    check("...and the watermark is gone", !/DRAFT/i.test(approvedTxt),
+          "the DRAFT watermark is still printing on an approved spec");
+
+    await sql`UPDATE residential_specs SET lifecycle_state = 'RELEASED_TO_SHOP' WHERE id = ${specId}`;
+    check("a spec released to the shop is not marked DRAFT either", !/DRAFT/i.test(await words()));
+
+    await sql`UPDATE residential_specs SET lifecycle_state = 'DRAFT' WHERE id = ${specId}`;
+  }
+
 } catch (e) {
   console.error("\nHARNESS ERROR:", e);
   fail++;

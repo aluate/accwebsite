@@ -15,6 +15,7 @@ import {
 } from "@react-pdf/renderer";
 import { HARDWARE_ROLE_LABEL as HW_ROLE_LABEL_PDF } from "@/lib/acc-standards";
 import { ROLE_BASE, ROLE_DRAWER_FRONT, ROLE_APPLIED_END } from "@/lib/door-front-roles";
+import { isSpecApproved, isSpecDraft } from "./spec-approval";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -362,7 +363,7 @@ function TitleBlock({ data, code }: { data: SpecPDFData; code: string }) {
   const stageWord   = stageMap[stageLetter] ?? "SPEC";
   const projectName = data.client_name || "";
   const jobNum      = data.job_number ?? "";   // blank if no job number assigned
-  const isApproved  = data.lifecycle_state === "APPROVED";
+  const isApproved  = isSpecApproved(data.lifecycle_state);
   return (
     <View style={S.tbWrap} fixed>
       {/* 3-column header: logo | project info | job meta */}
@@ -426,7 +427,7 @@ function PageFooter({ data }: { data: SpecPDFData }) {
 function FinishSchedulePage({ data }: { data: SpecPDFData }) {
   const fgs     = data.finish_groups;
   const fgPulls = data.finish_group_pulls ?? {};
-  const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const isDraft = isSpecDraft(data.lifecycle_state);
 
   // Conditional countertop column: only show if any FG has CT data
   const hasCT = fgs.some(fg => fg.countertops.length > 0);
@@ -734,7 +735,7 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
     }
   }
 
-  const isDraftA = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const isDraftA = isSpecDraft(data.lifecycle_state);
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
       {isDraftA && <DraftWatermark />}
@@ -816,7 +817,7 @@ function AccessoriesMoldingsPage({ data }: { data: SpecPDFData }) {
 
 function AppliancesHardwarePage({ data }: { data: SpecPDFData }) {
   const apps = data.spec_appliances_list ?? [];
-  const isDraftAP = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const isDraftAP = isSpecDraft(data.lifecycle_state);
 
   // This page is spec-level, but hardware is recorded per finish group. Roll the
   // finish groups up: one line when every group agrees (the normal case), and a
@@ -957,7 +958,7 @@ function SignOffBlock() {
 // and rollouts be signed off "the same as doors", so they are named explicitly.
 
 function SignOffPage({ data }: { data: SpecPDFData }) {
-  const isDraft = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const isDraft = isSpecDraft(data.lifecycle_state);
   const fgs = data.finish_groups ?? [];
 
   return (
@@ -1015,7 +1016,7 @@ function NotesPage({ data }: { data: SpecPDFData }) {
     { label: "Client Notes",    body: cleanNotes(data.notes_client) },
   ].filter(s => s.body);
 
-  const isDraftN = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const isDraftN = isSpecDraft(data.lifecycle_state);
   return (
     <Page size="LETTER" orientation="landscape" style={S.page}>
       {isDraftN && <DraftWatermark />}
@@ -1035,7 +1036,7 @@ function NotesPage({ data }: { data: SpecPDFData }) {
 // ─── Page W.n: Work Order Sheet (portrait, one per Finish Group) ──────────────
 
 function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroupView; index: number }) {
-  const isDraft     = !data.lifecycle_state || data.lifecycle_state !== "APPROVED";
+  const isDraft     = isSpecDraft(data.lifecycle_state);
   const projectName = [data.builder_company, data.client_name].filter(Boolean).join(" — ") || data.client_name;
   const pageCode    = `W.${index + 1}`;
   const colorName   = fg.finish.paint_name || fg.finish.stain_name || "";
