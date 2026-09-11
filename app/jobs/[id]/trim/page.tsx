@@ -14,11 +14,13 @@ export default async function TrimIndexPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [job] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id}` as JobRow[];
+  const [job] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id} OR job_number = ${id}` as JobRow[];
   if (!job) notFound();
 
+  // job_id on the spec tables is the internal ACC id; `id` here is whatever
+  // the URL carried, which is the job number. Match on the resolved job.
   const specs = await sql`
-    SELECT id, name, status, updated_at FROM trim_specs WHERE job_id = ${id} ORDER BY created_at
+    SELECT id, name, status, updated_at FROM trim_specs WHERE job_id = ${job.id} ORDER BY created_at
   ` as TrimSpecRow[];
 
   return (

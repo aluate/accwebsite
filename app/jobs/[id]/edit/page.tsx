@@ -18,7 +18,8 @@ type Job = {
 
 export default async function EditJobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [job] = await sql`SELECT * FROM jobs WHERE id = ${id}` as Job[];
+  // Either name: the link that gets here carries the job number.
+  const [job] = await sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Job[];
   if (!job) notFound();
 
   // Coerce nullable Phase 1B columns to "" so the form's Partial<string> typing works.

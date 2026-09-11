@@ -37,7 +37,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 
   const { id } = await params;
-  const [job] = await sql`SELECT id, status FROM jobs WHERE id = ${id}` as Array<{ id: string; status: string }>;
+  const [job] = await sql`SELECT id, status FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; status: string }>;
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const body = await req.json() as { outcome?: string; notes?: string };

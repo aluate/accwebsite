@@ -30,8 +30,10 @@ export default async function TrimSpecEditorPage({
 }) {
   const { id, specId } = await params;
 
+  // The URL carries the job number; job_id holds the internal ACC id.
   const [spec] = await sql`
-    SELECT * FROM trim_specs WHERE id = ${specId} AND job_id = ${id}
+    SELECT * FROM trim_specs ts WHERE ts.id = ${specId}
+      AND ts.job_id IN (SELECT j.id FROM jobs j WHERE j.id = ${id} OR j.job_number = ${id})
   ` as SpecRow[];
   if (!spec) notFound();
 

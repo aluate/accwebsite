@@ -26,8 +26,10 @@ export default async function DoorSpecEditorPage({
 }) {
   const { id, specId } = await params;
 
+  // The URL carries the job number; job_id holds the internal ACC id.
   const [spec] = await sql`
-    SELECT * FROM door_specs WHERE id = ${specId} AND job_id = ${id}
+    SELECT * FROM door_specs ds WHERE ds.id = ${specId}
+      AND ds.job_id IN (SELECT j.id FROM jobs j WHERE j.id = ${id} OR j.job_number = ${id})
   ` as SpecRow[];
   if (!spec) notFound();
 

@@ -66,7 +66,7 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
   const crewId = crewRows[0]?.id ?? null;
 
   const [jobRows, eventsRaw, installDrawings] = await Promise.all([
-    sql<JobDetail[]>`SELECT id, job_number, client_name, site_address, city, status FROM jobs WHERE id = ${jobId}`,
+    sql<JobDetail[]>`SELECT id, job_number, client_name, site_address, city, status FROM jobs WHERE id = ${jobId} OR job_number = ${jobId}`,
     sql<InstallEvent[]>`
       SELECT je.id, je.event_type, je.description, je.date_start, je.date_end, je.status, je.note
       FROM job_events je
