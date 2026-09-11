@@ -554,6 +554,25 @@ check("inputs: INPUT_FIELD_MAP.md covers every jobs column", () => {
   return (r.stdout || "").trim().split("\n").pop();
 });
 
+check("jobs: every [id] handler resolves the job number", () => {
+  /*
+    A job has two names and every link carries the one the child tables are NOT
+    keyed on. The engineering checklist queried with the raw parameter for
+    months: reached by number it returned 3 auto-check keys and 0 true, where
+    the internal id returned 25 and 15, and saving a ticked box answered 500.
+    Nothing logged; it simply could not be done. CLAUDE.md has told people to
+    resolve the parameter since April, which is not the same as a check.
+  */
+  const r = spawnSync(process.execPath, [join(REPO, "scripts", "check-job-id-resolution.mjs")], {
+    cwd: REPO, encoding: "utf-8",
+  });
+  if (r.status !== 0) {
+    const all = ((r.stdout || "") + "\n" + (r.stderr || "")).split("\n").filter(Boolean).slice(0, 12);
+    throw new Error(all.join(" | "));
+  }
+  return (r.stdout || "").trim().split("\n").pop();
+});
+
 check("typescript: tsc --noEmit", () => {
   // Windows: npx is a .cmd shim that doesn't always return clean exit codes
   // through spawnSync. Call tsc directly via node_modules/.bin for reliability.

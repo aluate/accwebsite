@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
  * GET returns the last 10 check-ins for the job.
  */
 import { NextRequest, NextResponse } from "next/server";
+import { resolveJobId } from "@/lib/job-id";
 import { sql, uid } from "@/lib/db";
 import { requireBuilder } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-log";
@@ -17,7 +18,9 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: NextRequest, { params }: Params) {
   await requireBuilder();
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const checkins = await sql`
     SELECT id, stage, outcome, notes, created_by, created_at
@@ -38,6 +41,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const { id } = await params;
   const [job] = await sql`SELECT id, status FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; status: string }>;
+  // (id is already resolved above where this handler reads gate_checkins.)
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const body = await req.json() as { outcome?: string; notes?: string };

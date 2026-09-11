@@ -7,6 +7,7 @@ import { computeAutoChecked, mergeChecklist } from "@/lib/engineering-autocheck"
 import { addWorkingDays } from "@/lib/schedule-utils";
 import { storageClient } from "@/lib/file-store";
 import { resolveRecipients, jobRoleAddresses } from "@/lib/notification-routing";
+import { resolveJobId } from "@/lib/job-id";
 
 export const runtime = "nodejs";
 
@@ -27,7 +28,9 @@ function supabaseAdmin() {
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const guard = await guardApi(["admin", "pm", "engineer"]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   const [row] = await sql<{
     id: string; released_at: string; released_by: string;
@@ -50,22 +53,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const { id } = await params;
+  const { id: rawId } = await params;
 
-  // ── 1. Load job ─────────────────────────────────────────────────────────
+  /*
+    ── 1. Load job ───────────────────────────────────────────────────────────
+
+    Everything below keys off job.id, not the URL parameter. The job lookup
+    accepted either name, but the checklist and the attachment query underneath
+    used the raw parameter — so reached by job number, which is every link in
+    the app, this route read an empty checklist and found no drawings, and
+    refused the release for both reasons at once.
+  */
   const [job] = await sql<{
     id: string; job_number: string | null; client_name: string;
     site_address: string; city: string; pm: string; delivery_date: string | null;
   }[]>`SELECT id, job_number, client_name, site_address, city, pm, delivery_date
-        FROM jobs WHERE id = ${id} OR job_number = ${id}`;
+        FROM jobs WHERE id = ${rawId} OR job_number = ${rawId}`;
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   // ── 2. Validate checklist (merge manual + auto-checked + drawings gate) ──
   const [clRow, autoChecked] = await Promise.all([
     sql<{ checklist: Record<string, boolean> }[]>`
-      SELECT checklist FROM engineering_release_checklists WHERE job_id = ${id}
+      SELECT checklist FROM engineering_release_checklists WHERE job_id = ${job.id}
     `.then((r) => r[0]),
-    computeAutoChecked(id),
+    computeAutoChecked(job.id),
   ]);
   const manualChecklist = clRow?.checklist ?? {};
 
@@ -75,7 +86,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }[]>`
     SELECT id, filename, storage_path, uploaded_at, kind
     FROM job_files
-    WHERE job_id = ${id} AND kind IN ('05_drawings', '03_job_specs')
+    WHERE job_id = ${job.id} AND kind IN ('05_drawings', '03_job_specs')
     ORDER BY uploaded_at DESC
   `;
   const drawingsExist = allFileRows.length > 0;
@@ -189,7 +200,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     INSERT INTO engineering_releases
       (id, job_id, released_at, released_by, notes, drawing_file_ids, email_to, email_cc)
     VALUES (
-      ${releaseId}, ${id}, ${now}, ${actor},
+      ${releaseId}, ${job.id}, ${now}, ${actor},
       ${notes || null},
       ${JSON.stringify(canonDrawings.map((d) => d.id))}::jsonb,
       ${resolved.to.join(", ")}, ${resolved.cc.join(", ") || null}
@@ -207,7 +218,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         (id, job_id, event_type, date_start, date_end, duration_days,
          status, created_at, created_by, updated_at, updated_by, sort_order)
       VALUES (
-        ${eventId}, ${id}, 'install',
+        ${eventId}, ${job.id}, 'install',
         ${installStartDate}, ${endDate}, ${installDurationDays},
         'scheduled', ${now}, ${actor}, ${now}, ${actor}, 0
       )

@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-log";
+import { resolveJobId } from "@/lib/job-id";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await requireRole(["admin", "pm", "engineer", "installer"]);
-  const { id } = await params;
+  // Reached by job number, this returned [] rather than the job's warranty
+  // items - an empty list reads as "no warranty claims", not as "wrong key".
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+
   const items = await sql`
     SELECT * FROM warranty_items WHERE job_id = ${id} ORDER BY reported_at DESC
   `;
@@ -16,7 +22,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireRole(["admin", "pm"]);
-  const { id: jobId } = await params;
+  const { id: rawWarrantyId } = await params;
+  const jobId = await resolveJobId(rawWarrantyId);
+  if (!jobId) return NextResponse.json({ error: "Job not found" }, { status: 404 });
+
   const body = await req.json() as { category?: string; description: string; priority?: string; notes?: string };
 
   if (!body.description?.trim()) {

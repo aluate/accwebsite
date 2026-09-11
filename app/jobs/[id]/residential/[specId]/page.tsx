@@ -48,7 +48,12 @@ export default async function SpecEditorPage({
 }) {
   const { id, specId } = await params;
 
-  const [spec] = await sql`SELECT * FROM residential_specs WHERE id = ${specId} AND job_id = ${id}` as SpecRow[];
+  // The URL carries the job number; residential_specs.job_id holds the id.
+  const [spec] = await sql`
+    SELECT rs.* FROM residential_specs rs
+    WHERE rs.id = ${specId}
+      AND rs.job_id IN (SELECT j.id FROM jobs j WHERE j.id = ${id} OR j.job_number = ${id})
+  ` as SpecRow[];
   if (!spec) notFound();
 
   const finish_groups = await sql`

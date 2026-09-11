@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { PunchListPanel } from "@/components/PunchListPanel";
 import Link from "next/link";
 import { getBuilder } from "@/lib/auth";
+import { resolveJobId } from "@/lib/job-id";
 import { sql } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -65,12 +66,18 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
   `.catch(() => []);
   const crewId = crewRows[0]?.id ?? null;
 
+  // Resolve the URL parameter to the internal id BEFORE the parallel queries:
+  // the link into this page carries the job number, and job_events / job_files
+  // / punch_list_items are all keyed on the id.
+  const resolvedId = await resolveJobId(jobId);
+  if (!resolvedId) redirect("/installer");
+
   const [jobRows, eventsRaw, installDrawings] = await Promise.all([
-    sql<JobDetail[]>`SELECT id, job_number, client_name, site_address, city, status FROM jobs WHERE id = ${jobId} OR job_number = ${jobId}`,
+    sql<JobDetail[]>`SELECT id, job_number, client_name, site_address, city, status FROM jobs WHERE id = ${resolvedId}`,
     sql<InstallEvent[]>`
       SELECT je.id, je.event_type, je.description, je.date_start, je.date_end, je.status, je.note
       FROM job_events je
-      WHERE je.job_id = ${jobId}
+      WHERE je.job_id = ${resolvedId}
         AND je.event_type IN ('install','cab_delivery','top_delivery','punch','final_walkthrough','service')
       ORDER BY
         CASE WHEN je.date_start IS NULL THEN 1 ELSE 0 END,
@@ -79,7 +86,7 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
     sql<JobFile[]>`
       SELECT id, file_name, storage_path, kind, uploaded_at
       FROM job_files
-      WHERE job_id = ${jobId} AND kind = '14_install_drawings'
+      WHERE job_id = ${resolvedId} AND kind = '14_install_drawings'
       ORDER BY uploaded_at DESC
     `.catch(() => [] as JobFile[]),
   ]);
@@ -90,7 +97,7 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
   // Punch items
   const punchItems = await sql<{ id: string; description: string; status: string; resolved_at: string | null }[]>`
     SELECT id, description, status, resolved_at FROM punch_list_items
-    WHERE job_id = ${jobId} ORDER BY status, created_at
+    WHERE job_id = ${job.id} ORDER BY status, created_at
   `.catch(() => []);
 
   const location = [job.site_address, job.city].filter(Boolean).join(", ");
@@ -107,7 +114,7 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
       {/* Job header */}
       <div>
         <p className="text-[#f08122] font-condensed uppercase tracking-[0.2em] text-xs mb-1">
-          {job.job_number ? `#${job.job_number}` : job.id}
+          {job.job_number ? `#${job.job_number}` : job.client_name || job.site_address}
         </p>
         <h1 className="text-white text-2xl font-heading uppercase leading-tight">{job.client_name}</h1>
         {location && (

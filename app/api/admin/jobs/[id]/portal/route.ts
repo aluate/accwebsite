@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { resolveJobId } from "@/lib/job-id";
 import { sql, uid } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import {
@@ -24,7 +25,9 @@ async function getBuilderPortalEmail(jobId: string): Promise<{ email: string; di
 // GET — full portal state for a job (admin view)
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await requireRole("admin");
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
   const [job] = await sql`
     SELECT id, builder_portal_enabled, target_delivery_weeks, delivery_clock_started_at, estimated_delivery_at
     FROM jobs WHERE id = ${id}
@@ -42,7 +45,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 // PATCH — toggle enabled, set target_delivery_weeks, mark/waive inputs, resolve CR/comments
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireRole("admin");
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = await resolveJobId(rawId);
+  if (!id) return NextResponse.json({ error: "Job not found" }, { status: 404 });
   const b = await req.json();
 
   if (typeof b.builder_portal_enabled === "number") {
