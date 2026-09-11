@@ -18,6 +18,33 @@ if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
 const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
 
+
+/**
+ * Statements below are run best-effort because most of them are re-runs. The
+ * catch used to swallow everything, which is how eight columns went missing
+ * without a word: on a database where `builders` did not exist yet, its
+ * ALTER TABLE ... ADD COLUMN statements failed with "relation does not exist",
+ * were swallowed as if they read "already exists", and the CREATE TABLE further
+ * down then made the table without them. GET /api/builders selects those
+ * columns, so it answered 500 on every fresh environment and nothing in the
+ * push output hinted at it.
+ *
+ * So: still non-fatal, but only silent for the codes that genuinely mean
+ * "it is already there".
+ */
+const ALREADY_THERE = new Set([
+  "42701", // duplicate_column
+  "42P07", // duplicate_table
+  "42710", // duplicate_object
+  "42P16", // invalid_table_definition (re-adding a primary key)
+]);
+const skipped = [];
+function tolerate(e, stmt) {
+  if (ALREADY_THERE.has(e?.code)) return;
+  const one = String(stmt).replace(/\s+/g, " ").trim().slice(0, 90);
+  skipped.push(`${e?.code ?? "?"}  ${e?.message ?? e}\n      ${one}`);
+}
+
 async function main() {
   console.log("Pushing schema to Supabase...");
 
@@ -438,14 +465,14 @@ async function main() {
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS can_schedule INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE builder_accounts ADD COLUMN IF NOT EXISTS must_change_pw INTEGER NOT NULL DEFAULT 0`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   // ── Job files uploaded_by column (idempotent) ─────────────────────────────
   for (const stmt of [
     `ALTER TABLE job_files ADD COLUMN IF NOT EXISTS uploaded_by TEXT`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   // ── Job number (TradeSoft) column addition (idempotent) ────────────────────
@@ -453,25 +480,69 @@ async function main() {
     `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS job_number TEXT`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_job_number ON jobs(job_number) WHERE job_number IS NOT NULL`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
-  // ── Work orders (idempotent) ───────────────────────────────────────────────
+  /*
+    ── Work orders ────────────────────────────────────────────────────────────
+
+    There were two different `work_orders` tables in this codebase under one
+    name. This script created one shaped (wo_number, wo_type, file_id, label) —
+    a work order as a generated document. Every piece of code that actually
+    reads the table expects the other shape (category_code, description,
+    finish_group_id, status, ship_date, target_finish, notes, sort_order) — a
+    work order as a unit of work: app/api/jobs/[id]/work-orders, the engineering
+    release, the coversheets route, the engineering email, and the advance
+    route. Nothing anywhere reads wo_type, file_id or label.
+
+    Whichever definition reached a database first won it. Where this script won,
+    GET /api/jobs/[id]/work-orders answered 500 — "column category_code does not
+    exist" — and the WO panel on the job page was empty and stayed empty.
+
+    So the live shape is the one created here, and the columns are also added
+    individually so a database holding the old shape gains them instead of
+    keeping a table the app cannot read. The three dead columns are left in
+    place rather than dropped: they hold nothing anyone reads, and dropping a
+    column is not something a migration script should do on its own.
+
+    wo_number is deliberately nullable here. A work order is created before it
+    is numbered, and NOT NULL turned that into a constraint violation on insert.
+  */
   await sql.unsafe(`
     CREATE TABLE IF NOT EXISTS work_orders (
-      id          TEXT PRIMARY KEY,
-      job_id      TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
-      wo_number   TEXT NOT NULL,
-      wo_type     TEXT NOT NULL DEFAULT 'wo',
-      file_id     TEXT REFERENCES job_files(id) ON DELETE SET NULL,
-      label       TEXT,
-      created_at  TEXT NOT NULL
+      id              TEXT PRIMARY KEY,
+      job_id          TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      wo_number       TEXT,
+      category_code   INTEGER NOT NULL DEFAULT 1,
+      description     TEXT NOT NULL DEFAULT '',
+      finish_group_id TEXT,
+      status          TEXT NOT NULL DEFAULT 'pending',
+      ship_date       DATE,
+      target_finish   DATE,
+      notes           TEXT,
+      sort_order      INTEGER NOT NULL DEFAULT 0,
+      created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     CREATE UNIQUE INDEX IF NOT EXISTS idx_work_orders_job_wo
       ON work_orders(job_id, wo_number);
     CREATE INDEX IF NOT EXISTS idx_work_orders_job
       ON work_orders(job_id);
   `);
+  for (const stmt of [
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS category_code   INTEGER NOT NULL DEFAULT 1`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS description     TEXT NOT NULL DEFAULT ''`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS finish_group_id TEXT`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS status          TEXT NOT NULL DEFAULT 'pending'`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS ship_date       DATE`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS target_finish   DATE`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS notes           TEXT`,
+    `ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS sort_order      INTEGER NOT NULL DEFAULT 0`,
+    // Created before it is numbered.
+    `ALTER TABLE work_orders ALTER COLUMN wo_number DROP NOT NULL`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
+  }
+  console.log("work_orders OK");
 
   // ── Punch list items (idempotent) ─────────────────────────────────────────
   await sql.unsafe(`
@@ -731,23 +802,21 @@ async function main() {
     // unconditionally. Found by scripts/check-job-fields.mjs.
     `ALTER TABLE jobs ADD COLUMN IF NOT EXISTS bid_number TEXT`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   // ── Phase 1 additions (2026-07-02) ───────────────────────────────────────────
   for (const stmt of [
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS species TEXT`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   // ── Phase PDF-redesign additions (2026-07-08) ────────────────────────────────
   for (const stmt of [
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS rollout_box_id TEXT`,
-    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS type TEXT`,
-    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS size TEXT`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   await sql`
@@ -765,6 +834,102 @@ async function main() {
   await sql`
     CREATE INDEX IF NOT EXISTS idx_spec_hardware_spec ON spec_hardware(spec_id)
   `.catch(() => {});
+
+  /*
+    spec_accessories — the free-text accessory list on the spec, as opposed to
+    room_accessories, which are picked from the catalog.
+
+    This table had no CREATE TABLE anywhere in the push. Production has it (it
+    predates this script), so nothing complained there, and every database built
+    from scratch simply did not have it: /api/specs/[id]/accessories 500s on
+    read and on save, and lib/spec-data.ts reads it while assembling the spec
+    PDF, so document generation fails too. Two ALTER TABLE statements for it did
+    exist, several hundred lines earlier, adding columns to a table that was
+    never created.
+
+    Columns match what the route writes: id, spec_id, type, part_number,
+    description, qty, handed, room, size, notes, sort_order.
+  */
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_accessories (
+      id          TEXT PRIMARY KEY,
+      spec_id     TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      type        TEXT,
+      part_number TEXT,
+      description TEXT,
+      qty         INTEGER NOT NULL DEFAULT 1,
+      handed      TEXT,
+      room        TEXT,
+      size        TEXT,
+      notes       TEXT,
+      sort_order  INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_spec_accessories_spec ON spec_accessories(spec_id)`;
+  for (const stmt of [
+    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS type TEXT`,
+    `ALTER TABLE spec_accessories ADD COLUMN IF NOT EXISTS size TEXT`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
+  }
+  console.log("spec_accessories OK");
+
+  /*
+    trim_specs — the trim side of a job, and another table this script never
+    created. The express wizard inserts one on every order, /api/trim-specs
+    creates one from the job page, and /jobs/[id]/trim reads them, so on a
+    database built by this script the trim page answered 500 outright:
+    "relation trim_specs does not exist".
+
+    Columns are the union of what the express submit inserts and what
+    /api/trim-specs/[id]/save writes — the species fields are per-trim-type
+    overrides on top of default_species.
+
+    Counts are INTEGER and lengths NUMERIC; the two drywall flags are INTEGER
+    0/1 like every other flag in this schema, not BOOLEAN.
+  */
+  await sql`
+    CREATE TABLE IF NOT EXISTS trim_specs (
+      id                      TEXT PRIMARY KEY,
+      job_id                  TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+      name                    TEXT NOT NULL DEFAULT 'Trim Spec',
+      status                  TEXT NOT NULL DEFAULT 'draft',
+      door_height             TEXT,
+      trim_style              TEXT,
+      spec_level              TEXT,
+      drywall_int_jambs       INTEGER NOT NULL DEFAULT 0,
+      full_drywall_wrap       INTEGER NOT NULL DEFAULT 0,
+      base_lf                 NUMERIC NOT NULL DEFAULT 0,
+      crown_lf                NUMERIC NOT NULL DEFAULT 0,
+      shoe_lf                 NUMERIC NOT NULL DEFAULT 0,
+      chair_rail_lf           NUMERIC NOT NULL DEFAULT 0,
+      stair_nosing_lf         NUMERIC NOT NULL DEFAULT 0,
+      wainscoting_cap_lf      NUMERIC NOT NULL DEFAULT 0,
+      case_openings           INTEGER NOT NULL DEFAULT 0,
+      window_openings         INTEGER NOT NULL DEFAULT 0,
+      pocket_doors            INTEGER NOT NULL DEFAULT 0,
+      barn_or_wrapped         INTEGER NOT NULL DEFAULT 0,
+      sliders                 INTEGER NOT NULL DEFAULT 0,
+      default_species         TEXT NOT NULL DEFAULT 'Paint Grade',
+      base_species            TEXT,
+      shoe_species            TEXT,
+      crown_species           TEXT,
+      casing_species          TEXT,
+      headers_species         TEXT,
+      sill_species            TEXT,
+      apron_species           TEXT,
+      int_jamb_species        TEXT,
+      ext_jamb_species        TEXT,
+      chair_rail_species      TEXT,
+      stair_nosing_species    TEXT,
+      wainscoting_cap_species TEXT,
+      notes                   TEXT,
+      created_at              TEXT NOT NULL,
+      updated_at              TEXT NOT NULL
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_trim_specs_job ON trim_specs(job_id)`;
+  console.log("trim_specs OK");
 
   await sql`
     CREATE TABLE IF NOT EXISTS finish_group_pulls (
@@ -887,7 +1052,7 @@ async function main() {
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS cabdoor_panel_id TEXT`,
     `ALTER TABLE finish_groups ADD COLUMN IF NOT EXISTS color_hex TEXT`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   // rooms: flooring, ceiling_height, soffit, backsplash (Room C fields)
@@ -897,7 +1062,7 @@ async function main() {
     `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS soffit TEXT`,
     `ALTER TABLE rooms ADD COLUMN IF NOT EXISTS backsplash TEXT`,
   ]) {
-    try { await sql.unsafe(stmt); } catch (e) { /* already exists */ }
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
   }
 
   // ── Estimating module (feature/estimating, 2026-07-12) ────────────────────
@@ -1054,14 +1219,6 @@ async function main() {
       catalog_builder_profiles and would have shipped a half fix — the residential page
       would have recovered and /api/builders would still have been broken.
     */
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_finish_type            TEXT NOT NULL DEFAULT 'paint'`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_carcass_id             TEXT`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_drawer_box_id          TEXT`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_pull_id                TEXT`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_paint_brand            TEXT`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_accessories            TEXT`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS preferred_cabdoor_usage_groups TEXT`,
-    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS is_residential_default         INTEGER NOT NULL DEFAULT 0`,
 
     /*
       If catalog_builder_profiles.is_residential_default already exists with the WRONG
@@ -1282,7 +1439,67 @@ async function main() {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS idx_builders_active ON builders (active)`;
+  /*
+    These eight live here, immediately after the CREATE TABLE, and not in the
+    ALTER block several hundred lines above.
+
+    Up there they ran before `builders` existed. On a database that already had
+    the table they worked, so production was fine and every fresh environment
+    was not: the ALTERs failed with "relation builders does not exist", the
+    failure was swallowed, and the CREATE TABLE below then built the table
+    without them. GET /api/builders selects all eight, so the builder picker
+    answered 500 on any newly-created database, which is every sandbox and
+    would be any rebuild of production.
+
+    ADD COLUMN IF NOT EXISTS, so this stays a no-op where they already exist.
+  */
+  for (const stmt of [
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_finish_type            TEXT NOT NULL DEFAULT 'paint'`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_carcass_id             TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_drawer_box_id          TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_pull_id                TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_paint_brand            TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS default_accessories            TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS preferred_cabdoor_usage_groups TEXT`,
+    `ALTER TABLE builders ADD COLUMN IF NOT EXISTS is_residential_default         INTEGER NOT NULL DEFAULT 0`,
+  ]) {
+    try { await sql.unsafe(stmt); } catch (e) { tolerate(e, stmt); }
+  }
   console.log("builders OK");
+
+  /*
+    Builder floor plans — the per-builder plan library behind /admin/floor-plans.
+
+    Neither table was ever created by this script. The routes read and write
+    them, so the page answered 500 ("relation builder_floor_plans does not
+    exist") on any database that did not have them made by hand.
+
+    id is a generated identity here because the insert does not supply one and
+    returns the row — the route relies on the database naming it.
+  */
+  await sql`
+    CREATE TABLE IF NOT EXISTS builder_floor_plans (
+      id              BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+      builder_company TEXT NOT NULL,
+      plan_name       TEXT NOT NULL,
+      description     TEXT,
+      created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS builder_floor_plan_rooms (
+      id                     BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+      floor_plan_id          BIGINT NOT NULL REFERENCES builder_floor_plans(id) ON DELETE CASCADE,
+      room_name              TEXT NOT NULL,
+      finish_group_name      TEXT,
+      sort_order             INTEGER NOT NULL DEFAULT 0,
+      default_ceiling_height TEXT,
+      default_flooring       TEXT
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_bfp_rooms_plan ON builder_floor_plan_rooms(floor_plan_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_bfp_company ON builder_floor_plans(LOWER(builder_company))`;
+  console.log("builder_floor_plans OK");
 
   // ── jobs: innergy sync columns ────────────────────────────────────────────
   try { await sql`ALTER TABLE jobs ADD COLUMN innergy_opportunity_id TEXT`; } catch {}
@@ -1341,6 +1558,11 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_fgtrimdef_fg ON finish_group_trim_defaults (finish_group_id)`;
   console.log("finish_group_trim_defaults OK");
 
+  if (skipped.length) {
+    console.log(`\n${skipped.length} statement${skipped.length === 1 ? "" : "s"} did not apply, for a reason other than "already there":\n`);
+    for (const line of skipped) console.log(`   ${line}`);
+    console.log("");
+  }
   console.log("Schema push complete.");
   await sql.end();
 }
