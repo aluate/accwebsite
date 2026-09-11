@@ -67,9 +67,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const now = new Date().toISOString();
+  /*
+    sql.json(), NOT `${JSON.stringify(x)}::jsonb`.
+
+    The cast form stores a jsonb STRING, not an object: `{"pulls_size":true}`
+    goes in as a seventeen-character scalar and comes back out as an object
+    keyed "0".."16". The save answered 200 and the checklist read back as
+    nonsense, so ticking a box still did not stick after the job-number fix —
+    a second bug wearing the first one's clothes.
+
+    The same trap is documented at app/api/admin/catalog-libraries/[name]/route.ts
+    and cost a day on the notification settings. This was the last site of it.
+  */
   await sql`
     INSERT INTO engineering_release_checklists (job_id, checklist, updated_at)
-    VALUES (${id}, ${JSON.stringify(body.checklist)}::jsonb, ${now})
+    VALUES (${id}, ${sql.json(body.checklist)}, ${now})
     ON CONFLICT (job_id) DO UPDATE
       SET checklist  = EXCLUDED.checklist,
           updated_at = EXCLUDED.updated_at
