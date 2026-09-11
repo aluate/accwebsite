@@ -16,7 +16,31 @@ config({ path: resolve(__dirname, "../.env.local") });
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 
-const sql = postgres(DATABASE_URL, { ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require", max: 1, prepare: false });
+/*
+  onnotice matters more than it looks.
+
+  Almost every statement here is a re-run, so Postgres emits a NOTICE for each
+  one: "relation jobs already exists, skipping". postgres.js prints those as
+  full objects, eight lines each. A routine migration produced well over a
+  thousand lines of them, and the only thing anyone needs to read — the list of
+  statements that did NOT apply, and "Schema push complete" — scrolled past in
+  the noise. Which is precisely how the missing tables stayed missing: the
+  output was unreadable, so nobody read it.
+
+  "Already there" notices are counted and summarised at the end. Anything else
+  is printed, because a notice that is not routine is worth seeing.
+*/
+let routineNotices = 0;
+const otherNotices = [];
+const sql = postgres(DATABASE_URL, {
+  ssl: DATABASE_URL.includes("localhost") || DATABASE_URL.includes("127.0.0.1") ? false : "require",
+  max: 1,
+  prepare: false,
+  onnotice: (n) => {
+    if (n?.code === "42P07" || n?.code === "42701" || n?.code === "42710") { routineNotices++; return; }
+    otherNotices.push(`${n?.code ?? "?"}  ${n?.message ?? n}`);
+  },
+});
 
 
 /**
@@ -1588,6 +1612,13 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS idx_fgtrimdef_fg ON finish_group_trim_defaults (finish_group_id)`;
   console.log("finish_group_trim_defaults OK");
 
+  if (routineNotices) {
+    console.log(`\n${routineNotices} object(s) were already there and were left alone.`);
+  }
+  if (otherNotices.length) {
+    console.log(`\n${otherNotices.length} notice(s) worth reading:`);
+    for (const n of otherNotices.slice(0, 20)) console.log(`   ${n}`);
+  }
   if (skipped.length) {
     console.log(`\n${skipped.length} statement${skipped.length === 1 ? "" : "s"} did not apply, for a reason other than "already there":\n`);
     for (const line of skipped) console.log(`   ${line}`);
