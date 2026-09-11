@@ -43,6 +43,8 @@ const SUITES = [
   { file: "test-file-store.mjs",        db: false, what: "the filesystem storage driver matches Supabase (pure)" },
   { file: "test-finish-color.mjs",      db: false, what: "a finish group has to say what colour it is (pure)" },
   { file: "test-spec-revision.mjs",     db: false, what: "after release, a change says who asked for it (pure)" },
+  { file: "test-email-templates.mjs",  db: false, what: "every email template renders something readable (pure)" },
+  { file: "test-job-label.mjs",        db: false, what: "a job is never called by its internal key (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },

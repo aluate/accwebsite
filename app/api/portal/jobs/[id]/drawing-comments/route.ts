@@ -5,6 +5,7 @@ import { sql, uid } from "@/lib/db";
 import { requirePortalAccessToJob } from "@/lib/portal-auth";
 import { sendEmail } from "@/lib/mailer";
 import { portalCommentConfirmation } from "@/lib/email-templates";
+import { jobLabelShort, labelFromRef } from "@/lib/job-label";
 
 // GET ?file=... — list comments on a specific drawing file (latest only,
 // per Karl's spec: only latest version visible to builder)
@@ -42,9 +43,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Confirmation email back to the builder (if they have an email on file).
   if (user.contact_email) {
+    /*
+      jobLabel used to be `id` — the raw URL parameter, in the SUBJECT LINE of
+      a message to a builder. On a portal link carrying the internal key that
+      reads "ACC-2026-0288 - we have your comment", which is the one string
+      Karl has said twice must never be visible to anyone outside.
+    */
+    const [labelRow] = (await sql`
+      SELECT job_number, client_name, site_address, builder_company, builder_name
+      FROM jobs WHERE id = ${id} OR job_number = ${id} LIMIT 1
+    `) as Array<Record<string, string | null>>;
+
     const t = portalCommentConfirmation({
       displayName: user.display_name,
-      jobLabel: id,
+      jobLabel: labelRow ? jobLabelShort(labelRow) : (labelFromRef(id) ?? "Your job"),
       commentBody: text,
       portalUrl: process.env.PORTAL_URL ?? "https://www.advancedcabinets.org",
     });
