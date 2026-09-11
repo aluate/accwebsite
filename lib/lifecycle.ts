@@ -1,4 +1,5 @@
 import sql, { uid } from "@/lib/db";
+import { hasFinishColour, colourFieldLabel } from "@/lib/finish-color";
 import { logActivity } from "@/lib/activity-log";
 import { hasDoorMaterial, describeMissingDoorMaterial } from "@/lib/door-material";
 import { normalizeDoorFrontRole, ROLE_BASE } from "@/lib/door-front-roles";
@@ -108,6 +109,41 @@ async function validateForRelease(specId: string): Promise<string | null> {
   return `Cannot release to engineering — required fields missing: ${list}. Complete them on the Finishes tab.`;
 }
 
+
+/**
+ * Leaving DRAFT means the spec is being presented as decided. A finish group
+ * that does not say what colour it is has not been decided.
+ *
+ * Karl: "We can't build cabinets with no color. It HAS to have a selection or
+ * it has to be listed as draft and as a result doesn't get the permission to
+ * advance."
+ *
+ * Checked on the way OUT of DRAFT rather than only at the release, because
+ * CLIENT_APPROVED is the state a client is shown — and showing a client a spec
+ * that does not name its colour is how a colour gets chosen twice.
+ */
+async function validateForLeavingDraft(specId: string): Promise<string | null> {
+  const groups = await sql`
+    SELECT label, finish_type, color_id, color_name, paint_id, stain_id
+    FROM finish_groups WHERE spec_id = ${specId} ORDER BY sort_order
+  ` as Array<{
+    label: string | null; finish_type: string | null;
+    color_id: string | null; color_name: string | null;
+    paint_id: string | null; stain_id: string | null;
+  }>;
+
+  if (groups.length === 0) {
+    return "No finish groups defined - add at least one before advancing this spec.";
+  }
+
+  const missing = groups
+    .filter((g) => !hasFinishColour(g))
+    .map((g) => `"${g.label || "(unnamed finish)"}": ${colourFieldLabel(g.finish_type).toLowerCase()}`);
+
+  if (missing.length === 0) return null;
+  return `Cannot advance - colour is not selected on ${missing.length === 1 ? "a finish group" : "finish groups"}: ${missing.join("; ")}. Pick it on the Finishes tab.`;
+}
+
 // ── Main transition ──────────────────────────────────────────────────────────
 
 export async function transitionLifecycle(input: TransitionInput): Promise<TransitionResult> {
@@ -129,6 +165,12 @@ export async function transitionLifecycle(input: TransitionInput): Promise<Trans
 
   if (!isForward && !isBackward) return { ok: false, error: `Cannot skip from ${current} to ${to}. Forward path: ${LIFECYCLE_STATES.join(" → ")}` };
   if (isBackward && (!reason || !reason.trim())) return { ok: false, error: `Backwards transition (${current} → ${to}) requires a reason.` };
+
+  // Hard gate: a spec leaving DRAFT must name its colours.
+  if (current === "DRAFT" && isForward) {
+    const colourError = await validateForLeavingDraft(specId);
+    if (colourError) return { ok: false, error: colourError };
+  }
 
   // Hard gate: verify sub-section completeness before releasing to engineering.
   if (to === "RELEASED_TO_ENG") {

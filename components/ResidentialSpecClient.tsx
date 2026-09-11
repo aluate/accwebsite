@@ -6,6 +6,7 @@ import type {
   CabinetFamily, CarcassMaterial, DrawerBox, Edgeband, Room as RoomCatalogEntry,
 } from "@/lib/catalogs";
 import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
+import { hasFinishColour, colourFieldLabel } from "@/lib/finish-color";
 import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES, defaultTrimSize, trimMaterialForFinishGroup } from "@/lib/trim-types";
 import { speciesAllowedFor } from "@/lib/door-material";
 import {
@@ -271,14 +272,21 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
   for (const g of groups) {
     const tag = g.label || "(unnamed finish)";
     if (!g.label?.trim())   v.push({ tag, field: "Group Label" });
-    // 2026-05-06: legacy Color / Door Style / Hardware Pull requirements RELAXED.
-    // These three legacy columns are deprecated. The v2 Schedules tab now carries
-    // the canon data (stain/paint/glaze/topcoat/sheen on finish_groups; door style
-    // on finish_group_door_fronts; pulls on finish_group_hardware). Forcing the
-    // legacy fields blocked the v2-only workflow — PMs filled the form correctly
-    // and got "Color is required" with no way to satisfy. The API validate()
-    // function in app/api/specs/[id]/save/route.ts mirrors this same relaxation.
-    // The $70k canary (carcass / drawer / edgeband) stays REQUIRED below.
+    /*
+      2026-05-06 relaxed Color / Door Style / Hardware Pull, on the grounds that
+      the v2 Schedules tab carried them instead. That tab never shipped — it is
+      imported nowhere — so the requirement moved to a screen that does not
+      exist and what remained was no requirement at all. A painted spec with no
+      colour saved clean, showed zero unfilled fields, and reached
+      RELEASED_TO_ENG on production.
+
+      Colour is required again, via lib/finish-color.ts, which accepts either
+      vocabulary so the original complaint (PMs filling the v2 form correctly
+      and being told "Color is required") cannot come back. Door style and pulls
+      stay relaxed: the release gate checks the door style where it actually
+      lives now, and pulls genuinely can be decided later.
+    */
+    if (!hasFinishColour(g)) v.push({ tag, field: colourFieldLabel(g.finish_type) });
     if (!g.carcass_id)      v.push({ tag, field: "Carcass Material" });
     if (!g.drawer_box_id)   v.push({ tag, field: "Drawer Box" });
     if ((g.finish_type === "paint" || g.finish_type === "stain") && !g.edgeband_id) {

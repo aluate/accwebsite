@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { hasFinishColour, colourFieldLabel } from "@/lib/finish-color";
 import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { seedAccStandards } from "@/lib/acc-standards-seed";
@@ -151,6 +152,12 @@ function validate(payload: SavePayload): Violation[] {
     if (!g.finish_type)    v.push({ path: tag, message: "finish_type is required", severity: "warning" });
     if (!g.carcass_id)     v.push({ path: tag, message: "carcass material is required (the $70k field)", severity: "warning" });
     if (!g.drawer_box_id)  v.push({ path: tag, message: "drawer box is required (the $70k field)", severity: "warning" });
+    // Mirrors the client (components/ResidentialSpecClient.tsx). Colour was
+    // relaxed here in May 2026 on the strength of a Schedules tab that never
+    // shipped; without it, nothing in the system required a colour at all.
+    if (!hasFinishColour(g)) {
+      v.push({ path: tag, message: `${colourFieldLabel(g.finish_type).toLowerCase()} is required`, severity: "warning" });
+    }
     if ((g.finish_type === "paint" || g.finish_type === "stain") && !g.edgeband_id) {
       v.push({ path: tag, message: "edgeband selection is required for paint/stain finishes", severity: "warning" });
     }
