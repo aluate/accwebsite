@@ -106,20 +106,44 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const named = (what: string) =>
     `${builder} - ${client} - ${safeName(what)} - ${datePrefix}.${String(nextSeq++).padStart(2, "0")}.pdf`;
 
+  /*
+    Render only what was asked for.
+
+    Both documents used to be rendered and filed on every press, with the `doc`
+    parameter choosing which one streamed back. Two presses left four PDFs in
+    "03 JOB SPECS" — CLIENT SPEC .01, WO SPEC .02, CLIENT SPEC .03, WO SPEC .04
+    — and nothing marked which was current. Karl: pressing Client Spec should
+    produce a client spec.
+
+    The work orders stay plural: `doc=wo` renders one file per finish group,
+    because the shop wants them separately. It is the client/WO split that is
+    now honoured, not the per-group one.
+  */
+  const want  = req.nextUrl.searchParams.get("doc") ?? "client";
+  const wantFg = req.nextUrl.searchParams.get("fg");
+
   const docs: { key: string; fgId: string | null; filename: string; buffer: Buffer }[] = [];
-  docs.push({
-    key: "client",
-    fgId: null,
-    filename: named("CLIENT SPEC"),
-    buffer: await renderClientSpecPDFBuffer(data),
-  });
-  for (const fg of data.finish_groups) {
+
+  if (want !== "wo") {
     docs.push({
-      key: "wo",
-      fgId: fg.id,
-      filename: named(`${fg.label} WO SPEC`),
-      buffer: await renderWorkOrderPDFBuffer(data, fg),
+      key: "client",
+      fgId: null,
+      filename: named("CLIENT SPEC"),
+      buffer: await renderClientSpecPDFBuffer(data),
     });
+  } else {
+    // A single finish group if one was named, otherwise every one of them.
+    const groups = wantFg
+      ? data.finish_groups.filter((fg) => fg.id === wantFg)
+      : data.finish_groups;
+    for (const fg of (groups.length ? groups : data.finish_groups)) {
+      docs.push({
+        key: "wo",
+        fgId: fg.id,
+        filename: named(`${fg.label} WO SPEC`),
+        buffer: await renderWorkOrderPDFBuffer(data, fg),
+      });
+    }
   }
 
   // Store everything. Best-effort per file: a storage failure on one work order must
@@ -149,11 +173,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     console.error("[spec/generate] Failed to save to job folder:", saveErr);
   }
 
-  // Which one to hand back. Defaults to the client document, which is what the
-  // Generate button has always shown.
-  const want  = req.nextUrl.searchParams.get("doc") ?? "client";
-  const wantFg = req.nextUrl.searchParams.get("fg");
-
+  // Which one to hand back (want / wantFg are read above, before rendering).
   /*
     `doc=wo` with no `fg` hands back EVERY work order in one PDF.
 
