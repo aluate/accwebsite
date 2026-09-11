@@ -37,16 +37,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { getBuilder, guardApi } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-log";
-import { createClient } from "@supabase/supabase-js";
+import { storageClient } from "@/lib/file-store";
 import { BUCKET, VALID_KINDS, safeFilename, storagePath } from "../shared";
 
 export const runtime = "nodejs";
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
+  return storageClient();
 }
 
 async function resolveJobId(id: string): Promise<string | null> {

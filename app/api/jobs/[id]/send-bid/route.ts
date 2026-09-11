@@ -22,8 +22,7 @@ import { requireBuilder } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { bidSent } from "@/lib/email-templates";
 import { logActivity } from "@/lib/activity-log";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
@@ -32,10 +31,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.advancedcabine
 const BID_STATUSES = ["intake", "bid"];
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 export async function POST(

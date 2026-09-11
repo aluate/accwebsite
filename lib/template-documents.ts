@@ -6,8 +6,7 @@
  */
 
 import { sql } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 const BUCKET = "job-files";
 
 export type TemplateDoc = {
@@ -19,10 +18,7 @@ export type TemplateDoc = {
 };
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 /**

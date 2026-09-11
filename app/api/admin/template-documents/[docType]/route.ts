@@ -12,8 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { getAdmin } from "@/lib/admin-auth";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
@@ -22,10 +21,7 @@ const ALLOWED_MIME = /^application\/(pdf|msword|vnd\.openxmlformats.*)|image\/(j
 type Params = { params: Promise<{ docType: string }> };
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 // ── GET — signed download URL ─────────────────────────────────────────────

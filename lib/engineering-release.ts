@@ -14,7 +14,7 @@
  */
 
 import { sql, uid } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
+import { storageClient } from "@/lib/file-store";
 import { renderCoversheetBuffer, type WorkOrderRow } from "@/lib/pdf-coversheet";
 import { renderAllWorkOrdersPDFBuffer } from "@/lib/pdf-spec";
 import { loadSpecPDFData } from "@/lib/spec-data";
@@ -24,10 +24,7 @@ import { loadSpecPDFData } from "@/lib/spec-data";
 const BUCKET = "job-files";
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────

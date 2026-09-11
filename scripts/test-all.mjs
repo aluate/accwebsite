@@ -40,6 +40,7 @@ const SUITES = [
   { file: "test-spec-approval.mjs",     db: false, what: "the DRAFT watermark answers to the real states (pure)" },
   { file: "test-slab-door.mjs",         db: false, what: "a melamine group ends up with a door style (pure)" },
   { file: "test-notification-routing.mjs", db: false, what: "who each automated email goes to (pure)" },
+  { file: "test-file-store.mjs",        db: false, what: "the filesystem storage driver matches Supabase (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },

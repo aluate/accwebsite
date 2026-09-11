@@ -4,8 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { requirePortalAccessToJob } from "@/lib/portal-auth";
 import { markInputReceived } from "@/lib/portal-required-inputs";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
@@ -13,10 +12,7 @@ const BUCKET = "job-files";
 const PORTAL_VALID_KINDS = new Set(["plans", "appliances", "site"]);
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 function safeFilename(name: string): string {

@@ -5,7 +5,7 @@ import { sendEmail } from "@/lib/mailer";
 import { isComplete } from "@/lib/engineering-release-checklist";
 import { computeAutoChecked, mergeChecklist } from "@/lib/engineering-autocheck";
 import { addWorkingDays } from "@/lib/schedule-utils";
-import { createClient } from "@supabase/supabase-js";
+import { storageClient } from "@/lib/file-store";
 import { resolveRecipients, jobRoleAddresses } from "@/lib/notification-routing";
 
 export const runtime = "nodejs";
@@ -20,10 +20,7 @@ const BUCKET = "job-files";
 */
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 // GET — return the most recent release for this job (or null)
@@ -60,7 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     id: string; job_number: string | null; client_name: string;
     site_address: string; city: string; pm: string; delivery_date: string | null;
   }[]>`SELECT id, job_number, client_name, site_address, city, pm, delivery_date
-        FROM jobs WHERE id = ${id}`;
+        FROM jobs WHERE id = ${id} OR job_number = ${id}`;
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
   // ── 2. Validate checklist (merge manual + auto-checked + drawings gate) ──

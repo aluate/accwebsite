@@ -21,15 +21,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { sendEmail } from "@/lib/mailer";
 import { logActivity } from "@/lib/activity-log";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 const BUCKET = "job-files";
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 type Params = { params: Promise<{ token: string }> };

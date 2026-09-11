@@ -7,15 +7,11 @@ import { requireBuilder } from "@/lib/auth";
 import { loadSpecPDFData } from "@/lib/spec-data";
 import { renderCoversheetBuffer } from "@/lib/pdf-coversheet";
 import type { WorkOrderRow } from "@/lib/pdf-coversheet";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 const BUCKET = "job-files";
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 // POST /api/specs/[id]/coversheets

@@ -6,7 +6,7 @@
  */
 
 import { sql } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
+import { storageClient } from "@/lib/file-store";
 import { EVENT_TYPE_LABELS } from "@/lib/schedule-types";
 
 type JobRow = {
@@ -23,10 +23,7 @@ type JobRow = {
 const STORAGE_BUCKET = "job-files";
 
 function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 const CATEGORY_LABELS: Record<number, string> = {

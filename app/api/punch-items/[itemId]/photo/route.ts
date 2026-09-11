@@ -16,18 +16,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { getPunchActor } from "@/lib/punch-auth";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
 const ALLOWED_MIME = /^(image\/(jpeg|png|gif|webp|heic|heif)|video\/(mp4|quicktime|mov|avi|webm))$/i;
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 function safeFilename(name: string): string {
@@ -89,14 +85,21 @@ export async function POST(
     }
 
     const photoId = uid();
+    // media_type is "photo" or "video" everywhere else that writes this table
+    // (see app/api/jobs/[id]/punch-items/route.ts); it used to be handed the
+    // raw MIME type here, so these rows did not match the ones beside them.
+    // sort_order was handed `idx`, which is not declared in this scope — every
+    // upload threw before it reached the insert.
     await sql`
       INSERT INTO punch_item_photos
-        
         (id, punch_item_id, storage_path, media_type, label, sort_order, uploaded_at)
       VALUES
-        (${photoId}, ${itemId}, ${path}, ${mimeType}, ${label ?? null}, ${idx}, ${new Date().toISOString()})
+        (${photoId}, ${itemId}, ${path}, ${mediaType}, ${label ?? null}, ${sortOrder++}, ${new Date().toISOString()})
     `;
-    results.push({ id: photoId, url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}` });
+    // A signed URL, not a public one: the bucket is private, and with the
+    // filesystem driver there is no Supabase host to build a URL against.
+    const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
+    results.push({ id: photoId, url: signed?.signedUrl ?? null });
   }
 
   return NextResponse.json({ ok: true, photos: results });

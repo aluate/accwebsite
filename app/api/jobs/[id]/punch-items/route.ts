@@ -14,8 +14,7 @@ import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { getPunchActor } from "@/lib/punch-auth";
 import { logActivity } from "@/lib/activity-log";
-import { createClient } from "@supabase/supabase-js";
-
+import { storageClient } from "@/lib/file-store";
 export const runtime = "nodejs";
 
 const BUCKET = "job-files";
@@ -23,10 +22,7 @@ const BUCKET = "job-files";
 const VALID_TYPES = new Set(["S", "S+M", "HP", "TD"]);
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 async function signedUrl(path: string | null): Promise<string | null> {

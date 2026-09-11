@@ -9,16 +9,13 @@ export const dynamic = "force-dynamic";
  */
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
+import { storageClient } from "@/lib/file-store";
 import { SignoffCanvas } from "./SignoffCanvas";
 
 const BUCKET = "job-files";
 
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  return storageClient();
 }
 
 type Signoff = {
