@@ -64,6 +64,35 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ jobs });
 }
 
+
+/**
+ * Which modules a new job includes.
+ *
+ * A residential job is a cabinet job. The New Job form left all four module
+ * checkboxes unticked by default, and this route writes 0 for anything absent,
+ * so a PM who filled the form in and pressed CREATE JOB got a job whose
+ * Cabinets tab answered 404 — with nothing on the form saying those checkboxes
+ * decided it. Job type already says residential; the module follows from it.
+ *
+ * An explicit false is still respected: a caller that deliberately sends
+ * mod_residential: false gets a job without cabinets. Only ABSENCE now means
+ * "take it from the job type".
+ */
+function modulesFor(body: Record<string, unknown>): {
+  residential: number; commercial: number; trim: number; doors: number;
+} {
+  const jobType = String(body.job_type ?? "residential");
+  const given = (key: string, fallback: boolean) =>
+    (body[key] === undefined || body[key] === null ? fallback : !!body[key]) ? 1 : 0;
+
+  return {
+    residential: given("mod_residential", jobType === "residential"),
+    commercial:  given("mod_commercial",  jobType === "commercial"),
+    trim:        given("mod_trim",        false),
+    doors:       given("mod_doors",       false),
+  };
+}
+
 export async function POST(req: NextRequest) {
   const session = await requireBuilderApi();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -125,6 +154,8 @@ export async function POST(req: NextRequest) {
   const placeholderPerUnitInstallHrs = body.placeholder_per_unit_install_hrs != null ? Number(body.placeholder_per_unit_install_hrs) : 0;
   const placeholderId = body.placeholder_id ?? null;
 
+  const modules = modulesFor(body as Record<string, unknown>);
+
   await sql`
     INSERT INTO jobs (
       id, seq, created_at, status, job_type,
@@ -148,8 +179,8 @@ export async function POST(req: NextRequest) {
       ${body.pm ?? ""}, ${body.builder_id ?? null}, ${body.builder_name ?? ""}, ${body.builder_email ?? ""},
       ${body.builder_phone ?? ""}, ${body.builder_company ?? ""},
       ${body.delivery_date ?? ""}, ${body.notes ?? ""},
-      ${body.mod_residential ? 1 : 0}, ${body.mod_commercial ? 1 : 0},
-      ${body.mod_trim ? 1 : 0}, ${body.mod_doors ? 1 : 0},
+      ${modules.residential}, ${modules.commercial},
+      ${modules.trim}, ${modules.doors},
       ${jobNumber},
       ${body.estimated_value ?? null}, ${body.pm_complexity ?? 0},
       ${installStartDate}, ${installType}, ${boxCount}, ${shopHrs}, ${installHrs},

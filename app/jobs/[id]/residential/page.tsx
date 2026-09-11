@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { ModuleOffNotice } from "@/components/ModuleOffNotice";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
@@ -22,7 +23,13 @@ export default async function ResidentialIndexPage({ params }: { params: Promise
     SELECT id, client_name, mod_residential, builder_name, builder_company
     FROM jobs WHERE id = ${id} OR job_number = ${id}
   ` as Job[];
-  if (!job || !job.mod_residential) notFound();
+  // A missing job is a 404. A job whose module is switched off is not: it
+  // exists, the link to here is on its own page, and a blank not-found tells
+  // the PM nothing. See components/ModuleOffNotice.tsx.
+  if (!job) notFound();
+  if (!job.mod_residential) {
+    return <ModuleOffNotice jobRef={id} moduleKey="mod_residential" label="Residential Cabinets" />;
+  }
 
   // Always use the canonical internal id for subsequent queries
   const jobId = job.id;

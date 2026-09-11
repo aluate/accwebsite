@@ -417,7 +417,24 @@ export function IntakeForm({ initial }: { initial?: InitialValues }) {
             { name: "mod_doors",       label: "Doors",                 desc: "Supplier price schedule estimate" },
           ].map((m) => (
             <label key={m.name} className="flex items-start gap-3 bg-[#2d2d2d] rounded p-4 cursor-pointer hover:bg-[#353535] transition-colors">
-              <input type="checkbox" name={m.name} defaultChecked={!!initial?.[m.name as keyof typeof initial]} className="accent-[#f08122] mt-0.5 shrink-0" />
+              {/*
+                On a new job (no `initial`), Residential Cabinets starts ticked.
+                Job Type already defaults to residential, and every one of these
+                boxes decides whether that module's tab exists on the job —
+                leaving them all empty produced jobs whose Cabinets page 404'd,
+                with nothing on the form to say why. Editing an existing job
+                still reflects exactly what is saved.
+              */}
+              <input
+                type="checkbox"
+                name={m.name}
+                defaultChecked={
+                  initial
+                    ? !!initial[m.name as keyof typeof initial]
+                    : m.name === "mod_residential"
+                }
+                className="accent-[#f08122] mt-0.5 shrink-0"
+              />
               <div>
                 <p className="text-white text-sm font-medium">{m.label}</p>
                 <p className="text-white/40 text-xs mt-0.5">{m.desc}</p>

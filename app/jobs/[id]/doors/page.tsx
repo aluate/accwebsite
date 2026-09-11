@@ -1,11 +1,12 @@
 export const dynamic = "force-dynamic";
 
+import { ModuleOffNotice } from "@/components/ModuleOffNotice";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { NewDoorSpecButton } from "@/components/NewDoorSpecButton";
 
-type JobRow      = { id: string; client_name: string };
+type JobRow      = { id: string; client_name: string; mod_doors: number };
 type DoorSpecRow = { id: string; name: string; status: string; updated_at: string };
 
 export default async function DoorsIndexPage({
@@ -14,8 +15,13 @@ export default async function DoorsIndexPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [job] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id} OR job_number = ${id}` as JobRow[];
+  const [job] = await sql`SELECT id, client_name, mod_doors FROM jobs WHERE id = ${id} OR job_number = ${id}` as JobRow[];
   if (!job) notFound();
+  // The same rule the residential page now follows: the module being off is a
+  // state to explain, not a missing page.
+  if (!job.mod_doors) {
+    return <ModuleOffNotice jobRef={id} moduleKey="mod_doors" label="Doors" />;
+  }
 
   // job_id on the spec tables is the internal ACC id; `id` here is whatever
   // the URL carried, which is the job number. Match on the resolved job.
