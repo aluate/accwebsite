@@ -77,10 +77,38 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+/**
+ * Every number on this row is a Postgres NUMERIC, and the driver hands those
+ * back as STRINGS to keep the precision it promised. The type above says
+ * number, the page passed the raw row straight through, and so
+ *
+ *     form.pm_hrs_base + form.pm_hrs_per_fg * 2
+ *
+ * concatenated instead of adding, `previewPmHrs` came out a string, and
+ * `.toFixed(2)` on it threw — during the server render, so the whole settings
+ * screen answered 500 and there was no way to see or change an estimating
+ * rate. Coerce at the boundary, where the row stops being a database row and
+ * starts being the shape this component's type claims it is.
+ */
+const NUMERIC_FIELDS = [
+  "shop_rate", "finish_rate", "install_rate", "pm_rate", "eng_rate",
+  "pm_hrs_base", "pm_hrs_per_fg", "eng_hrs_base", "eng_hrs_per_fg",
+  "purchasing_hrs_base", "fixed_overhead_pct", "default_margin_pct",
+] as const;
+
+function withNumbers(row: Settings): Settings {
+  const out = { ...row } as Record<string, unknown>;
+  for (const key of NUMERIC_FIELDS) {
+    const n = Number(out[key]);
+    out[key] = Number.isFinite(n) ? n : 0;
+  }
+  return out as Settings;
+}
+
 export function EstimateSettingsClient({ settings }: { settings: Settings | null }) {
   const router = useRouter();
   const [form, setForm] = useState<Settings>(
-    settings ?? {
+    (settings ? withNumbers(settings) : null) ?? {
       id: "singleton",
       shop_rate: 25,
       finish_rate: 25,
