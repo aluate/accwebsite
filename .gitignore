@@ -68,3 +68,9 @@ secrets.txt
 # Regenerate the served versions with scripts/build-swatches.sh.
 _originals/
 *.tgz
+
+# Generated test fixtures and crawl output (scripts/make-test-fixtures.mjs, scripts/crawl-app.mjs)
+test-fixtures/
+crawl-report.md
+crawl-report.json
+.data/
