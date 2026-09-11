@@ -7,6 +7,7 @@ import type {
 } from "@/lib/catalogs";
 import { ACC_HARDWARE_STANDARDS } from "@/lib/acc-standards";
 import { hasFinishColour, colourFieldLabel } from "@/lib/finish-color";
+import { ORIGIN_LABEL, ORIGIN_CONSEQUENCE } from "@/lib/spec-revision";
 import { canonicalTrimType, FG_TRIM_DEFAULT_TYPES, defaultTrimSize, trimMaterialForFinishGroup } from "@/lib/trim-types";
 import { speciesAllowedFor } from "@/lib/door-material";
 import {
@@ -1043,6 +1044,10 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [savedAt, setSavedAt] = useState(lastSaved);
   const [showViolations, setShowViolations] = useState(false);
+  // Set when the server refuses a save until it knows whose change it is.
+  // Holds the arguments of the save that was refused, so the answer can replay it.
+  const [pendingRevisionSave, setPendingRevisionSave] =
+    useState<{ archive?: string; force?: boolean } | null>(null);
   const [genState, setGenState] = useState<"idle" | "generating" | "done" | "error">("idle");
   /** What actually went wrong, shown to the user instead of just the word "error". */
   const [genError, setGenError] = useState<string>("");
@@ -1107,7 +1112,18 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
   // to avoid a TDZ crash on render.
   const violations = useMemo(() => validateForSave(groups, rooms), [groups, rooms]);
 
-  const save = useCallback(async (archive?: string, force?: boolean): Promise<boolean> => {
+  /*
+    A save on a released spec is refused with 409 + needsRevisionOrigin until it
+    says who asked for the change. The form does not pre-empt that: it saves,
+    and if the server asks, it puts the question on screen and sends the same
+    payload again with the answer. One question, at the moment of the edit,
+    rather than a state the PM has to understand before starting.
+  */
+  const save = useCallback(async (
+    archive?: string,
+    force?: boolean,
+    revision?: { origin: "client" | "acc"; note?: string },
+  ): Promise<boolean> => {
     if (violations.length > 0) {
       setShowViolations(true);
       if (!force) return false;  // partial save: caller passes force=true
@@ -1134,10 +1150,18 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
             door_fronts: doorFronts.filter((r) => (r.style_id ?? "").trim() || (r.slot_label ?? "").trim()),
             door_fronts_deleted: deletedDoorFronts,
             draft: force === true,
+            ...(revision ? { revision } : {}),
           }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        // The spec is released and the server wants to know whose change this
+        // is. Ask, then replay the identical save with the answer attached.
+        if (res.status === 409 && body?.needsRevisionOrigin && !revision) {
+          setSaveState("idle");
+          setPendingRevisionSave({ archive, force });
+          return false;
+        }
         console.error("Save failed:", body);
         setSaveState("error");
         return false;
@@ -1811,6 +1835,51 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
 
   return (
     <div>
+      {/* ── Whose change is this? ─────────────────────────────────────────
+          Shown only when the server refused a save because the spec has been
+          released. Two answers, each saying what it costs, because the point
+          of asking is the consequence and not the label. */}
+      {pendingRevisionSave && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 w-full max-w-lg space-y-5">
+            <div>
+              <p className="text-[#f08122] font-condensed uppercase tracking-[0.3em] text-xs mb-1">
+                This spec is with engineering
+              </p>
+              <p className="text-white font-condensed uppercase tracking-widest text-sm">
+                Who asked for this change?
+              </p>
+              <p className="text-white/50 text-xs mt-2">
+                Your change is ready to save. It just needs to say where it came from,
+                because the two are handled differently from here.
+              </p>
+            </div>
+
+            {(["client", "acc"] as const).map((origin) => (
+              <button
+                key={origin}
+                onClick={async () => {
+                  const args = pendingRevisionSave;
+                  setPendingRevisionSave(null);
+                  await save(args?.archive, args?.force, { origin });
+                }}
+                className="w-full text-left bg-[#2d2d2d] hover:bg-[#353535] border border-white/10 rounded p-4 transition-colors"
+              >
+                <p className="text-white text-sm font-medium">{ORIGIN_LABEL[origin]}</p>
+                <p className="text-white/40 text-xs mt-1">{ORIGIN_CONSEQUENCE[origin]}</p>
+              </button>
+            ))}
+
+            <button
+              onClick={() => setPendingRevisionSave(null)}
+              className="w-full text-white/40 hover:text-white/70 text-xs font-condensed uppercase tracking-widest py-2"
+            >
+              Cancel — don&rsquo;t save yet
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Residential Disclosure Modal ──────────────────────────────────── */}
       {showDisclosureModal && (
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4">

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { hasFinishColour, colourFieldLabel } from "@/lib/finish-color";
+import { validateRevision } from "@/lib/spec-revision";
 import { guardApi } from "@/lib/auth";
 import { sql, uid } from "@/lib/db";
 import { seedAccStandards } from "@/lib/acc-standards-seed";
@@ -225,6 +226,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // so existing rows are preserved rather than silently wiped.
   const clientSentDoorFronts = 'door_fronts' in body;
   const { finish_groups, rooms, moldings = [], materials = [] } = body;
+
+  /*
+    A released spec can still be changed. It just has to say who asked.
+
+    Karl: client-driven changes after release are a different thing from
+    ACC-driven ones — the first is a change order and the second is not — and
+    the difference is relationship management, so the record has to exist at
+    the moment of the edit rather than be reconstructed later.
+
+    Before RELEASED_TO_ENG this is a no-op: the spec is still being written and
+    there is nothing to attribute.
+  */
+  const [specState] = (await sql`
+    SELECT lifecycle_state, job_id FROM residential_specs WHERE id = ${id}
+  `) as Array<{ lifecycle_state: string | null; job_id: string }>;
+  if (!specState) return NextResponse.json({ error: "Spec not found" }, { status: 404 });
+
+  const rev = validateRevision(specState.lifecycle_state, (body as { revision?: unknown }).revision);
+  if (!rev.ok) {
+    return NextResponse.json(
+      { ok: false, error: rev.error, needsRevisionOrigin: true, lifecycle_state: specState.lifecycle_state },
+      { status: 409 },
+    );
+  }
 
   const violations = validate(body);
   const blocking = violations.filter((x) => x.severity === "error");
@@ -702,5 +727,37 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
   }
 
-  return NextResponse.json({ ok: true });
+  /*
+    Write the attribution down, after the save succeeded rather than before —
+    a revision row for a change that did not land would be a lie in the
+    audit trail.
+
+    Recorded but not yet acted on: a client revision should raise a change
+    order, and change_order_id on this row is where the two get connected.
+    That is the next piece of work, and the record has to exist first or there
+    is nothing to connect.
+  */
+  let revisionId: string | null = null;
+  if (rev.revision) {
+    try {
+      revisionId = uid();
+      await sql`
+        INSERT INTO spec_revisions (id, spec_id, job_id, revised_at, revised_by, origin, lifecycle_state, note)
+        VALUES (${revisionId}, ${id}, ${specState.job_id}, ${now},
+                ${guard.session?.username ?? guard.session?.name ?? "unknown"},
+                ${rev.revision.origin}, ${specState.lifecycle_state}, ${rev.revision.note ?? null})
+      `;
+    } catch (e) {
+      // The save is done and must not be reported as failed. Say so loudly
+      // instead: an unrecorded change to a released spec is exactly the thing
+      // this is here to prevent.
+      console.error("[spec/save] revision not recorded:", (e as Error).message);
+      return NextResponse.json({
+        ok: true,
+        warning: "The change saved, but the record of who asked for it did not. Tell Karl.",
+      });
+    }
+  }
+
+  return NextResponse.json({ ok: true, revisionId });
 }

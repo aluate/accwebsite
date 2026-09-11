@@ -875,6 +875,36 @@ async function main() {
   console.log("spec_accessories OK");
 
   /*
+    spec_revisions — who caused each change to a spec after it was released.
+
+    Not a lock. A released spec can still be edited, because that is what
+    actually happens: a client moves an island, or we find a dimension we got
+    wrong. What was missing is which of those it was. A client change is a
+    change order — billable, needs their sign-off, moves the schedule. An ACC
+    change is not billable and needs no sign-off, but engineering and the shop
+    still have to know the spec moved.
+
+    change_order_id is filled in when a client revision becomes a numbered
+    change order, so the revision and the money stay connected.
+  */
+  await sql`
+    CREATE TABLE IF NOT EXISTS spec_revisions (
+      id               TEXT PRIMARY KEY,
+      spec_id          TEXT NOT NULL REFERENCES residential_specs(id) ON DELETE CASCADE,
+      job_id           TEXT NOT NULL,
+      revised_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      revised_by       TEXT NOT NULL,
+      origin           TEXT NOT NULL CHECK (origin IN ('client','acc')),
+      lifecycle_state  TEXT,
+      note             TEXT,
+      change_order_id  TEXT
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_spec_revisions_spec ON spec_revisions(spec_id, revised_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_spec_revisions_job  ON spec_revisions(job_id, revised_at DESC)`;
+  console.log("spec_revisions OK");
+
+  /*
     trim_specs — the trim side of a job, and another table this script never
     created. The express wizard inserts one on every order, /api/trim-specs
     creates one from the job page, and /jobs/[id]/trim reads them, so on a
