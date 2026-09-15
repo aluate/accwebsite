@@ -22,6 +22,10 @@ type Signoff = {
   id: string;
   job_id: string;
   status: string;
+  approval_method: string | null;
+  signature_data: string | null;
+  in_person_at: string | null;
+  in_person_by: string | null;
   token_expires_at: string;
   pm_note: string | null;
   signer_name: string | null;
@@ -40,6 +44,7 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
     const [row] = await sql`
       SELECT cs.id, cs.job_id, cs.status, cs.token_expires_at,
              cs.pm_note, cs.signer_name, cs.signed_at, cs.combined_pdf_path,
+             cs.approval_method, cs.signature_data, cs.in_person_at, cs.in_person_by,
              j.client_name, j.site_address, j.city
       FROM client_signoffs cs
       JOIN jobs j ON j.id = cs.job_id
@@ -52,8 +57,23 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
 
   if (!signoff) notFound();
 
-  const expired       = new Date(signoff.token_expires_at) < new Date();
-  const alreadySigned = signoff.status === "signed";
+  const expired = new Date(signoff.token_expires_at) < new Date();
+
+  /*
+    Status 'signed' used to mean exactly one thing: the client drew their name.
+    It can now also mean an ACC person ticked "client approved in person" when
+    the contract went out, which is the approval Karl asked for — a handshake, a
+    deposit, a conversation at the site.
+
+    Those two want different pages. A client who signed should see "already
+    signed" and stop. A client whose approval was recorded in person should see
+    their documents, be told plainly that ACC already has their approval on
+    file, and be free to add a signature if they want to — not be met with a
+    closed door for something they never did.
+  */
+  const approvedInPerson =
+    signoff.approval_method === "in_person" && !signoff.signature_data;
+  const alreadySigned = signoff.status === "signed" && !approvedInPerson;
   const jobLabel      = [signoff.site_address, signoff.city].filter(Boolean).join(", ");
 
   // Resolve signed URL for the combined PDF (7-hour window).
@@ -114,6 +134,26 @@ export default async function SignoffPage({ params }: { params: Promise<{ token:
                     timeZone: "UTC", year: "numeric", month: "long", day: "numeric"
                   })}`
                 : ""}.
+            </p>
+          </div>
+        )}
+
+        {/* Approved in person — the documents are still theirs to read */}
+        {!expired && approvedInPerson && (
+          <div className="border border-[#f08122]/40 bg-[#f08122]/10 rounded-lg px-5 py-4 mb-8">
+            <p className="font-condensed uppercase tracking-widest text-[#f08122] text-sm">
+              Your approval is already on file
+            </p>
+            <p className="text-white/70 text-sm mt-2">
+              Advanced Custom Cabinets recorded your approval of this specification in person
+              {signoff.in_person_by ? `, entered by ${signoff.in_person_by}` : ""}
+              {signoff.in_person_at
+                ? ` on ${new Date(signoff.in_person_at).toLocaleDateString("en-US", {
+                    timeZone: "America/Los_Angeles", year: "numeric", month: "long", day: "numeric"
+                  })}`
+                : ""}.
+              Nothing further is needed from you — the documents below are your copy. If you would
+              like a signed record as well, you are welcome to sign below.
             </p>
           </div>
         )}

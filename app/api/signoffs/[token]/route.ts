@@ -71,6 +71,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   // Look up the token
   const [signoff] = await sql`
     SELECT cs.id, cs.job_id, cs.status, cs.token_expires_at, cs.combined_pdf_path,
+           cs.approval_method, cs.signature_data,
            j.client_name, j.site_address, j.pm
     FROM client_signoffs cs
     JOIN jobs j ON j.id = cs.job_id
@@ -78,11 +79,34 @@ export async function POST(req: NextRequest, { params }: Params) {
   ` as Array<{
     id: string; job_id: string; status: string; token_expires_at: string;
     combined_pdf_path: string | null;
+    approval_method: string | null; signature_data: string | null;
     client_name: string; site_address: string; pm: string;
   }>;
 
   if (!signoff) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (signoff.status === "signed") return NextResponse.json({ error: "Already signed" }, { status: 409 });
+
+  /*
+    "Already signed" used to be the whole story, because status 'signed' could
+    only mean a client had drawn a signature. It can now also mean an ACC person
+    ticked "approved in person" when the contract went out.
+
+    Karl asked for the client to still get a working link in that case, so an
+    in-person approval that has no signature on it yet is NOT a closed door —
+    the client can still sign, and doing so adds their signature to a record
+    that already holds the in-person approval. Both facts survive: approved in
+    person on Tuesday by Karl, signed on Thursday by the client.
+
+    What is still refused is signing twice. Once signature_data exists, this is
+    done.
+  */
+  const approvedInPersonAwaitingSignature =
+    signoff.status === "signed" &&
+    signoff.approval_method === "in_person" &&
+    !signoff.signature_data;
+
+  if (signoff.status === "signed" && !approvedInPersonAwaitingSignature) {
+    return NextResponse.json({ error: "Already signed" }, { status: 409 });
+  }
   if (new Date(signoff.token_expires_at) < new Date()) {
     return NextResponse.json({ error: "Link has expired" }, { status: 410 });
   }

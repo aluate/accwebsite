@@ -634,6 +634,34 @@ async function main() {
       created_at        TEXT NOT NULL
     )
   `;
+  /*
+    Approved in person.
+
+    Karl, 2026-09-15: "I need a check box to indicate client approved in person
+    in lieu of a digital signature that we can do before we send the email to
+    the client. It will need to send all the same documents, but just won't
+    force the drawn signature."
+
+    And earlier: "Sometimes a handshake and money changing hands is enough. As
+    long as we have WHO clicked the box and WHEN we can audit."
+
+    So an approval now has a METHOD. `signature` is the old path, and stays the
+    default so every existing row keeps meaning what it meant. `in_person` means
+    an ACC person recorded an approval that happened away from the screen — and
+    the two columns below are the audit Karl asked for: who recorded it, when.
+
+    These are deliberately separate from signer_name/signed_at rather than
+    reusing them. The client may still sign afterwards, and when they do, both
+    facts should survive: approved in person on Tuesday by Karl, signed on
+    Thursday by the client. Overloading one pair of columns would lose one of
+    them.
+  */
+  await sql.unsafe(`
+    ALTER TABLE client_signoffs ADD COLUMN IF NOT EXISTS approval_method TEXT NOT NULL DEFAULT 'signature';
+    ALTER TABLE client_signoffs ADD COLUMN IF NOT EXISTS in_person_at    TEXT;
+    ALTER TABLE client_signoffs ADD COLUMN IF NOT EXISTS in_person_by    TEXT;
+  `);
+
   await sql`
     CREATE INDEX IF NOT EXISTS idx_client_signoffs_job
       ON client_signoffs(job_id)

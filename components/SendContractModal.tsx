@@ -60,6 +60,13 @@ export function SendContractModal({
   const [cc, setCc] = useState("");
   const [note, setNote] = useState("");
   const [includeEstimate, setIncludeEstimate] = useState(false);
+  /*
+    "Client approved in person" — Karl, 2026-09-15. Ticking this records the
+    approval at send time rather than waiting for the client to draw a
+    signature, because the approval already happened away from the screen. The
+    same documents still go out and the link still works.
+  */
+  const [approvedInPerson, setApprovedInPerson] = useState(false);
   const [drawingFileIds, setDrawingFileIds] = useState<string[]>([]);
   const [quoteFileIds, setQuoteFileIds] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
@@ -139,6 +146,7 @@ export function SendContractModal({
           include_estimate: includeEstimate,
           drawing_file_ids: drawingFileIds,
           quote_file_ids: quoteFileIds,
+          approved_in_person: approvedInPerson,
         }),
       });
       if (!res.ok) {
@@ -313,8 +321,32 @@ export function SendContractModal({
             />
           </div>
 
+
+          {/* Approved in person — Karl, 2026-09-15 */}
+          <label className="flex items-start gap-3 rounded-lg border border-[#f08122]/30 bg-[#f08122]/5 px-4 py-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={approvedInPerson}
+              onChange={(e) => setApprovedInPerson(e.target.checked)}
+              className="mt-0.5 shrink-0"
+            />
+            <span className="text-sm">
+              <span className="font-condensed uppercase tracking-widest text-[#f08122] text-xs block mb-1">
+                Client approved in person
+              </span>
+              <span className="text-white/60 text-xs">
+                Tick this when the client has already approved — a handshake, a deposit, a conversation
+                at the site. The approval is recorded now, in your name and timestamped, and the job
+                moves on without waiting. They still get these same documents and the link still works,
+                so they can add a signature if they want to.
+              </span>
+            </span>
+          </label>
+
           <div className="bg-[#111] border border-white/5 rounded-lg px-4 py-3 text-xs text-white/30">
-            The client will receive a link to review and sign electronically. A certificate of completion PDF is generated automatically after they sign.
+            {approvedInPerson
+              ? "The approval is recorded as soon as you send, in your name and timestamped. The client still receives these documents and a working link — if they sign it, that gets recorded too."
+              : "The client will receive a link to review and sign electronically. A certificate of completion PDF is generated automatically after they sign."}
           </div>
 
           {err && <p className="text-red-400 text-sm">{err}</p>}
@@ -328,7 +360,7 @@ export function SendContractModal({
             disabled={sending || !canSend}
             className="bg-[#1e3a5f] hover:bg-[#17304f] text-white text-sm font-medium px-5 py-2 rounded-lg disabled:opacity-50 transition-colors"
           >
-            {sending ? "Sending…" : "Send Contract & Signature Request →"}
+            {sending ? "Sending…" : approvedInPerson ? "Record Approval & Send Documents →" : "Send Contract & Signature Request →"}
           </button>
         </div>
       </div>
