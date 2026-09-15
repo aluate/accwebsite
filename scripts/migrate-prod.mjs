@@ -17,7 +17,7 @@
  * that only fires if the type is already wrong.
  */
 import { createInterface } from "readline/promises";
-import { readFileSync, existsSync, rmSync } from "node:fs";
+import { readFileSync, existsSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "child_process";
@@ -85,9 +85,20 @@ if (/:5432\//.test(url) && /supabase/.test(url)) {
 console.log("  Additive only: CREATE TABLE IF NOT EXISTS and ADD COLUMN IF NOT EXISTS.");
 console.log("  Nothing in it drops, deletes or truncates anything.");
 
+/*
+  Case-insensitive on purpose. This asked for "YES" and rejected "yes" without
+  saying why — it just printed "Stopped. Nothing was changed." and exited 0, and
+  0 reads as success to anything downstream. Someone typed yes, saw a calm
+  message, shipped the code that needed the migration, and only luck decided
+  whether that mattered. The confirmation is there to make you read the host
+  name above it, not to test your shift key.
+*/
 const yes = (await rl.question("\nType YES to run it: ")).trim();
 rl.close();
-if (yes !== "YES") { console.log("Stopped. Nothing was changed."); process.exit(0); }
+if (yes.toUpperCase() !== "YES") {
+  console.log("Stopped. Nothing was changed. (Type YES to run it.)");
+  process.exit(2);
+}
 
 /*
   Run the schema script from MAIN, not the copy sitting in this folder.
@@ -116,10 +127,56 @@ const cloned = await new Promise((res) => {
   c.on("close", res);
 });
 
+/*
+  THE CLONE HAS NO node_modules, AND db-push IMPORTS `postgres`.
+
+  That is the bug this comment exists to stop coming back. Cloning main into
+  TEMP fixed one problem — the migration no longer applies a stale schema — and
+  created another one nobody saw until somebody actually needed a migration:
+
+      Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'postgres' imported from
+      C:\...\Temp\acc-migrate-main\scripts\db-push.mjs
+
+  A shallow clone is source only. Node resolves ESM imports by walking up from
+  the importing file looking for node_modules, and under TEMP there is none to
+  find, so every run since died on the first import. It never applied anything
+  and it never could.
+
+  The fix is a junction from the clone to the dependencies already installed in
+  this repo. Junctions need no administrator rights on Windows, cost nothing,
+  and vanish with the clone. NODE_PATH would not work here — it is honoured for
+  CommonJS require and ignored for ESM import, which is what db-push uses.
+
+  If the link cannot be made, say so and fall back rather than dying on a stack
+  trace: an out-of-date schema you were warned about beats no migration at all.
+*/
+function linkDependencies(cloneDir) {
+  const localModules = resolve(__dirname, "..", "node_modules");
+  if (!existsSync(localModules)) {
+    return "this repo has no node_modules — run npm install here first";
+  }
+  const target = join(cloneDir, "node_modules");
+  if (existsSync(target)) return null;
+  for (const type of ["junction", "dir"]) {
+    try {
+      symlinkSync(localModules, target, type);
+      return null;
+    } catch { /* try the next kind */ }
+  }
+  return "could not link node_modules into the clone";
+}
+
 let scriptPath;
 if (cloned === 0 && existsSync(join(workDir, "scripts", "db-push.mjs"))) {
-  scriptPath = join(workDir, "scripts", "db-push.mjs");
-  console.log("  using scripts/db-push.mjs from main");
+  const linkErr = linkDependencies(workDir);
+  if (linkErr) {
+    console.log(`  ${linkErr}`);
+    console.log("  COULD NOT prepare main's copy - falling back to the local one, which may be out of date.");
+    scriptPath = resolve(__dirname, "db-push.mjs");
+  } else {
+    scriptPath = join(workDir, "scripts", "db-push.mjs");
+    console.log("  using scripts/db-push.mjs from main");
+  }
 } else {
   scriptPath = resolve(__dirname, "db-push.mjs");
   console.log("  COULD NOT reach main - falling back to the local copy, which may be out of date.");
@@ -140,27 +197,63 @@ const code = await new Promise((res) => {
 rmSync(workDir, { recursive: true, force: true });
 if (code !== 0) { console.error(`\ndb-push exited ${code}. Nothing further checked.`); process.exit(code ?? 1); }
 
-console.log("\n--- verifying the two notification tables ---");
+/*
+  WHAT GETS CHECKED AFTERWARDS.
+
+  This used to read back two tables from the notification work and then print
+  "Done. Safe to ship." — a verdict about the whole schema based on two objects
+  that had nothing to do with whatever was just pushed. It would have said "safe
+  to ship" on a run that added nothing at all.
+
+  So it is a list now, and the rule is simple: when you add a column or a table
+  that the deployed code will read, add it here in the same change. Then this
+  step actually answers the question it appears to answer.
+*/
+const EXPECTED = [
+  { table: "notification_routes" },
+  { table: "notification_test_mode" },
+  { table: "client_signoffs", column: "approval_method", since: "0048 — approved in person" },
+  { table: "client_signoffs", column: "in_person_at",    since: "0048 — approved in person" },
+  { table: "client_signoffs", column: "in_person_by",    since: "0048 — approved in person" },
+  { table: "builders",        column: "typical_pm",      since: "the builder table seed" },
+];
+
+console.log("\n--- verifying what the deployed code expects ---");
 const sql = postgres(url, { ssl: local ? false : "require", max: 1, prepare: false });
 try {
-  const rows = await sql`
-    SELECT table_name FROM information_schema.tables
-    WHERE table_schema = 'public'
-      AND table_name IN ('notification_routes','notification_test_mode')
-    ORDER BY table_name
-  `;
-  const found = rows.map((r) => r.table_name);
-  for (const t of ["notification_routes", "notification_test_mode"]) {
-    console.log(`  ${found.includes(t) ? "OK  " : "MISS"}  ${t}`);
+  const tables = new Set(
+    (await sql`
+      SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
+    `).map((r) => r.table_name),
+  );
+  const columns = new Set(
+    (await sql`
+      SELECT table_name || '.' || column_name AS ref
+      FROM information_schema.columns WHERE table_schema = 'public'
+    `).map((r) => r.ref),
+  );
+
+  const missing = [];
+  for (const e of EXPECTED) {
+    const ref = e.column ? `${e.table}.${e.column}` : e.table;
+    const present = e.column ? columns.has(ref) : tables.has(e.table);
+    if (!present) missing.push({ ...e, ref });
+    console.log(`  ${present ? "OK  " : "MISS"}  ${ref}${e.since && !present ? `   (${e.since})` : ""}`);
   }
-  if (found.includes("notification_test_mode")) {
-    const [tm] = await sql`SELECT active, fallback_address FROM notification_test_mode WHERE id = 1`;
+
+  if (tables.has("notification_test_mode")) {
+    const [tm] = await sql`SELECT active FROM notification_test_mode WHERE id = 1`;
     console.log(`  test mode: ${tm ? (Number(tm.active) === 1 ? "ON" : "off") : "no row (unexpected)"}`);
   }
-  const ok = found.length === 2;
-  console.log(ok ? "\nDone. Safe to ship." : "\nOne or both tables are missing — do not turn on test mode yet.");
+
+  if (missing.length === 0) {
+    console.log("\nEverything on the list is present. Safe to ship.");
+  } else {
+    console.log(`\n${missing.length} missing. DO NOT ship code that reads them:`);
+    for (const m of missing) console.log(`  - ${m.ref}${m.since ? `   ${m.since}` : ""}`);
+  }
   await sql.end();
-  process.exit(ok ? 0 : 1);
+  process.exit(missing.length === 0 ? 0 : 1);
 } catch (e) {
   console.error("Verification query failed:", e.message);
   await sql.end().catch(() => {});

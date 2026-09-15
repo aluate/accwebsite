@@ -49,6 +49,7 @@ const SUITES = [
   { file: "test-mail-override.mjs",    db: false, what: "the notification screen is what actually happens (pure)" },
   { file: "test-transition-emails.mjs",db: false, what: "the six lifecycle emails, which bypass the templates (pure)" },
   { file: "test-approval-in-person.mjs",db: false, what: "an in-person approval never looks like a signature (pure)" },
+  { file: "test-migrate-prod.mjs",     db: false, what: "the migration runner can actually run (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },
