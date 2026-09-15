@@ -15,6 +15,8 @@
  *   "residential" — process.env.RESIDENTIAL_EMAIL (falls back to PM_EMAIL)
  */
 
+import { labelFromRef } from "@/lib/job-label";
+
 export type JobMeta = {
   id: string;
   job_number?: string | null;
@@ -69,8 +71,22 @@ export function nextStatus(current: string): string | null {
   return STATUS_SEQUENCE[idx + 1];
 }
 
+/*
+  What a job is CALLED in one of these messages.
+
+  This used to fall back to `job.id` when there was no TradeSoft number, which
+  put ACC-2026-0304 in the SUBJECT LINE of a message to a client. Karl, twice:
+  "I don't want ACC-2026-0181 anywhere. That's something that should never be
+  visible, it's a back end piece only you and I know about."
+
+  A job with no number yet is the normal state, not an edge case, so that
+  fallback fired constantly. With no number these messages simply lead with the
+  client's name — which is what the recipient recognises anyway.
+*/
 function jobRef(job: JobMeta) {
-  return `Job ${job.job_number ?? job.id} — ${job.client_name}`;
+  const num = labelFromRef(job.job_number != null ? String(job.job_number) : null);
+  if (num) return `Job ${num.replace(/^#/, "")} — ${job.client_name}`;
+  return String(job.client_name ?? "").trim() || "Your job";
 }
 function jobAddress(job: JobMeta) {
   return [job.site_address, job.city].filter(Boolean).join(", ") || "—";
@@ -127,7 +143,7 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     body: (j, note) =>
       `Hi ${j.client_name},\n\n` +
       `Your cabinet order is being delivered.\n\n` +
-      `Job: ${j.job_number ?? j.id}\n` +
+      (j.job_number ? `Job: ${j.job_number}\n` : "") +
       `Site: ${jobAddress(j)}\n` +
       (note ? `\n${note}\n` : "") +
       `\nIf you have any questions, please contact your project manager.\n\n` +
@@ -180,7 +196,7 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     body: (j, note) =>
       `Hi ${j.client_name},\n\n` +
       `Your project at ${jobAddress(j)} is now complete.\n\n` +
-      `Job: ${j.job_number ?? j.id}\n` +
+      (j.job_number ? `Job: ${j.job_number}\n` : "") +
       (note ? `\n${note}\n` : "") +
       `\nThank you for choosing Advanced Custom Cabinets.\n`,
   },

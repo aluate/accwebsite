@@ -310,7 +310,7 @@ export function contractSent(data: {
   const text = [
     `Hi ${data.clientFirstName},`,
     ``,
-    `Attached are your contract documents for ${data.siteAddress}:`,
+    `Your contract documents for ${data.siteAddress} are ready to review:`,
     `  - Final drawings`,
     `  - Quote / scope of work`,
     `  - Residential disclosure`,
@@ -329,7 +329,7 @@ export function contractSent(data: {
     subheading: data.siteAddress,
     body: [
       para(`Hi ${h(data.clientFirstName)},`),
-      para(`Attached are your contract documents for <strong>${h(data.siteAddress)}</strong>:`),
+      para(`Your contract documents for <strong>${h(data.siteAddress)}</strong> are ready to review:`),
       `<ul style="font-size:13px;line-height:1.8;padding-left:18px;margin:0 0 16px;">
         <li>Final drawings</li>
         <li>Quote / scope of work</li>
