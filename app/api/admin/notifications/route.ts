@@ -42,7 +42,27 @@ export async function GET() {
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
 
   const [routes, testMode] = await Promise.all([loadAllRoutes(), loadTestMode(true)]);
-  return NextResponse.json({ routes, testMode });
+
+  /*
+    Whether TEST_EMAIL_OVERRIDE is set, and whether it is actually doing
+    anything right now.
+
+    This screen used to describe a routing table that production was ignoring,
+    because the env var beat it unconditionally and nothing here said so. The
+    only symptom was a subject-line prefix. `overrideSet` lets the page warn
+    that the var exists; `overrideInForce` says whether it is currently winning,
+    which it only does while test mode is off.
+
+    The value itself is deliberately not returned — the page needs to know the
+    var is there, not what is in it.
+  */
+  const overrideSet = !!process.env.TEST_EMAIL_OVERRIDE?.trim();
+  return NextResponse.json({
+    routes,
+    testMode,
+    overrideSet,
+    overrideInForce: overrideSet && !testMode.active,
+  });
 }
 
 export async function PUT(req: NextRequest) {

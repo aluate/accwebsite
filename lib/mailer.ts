@@ -49,6 +49,36 @@ export type SendResult =
     }
   | { ok: false; error: string };
 
+/**
+ * Is the blunt env-var override in force?
+ *
+ * WHY THIS IS A FUNCTION AND WHY IT TAKES testModeActive.
+ *
+ * TEST_EMAIL_OVERRIDE redirects every message to one address. Per-role test
+ * mode redirects each message to a stand-in inbox for its role. Both keep mail
+ * away from real clients, so neither is safer than the other — but the override
+ * used to win unconditionally, including when test mode was on and configured.
+ *
+ * That made the settings screen a lie. Karl configured client, builder, PM and
+ * engineer inboxes at /admin/notifications, walked jobs through the whole
+ * lifecycle, and every message went to one address anyway. The screen said one
+ * thing and production did another, and the only way to tell was to read a
+ * subject-line prefix and know which branch of this file produced it.
+ *
+ * So the precedence is inverted: when test mode is ON, the per-role routing it
+ * describes is what happens. The override stands down. When test mode is OFF,
+ * the override still applies exactly as before — it is the blunt safety net for
+ * when nothing else is configured, which is the job it was written for.
+ *
+ * Nothing gets less safe. With test mode on, a real client still cannot receive
+ * anything; the redirect is simply the one the screen promises.
+ */
+export function envOverrideInForce(testModeActive: boolean): string | null {
+  const v = process.env.TEST_EMAIL_OVERRIDE?.trim();
+  if (!v) return null;
+  return testModeActive ? null : v;
+}
+
 function isPreviewMode(): boolean {
   return !process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD;
 }
@@ -84,7 +114,8 @@ export async function sendOrderEmail(opts: {
   */
   const mode = await loadTestMode();
   const routed = applyTestRouting(mode, { to: [realTo], cc: [], audience: "residential" });
-  const to = (process.env.TEST_EMAIL_OVERRIDE ? [process.env.TEST_EMAIL_OVERRIDE] : routed.to).join(", ");
+  const orderOverride = envOverrideInForce(mode.active);
+  const to = (orderOverride ? [orderOverride] : routed.to).join(", ");
 
   if (isPreviewMode()) {
     console.log(
@@ -166,7 +197,9 @@ export async function sendEmail(opts: {
   // The old env-var override still works and still wins — one address, no
   // roles, for when someone wants everything in one place without touching
   // the settings screen.
-  const envOverride = process.env.TEST_EMAIL_OVERRIDE;
+  // Per-role test mode wins when it is on; the override is the fallback net.
+  // See envOverrideInForce above for why that order and not the other one.
+  const envOverride = envOverrideInForce(mode.active);
   const finalTo = envOverride ? [envOverride] : routed.to;
   const finalCc = envOverride ? [] : routed.cc;
   const prefix = envOverride ? `[TEST → ${toList.join(", ")}] ` : routed.subjectPrefix;

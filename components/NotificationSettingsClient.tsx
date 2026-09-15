@@ -56,6 +56,13 @@ export default function NotificationSettingsClient() {
   const [rows, setRows] = useState<Row[]>([]);
   const [test, setTest] = useState<TestMode>({ active: false, addresses: {}, fallback: null });
   const [loading, setLoading] = useState(true);
+  /*
+    TEST_EMAIL_OVERRIDE, an env var that redirects every message to one address.
+    `set` means it exists; `inForce` means it is currently winning, which it
+    only does while test mode is off. Without this, the screen described a
+    routing table that production was quietly ignoring.
+  */
+  const [override, setOverride] = useState<{ set: boolean; inForce: boolean }>({ set: false, inForce: false });
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   async function load() {
@@ -65,6 +72,7 @@ export default function NotificationSettingsClient() {
       const d = await res.json();
       setRows(d.routes ?? []);
       setTest(d.testMode ?? { active: false, addresses: {}, fallback: null });
+      setOverride({ set: !!d.overrideSet, inForce: !!d.overrideInForce });
     }
     setLoading(false);
   }
@@ -104,6 +112,30 @@ export default function NotificationSettingsClient() {
 
   return (
     <div className="space-y-8">
+      {override.inForce && (
+        <div className="border border-red-500 bg-red-500/10 rounded-lg px-4 py-3">
+          <p className="font-condensed uppercase tracking-widest text-red-400 text-sm">
+            An environment variable is overriding this screen
+          </p>
+          <p className="text-white/70 text-xs mt-1">
+            <code className="text-white/90">TEST_EMAIL_OVERRIDE</code> is set on the server, and with
+            test mode off it sends every automated email to that one address — whatever the routes
+            below say. Turn test mode on to use the per-role addresses instead, or remove the variable
+            in the hosting settings and redeploy.
+          </p>
+        </div>
+      )}
+
+      {override.set && !override.inForce && (
+        <div className="border border-white/15 bg-white/[0.03] rounded-lg px-4 py-3">
+          <p className="text-white/50 text-xs">
+            <code className="text-white/70">TEST_EMAIL_OVERRIDE</code> is set on the server but is not
+            being used: test mode is on, so the per-role addresses below are what happens. If test mode
+            is switched off, that variable takes over and everything goes to one address.
+          </p>
+        </div>
+      )}
+
       {test.active && (
         <div className="border border-[#f08122] bg-[#f08122]/10 rounded-lg px-4 py-3">
           <p className="font-condensed uppercase tracking-widest text-[#f08122] text-sm">Test mode is on</p>

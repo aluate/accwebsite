@@ -46,6 +46,7 @@ const SUITES = [
   { file: "test-email-templates.mjs",  db: false, what: "every email template renders something readable (pure)" },
   { file: "test-job-label.mjs",        db: false, what: "a job is never called by its internal key (pure)" },
   { file: "test-invoices.mjs",         db: false, what: "invoices are raised by hand, never for $0 (pure)" },
+  { file: "test-mail-override.mjs",    db: false, what: "the notification screen is what actually happens (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },
