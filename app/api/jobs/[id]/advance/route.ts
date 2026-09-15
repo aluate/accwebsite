@@ -182,16 +182,57 @@ export async function POST(
       // mode splits them into separate inboxes.
       const roleOf = (address: string) => resolved.roleByAddress[address.toLowerCase()];
 
+      /*
+        THE CLIENT GETS A DIFFERENT MESSAGE FROM THE PEOPLE INSIDE ACC.
+
+        Until now one message went to everyone on the list. Where a client was
+        on it — delivery, punch, complete — they received the internal note,
+        written for the shop, as plain text with no logo. Karl, reading all
+        twenty side by side, on the branded templates that existed for exactly
+        these moments and were never called: "I think those 2 are fine to add."
+
+        So when a gate declares a clientTemplate, the client's addresses come
+        out of the main send and get the branded version instead. Everyone else
+        still gets the plain internal note, unchanged. A gate without one
+        behaves exactly as before, which is why `punch` still sends one message
+        to everybody.
+      */
+      const clientTo = gate.clientTemplate
+        ? resolved.to.filter((a) => roleOf(a) === "client")
+        : [];
+      const primaryTo = gate.clientTemplate
+        ? resolved.to.filter((a) => roleOf(a) !== "client")
+        : resolved.to;
+
       if (toStatus === "engineering") {
         const { subject, text, html, attachments } = await buildEngineeringEmail(job, internalId, note);
-        emailOpts = { to: resolved.to, cc: resolved.cc, subject, text, html, attachments: attachments.length ? attachments : undefined, roleOf, event: eventKey };
+        emailOpts = { to: primaryTo, cc: resolved.cc, subject, text, html, attachments: attachments.length ? attachments : undefined, roleOf, event: eventKey };
       } else {
         const subject = gate.subject(job);
         const text    = gate.body(job, note);
-        emailOpts = { to: resolved.to, cc: resolved.cc, subject, text, roleOf, event: eventKey };
+        emailOpts = { to: primaryTo, cc: resolved.cc, subject, text, roleOf, event: eventKey };
       }
 
-      const result = await sendEmail(emailOpts);
+      /*
+        A gate can now resolve to client-only — production, for instance, if
+        somebody clears the shop address. Sending with an empty To: throws, and
+        the client's email below is the one that matters, so skip rather than
+        fail the advance.
+      */
+      const result = primaryTo.length
+        ? await sendEmail(emailOpts)
+        : { ok: true as const, messageId: null };
+
+      if (gate.clientTemplate && clientTo.length) {
+        const t = gate.clientTemplate(job, note);
+        const clientResult = await sendEmail({
+          to: clientTo, subject: t.subject, text: t.text, html: t.html,
+          audience: "client", event: `${eventKey}.client`,
+        });
+        if (!clientResult.ok) {
+          emailErrors.push(`${clientTo.join(", ")}: ${(clientResult as { ok: false; error: string }).error}`);
+        }
+      }
 
       try {
         await sql`

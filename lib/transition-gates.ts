@@ -16,6 +16,9 @@
  */
 
 import { labelFromRef } from "@/lib/job-label";
+import {
+  finalDesignSent, releasedToProduction, readyForDelivery, installComplete,
+} from "@/lib/email-templates";
 
 export type JobMeta = {
   id: string;
@@ -25,6 +28,8 @@ export type JobMeta = {
   site_address?: string | null;
   city?: string | null;
   pm?: string | null;
+  /** Selected by the advance route all along; the type just never said so. */
+  delivery_date?: string | null;
 };
 
 export type RecipientKey = "client" | "pm" | "eng" | "shop" | "residential";
@@ -52,6 +57,20 @@ export type GateConfig = {
   subject: (job: JobMeta) => string;
   /** Email body text (plain-text fallback) */
   body: (job: JobMeta, note?: string) => string;
+  /*
+    The CLIENT's version of this moment, branded, from lib/email-templates.ts.
+
+    The subject/body above are written for people inside ACC — engineering, the
+    shop, the PM. Where a client was also told about a transition, they got that
+    same internal note: plain text, no logo, no colours, at the moments they
+    care about most.
+
+    Four finished templates existed for exactly these moments and nothing ever
+    called them. When this is set the client gets it INSTEAD of the plain text,
+    and everyone else still gets the plain text. When it is not set nothing
+    changes — `punch` has no branded version yet, so it behaves as before.
+  */
+  clientTemplate?: (job: JobMeta, note?: string) => { subject: string; text: string; html: string };
 };
 
 /** Status progression order (excludes on_hold) */
@@ -102,8 +121,23 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     docKind: "05_drawings",
     docLabel: "Finalized Design Drawings",
     docRequired: false,
-    recipients: ["eng"],
+    recipients: ["eng", "client"],
     ccKeys: ["residential", "pm"],
+    /*
+      The client hears that the design is finished and about to be built.
+
+      The moment is a judgement call: "your final design is ready" fires when a
+      job LEAVES design for engineering, because that is when the drawings stop
+      moving. If it belongs elsewhere in the pipeline, this one line moves.
+    */
+    clientTemplate: (j, note) => finalDesignSent({
+      jobId: String(j.job_number ?? ""),
+      clientFirstName: String(j.client_name ?? "").trim().split(/\s+/)[0] || "there",
+      clientName: j.client_name ?? "",
+      siteAddress: jobAddress(j),
+      pm: j.pm ?? "your project manager",
+      notes: note,
+    }),
     subject: (j) => `${jobRef(j)} — Released to Engineering`,
     body: (j, note) =>
       `${jobRef(j)} has been released to Engineering.\n\n` +
@@ -121,7 +155,19 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     docLabel: "ShopPAK Work Order PDFs",
     docRequired: false,
     woUpload: true,
-    recipients: ["shop"],
+    recipients: ["shop", "client"],
+    /*
+      Nobody told the client their cabinets had started being built. The shop
+      was notified and that was it — and of every moment in a job this is the
+      one a client most wants to hear about.
+    */
+    clientTemplate: (j) => releasedToProduction({
+      jobId: String(j.job_number ?? ""),
+      clientFirstName: String(j.client_name ?? "").trim().split(/\s+/)[0] || "there",
+      siteAddress: jobAddress(j),
+      estimatedDeliveryDate: j.delivery_date ?? undefined,
+      pm: j.pm ?? "your project manager",
+    }),
     subject: (j) => `${jobRef(j)} — Released to Production`,
     body: (j, note) =>
       `${jobRef(j)} has been released to Production.\n\n` +
@@ -139,6 +185,13 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     docLabel: "Ship Ticket / Bill of Lading",
     docRequired: false,
     recipients: ["client", "pm"],
+    clientTemplate: (j, note) => readyForDelivery({
+      clientFirstName: String(j.client_name ?? "").trim().split(/\s+/)[0] || "there",
+      siteAddress: jobAddress(j),
+      deliveryDate: j.delivery_date ?? undefined,
+      pm: j.pm ?? "your project manager",
+      deliveryNotes: note,
+    }),
     subject: (j) => `${j.client_name} — Your cabinets are on their way`,
     body: (j, note) =>
       `Hi ${j.client_name},\n\n` +
@@ -192,6 +245,13 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     docLabel: "Signoff / Closeout Document",
     docRequired: false,
     recipients: ["client", "pm"],
+    clientTemplate: (j, note) => installComplete({
+      clientFirstName: String(j.client_name ?? "").trim().split(/\s+/)[0] || "there",
+      clientName: j.client_name ?? "",
+      siteAddress: jobAddress(j),
+      pm: j.pm ?? "your project manager",
+      warrantyNotes: note,
+    }),
     subject: (j) => `${j.client_name} — Project complete`,
     body: (j, note) =>
       `Hi ${j.client_name},\n\n` +

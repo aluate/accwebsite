@@ -385,6 +385,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
     official: string | null; scheduled: string;
   } | null>(null);
   const [installSaving, setInstallSaving] = useState(false);
+  const [notifyPm, setNotifyPm] = useState(true);
 
   const [conflictPrompt, setConflictPrompt] = useState<{
     eventId: string; conflicts: JobEventWithJoins[];
@@ -1200,6 +1201,29 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
               The event has already moved either way. This decides what the board, the
               month grouping and the ENG warning use.
             </p>
+            {/*
+              Karl: "make sure there's like a box to check... notify PM for the
+              email to fire." This is the only place it belongs — the moment a
+              date is deliberately made official. Dragging a card around the
+              board changes dates constantly and never emails anyone.
+
+              Defaulted ON because by the time this prompt appears the official
+              date IS changing, which is the thing a PM needs to hear about.
+            */}
+            <label className="flex items-start gap-2.5 mb-4 cursor-pointer select-none">
+              <input
+                id="notify-pm-on-official-date"
+                type="checkbox"
+                checked={notifyPm}
+                onChange={(e) => setNotifyPm(e.target.checked)}
+                className="mt-0.5 shrink-0"
+              />
+              <span className="text-white/60 text-xs">
+                Email the PM that the date moved
+                {installPrompt.official ? <> — from {installPrompt.official} to {installPrompt.scheduled}</> : null}.
+              </span>
+            </label>
+
             <div className="flex gap-2">
               <button
                 disabled={installSaving}
@@ -1212,6 +1236,7 @@ export function ScheduleWallClient({ today: initialToday, isAdmin = false }: Sch
                       body: JSON.stringify({
                         install_start_date: installPrompt.scheduled,
                         _actor: "schedule", _actorRole: "pm",
+                        _notify_pm: notifyPm,
                       }),
                     });
                     if (!r.ok) {

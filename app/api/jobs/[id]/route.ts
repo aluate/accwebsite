@@ -3,9 +3,13 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { logActivity } from "@/lib/activity-log";
+import { sendEmail } from "@/lib/mailer";
+import { scheduleDateChanged } from "@/lib/email-templates";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
 import { requireBuilderApi, guardApi } from "@/lib/auth";
 import { syncInstallEventToOfficialDate } from "@/lib/install-date";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.advancedcabinets.org";
 
 /**
  * Columns a PATCH may write. Every name here must be a real column on `jobs`:
@@ -67,7 +71,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   for (const f of fields) updates[f] = MOD_FIELDS.has(f) ? (body[f] ? 1 : 0) : body[f];
 
   // Resolve internal id (param may be job_number)
-  const [row] = await sql`SELECT id, status FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; status: string }>;
+  /*
+    The dates are read BEFORE the update because a "date moved" notification is
+    worthless without the date it moved from, and after the UPDATE that value is
+    gone. Everything else here already had what it needed; this row is the one
+    thing that has to be captured first.
+  */
+  const [row] = await sql`
+    SELECT id, status, job_number, client_name, site_address, city, pm,
+           install_start_date, delivery_date
+    FROM jobs WHERE id = ${id} OR job_number = ${id}
+  ` as Array<{
+    id: string; status: string; job_number: string | null; client_name: string;
+    site_address: string | null; city: string | null; pm: string | null;
+    install_start_date: string | null; delivery_date: string | null;
+  }>;
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const internalId = row.id;
 
@@ -151,6 +169,56 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   //
   // Reported rather than silent. The move can double-book a crew, and an automatic
   // change that hides a conflict is worse than no sync at all.
+  /*
+    TELL THE PM A DATE MOVED — BUT ONLY WHEN SOMEBODY ASKS.
+
+    scheduleDateChanged has been finished and uncalled since the templates were
+    written: an install or delivery date moved and nobody was emailed. Karl:
+    "let's wire up that change, but make sure there's like a box to check...
+    notify PM for the email to fire."
+
+    The box matters more than the email. Dates move constantly while a schedule
+    is being worked out — dragging a card, nudging a week, trying a shape. A
+    message on every one of those teaches people to filter the sender, and then
+    the one that mattered goes unread with the rest. So this fires only when the
+    caller explicitly asks, which today is one checkbox on the "make it
+    official" prompt: the moment the board and the pipeline are deliberately
+    brought back into agreement.
+
+    Drag-to-move does not set it. That is the point of it.
+  */
+  if (body._notify_pm === true) {
+    const moved = (["install_start_date", "delivery_date"] as const).filter(
+      (f) => f in updates && String(updates[f] ?? "") !== String(row[f] ?? ""),
+    );
+    for (const field of moved) {
+      try {
+        const t = scheduleDateChanged({
+          jobId: String(row.job_number ?? ""),
+          jobNumber: row.job_number ? String(row.job_number) : undefined,
+          clientName: row.client_name ?? "",
+          siteAddress: [row.site_address, row.city].filter(Boolean).join(", "),
+          eventType: field === "install_start_date" ? "Install" : "Delivery",
+          oldDate: row[field] ?? undefined,
+          newDate: (updates[field] as string | null) ?? undefined,
+          changedBy: actor,
+          reason: typeof body._reason === "string" ? body._reason : undefined,
+          jobUrl: `${SITE_URL}/jobs/${row.job_number ?? internalId}`,
+        });
+        /*
+          Never allowed to fail the save. The date is already stored; losing the
+          whole PATCH to an SMTP hiccup is a worse outcome than a missing
+          notification. The recipient is resolved by role, so who "the PM" is
+          stays configurable on /admin/notifications like everything else.
+        */
+        void sendEmail({
+          to: [], subject: t.subject, text: t.text, html: t.html,
+          audience: "pm", event: "schedule.date_changed",
+        }).catch(() => {});
+      } catch { /* a malformed date must not take the save with it */ }
+    }
+  }
+
   let install_sync: Awaited<ReturnType<typeof syncInstallEventToOfficialDate>> | undefined;
   if ("install_start_date" in updates) {
     try {
@@ -178,6 +246,64 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const [row] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; client_name: string }>;
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  await sql`DELETE FROM jobs WHERE id = ${row.id}`;
+
+  /*
+    DELETING A JOB THAT HAS ACTUALLY BEEN WORKED ON.
+
+    `DELETE FROM jobs` alone worked on an empty job and threw a foreign-key
+    error on any job that got anywhere — which is every job worth deleting. The
+    button returned a 500 with an empty body, so it looked like nothing had
+    happened at all. Found while clearing nineteen test jobs: the two with a
+    spec, invoices and a signoff on them were the two that refused.
+
+    Twenty-one tables reference jobs(id) and sixteen of them already cascade.
+    These five do not:
+
+        client_signoffs   change_orders   estimates   invoices
+        builder_floor_plan_rooms
+
+    They are cleared here rather than by altering the constraints, deliberately.
+    migrate-prod.bat tells you, right before you type YES, that the schema
+    script is "additive only ... nothing in it drops, deletes or truncates
+    anything." Adding a DROP CONSTRAINT would make that sentence false, and that
+    sentence is what makes the migration safe to run without reading it. Doing
+    the work here costs one query each and keeps the promise.
+
+    All of it in one transaction: a half-deleted job leaves orphan invoices
+    pointing at a job that no longer exists, which is worse than not deleting.
+  */
+  try {
+    await sql.begin(async (tx) => {
+      await tx`DELETE FROM invoice_line_items WHERE invoice_id IN (SELECT id FROM invoices WHERE job_id = ${row.id})`;
+      await tx`DELETE FROM invoices WHERE job_id = ${row.id}`;
+      await tx`DELETE FROM change_order_items WHERE co_id IN (SELECT id FROM change_orders WHERE job_id = ${row.id})`;
+      await tx`DELETE FROM change_orders WHERE job_id = ${row.id}`;
+      await tx`DELETE FROM client_signoffs WHERE job_id = ${row.id}`;
+      await tx`DELETE FROM estimates WHERE job_id = ${row.id}`;
+      await tx`DELETE FROM builder_floor_plan_rooms WHERE job_id = ${row.id}`;
+      await tx`DELETE FROM jobs WHERE id = ${row.id}`;
+    });
+  } catch (e) {
+    /*
+      Name the table. The original swallowed this into a blank 500, and the only
+      way to find out what was holding the row was to read the schema — which is
+      how this took a test run to notice rather than a moment. If a new table
+      starts referencing jobs without cascading, this message says which one.
+    */
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[jobs/delete] failed:", msg);
+    return NextResponse.json({
+      error: "Could not delete this job — something still references it.",
+      detail: msg,
+    }, { status: 409 });
+  }
+
+  await logActivity({
+    entityType: "job", entityId: row.id, jobId: null,
+    eventType: "deleted",
+    actor: "admin", actorRole: "admin",
+    payload: { note: `Deleted job ${row.id}${row.client_name ? ` (${row.client_name})` : ""}.` },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true, deleted: row.id });
 }
