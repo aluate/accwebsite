@@ -28,7 +28,7 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/mailer";
 import { TRANSITION_GATES, STATUS_SEQUENCE, type JobMeta } from "@/lib/transition-gates";
 import { buildEngineeringEmail } from "@/lib/engineering-email";
-import { createDraftInvoice, invoiceExists } from "@/lib/invoices";
+import { AUTO_INVOICE_ENABLED, createDraftInvoice, invoiceExists } from "@/lib/invoices";
 import { resolveRecipients, jobRoleAddresses } from "@/lib/notification-routing";
 
 type JobRow = JobMeta & {
@@ -221,19 +221,39 @@ export async function POST(
     payload: note ? { note } : undefined,
   }).catch(() => {});
 
-  // ── 8. Auto-create balance invoice draft on delivery ───────
-  // STATUS_SEQUENCE (lib/transition-gates.ts:56) has "delivery", not "delivered",
-  // so this branch never ran and no invoice was ever auto-created.
+  // ── 8. Balance invoice on delivery ────────────────────────
+  /*
+    Off by design. See AUTO_INVOICE_ENABLED in lib/invoices.ts for why — the
+    short version is that this priced itself from the estimator alone and wrote
+    a $0 invoice for every job that never went through it.
+
+    Skipping it silently would be worse than the $0 invoice, because nothing
+    would tell anyone billing is due. So the timeline gets an entry instead, and
+    the PM raises the invoice from the job page.
+  */
   if (toStatus === "delivery") {
     const alreadyExists = await invoiceExists(internalId, "balance").catch(() => true);
     if (!alreadyExists) {
       const label = [job.client_name, job.site_address].filter(Boolean).join(" — ");
-      await createDraftInvoice({
-        jobId: internalId,
-        jobLabel: label,
-        invoiceType: "balance",
-        createdBy: _actor,
-      }).catch(() => {});
+      if (AUTO_INVOICE_ENABLED) {
+        await createDraftInvoice({
+          jobId: internalId,
+          jobLabel: label,
+          invoiceType: "balance",
+          createdBy: _actor,
+        }).catch(() => {});
+      } else {
+        await logActivity({
+          entityType: "job", entityId: internalId, jobId: internalId,
+          eventType: "invoice_due",
+          actor: _actor, actorRole: _actorRole,
+          payload: {
+            invoice_type: "balance",
+            job: label,
+            note: "Delivered — balance invoice is due. Raise it from the job page.",
+          },
+        }).catch(() => {});
+      }
     }
   }
 

@@ -17,6 +17,31 @@
 import { sql, uid } from "@/lib/db";
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Automatic invoices are OFF
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Karl, 2026-09-15: "The auto invoices will need to be manual until further
+ * notice."
+ *
+ * The reason is in the test run from 09-11. The only automatic invoice that was
+ * actually wired — the 50% balance raised when a job reaches delivery — priced
+ * itself from `estimates.sell_price` and nothing else. A job that never went
+ * through the estimator has no such row, so it invoiced ZERO and said nothing:
+ *
+ *     "50% balance — ZZTEST 01 Client — 1 ZZTEST Run Road"   $0.00
+ *
+ * Most PM-created jobs never touch the estimator, so that was the normal case,
+ * not the edge case.
+ *
+ * Turning this to `true` is the whole re-enable. Nothing else has to change:
+ * the amount fallback below was fixed at the same time, so it will price from
+ * the PM's own estimated value when there is no estimate. Leave it off until
+ * Karl says otherwise, and when it goes back on, run a job through to delivery
+ * and look at the number before trusting it.
+ */
+export const AUTO_INVOICE_ENABLED = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -67,7 +92,20 @@ async function fetchEstimateSellPrice(jobId: string): Promise<number> {
     ORDER BY created_at DESC
     LIMIT 1
   `.catch(() => []);
-  return Number(row?.sell_price ?? 0);
+  const fromEstimate = Number(row?.sell_price ?? 0);
+  if (fromEstimate > 0) return fromEstimate;
+
+  /*
+    No estimate. This used to return 0 and the invoice was written at zero
+    anyway. The PM's own figure on the job is a worse number than the estimator's
+    but it is a real one, and a draft invoice is meant to be reviewed before it
+    is sent. Falling back to it means the PM corrects a number instead of
+    noticing an absence.
+  */
+  const [job] = await sql<Array<{ estimated_value: number | null }>>`
+    SELECT estimated_value FROM jobs WHERE id = ${jobId} LIMIT 1
+  `.catch(() => []);
+  return Number(job?.estimated_value ?? 0);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

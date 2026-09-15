@@ -386,7 +386,7 @@ function SentInvoiceCard({
       <div className="flex items-center justify-between px-4 py-3 bg-blue-50 border-b border-blue-100">
         <div className="flex items-center gap-3">
           <span className="font-semibold text-gray-800 text-sm">
-            Invoice #{invoice.invoice_number} — {typeLabel(invoice.invoice_type)}
+            {invoice.invoice_number ? `Invoice #${invoice.invoice_number} — ` : ""}{typeLabel(invoice.invoice_type)}
           </span>
           <span className={statusBadge(invoice.status)}>Sent</span>
         </div>
@@ -469,7 +469,7 @@ function PaidInvoiceCard({ invoice }: { invoice: Invoice }) {
       <div className="flex items-center justify-between px-4 py-3 bg-green-50 border-b border-green-100">
         <div className="flex items-center gap-3">
           <span className="font-semibold text-gray-700 text-sm">
-            Invoice #{invoice.invoice_number} — {typeLabel(invoice.invoice_type)}
+            {invoice.invoice_number ? `Invoice #${invoice.invoice_number} — ` : ""}{typeLabel(invoice.invoice_type)}
           </span>
           <span className={statusBadge("paid")}>Paid</span>
         </div>
@@ -602,7 +602,7 @@ export function InvoicePanel({ jobId, canManage }: { jobId: string; canManage: b
 
       {!loading && invoices.length === 0 && (
         <p className="text-sm text-gray-400 py-4 text-center">
-          No invoices yet. Deposit invoice will be created automatically when the client signs.
+          No invoices yet. Invoices are raised by hand — use “Create manual invoice” below.
         </p>
       )}
 
