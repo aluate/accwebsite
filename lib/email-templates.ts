@@ -39,8 +39,51 @@ export type NotificationTrigger = {
 // HTML layout helpers (ACC brand)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const BRAND_NAVY  = "#1e3a5f";
+/*
+  ACC's actual colours, which these emails were not using.
+
+  Karl, looking at all twenty rendered side by side: "The branding is claude
+  basic, not ACC colors and logo."
+
+  He was right. The header was a navy, under a constant named for it, so it was
+  somebody's deliberate choice at some point — just not ACC's. The orange
+  appeared exactly once in the whole file, on one highlight rule. And there was
+  no logo anywhere: not a single <img> in any template.
+
+  So a client got a generic blue email from a company whose sign, truck, website
+  and app are dark grey and orange. The dark ground here matches the app and the
+  signoff page the email links to, which matters: clicking through should not
+  feel like arriving somewhere else.
+
+  Three tokens, because one orange cannot do all three jobs:
+
+    INK     the header ground and structural rules
+    ORANGE  the accent ON that dark ground, and the CTA fill — bright, so it
+            works against #1a1a1a and as a block of colour against white
+    LINK    a deepened orange for inline links, which sit on white as small
+            text. The bright orange on white is about 2.6:1 and genuinely hard
+            to read; this is ~4.6:1, passes AA, same family
+*/
+const BRAND_INK    = "#1a1a1a";
 const BRAND_ORANGE = "#f08122";
+const BRAND_LINK   = "#b5590c";
+
+/*
+  The logo, hosted rather than attached.
+
+  Mail clients want a URL; an attachment becomes a download in some clients and
+  a broken cid: in others. Served from the site, so it updates everywhere at
+  once if the logo ever changes.
+
+  Everything below assumes it will NOT load. Gmail and Outlook block remote
+  images until the reader trusts the sender, which for a first contract email is
+  exactly never. So the logo sits on a header bar already coloured by CSS, it
+  carries real alt text, and the company name is live text underneath rather
+  than baked into the picture. With images off, the header still reads as ACC,
+  in ACC's colours.
+*/
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.advancedcabinets.org";
+const LOGO_URL = `${SITE_URL}/logo.png`;
 
 function h(s: string | null | undefined): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -66,7 +109,7 @@ function layout(opts: {
 }): string {
   const cta = opts.ctaLabel && opts.ctaUrl
     ? `<div style="margin-top:20px;padding-top:14px;border-top:1px solid #eee;">
-        <a href="${h(opts.ctaUrl)}" style="background:${BRAND_NAVY};color:#fff;text-decoration:none;padding:9px 18px;border-radius:4px;font-size:13px;display:inline-block;">${h(opts.ctaLabel)} &rarr;</a>
+        <a href="${h(opts.ctaUrl)}" style="background:${BRAND_ORANGE};color:#1a1a1a;font-weight:700;text-decoration:none;padding:10px 20px;border-radius:4px;font-size:13px;display:inline-block;">${h(opts.ctaLabel)} &rarr;</a>
        </div>`
     : "";
 
@@ -78,10 +121,11 @@ function layout(opts: {
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="font-family:Arial,sans-serif;color:#222;max-width:640px;margin:0 auto;padding:16px;background:#fff;">
-  <div style="background:${BRAND_NAVY};color:#fff;padding:16px 20px;border-radius:4px 4px 0 0;">
-    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.6;">Advanced Custom Cabinets</div>
-    <div style="font-size:20px;font-weight:700;margin-top:4px;">${h(opts.heading)}</div>
-    ${opts.subheading ? `<div style="font-size:13px;opacity:.8;margin-top:3px;">${h(opts.subheading)}</div>` : ""}
+  <div style="background:${BRAND_INK};color:#fff;padding:18px 20px 16px;border-radius:4px 4px 0 0;border-bottom:3px solid ${BRAND_ORANGE};">
+    <img src="${LOGO_URL}" alt="Advanced Custom Cabinets" width="140" style="display:block;border:0;width:140px;max-width:140px;height:auto;margin-bottom:12px;">
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${BRAND_ORANGE};font-weight:700;">Advanced Custom Cabinets</div>
+    <div style="font-size:20px;font-weight:700;margin-top:5px;color:#ffffff;">${h(opts.heading)}</div>
+    ${opts.subheading ? `<div style="font-size:13px;color:#b8b0a8;margin-top:3px;">${h(opts.subheading)}</div>` : ""}
   </div>
   <div style="border:1px solid #ddd;border-top:none;padding:20px;border-radius:0 0 4px 4px;">
     ${opts.body}
@@ -168,8 +212,8 @@ export function leadInquiryResponse(data: {
       para(`Looking forward to it,`),
       `<p style="font-size:13px;margin:0;"><strong>${h(data.yourName)}</strong><br>
        Advanced Cabinets<br>
-       <a href="tel:${h(data.yourPhone)}" style="color:${BRAND_NAVY};">${h(data.yourPhone)}</a>
-       ${data.yourEmail ? `<br><a href="mailto:${h(data.yourEmail)}" style="color:${BRAND_NAVY};">${h(data.yourEmail)}</a>` : ""}
+       <a href="tel:${h(data.yourPhone)}" style="color:${BRAND_LINK};">${h(data.yourPhone)}</a>
+       ${data.yourEmail ? `<br><a href="mailto:${h(data.yourEmail)}" style="color:${BRAND_LINK};">${h(data.yourEmail)}</a>` : ""}
       </p>`,
     ].join(""),
   });
@@ -230,7 +274,7 @@ export function bidSent(data: {
         data.bidNumber ? infoRow("Quote #", h(data.bidNumber)) : "",
       ].filter(Boolean)),
       data.estimateUrl
-        ? para(`<a href="${h(data.estimateUrl)}" style="color:${BRAND_NAVY};">Click here to view your estimate online</a> — or see the attached PDF if one is included.`)
+        ? para(`<a href="${h(data.estimateUrl)}" style="color:${BRAND_LINK};">Click here to view your estimate online</a> — or see the attached PDF if one is included.`)
         : para(`Please see the attached estimate document.`),
       para(`Reply to this email or call us any time — we're happy to walk through the numbers with you.`),
     ].join(""),
@@ -277,8 +321,8 @@ export function finalDesignSent(data: {
       data.notes ? highlight(h(data.notes)) : "",
       para(`Please review everything carefully. Once you're happy with the design, the next step is signing off so we can move forward to production.`),
       infoTable([
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
-        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_NAVY};">${h(data.pmEmail)}</a>`) : "",
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
+        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_LINK};">${h(data.pmEmail)}</a>`) : "",
       ]),
       para(`Questions? Reply to this email or call us — we're happy to walk through it.`),
     ].join(""),
@@ -339,8 +383,8 @@ export function contractSent(data: {
       data.notes ? highlight(h(data.notes)) : "",
       infoTable([
         infoRow("Project", data.siteAddress),
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
-        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_NAVY};">${h(data.pmEmail)}</a>`) : "",
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
+        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_LINK};">${h(data.pmEmail)}</a>`) : "",
       ]),
       para(`Questions or concerns? Reply to this email or call us before signing.`),
     ].join(""),
@@ -389,7 +433,7 @@ export function releasedToProduction(data: {
         : "",
       para(`We'll be in touch as your delivery date approaches. Questions in the meantime? Reply to this email or reach out to your PM.`),
       infoTable([
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
       ]),
     ].join(""),
   });
@@ -432,7 +476,7 @@ export function readyForDelivery(data: {
       para(`Your cabinets for <strong>${h(data.siteAddress)}</strong> are complete and ready for delivery.`),
       infoTable([
         data.deliveryDate ? infoRow("Scheduled delivery", `<strong>${fmtDate(data.deliveryDate)}</strong>`) : "",
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
       ]),
       data.deliveryNotes ? highlight(h(data.deliveryNotes)) : "",
       para(`Your PM will coordinate the delivery details. Reply to this email or call us with any questions.`),
@@ -477,7 +521,7 @@ export function delivered(data: {
       para(`Your cabinets have been delivered to <strong>${h(data.siteAddress)}</strong>.`),
       infoTable([
         data.installDate ? infoRow("Scheduled install", `<strong>${fmtDate(data.installDate)}</strong>`) : "",
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
       ]),
       data.notes ? highlight(h(data.notes)) : "",
       para(`Please inspect everything when you have a chance. If anything needs attention, don't hesitate to reach out.`),
@@ -528,14 +572,14 @@ export function installComplete(data: {
       para(`Hi ${h(data.clientFirstName)},`),
       para(`Installation is complete at <strong>${h(data.siteAddress)}</strong>. We hope you love the finished product.`),
       `<div style="background:#f0f7ff;border:1px solid #c7ddf7;border-radius:4px;padding:14px 16px;margin:16px 0;">
-        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#1e3a5f;font-weight:700;margin-bottom:8px;">Warranty</div>
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b5590c;font-weight:700;margin-bottom:8px;">Warranty</div>
         <p style="font-size:13px;line-height:1.6;margin:0 0 6px;">Your cabinetry is covered by a <strong>${warrantyYears}-year warranty</strong> on workmanship and materials.</p>
         ${data.warrantyNotes ? `<p style="font-size:12px;color:#555;margin:0;">${h(data.warrantyNotes)}</p>` : ""}
         <p style="font-size:12px;color:#555;margin:6px 0 0;">To make a warranty claim, contact your PM at the info below.</p>
        </div>`,
       infoTable([
-        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_NAVY};">${h(data.pmPhone)}</a>` : ""}`),
-        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_NAVY};">${h(data.pmEmail)}</a>`) : "",
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
+        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_LINK};">${h(data.pmEmail)}</a>`) : "",
       ]),
       para(`It's been a pleasure working with you. We'd love to work together again.`),
     ].join(""),
@@ -621,16 +665,16 @@ export function invoiceSent(data: {
 
       <table style="border-collapse:collapse;width:100%;margin-bottom:16px;">
         <thead>
-          <tr style="border-bottom:2px solid #1e3a5f;">
+          <tr style="border-bottom:2px solid #1a1a1a;">
             <th style="text-align:left;padding:6px 14px 6px 0;font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Description</th>
             <th style="text-align:right;padding:6px 0;font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Amount</th>
           </tr>
         </thead>
         <tbody>
           ${itemRows}
-          <tr style="border-top:2px solid #1e3a5f;">
-            <td style="padding:10px 14px 10px 0;font-size:14px;font-weight:700;color:#1e3a5f;">Total Due</td>
-            <td style="padding:10px 0;font-size:14px;font-weight:700;color:#1e3a5f;text-align:right;">$${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
+          <tr style="border-top:2px solid #f08122;">
+            <td style="padding:10px 14px 10px 0;font-size:14px;font-weight:700;color:#1a1a1a;">Total Due</td>
+            <td style="padding:10px 0;font-size:14px;font-weight:700;color:#1a1a1a;text-align:right;">$${total.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
           </tr>
         </tbody>
       </table>
@@ -686,8 +730,8 @@ export function newLeadAlert(data: {
     body: [
       infoTable([
         infoRow("Name", `<strong>${h(data.clientName)}</strong>`),
-        infoRow("Email", `<a href="mailto:${h(data.clientEmail)}" style="color:${BRAND_NAVY};">${h(data.clientEmail)}</a>`),
-        data.clientPhone ? infoRow("Phone", `<a href="tel:${h(data.clientPhone)}" style="color:${BRAND_NAVY};">${h(data.clientPhone)}</a>`) : "",
+        infoRow("Email", `<a href="mailto:${h(data.clientEmail)}" style="color:${BRAND_LINK};">${h(data.clientEmail)}</a>`),
+        data.clientPhone ? infoRow("Phone", `<a href="tel:${h(data.clientPhone)}" style="color:${BRAND_LINK};">${h(data.clientPhone)}</a>`) : "",
         data.projectType ? infoRow("Type", h(data.projectType)) : "",
         data.source ? infoRow("Source", h(data.source)) : "",
       ]),
