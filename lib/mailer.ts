@@ -14,7 +14,39 @@ import { loadTestMode, applyTestRouting } from "@/lib/notification-routing";
 import type { NotificationRole } from "@/lib/notification-events";
 
 export type SendResult =
-  | { ok: true; messageId: string | null; previewMode?: boolean }
+  | {
+      ok: true;
+      messageId: string | null;
+      previewMode?: boolean;
+      /*
+        WHY THESE ARE HERE.
+
+        Karl, 2026-09-15: "I got no emails. Is the sender busted?"
+
+        It was not. The probe authenticated and came back with a message id, so
+        the credentials were fine — and that was the entire extent of what
+        anyone could see, because the id was the only field kept off the send.
+        A message id is generated locally. It says a message was composed, not
+        that a server took it or that a mailbox exists.
+
+        The three fields below are what nodemailer already knew and we threw
+        away:
+
+          accepted   addresses the SMTP server agreed to deliver to
+          rejected   addresses it refused — a typo or a dead mailbox lands here,
+                     and the send still reports ok as long as one was accepted
+          response   the server's own last line, e.g. "250 2.0.0 OK ..."
+
+        `to` is the address AFTER test-mode routing, which is the other half of
+        the question: a message that went nowhere and a message that went
+        somewhere other than where you were looking are indistinguishable
+        without it.
+      */
+      to?: string[];
+      accepted?: string[];
+      rejected?: string[];
+      response?: string;
+    }
   | { ok: false; error: string };
 
 function isPreviewMode(): boolean {
@@ -83,7 +115,14 @@ export async function sendOrderEmail(opts: {
       text: body,
       attachments: attachments.length ? attachments : undefined,
     });
-    return { ok: true, messageId: info.messageId };
+    return {
+      ok: true,
+      messageId: info.messageId,
+      to: to.split(", ").filter(Boolean),
+      accepted: (info.accepted ?? []).map(String),
+      rejected: (info.rejected ?? []).map(String),
+      response: info.response,
+    };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
@@ -161,7 +200,14 @@ export async function sendEmail(opts: {
         : opts.html,
       attachments: opts.attachments,
     });
-    return { ok: true, messageId: info.messageId };
+    return {
+      ok: true,
+      messageId: info.messageId,
+      to: finalTo,
+      accepted: (info.accepted ?? []).map(String),
+      rejected: (info.rejected ?? []).map(String),
+      response: info.response,
+    };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }

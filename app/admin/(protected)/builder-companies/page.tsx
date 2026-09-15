@@ -214,9 +214,12 @@ export default function BuilderCompaniesPage() {
       </div>
 
       <div className="mt-8 p-4 bg-white/[0.02] border border-white/8 rounded-lg text-xs text-white/30">
-        <p className="font-condensed uppercase tracking-widest text-white/40 mb-1">Migration</p>
-        <p>To import your existing builder profiles into this table, run:<br />
-        <code className="text-white/50">node scripts/migrate-unified-builders.mjs</code></p>
+        <p className="font-condensed uppercase tracking-widest text-white/40 mb-1">Adding a builder</p>
+        <p>Use Add Builder above. The old import script
+        (<code className="text-white/50">scripts/migrate-unified-builders.mjs</code>) is for an
+        empty table only — it mints its own ids, so run against a populated table it creates
+        duplicate builders and a second row claiming to be the residential default. It now
+        refuses to run when this table has rows.</p>
       </div>
     </div>
   );

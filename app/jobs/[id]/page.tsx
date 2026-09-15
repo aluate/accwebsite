@@ -91,6 +91,28 @@ type JobEvent = {
   status: string;
 };
 
+/*
+  An activity row that is not a status change used to render as its raw key —
+  "job invoice_due" — while the sentence explaining it sat unread in the payload
+  column. The feed already selects payload; it just never looked at it. Anything
+  that logs a `note` now says what it means.
+
+  Payload arrives as a JSON string from a text column, or already parsed from a
+  jsonb one, depending on the row. Both are handled, and anything unreadable is
+  simply not shown rather than throwing inside the render.
+*/
+function activityNote(ev: { payload: unknown }): string | null {
+  const raw = ev.payload;
+  if (!raw) return null;
+  let obj: unknown = raw;
+  if (typeof raw === "string") {
+    try { obj = JSON.parse(raw); } catch { return null; }
+  }
+  if (!obj || typeof obj !== "object") return null;
+  const note = (obj as { note?: unknown }).note;
+  return typeof note === "string" && note.trim() ? note.trim() : null;
+}
+
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await requireBuilder();
@@ -389,7 +411,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                       ) : ev.event_type === "updated" ? (
                         <><span className="text-white/60">{ev.entity_type}</span> updated</>
                       ) : (
-                        <><span className="text-white/60">{ev.entity_type}</span> {ev.event_type}</>
+                        <>
+                          <span className="text-white/60">{ev.entity_type}</span>{" "}
+                          {ev.event_type.replace(/_/g, " ")}
+                          {activityNote(ev) && (
+                            <span className="text-white/45"> — {activityNote(ev)}</span>
+                          )}
+                        </>
                       )}
                     </span>
                   </div>

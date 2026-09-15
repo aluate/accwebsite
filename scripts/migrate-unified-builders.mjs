@@ -49,6 +49,47 @@ console.log("Step 2: Adding builder_id column to jobs...");
 await sql.unsafe(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS builder_id TEXT`);
 console.log("  Done.");
 
+/*
+  STOP if the table already has rows.
+
+  This script was safe exactly once: against an empty `builders` table. On
+  2026-09-15 that table was seeded by hand with 13 curated rows, and running
+  this over the top of them does real damage, because it mints its own ids as
+  "BILD-" + slug.slice(0, 20) and three of those disagree with what is there:
+
+      "Residential Customer"   -> BILD-RESIDENTIAL-CUSTOMER   a SECOND row also
+                                                              claiming to be the
+                                                              residential default
+      "Atlas Builders"         -> BILD-ATLAS-BUILDERS         duplicate of BILD-ATLAS
+      "CASCADE RIDGE BUILDERS" -> BILD-CASCADE-RIDGE-BUILDE   truncated mid-word,
+                                                              duplicate row
+
+  Duplicates in the builder picker, and two rows fighting over is_residential_default.
+  On the ids that DO match it upserts, overwriting typical_pm and
+  preferred_cabdoor_usage_groups with nulls and setting contact_name to a copy of
+  the company name — which is not a contact, and is against the rule that a
+  person field is a select populated from real people.
+
+  So: refuse, say why, and let a human decide. Set FORCE=1 to override, which you
+  should only do against a table you are willing to have rewritten.
+*/
+const [{ count: existingBuilders }] = await sql`SELECT COUNT(*)::int AS count FROM builders`;
+if (existingBuilders > 0 && process.env.FORCE !== "1") {
+  console.error(`
+  REFUSING TO RUN. The builders table already has ${existingBuilders} row(s).
+
+  This script generates its own ids and would create duplicate builders and a
+  second row claiming is_residential_default. It would also blank typical_pm and
+  the usage groups on rows whose ids happen to match.
+
+  If you are adding one builder, use the Add Builder button on
+  /admin/builder-companies instead.
+
+  To run anyway (and accept the rewrite):  FORCE=1 node scripts/migrate-unified-builders.mjs
+`);
+  process.exit(1);
+}
+
 console.log("Step 3: Migrating catalog_builder_profiles → builders...");
 const profiles = await sql`
   SELECT id, builder_name, builder_company,
