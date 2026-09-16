@@ -51,7 +51,17 @@ export const ROLE_LABEL: Record<NotificationRole, string> = {
   sender: "Whoever pressed the button",
 };
 
-export type NotificationAudience = "client" | "builder" | "internal";
+/*
+  "both" exists because two transitions now send two different messages.
+
+  Releasing to engineering tells engineering internally AND tells the client
+  their design is final; releasing to production tells the shop AND tells the
+  client their cabinets are being built. Filing either one under "internal"
+  hides a customer-facing email on the settings screen, under a heading that
+  says "these stay inside ACC" — which is exactly how somebody turns test mode
+  off believing no client is on that route.
+*/
+export type NotificationAudience = "client" | "builder" | "internal" | "both";
 
 export type NotificationEvent = {
   key: string;
@@ -130,12 +140,13 @@ export const NOTIFICATION_EVENTS: NotificationEvent[] = [
   },
   {
     key: "advance.engineering",
-    label: "Released to engineering (status advance)",
+    label: "Released to engineering, and the client hears the design is final",
     trigger: "Advance → Engineering on the job page",
-    audience: "internal",
-    toRoles: ["engineer"],
+    audience: "both",
+    toRoles: ["engineer", "client"],
     ccRoles: ["residential", "pm"],
     implemented: true,
+    note: "Engineering gets the internal note; the client gets the branded \"your final design is ready\" email. Two different messages from one transition.",
   },
   {
     key: "engineering_release",
@@ -151,11 +162,12 @@ export const NOTIFICATION_EVENTS: NotificationEvent[] = [
   },
   {
     key: "advance.production",
-    label: "Released to production",
+    label: "Released to production, and the client hears their cabinets are being built",
     trigger: "Advance → Production on the job page",
-    audience: "internal",
-    toRoles: ["shop"],
+    audience: "both",
+    toRoles: ["shop", "client"],
     implemented: true,
+    note: "The shop gets the internal note; the client gets the branded \"your cabinets are in production\" email. Until 2026-09-16 the client was told nothing at this point.",
   },
   {
     key: "advance.delivery",
@@ -253,11 +265,11 @@ export const NOTIFICATION_EVENTS: NotificationEvent[] = [
   {
     key: "schedule_changed",
     label: "Schedule date changed",
-    trigger: "An install or delivery date moves",
+    trigger: "An install or delivery date moves, and the notify box is ticked",
     audience: "internal",
     toRoles: ["pm"],
-    implemented: false,
-    note: "The template is written. Nothing calls it, so moving a date emails nobody.",
+    implemented: true,
+    note: "Fires only when \"Email the PM that the date moved\" is ticked on the make-it-official prompt. Dragging a card around the board never emails anyone.",
   },
   {
     key: "change_request",

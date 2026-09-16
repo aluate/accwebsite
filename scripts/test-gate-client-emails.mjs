@@ -17,6 +17,7 @@
  */
 import { readFileSync } from "node:fs";
 import { TRANSITION_GATES } from "../lib/transition-gates.ts";
+import { NOTIFICATION_EVENTS } from "../lib/notification-events.ts";
 
 let pass = 0, fail = 0;
 const check = (n, c, d = "") => { c ? (pass++, console.log(`  ok   ${n}`)) : (fail++, console.log(`  FAIL ${n}${d ? "  -> " + d : ""}`)); };
@@ -118,6 +119,48 @@ console.log("\ndeleting a job clears what references it\n");
   check("a failure says what happened instead of a blank 500",
         /Could not delete this job/.test(code) && /status: 409/.test(code));
   check("and names the table in the detail", /detail: msg/.test(code));
+}
+
+
+/*
+  THE TWO LISTS HAVE TO AGREE.
+
+  This section exists because they did not, and a live run is what found it.
+
+  A gate declares `recipients` and the notification registry declares
+  `toRoles`, and it is the REGISTRY that resolveRecipients actually reads. Both
+  client templates were wired, both looked right in the code, and neither email
+  was sent: the registry still had advance.engineering as engineer-only and
+  advance.production as shop-only, so no client address ever resolved and the
+  branded email had nobody to go to. It failed completely silently — the
+  transition returned 200 and the internal note went out as normal.
+
+  Two places holding the same fact is the thing the project's own hygiene rules
+  warn about. Until there is one, this keeps them honest.
+*/
+console.log("\nthe gate and the notification registry agree on who gets it\n");
+{
+  const byKey = Object.fromEntries(NOTIFICATION_EVENTS.map((e) => [e.key, e]));
+  for (const [status, gate] of Object.entries(TRANSITION_GATES)) {
+    const ev = byKey[`advance.${status}`];
+    check(`advance.${status}: the registry knows about it`, !!ev);
+    if (!ev) continue;
+
+    // The registry calls it "engineer"; the gate calls it "eng".
+    const norm = (r) => (r === "eng" ? "engineer" : r);
+    const gateRoles = new Set(gate.recipients.map(norm));
+    const regRoles  = new Set((ev.toRoles ?? []).map(norm));
+    const missing = [...gateRoles].filter((r) => !regRoles.has(r));
+    check(`advance.${status}: every gate recipient is in the registry`, missing.length === 0,
+          `registry is missing ${missing.join(", ")} — those people are never emailed`);
+
+    if (gate.clientTemplate) {
+      check(`advance.${status}: the registry routes to the client`, regRoles.has("client"),
+            "a client template with no client on the route sends nothing, silently");
+      check(`advance.${status}: it is not filed as internal-only`, ev.audience !== "internal",
+            "a customer email hidden under 'these stay inside ACC' is how test mode gets switched off by mistake");
+    }
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);

@@ -38,6 +38,7 @@ const AUDIENCE_LABEL: Record<NotificationAudience, string> = {
   client: "Reaches the customer",
   builder: "Reaches the builder",
   internal: "Internal",
+  both: "Reaches the client AND ACC",
 };
 
 /** The stand-in inboxes for a test run. */
@@ -108,7 +109,7 @@ export default function NotificationSettingsClient() {
 
   if (loading) return <p className="text-white/40 text-sm">Loading…</p>;
 
-  const groups: NotificationAudience[] = ["client", "builder", "internal"];
+  const groups: NotificationAudience[] = ["client", "both", "builder", "internal"];
 
   return (
     <div className="space-y-8">
@@ -229,12 +230,14 @@ export default function NotificationSettingsClient() {
         return (
           <section key={audience}>
             <h2 className="font-condensed uppercase tracking-widest text-sm mb-1"
-                style={{ color: audience === "client" ? "#f87171" : audience === "builder" ? "#fbbf24" : "#9ca3af" }}>
+                style={{ color: audience === "client" || audience === "both" ? "#f87171" : audience === "builder" ? "#fbbf24" : "#9ca3af" }}>
               {AUDIENCE_LABEL[audience]}
             </h2>
             <p className="text-white/30 text-xs mb-3">
               {audience === "client"
                 ? "These land in a customer's inbox. Check them twice before turning test mode off."
+                : audience === "both"
+                ? "One transition, two different messages: the client gets a branded email and ACC gets the internal note. A customer is on these routes — check them before turning test mode off."
                 : audience === "builder"
                   ? "These go to the builder's contact for the job."
                   : "These stay inside ACC."}
