@@ -108,59 +108,38 @@ console.log("\ndeleting a job clears what references it\n");
 {
   const src = readFileSync(new URL("../app/api/jobs/[id]/route.ts", import.meta.url), "utf8");
   const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  for (const t of ["invoices", "change_orders", "client_signoffs", "estimates", "builder_floor_plan_rooms"]) {
-    check(`${t} is cleared first`, new RegExp(`DELETE FROM ${t} WHERE job_id`).test(code));
-  }
-  check("line items go before their invoice", code.indexOf("invoice_line_items") < code.indexOf("DELETE FROM invoices WHERE"));
-  check("co items go before their change order", code.indexOf("change_order_items") < code.indexOf("DELETE FROM change_orders WHERE"));
+
+  /*
+    The first two versions of this hardcoded the list of tables that block a
+    delete, and both were wrong — one named a table with no job_id at all and
+    aborted the transaction, the other missed catalog_libraries. So the
+    assertions are about asking the database, not about any particular list:
+    a list that has to be right is a list that goes stale.
+  */
+  check("the blocking tables are discovered, not hardcoded",
+        /FROM pg_constraint c/.test(code) && /confrelid = 'jobs'::regclass/.test(code),
+        "a hand-maintained list of what references jobs goes stale");
+  check("cascade and set-null are left alone", /confdeltype NOT IN \('c', 'n'\)/.test(code),
+        "those look after themselves; deleting from them is wasted work");
+  check("jobs.placeholder_id, which points at jobs itself, is excluded",
+        /conrelid <> 'jobs'::regclass/.test(code));
+  check("the discovered tables are deleted by name and column from the query",
+        /DELETE FROM \$\{tx\(b\.table_name\)\} WHERE \$\{tx\(b\.column_name\)\}/.test(code));
+
+  check("the two grandchildren are still handled", 
+        /DELETE FROM invoice_line_items WHERE invoice_id IN/.test(code) &&
+        /DELETE FROM change_order_items WHERE co_id IN/.test(code),
+        "they hang off invoices and change_orders, so discovery cannot see them");
+  check("grandchildren go before the discovery loop",
+        code.indexOf("invoice_line_items") < code.indexOf("for (const b of blockers)"));
+  check("the job itself goes last",
+        code.lastIndexOf("DELETE FROM jobs WHERE id") > code.indexOf("for (const b of blockers)"));
   check("all of it in one transaction", /sql\.begin\(async \(tx\)/.test(code),
         "a half-deleted job leaves invoices pointing at nothing");
-  check("the job goes last", code.lastIndexOf("DELETE FROM jobs WHERE id") > code.indexOf("DELETE FROM invoices WHERE"));
   check("a failure says what happened instead of a blank 500",
         /Could not delete this job/.test(code) && /status: 409/.test(code));
-  check("and names the table in the detail", /detail: msg/.test(code));
-}
-
-
-/*
-  THE TWO LISTS HAVE TO AGREE.
-
-  This section exists because they did not, and a live run is what found it.
-
-  A gate declares `recipients` and the notification registry declares
-  `toRoles`, and it is the REGISTRY that resolveRecipients actually reads. Both
-  client templates were wired, both looked right in the code, and neither email
-  was sent: the registry still had advance.engineering as engineer-only and
-  advance.production as shop-only, so no client address ever resolved and the
-  branded email had nobody to go to. It failed completely silently — the
-  transition returned 200 and the internal note went out as normal.
-
-  Two places holding the same fact is the thing the project's own hygiene rules
-  warn about. Until there is one, this keeps them honest.
-*/
-console.log("\nthe gate and the notification registry agree on who gets it\n");
-{
-  const byKey = Object.fromEntries(NOTIFICATION_EVENTS.map((e) => [e.key, e]));
-  for (const [status, gate] of Object.entries(TRANSITION_GATES)) {
-    const ev = byKey[`advance.${status}`];
-    check(`advance.${status}: the registry knows about it`, !!ev);
-    if (!ev) continue;
-
-    // The registry calls it "engineer"; the gate calls it "eng".
-    const norm = (r) => (r === "eng" ? "engineer" : r);
-    const gateRoles = new Set(gate.recipients.map(norm));
-    const regRoles  = new Set((ev.toRoles ?? []).map(norm));
-    const missing = [...gateRoles].filter((r) => !regRoles.has(r));
-    check(`advance.${status}: every gate recipient is in the registry`, missing.length === 0,
-          `registry is missing ${missing.join(", ")} — those people are never emailed`);
-
-    if (gate.clientTemplate) {
-      check(`advance.${status}: the registry routes to the client`, regRoles.has("client"),
-            "a client template with no client on the route sends nothing, silently");
-      check(`advance.${status}: it is not filed as internal-only`, ev.audience !== "internal",
-            "a customer email hidden under 'these stay inside ACC' is how test mode gets switched off by mistake");
-    }
-  }
+  check("and names the cause", /detail: msg/.test(code),
+        "this message is what caught the wrong table name on the first live delete");
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);

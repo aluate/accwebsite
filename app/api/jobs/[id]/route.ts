@@ -252,43 +252,60 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
     `DELETE FROM jobs` alone worked on an empty job and threw a foreign-key
     error on any job that got anywhere — which is every job worth deleting. The
-    button returned a 500 with an empty body, so it looked like nothing had
-    happened at all. Found while clearing nineteen test jobs: the two with a
-    spec, invoices and a signoff on them were the two that refused.
+    button returned a 500 with an empty body, so it read as doing nothing.
 
-    Twenty-one tables reference jobs(id) and sixteen of them already cascade.
-    These five do not:
+    The first fix listed the blocking tables by hand, and I got that list wrong
+    twice: once by reading the schema with a script that attributed a foreign
+    key to the wrong CREATE TABLE, so it tried to delete from a table with no
+    job_id at all and aborted the whole transaction, and once by missing
+    catalog_libraries entirely. A hand-maintained list of what references a
+    table is exactly the kind of thing that is right the day it is written and
+    wrong a month later.
 
-        client_signoffs   change_orders   estimates   invoices
-        builder_floor_plan_rooms
+    So it asks the database instead. Postgres already knows which foreign keys
+    point at jobs(id) and what each one does on delete — confdeltype 'c' is
+    cascade and 'n' is set-null, both of which look after themselves; anything
+    else blocks and has to be cleared first. A table added next year is handled
+    without anybody remembering this function exists.
 
-    They are cleared here rather than by altering the constraints, deliberately.
-    migrate-prod.bat tells you, right before you type YES, that the schema
-    script is "additive only ... nothing in it drops, deletes or truncates
-    anything." Adding a DROP CONSTRAINT would make that sentence false, and that
-    sentence is what makes the migration safe to run without reading it. Doing
-    the work here costs one query each and keeps the promise.
+    The two grandchildren are still named explicitly: invoice_line_items and
+    change_order_items hang off invoices and change_orders rather than off the
+    job, so discovery does not see them, and their parents cannot be deleted
+    while they are there.
 
-    All of it in one transaction: a half-deleted job leaves orphan invoices
-    pointing at a job that no longer exists, which is worse than not deleting.
+    One transaction throughout — a half-deleted job leaves invoices pointing at
+    a job that no longer exists, which is worse than not deleting.
   */
   try {
+    const blockers = await sql<Array<{ table_name: string; column_name: string }>>`
+      SELECT c.conrelid::regclass::text AS table_name,
+             a.attname                  AS column_name
+      FROM pg_constraint c
+      JOIN pg_attribute a
+        ON a.attrelid = c.conrelid AND a.attnum = ANY(c.conkey)
+      WHERE c.contype = 'f'
+        AND c.confrelid = 'jobs'::regclass
+        AND c.confdeltype NOT IN ('c', 'n')   -- cascade and set-null need no help
+        AND c.conrelid <> 'jobs'::regclass    -- jobs.placeholder_id points at itself
+    `;
+
     await sql.begin(async (tx) => {
+      // Grandchildren first: these hang off invoices and change_orders, not off
+      // the job, so the query above cannot see them.
       await tx`DELETE FROM invoice_line_items WHERE invoice_id IN (SELECT id FROM invoices WHERE job_id = ${row.id})`;
-      await tx`DELETE FROM invoices WHERE job_id = ${row.id}`;
       await tx`DELETE FROM change_order_items WHERE co_id IN (SELECT id FROM change_orders WHERE job_id = ${row.id})`;
-      await tx`DELETE FROM change_orders WHERE job_id = ${row.id}`;
-      await tx`DELETE FROM client_signoffs WHERE job_id = ${row.id}`;
-      await tx`DELETE FROM estimates WHERE job_id = ${row.id}`;
-      await tx`DELETE FROM builder_floor_plan_rooms WHERE job_id = ${row.id}`;
+
+      for (const b of blockers) {
+        await tx`DELETE FROM ${tx(b.table_name)} WHERE ${tx(b.column_name)} = ${row.id}`;
+      }
       await tx`DELETE FROM jobs WHERE id = ${row.id}`;
     });
   } catch (e) {
     /*
-      Name the table. The original swallowed this into a blank 500, and the only
-      way to find out what was holding the row was to read the schema — which is
-      how this took a test run to notice rather than a moment. If a new table
-      starts referencing jobs without cascading, this message says which one.
+      Name what happened. The original swallowed this into a blank 500 and the
+      only way to find out what was holding the row was to read the schema —
+      which is how the first version of this shipped with a wrong table name in
+      it. This message is what caught that, on the first live delete.
     */
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[jobs/delete] failed:", msg);
