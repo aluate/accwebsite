@@ -37,7 +37,8 @@ async function fetchPipelineJobs(): Promise<PipelineJob[]> {
     LEFT JOIN (
       SELECT job_id, COUNT(*) AS open_count
       FROM punch_list_items
-      WHERE status = 'open'
+      -- scheduled work is still outstanding work; only done/wont_fix are closed
+      WHERE status IN ('open', 'scheduled')
       GROUP BY job_id
     ) p ON p.job_id = j.id
     LEFT JOIN LATERAL (

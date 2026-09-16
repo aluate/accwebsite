@@ -66,7 +66,7 @@ export default async function DashboardPage() {
     sql`
       SELECT j.id, j.job_number, j.client_name, COUNT(p.id)::int AS open_count
       FROM jobs j
-      JOIN punch_list_items p ON p.job_id = j.id AND p.status = 'open'
+      JOIN punch_list_items p ON p.job_id = j.id AND p.status IN ('open', 'scheduled')
       GROUP BY j.id, j.job_number, j.client_name
       ORDER BY open_count DESC LIMIT 8
     ` as Promise<PunchJob[]>,

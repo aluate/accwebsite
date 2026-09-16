@@ -132,14 +132,25 @@ export async function POST(
   }
 
     if (toStatus === "complete") {
+    /*
+      'scheduled' counts as outstanding.
+
+      This asked for status = 'open' only. punch_list_items has four statuses,
+      and 'scheduled' means we have agreed to go back and do the work — the one
+      state where an item is most definitely not finished. A job with three
+      scheduled punch items and nothing open sailed through this gate and was
+      marked complete.
+
+      'wont_fix' is genuinely closed and does not block.
+    */
     const [punchCheck] = await sql<Array<{ open_count: number }>>`
       SELECT COUNT(*) AS open_count FROM punch_list_items
-      WHERE job_id = ${internalId} AND status = 'open'
+      WHERE job_id = ${internalId} AND status IN ('open', 'scheduled')
     `;
     const openCount = Number(punchCheck?.open_count ?? 0);
     if (openCount > 0) {
       return NextResponse.json(
-        { error: `Cannot mark complete — ${openCount} punch item${openCount !== 1 ? "s" : ""} still open.` },
+        { error: `Cannot mark complete — ${openCount} punch item${openCount !== 1 ? "s" : ""} still outstanding.` },
         { status: 422 }
       );
     }

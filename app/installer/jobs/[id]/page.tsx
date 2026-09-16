@@ -94,15 +94,17 @@ export default async function InstallerJobPage({ params }: { params: Promise<{ i
   const job = jobRows[0];
   if (!job) redirect("/installer");
 
-  // Punch items
-  const punchItems = await sql<{ id: string; description: string; status: string; resolved_at: string | null }[]>`
-    SELECT id, description, status, resolved_at FROM punch_list_items
-    WHERE job_id = ${job.id} ORDER BY status, created_at
-  `.catch(() => []);
+  /*
+    A punch query used to sit here selecting `description` and `resolved_at`.
+    Neither is a column on punch_list_items — they are `item_description` and
+    `completed_at` — so it threw on every single page load, the `.catch(() => [])`
+    swallowed the error, and the two arrays it produced were then never rendered
+    by anything. A broken query feeding dead variables, running on every request.
 
+    PunchListPanel below is the real punch UI on this page and fetches through
+    the API like everywhere else.
+  */
   const location = [job.site_address, job.city].filter(Boolean).join(", ");
-  const openPunch = punchItems.filter((p) => p.status === "open");
-  const resolvedPunch = punchItems.filter((p) => p.status !== "open");
 
   return (
     <div className="px-4 py-5 space-y-6">

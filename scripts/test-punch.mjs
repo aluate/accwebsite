@@ -128,6 +128,36 @@ check("won't fix is reachable from the UI",
       panel.includes('setStatus("wont_fix")'),
       "a status the API stores but no button can set is a status that only appears by accident");
 
+console.log("\n4b. nothing else in the app still counts only 'open'\n");
+/*
+  The panel and /punch were not the only places that assumed two statuses. Five
+  more counted status = 'open', and one of them was the gate on marking a job
+  complete — so a job with three SCHEDULED punch items and nothing open sailed
+  through it. The badges were merely wrong; that one closed jobs with work
+  outstanding.
+*/
+const OPEN_COUNTERS = [
+  ["complete gate",     "../app/api/jobs/[id]/advance/route.ts"],
+  ["jobs list badge",   "../app/jobs/page.tsx"],
+  ["dashboard tile",    "../app/dashboard/page.tsx"],
+  ["installer list",    "../app/installer/page.tsx"],
+];
+for (const [name, path] of OPEN_COUNTERS) {
+  const src = strip(path);
+  check(`${name}: counts scheduled as outstanding`,
+        src.includes("status IN ('open', 'scheduled')"));
+  // Scoped to punch_list_items on purpose: app/dashboard/page.tsx also counts
+  // warranty_items by status = 'open', which is a different table with its own
+  // statuses and must not be dragged into this.
+  check(`${name}: no punch query left on bare status = 'open'`,
+        !/punch_list_items[\s\S]{0,200}?status\s*=\s*'open'/.test(src),
+        "scheduled work is still work");
+}
+check("the installer job page no longer queries columns that do not exist",
+      !/SELECT id, description, status, resolved_at FROM punch_list_items/
+        .test(strip("../app/installer/jobs/[id]/page.tsx")),
+      "punch_list_items has item_description and completed_at; that query threw on every page load and .catch(() => []) hid it");
+
 console.log("\n5. the three punch routes agree on who may use them\n");
 const roles = /const PUNCH_ROLES = \[([^\]]+)\]/;
 const lists = [["item", itemApi], ["job", jobApi], ["photo", photoApi]].map(([n, src]) => {

@@ -95,7 +95,8 @@ async function fetchActiveJobs(crewId: string | null): Promise<ActiveJob[]> {
       LEFT JOIN (
         SELECT job_id, COUNT(*) AS open_count
         FROM punch_list_items
-        WHERE status = 'open'
+        -- scheduled work is still outstanding work
+        WHERE status IN ('open', 'scheduled')
         GROUP BY job_id
       ) p ON p.job_id = j.id
       WHERE j.status NOT IN ('complete', 'cancelled', 'bid')
@@ -110,7 +111,8 @@ async function fetchActiveJobs(crewId: string | null): Promise<ActiveJob[]> {
     LEFT JOIN (
       SELECT job_id, COUNT(*) AS open_count
       FROM punch_list_items
-      WHERE status = 'open'
+      -- scheduled work is still outstanding work
+      WHERE status IN ('open', 'scheduled')
       GROUP BY job_id
     ) p ON p.job_id = j.id
     WHERE j.status IN ('production', 'delivery', 'install', 'punch')
