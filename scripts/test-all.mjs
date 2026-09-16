@@ -52,6 +52,7 @@ const SUITES = [
   { file: "test-migrate-prod.mjs",     db: false, what: "the migration runner can actually run (pure)" },
   { file: "test-email-brand.mjs",      db: false, what: "the emails look like ACC, not a default (pure)" },
   { file: "test-gate-client-emails.mjs",db: false, what: "the client gets the branded email, not the shop's (pure)" },
+  { file: "test-punch.mjs",            db: false, what: "the punch loop can actually be closed (pure)" },
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },

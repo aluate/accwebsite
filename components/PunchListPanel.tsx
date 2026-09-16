@@ -6,15 +6,38 @@
  * PM / Admin view:
  *   - Add Item form (room from spec or GENERAL, description, type code)
  *   - Optional before-photo upload when creating
- *   - Reopen items
- *   - Delete items
+ *   - Reopen items, mark won't fix, delete items
+ *   - Completion photo optional (they are closing items at a desk)
  *
- * Installer view:
- *   - Read only for item details
- *   - Mark Done button: uploads after-photo then marks complete
+ * Installer / shop / engineer view:
+ *   - Add items, mark done
+ *   - Completion photo REQUIRED (they are standing in front of the work)
  *
  * Items are grouped by room. GENERAL items appear at the bottom.
  * Type codes: S = Service only, S+M = Service + manufacture, HP = Hardware procurement, TD = Trade dependency.
+ *
+ * THREE THINGS WERE BROKEN HERE AND ALL THREE WERE SHAPE MISMATCHES WITH THE API.
+ *
+ * 1. Nobody could close a punch item. uploadPhoto() read `body.url` from a
+ *    response that returns `{ ok, photos: [{ id, url }] }`. There is no top
+ *    level `url`, so it always resolved undefined, handleComplete treated that
+ *    as a failed upload and returned BEFORE the PATCH. The photo was in
+ *    Supabase; the item stayed open; the field saw "Photo upload failed" on a
+ *    photo that uploaded fine. Verified live on 2026-09-16: two photos in
+ *    storage, item still open.
+ *
+ * 2. No photo ever rendered. This file read item.before_photo_url /
+ *    item.after_photo_url. The API returns a `photos` array of signed URLs and
+ *    (legacy) *_photo_path. Those two field names do not exist on the payload,
+ *    so the photo row was never even rendered.
+ *
+ * 3. The upload sent form field "which"; the route reads "label". Every photo
+ *    in the table has label = null.
+ *
+ * And a fourth, which is why items went missing: the status union here was
+ * "open" | "done", but the API accepts and stores "scheduled" and "wont_fix"
+ * too. Anything in those two states matched neither filter and vanished from
+ * the panel completely — no row, no count, no error.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,6 +46,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type Room = { id: string; name: string; sort_order: number };
 
+type PunchStatus = "open" | "scheduled" | "done" | "wont_fix";
+
+/** One row of punch_item_photos, already signed by the API. */
+type PunchPhoto = {
+  id: string;
+  storage_path: string;
+  media_type: string;      // "photo" | "video"
+  label: string | null;    // "before" | "after" | null
+  sort_order: number;
+  url: string | null;      // signed, 1h — null if signing failed
+};
+
 type PunchItem = {
   id: string;
   room_id: string | null;
@@ -30,13 +65,24 @@ type PunchItem = {
   general_location: string | null;
   item_description: string;
   type_code: string;
-  status: "open" | "done";
-  before_photo_url: string | null;
-  after_photo_url: string | null;
+  status: PunchStatus;
+  photos: PunchPhoto[];
   created_by: string;
   created_at: string;
   completed_by: string | null;
   completed_at: string | null;
+};
+
+/** An item is closed when it will not be worked again. */
+function isClosed(s: PunchStatus): boolean {
+  return s === "done" || s === "wont_fix";
+}
+
+const STATUS_CHIP: Record<PunchStatus, { label: string; cls: string } | null> = {
+  open: null,
+  scheduled: { label: "Scheduled", cls: "text-blue-300 bg-blue-900/30" },
+  done: { label: "\u2713 Done", cls: "text-green-400 bg-green-900/20" },
+  wont_fix: { label: "Won\u2019t fix", cls: "text-white/40 bg-white/10" },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -82,31 +128,62 @@ function fmtDate(iso: string): string {
 
 // ─── Photo Upload ─────────────────────────────────────────────────────────────
 
+type UploadResult = { ok: true; url: string | null } | { ok: false; error: string };
+
+/**
+ * The form field is "label" — the route reads form.get("label"). It used to
+ * send "which", which is why every photo in punch_item_photos has label null.
+ *
+ * The response is { ok, photos: [{ id, url }] }. Reading body.url gets
+ * undefined on a completely successful upload, which is what made "Mark Done"
+ * impossible. Returning a tagged result rather than a bare string|null means a
+ * caller can no longer confuse "uploaded, no URL back" with "upload failed".
+ */
 async function uploadPhoto(
   itemId: string,
-  which: "before" | "after",
+  label: "before" | "after",
   file: File
-): Promise<string | null> {
+): Promise<UploadResult> {
   const form = new FormData();
   form.append("file", file);
-  form.append("which", which);
-  const res = await fetch(`/api/punch-items/${itemId}/photo`, { method: "POST", body: form });
-  if (!res.ok) return null;
-  const body = await res.json();
-  return body.url ?? null;
+  form.append("label", label);
+  try {
+    const res = await fetch(`/api/punch-items/${itemId}/photo`, { method: "POST", body: form });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, error: body.error ?? `Upload failed (${res.status})` };
+    return { ok: true, url: body.photos?.[0]?.url ?? null };
+  } catch {
+    return { ok: false, error: "Upload failed — check your connection" };
+  }
 }
 
 // ─── PhotoThumbnail ───────────────────────────────────────────────────────────
 
-function PhotoThumbnail({ url, label }: { url: string; label: string }) {
+function PhotoThumbnail({ photo }: { photo: PunchPhoto }) {
+  // A signed URL expires after an hour. If signing failed the API sends null,
+  // and a thumbnail with src={null} is a broken-image icon with no explanation.
+  if (!photo.url) {
+    return (
+      <div className="w-20 h-20 rounded border border-white/10 flex items-center justify-center text-[9px] text-white/25 text-center px-1">
+        photo unavailable
+      </div>
+    );
+  }
+  const caption = photo.label ?? (photo.media_type === "video" ? "Video" : "Photo");
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-      <img
-        src={url}
-        alt={label}
-        className="w-20 h-20 object-cover rounded border border-white/10 hover:border-[#f08122] transition-colors"
-      />
-      <p className="text-[10px] text-white/30 mt-0.5 font-condensed uppercase tracking-wider">{label}</p>
+    <a href={photo.url} target="_blank" rel="noopener noreferrer" className="block">
+      {photo.media_type === "video" ? (
+        <div className="w-20 h-20 rounded border border-white/10 flex items-center justify-center bg-black/40 text-2xl hover:border-[#f08122] transition-colors">
+          &#9654;
+        </div>
+      ) : (
+        <img
+          src={photo.url}
+          alt={caption}
+          className="w-20 h-20 object-cover rounded border border-white/10 hover:border-[#f08122] transition-colors"
+        />
+      )}
+      <p className="text-[10px] text-white/30 mt-0.5 font-condensed uppercase tracking-wider">{caption}</p>
     </a>
   );
 }
@@ -115,12 +192,13 @@ function PhotoThumbnail({ url, label }: { url: string; label: string }) {
 
 function ItemCard({
   item,
-  isInstaller,
+  photoRequired,
   canEdit,
   onRefresh,
 }: {
   item: PunchItem;
-  isInstaller: boolean;
+  /** Field roles must leave evidence; PM/admin closing at a desk need not. */
+  photoRequired: boolean;
   canEdit: boolean;
   onRefresh: () => void;
 }) {
@@ -130,7 +208,7 @@ function ItemCard({
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const isDone = item.status === "done";
+  const isDone = isClosed(item.status);
 
   function onAfterFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -139,25 +217,35 @@ function ItemCard({
     setAfterPreview(URL.createObjectURL(f));
   }
 
+  /** PATCH the status and surface whatever the server actually said. */
+  async function setStatus(status: PunchStatus): Promise<boolean> {
+    const res = await fetch(`/api/punch-items/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) return true;
+    const body = await res.json().catch(() => ({}));
+    setError(body.error ?? `Could not update item (${res.status})`);
+    return false;
+  }
+
   async function handleComplete() {
-    if (!afterFile) {
+    if (photoRequired && !afterFile) {
       setError("Photo required to mark as done");
       return;
     }
     setError("");
     setCompleting(true);
     try {
-      // Upload after photo
-      const url = await uploadPhoto(item.id, "after", afterFile);
-      if (!url) { setError("Photo upload failed"); setCompleting(false); return; }
-
-      // Mark done
-      const res = await fetch(`/api/punch-items/${item.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "done" }),
-      });
-      if (!res.ok) { setError("Could not mark item done"); setCompleting(false); return; }
+      // Upload the completion photo FIRST, so a done item never exists without
+      // its evidence. A failed upload stops here — but only a genuinely failed
+      // one now, which is the bug this whole panel was stuck on.
+      if (afterFile) {
+        const up = await uploadPhoto(item.id, "after", afterFile);
+        if (!up.ok) { setError(up.error); setCompleting(false); return; }
+      }
+      if (!(await setStatus("done"))) { setCompleting(false); return; }
       onRefresh();
     } catch {
       setError("Something went wrong");
@@ -166,17 +254,25 @@ function ItemCard({
   }
 
   async function handleReopen() {
-    await fetch(`/api/punch-items/${item.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "open" }),
-    });
-    onRefresh();
+    setError("");
+    if (await setStatus("open")) onRefresh();
+  }
+
+  async function handleWontFix() {
+    if (!window.confirm("Close this item as won\u2019t fix? It stays on the record.")) return;
+    setError("");
+    if (await setStatus("wont_fix")) onRefresh();
   }
 
   async function handleDelete() {
     if (!window.confirm("Delete this punch item?")) return;
-    await fetch(`/api/punch-items/${item.id}`, { method: "DELETE" });
+    setError("");
+    const res = await fetch(`/api/punch-items/${item.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError(body.error ?? `Could not delete item (${res.status})`);
+      return;
+    }
     onRefresh();
   }
 
@@ -188,9 +284,9 @@ function ItemCard({
         <span className={`text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded border ${typeCls}`}>
           {item.type_code} — {TYPE_LABELS[item.type_code] ?? item.type_code}
         </span>
-        {isDone && (
-          <span className="text-[10px] font-condensed uppercase tracking-wider text-green-400">
-            ✓ Done
+        {STATUS_CHIP[item.status] && (
+          <span className={`text-[10px] font-condensed uppercase tracking-wider px-2 py-0.5 rounded ${STATUS_CHIP[item.status]!.cls}`}>
+            {STATUS_CHIP[item.status]!.label}
           </span>
         )}
       </div>
@@ -204,16 +300,13 @@ function ItemCard({
         <p className="text-xs text-white/40 mt-0.5 italic">{item.general_location}</p>
       )}
 
-      {/* Photos row */}
-      {(item.before_photo_url || item.after_photo_url || afterPreview) && (
-        <div className="flex gap-3 mt-3">
-          {item.before_photo_url && (
-            <PhotoThumbnail url={item.before_photo_url} label="Before" />
-          )}
-          {item.after_photo_url && (
-            <PhotoThumbnail url={item.after_photo_url} label="After" />
-          )}
-          {afterPreview && !item.after_photo_url && (
+      {/* Photos row — every photo the API returned, plus the not-yet-sent one */}
+      {(item.photos.length > 0 || afterPreview) && (
+        <div className="flex gap-3 mt-3 flex-wrap">
+          {item.photos.map((photo) => (
+            <PhotoThumbnail key={photo.id} photo={photo} />
+          ))}
+          {afterPreview && (
             <div className="block">
               <img src={afterPreview} alt="After (pending)" className="w-20 h-20 object-cover rounded border border-[#f08122]/50" />
               <p className="text-[10px] text-[#f08122]/60 mt-0.5 font-condensed uppercase tracking-wider">After (pending)</p>
@@ -225,7 +318,7 @@ function ItemCard({
       {/* Footer meta */}
       <p className="text-[10px] text-white/20 mt-2">
         Added {fmtDate(item.created_at)} by {item.created_by}
-        {isDone && item.completed_by && ` · Completed by ${item.completed_by}`}
+        {isDone && item.completed_by && ` · ${item.status === "wont_fix" ? "Closed" : "Completed"} by ${item.completed_by}`}
         {isDone && item.completed_at && ` on ${fmtDate(item.completed_at)}`}
       </p>
 
@@ -236,7 +329,7 @@ function ItemCard({
           <div className="flex items-center gap-2">
             <label className="flex-1 flex items-center gap-2 cursor-pointer bg-white/5 hover:bg-white/8 border border-white/10 rounded-lg px-3 py-2 transition-colors text-sm text-white/60">
               <span className="text-[#f08122]">📷</span>
-              {afterFile ? afterFile.name : "Attach completion photo"}
+              {afterFile ? afterFile.name : photoRequired ? "Attach completion photo (required)" : "Attach completion photo (optional)"}
               <input
                 ref={fileRef}
                 type="file"
@@ -258,23 +351,34 @@ function ItemCard({
         </div>
       )}
 
-      {/* PM / admin reopen + delete */}
-      {canEdit && isDone && (
-        <button
-          onClick={handleReopen}
-          className="mt-2 text-[10px] text-white/25 hover:text-[#f08122] font-condensed uppercase tracking-wider transition-colors"
-        >
-          Reopen
-        </button>
-      )}
-      {canEdit && (
-        <button
-          onClick={handleDelete}
-          className="mt-2 ml-4 text-[10px] text-white/15 hover:text-red-400 font-condensed uppercase tracking-wider transition-colors"
-        >
-          Delete
-        </button>
-      )}
+      {/* PM / admin: reopen, close as won't fix, delete */}
+      <div className="flex items-center gap-4 mt-2">
+        {canEdit && isDone && (
+          <button
+            onClick={handleReopen}
+            className="text-[10px] text-white/25 hover:text-[#f08122] font-condensed uppercase tracking-wider transition-colors"
+          >
+            Reopen
+          </button>
+        )}
+        {canEdit && !isDone && (
+          <button
+            onClick={handleWontFix}
+            className="text-[10px] text-white/25 hover:text-white/50 font-condensed uppercase tracking-wider transition-colors"
+          >
+            Won&apos;t fix
+          </button>
+        )}
+        {canEdit && (
+          <button
+            onClick={handleDelete}
+            className="text-[10px] text-white/15 hover:text-red-400 font-condensed uppercase tracking-wider transition-colors"
+          >
+            Delete
+          </button>
+        )}
+      </div>
+      {isDone && error && <p className="text-red-400 text-xs mt-2">{error}</p>}
     </div>
   );
 }
@@ -331,9 +435,18 @@ function AddItemForm({
 
       const { id: newItemId } = await res.json();
 
-      // Upload before photo if attached
+      // Upload before photo if attached. The item is already created at this
+      // point, so a photo failure must not read as "the item failed" — say
+      // exactly what happened and leave the item alone.
       if (beforeFile && newItemId) {
-        await uploadPhoto(newItemId, "before", beforeFile);
+        const up = await uploadPhoto(newItemId, "before", beforeFile);
+        if (!up.ok) {
+          setError(`Item added, but the photo did not upload: ${up.error}`);
+          setBeforeFile(null);
+          onAdded();
+          setSaving(false);
+          return;
+        }
       }
 
       // Reset form
@@ -477,9 +590,13 @@ export function PunchListPanel({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const isInstaller = role === "installer";
+  // canManage mirrors lib/punch-auth.ts exactly. If these two ever disagree the
+  // UI offers a button the server refuses, which is how this panel got here.
   const canManage = role === "admin" || role === "karl" || role === "pm";
-  const canAdd = true; // all internal roles can create punch items
+  // Everyone else is a field role: they close items in front of the work, so a
+  // completion photo is required of them and optional for the desk.
+  const photoRequired = !canManage;
+  const canAdd = true; // every internal role can create punch items
 
   const refresh = useCallback(async () => {
     try {
@@ -497,8 +614,11 @@ export function PunchListPanel({
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  const openItems = items.filter((i) => i.status === "open");
-  const doneItems = items.filter((i) => i.status === "done");
+  // "scheduled" and "wont_fix" are real statuses the API stores. Filtering on
+  // only open/done made items in those two states invisible — not greyed out,
+  // not counted, GONE. Scheduled work is still open work; won't-fix is closed.
+  const openItems = items.filter((i) => !isClosed(i.status));
+  const doneItems = items.filter((i) => isClosed(i.status));
   const groups = groupByRoom(openItems);
   const doneGroups = groupByRoom(doneItems);
 
@@ -520,7 +640,7 @@ export function PunchListPanel({
         <div className="flex gap-3 text-xs text-white/30 font-condensed uppercase tracking-wider">
           <span>{openItems.length} open</span>
           <span>·</span>
-          <span>{doneItems.length} done</span>
+          <span>{doneItems.length} closed</span>
         </div>
       </div>
 
@@ -552,7 +672,7 @@ export function PunchListPanel({
                   <ItemCard
                     key={item.id}
                     item={item}
-                    isInstaller={isInstaller}
+                    photoRequired={photoRequired}
                     canEdit={canManage}
                     onRefresh={refresh}
                   />
@@ -568,7 +688,7 @@ export function PunchListPanel({
         <details className="group">
           <summary className="cursor-pointer text-[10px] font-condensed uppercase tracking-[0.2em] text-white/20 hover:text-white/40 transition-colors list-none flex items-center gap-2">
             <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-            {doneItems.length} completed item{doneItems.length !== 1 ? "s" : ""}
+            {doneItems.length} closed item{doneItems.length !== 1 ? "s" : ""}
           </summary>
           <div className="mt-3 space-y-5">
             {doneGroups.map((group) => (
@@ -581,7 +701,7 @@ export function PunchListPanel({
                     <ItemCard
                       key={item.id}
                       item={item}
-                      isInstaller={isInstaller}
+                      photoRequired={photoRequired}
                       canEdit={canManage}
                       onRefresh={refresh}
                     />

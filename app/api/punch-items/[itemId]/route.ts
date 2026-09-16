@@ -20,11 +20,16 @@ export const runtime = "nodejs";
 const VALID_TYPES    = new Set(["S", "S+M", "HP", "TD"]);
 const VALID_STATUSES = new Set(["open", "scheduled", "done", "wont_fix"]);
 
+// Same list as /api/jobs/[id]/punch-items — anyone who can see a job can work
+// its punch list. What each role may actually DO is decided below by
+// actor.canManage, not by this gate. karl/admin bypass it in guardApi.
+const PUNCH_ROLES = ["admin", "pm", "installer", "engineer", "shop"] as const;
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm", "installer"]);
+  const guard = await guardApi([...PUNCH_ROLES]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -99,7 +104,7 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm", "installer"]);
+  const guard = await guardApi([...PUNCH_ROLES]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor?.canManage) {

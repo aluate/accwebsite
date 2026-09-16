@@ -21,6 +21,20 @@ const BUCKET = "job-files";
 
 const VALID_TYPES = new Set(["S", "S+M", "HP", "TD"]);
 
+/*
+  Who may see and add punch items.
+
+  The docblock above this file has said "PM, admin, engineer, shop, installer,
+  builder portal" since it was written. The guard said ["admin","pm",
+  "installer"]. So an engineer or a shop lead opening a job saw the punch panel
+  render, saw the "+ Add Punch Item" button (the panel hands it to every
+  internal role), filled it in, and got a 403.
+
+  guardApi already lets "karl" and "admin" through any list, so they are not
+  repeated here.
+*/
+const PUNCH_ROLES = ["admin", "pm", "installer", "engineer", "shop"] as const;
+
 function supabaseAdmin() {
   return storageClient();
 }
@@ -37,7 +51,7 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm", "installer"]);
+  const guard = await guardApi([...PUNCH_ROLES]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -163,7 +177,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm", "installer"]);
+  const guard = await guardApi([...PUNCH_ROLES]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
   if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

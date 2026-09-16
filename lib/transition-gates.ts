@@ -17,7 +17,7 @@
 
 import { labelFromRef } from "@/lib/job-label";
 import {
-  finalDesignSent, releasedToProduction, readyForDelivery, installComplete,
+  finalDesignSent, releasedToProduction, readyForDelivery, installComplete, punchList,
 } from "@/lib/email-templates";
 
 export type JobMeta = {
@@ -68,7 +68,8 @@ export type GateConfig = {
     Four finished templates existed for exactly these moments and nothing ever
     called them. When this is set the client gets it INSTEAD of the plain text,
     and everyone else still gets the plain text. When it is not set nothing
-    changes — `punch` has no branded version yet, so it behaves as before.
+    changes. As of 2026-09-16 every client-facing gate has one: `punch` was the
+    last plain-text holdout and now sends punchList().
   */
   clientTemplate?: (job: JobMeta, note?: string) => { subject: string; text: string; html: string };
 };
@@ -227,7 +228,13 @@ export const TRANSITION_GATES: Partial<Record<string, GateConfig>> = {
     docLabel: "Punch List",
     docRequired: false,
     recipients: ["client", "pm"],
-    subject: (j) => `${j.client_name} — Punch list follow-up`,
+    clientTemplate: (j, note) => punchList({
+      clientFirstName: String(j.client_name ?? "").trim().split(/\s+/)[0] || "there",
+      siteAddress: jobAddress(j),
+      pm: j.pm ?? "your project manager",
+      note,
+    }),
+    subject: (j) => `${jobRef(j)} — Punch list follow-up`,
     body: (j, note) =>
       `Hi ${j.client_name},\n\n` +
       `We are completing the final punch list for your project.\n\n` +

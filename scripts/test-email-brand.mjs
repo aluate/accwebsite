@@ -45,8 +45,19 @@ const rendered = Object.entries(T)
   .map(([n, f]) => { try { return [n, f(D)]; } catch { return [n, null]; } })
   .filter(([, r]) => r && r.html);
 
-console.log(`\n${rendered.length} templates render HTML\n`);
-check("all fourteen render", rendered.length === 14, `${rendered.length}`);
+/*
+  This used to read `rendered.length === 14`, and adding the fifteenth template
+  (punchList, 2026-09-16) turned the suite red for the crime of doing the thing
+  the suite exists to encourage. A hardcoded count tests the calendar, not the
+  code. What actually matters is that NO exported template fails to render —
+  every one of them is asked, and any that throws or returns no html is named.
+*/
+const exported = Object.entries(T).filter(([, f]) => typeof f === "function");
+const broken = exported.map(([n]) => n).filter((n) => !rendered.some(([r]) => r === n));
+console.log(`\n${rendered.length} of ${exported.length} templates render HTML\n`);
+check("every exported template renders", broken.length === 0, broken.join(", "));
+check("and there is more than a handful of them", rendered.length >= 14,
+      `${rendered.length} — a sudden drop means an export was lost`);
 
 console.log("\nthe navy is gone\n");
 check("no BRAND_NAVY constant", !/BRAND_NAVY/.test(code));

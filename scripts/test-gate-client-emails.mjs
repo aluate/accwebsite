@@ -28,7 +28,7 @@ const job = {
   city: "Coeur d'Alene", pm: "Karl Vaage", delivery_date: "2026-11-20",
 };
 
-const BRANDED = ["engineering", "production", "delivery", "complete"];
+const BRANDED = ["engineering", "production", "delivery", "complete", "punch"];
 
 console.log("\nthe four moments a client now hears about properly\n");
 for (const key of BRANDED) {
@@ -46,10 +46,19 @@ for (const key of BRANDED) {
         "a client template is pointless if the client never resolves as a recipient");
 }
 
-console.log("\npunch is deliberately unchanged\n");
-check("no client template", !TRANSITION_GATES.punch?.clientTemplate,
-      "no branded version exists for it yet — it must keep working as it did");
-check("and it still emails the client", TRANSITION_GATES.punch?.recipients.includes("client"));
+console.log("\nevery client-facing gate is now branded\n");
+/*
+  punch used to be listed here as the deliberate exception — "no branded version
+  exists for it yet". One was written on 2026-09-16 (see test-punch.mjs), so the
+  exception is gone and punch joins BRANDED above. Nothing client-facing is left
+  sending the shop's plain-text note.
+*/
+for (const [key, g] of Object.entries(TRANSITION_GATES)) {
+  if (!g.recipients.includes("client")) continue;
+  check(`${key}: client-facing, so it must have a client template`,
+        typeof g.clientTemplate === "function",
+        "a gate that emails a client and has no branded template sends them the internal note");
+}
 
 console.log("\nthe internal note still exists for every gate\n");
 for (const [key, g] of Object.entries(TRANSITION_GATES)) {

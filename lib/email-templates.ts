@@ -588,6 +588,91 @@ export function installComplete(data: {
   return { subject, text, html };
 }
 
+/**
+ * punch_list
+ * Sent to the client when the job advances to Punch.
+ *
+ * The last client-facing gate still sending plain text. It was four lines
+ * beginning "We are completing the final punch list for your project", which
+ * assumes the client knows what a punch list is. Most do not — to a homeowner
+ * "punch" sounds like something went wrong. So this one says what the phase is,
+ * what we need from them, and how long the four item types take, because the
+ * single most common question at this stage is "when will it be finished".
+ */
+export function punchList(data: {
+  clientFirstName: string;
+  siteAddress: string;
+  pm: string;
+  pmPhone?: string;
+  pmEmail?: string;
+  note?: string;
+}): TemplateResult {
+  const subject = `Punch list — ${data.siteAddress}`;
+
+  const text = [
+    `Hi ${data.clientFirstName},`,
+    ``,
+    `Your installation at ${data.siteAddress} is finished, and we are into the`,
+    `punch phase — the final walk of the job where we list anything that still`,
+    `needs adjusting, touching up, or replacing, and then work that list until`,
+    `it is empty.`,
+    ``,
+    `WHAT WE NEED FROM YOU`,
+    `Walk the cabinetry and tell us anything you want looked at. Nothing is too`,
+    `small. It is far easier for us to handle it now, while the crew is still`,
+    `working your job, than after we close it out.`,
+    ``,
+    `HOW LONG ITEMS TAKE`,
+    `Adjustments and touch-ups — handled on the next service trip.`,
+    `Anything we have to build — about two weeks, then a trip to install it.`,
+    `Hardware we have to order — depends on the supplier; we will give you a date.`,
+    `Work belonging to another trade — we will tell you who owns it.`,
+    ``,
+    // null drops the line; "" is a deliberate blank. Filtering on "" instead —
+    // which this did for about ten minutes — collapses every paragraph break in
+    // the plain-text body into one wall of text.
+    data.note ? `${data.note}` : null,
+    data.note ? `` : null,
+    `Send your list to your PM and we will confirm every item on it.`,
+    ``,
+    `${data.pm}${data.pmPhone ? ` · ${data.pmPhone}` : ""}`,
+    data.pmEmail ?? null,
+    `Advanced Custom Cabinets`,
+  ].filter((l) => l !== null).join("\n");
+
+  const html = layout({
+    heading: "Punch List",
+    subheading: data.siteAddress,
+    body: [
+      para(`Hi ${h(data.clientFirstName)},`),
+      para(
+        `Your installation at <strong>${h(data.siteAddress)}</strong> is finished, and we are into the punch phase — ` +
+        `the final walk of the job where we list anything that still needs adjusting, touching up, or replacing, ` +
+        `and then work that list until it is empty.`
+      ),
+      highlight(
+        `<strong>Walk the cabinetry and tell us anything you want looked at.</strong> Nothing is too small. ` +
+        `It is far easier for us to handle it now, while the crew is still working your job, than after we close it out.`
+      ),
+      `<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888;font-weight:700;margin:18px 0 8px;">How long items take</div>`,
+      infoTable([
+        infoRow("Adjustments, touch-ups", "Handled on the next service trip"),
+        infoRow("Anything we build", "About two weeks, then a trip to install it"),
+        infoRow("Ordered hardware", "Depends on the supplier — we will give you a date"),
+        infoRow("Another trade's work", "We will tell you who owns it"),
+      ]),
+      data.note ? para(h(data.note)) : "",
+      para(`Send your list to your PM and we will confirm every item on it.`),
+      infoTable([
+        infoRow("Your PM", `${h(data.pm)}${data.pmPhone ? ` &middot; <a href="tel:${h(data.pmPhone)}" style="color:${BRAND_LINK};">${h(data.pmPhone)}</a>` : ""}`),
+        data.pmEmail ? infoRow("", `<a href="mailto:${h(data.pmEmail)}" style="color:${BRAND_LINK};">${h(data.pmEmail)}</a>`) : "",
+      ]),
+    ].join(""),
+  });
+
+  return { subject, text, html };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // BILLING templates
 // ─────────────────────────────────────────────────────────────────────────────
