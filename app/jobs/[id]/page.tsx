@@ -328,7 +328,17 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           )}
 
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3 items-start">
-            <StatusAdvanceButton jobId={id} currentStatus={job.status} />
+            {/*
+              Every other button in this row is wrapped in this same role check.
+              This one was not, so an engineer or a shop account saw a working
+              "Advance to ..." button, opened the modal, attached the document it
+              asks for, submitted — and got a 403 from
+              /api/jobs/[id]/advance, which is guardApi(["admin","pm"]).
+              The API was right; the button was the lie.
+            */}
+            {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
+              <StatusAdvanceButton jobId={id} currentStatus={job.status} />
+            )}
             {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
               <SignoffButton jobId={internalId} />
             )}

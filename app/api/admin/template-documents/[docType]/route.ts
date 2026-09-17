@@ -11,7 +11,6 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { getAdmin } from "@/lib/admin-auth";
 import { storageClient } from "@/lib/file-store";
 export const runtime = "nodejs";
 
@@ -28,9 +27,12 @@ function supabaseAdmin() {
 export async function GET(_req: NextRequest, { params }: Params) {
   const guard = await guardApi(["admin"]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
-  const ok = await getAdmin();
-  if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+  // The dead check that used to sit here wanted the legacy
+  // acc_admin_session cookie - the shared-password admin login retired in
+  // 2026-05. app/admin/login/page.tsx now redirects to /login
+  // unconditionally, so nothing can mint that cookie any more and the
+  // check could never pass. Every request to this route 401d, for
+  // everyone, including Karl. guardApi above is the real check.
   const { docType } = await params;
   const [doc] = await sql`
     SELECT storage_path, filename FROM template_documents WHERE doc_type = ${docType}
@@ -46,9 +48,12 @@ export async function GET(_req: NextRequest, { params }: Params) {
 export async function POST(req: NextRequest, { params }: Params) {
   const guard = await guardApi(["admin"]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
-  const ok = await getAdmin();
-  if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+  // The dead check that used to sit here wanted the legacy
+  // acc_admin_session cookie - the shared-password admin login retired in
+  // 2026-05. app/admin/login/page.tsx now redirects to /login
+  // unconditionally, so nothing can mint that cookie any more and the
+  // check could never pass. Every request to this route 401d, for
+  // everyone, including Karl. guardApi above is the real check.
   const { docType } = await params;
 
   const [slot] = await sql`SELECT id, storage_path FROM template_documents WHERE doc_type = ${docType}`;
@@ -100,9 +105,12 @@ export async function POST(req: NextRequest, { params }: Params) {
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const guard = await guardApi(["admin"]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
-  const ok = await getAdmin();
-  if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+  // The dead check that used to sit here wanted the legacy
+  // acc_admin_session cookie - the shared-password admin login retired in
+  // 2026-05. app/admin/login/page.tsx now redirects to /login
+  // unconditionally, so nothing can mint that cookie any more and the
+  // check could never pass. Every request to this route 401d, for
+  // everyone, including Karl. guardApi above is the real check.
   const { docType } = await params;
   const [slot] = await sql`SELECT storage_path FROM template_documents WHERE doc_type = ${docType}`;
   if (!slot) return NextResponse.json({ error: "Unknown doc type" }, { status: 404 });

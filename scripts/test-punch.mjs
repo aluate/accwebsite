@@ -25,47 +25,18 @@
  * source. Do not remove strip().
  */
 import { readFileSync } from "node:fs";
+import { stripComments } from "./strip-source.mjs";
 import { TRANSITION_GATES } from "../lib/transition-gates.ts";
 import { NOTIFICATION_EVENTS } from "../lib/notification-events.ts";
 
 let pass = 0, fail = 0;
 const check = (n, c, d = "") => { c ? (pass++, console.log(`  ok   ${n}`)) : (fail++, console.log(`  FAIL ${n}${d ? "  -> " + d : ""}`)); };
 
-/**
- * Source with every comment removed, so an assertion can only match real code.
- *
- * This started life as two .replace() calls and was wrong within the hour:
- * PunchListPanel.tsx contains accept="image/*", and a regex looking for the
- * next *\/ happily ate from inside that string all the way to the end of the
- * next real comment — taking a hundred lines of live code with it, so three
- * true assertions reported FAIL. A scanner that knows what a string is costs
- * twenty lines and cannot make that mistake.
- */
-function strip(path) {
-  const src = readFileSync(new URL(path, import.meta.url), "utf8");
-  let out = "", i = 0, quote = null;
-  while (i < src.length) {
-    const c = src[i], next = src[i + 1];
-    if (quote) {
-      if (c === "\\") { out += src.slice(i, i + 2); i += 2; continue; }
-      if (c === quote) quote = null;
-      out += c; i++; continue;
-    }
-    if (c === '"' || c === "'" || c === "`") { quote = c; out += c; i++; continue; }
-    if (c === "/" && next === "*") {
-      const end = src.indexOf("*/", i + 2);
-      i = end === -1 ? src.length : end + 2;
-      continue;
-    }
-    if (c === "/" && next === "/") {
-      const end = src.indexOf("\n", i);
-      i = end === -1 ? src.length : end;
-      continue;
-    }
-    out += c; i++;
-  }
-  return out;
-}
+/** Comment-stripped source, so an assertion can only match real code.
+  * The scanner moved to scripts/strip-source.mjs when a second suite
+  * needed it — see that file for why it is not two regexes. */
+const strip = (rel) =>
+  stripComments(readFileSync(new URL(rel, import.meta.url), "utf8"));
 
 const panel   = strip("../components/PunchListPanel.tsx");
 const itemApi = strip("../app/api/punch-items/[itemId]/route.ts");

@@ -35,9 +35,17 @@ const ADMIN_NAV = [
   { label: "Warranty",        href: "/warranty" },
 ];
 
+/*
+  Schedule Admin (/admin/schedule) and Bug Reports (/admin/bugs) were in this
+  list. Both live under app/admin/(protected)/layout.tsx, whose gate is
+  requireRole(["admin"]) — bypassed for karl and admin, NOT for pm. A PM clicking
+  either was silently redirect()ed to /jobs before the page ever rendered.
+
+  Nobody has hit it yet only because nobody currently holds the pm role. They
+  come back the moment a PM can actually open those pages, which is the roles
+  work, not this patch.
+*/
 const PM_NAV = [
-  { label: "Schedule Admin",  href: "/admin/schedule" },
-  { label: "Bug Reports",     href: "/admin/bugs" },
   { label: "Search",          href: "/search" },
   { label: "Punch",           href: "/punch" },
   { label: "Warranty",        href: "/warranty" },

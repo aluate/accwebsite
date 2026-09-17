@@ -27,7 +27,14 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const builder = await requireBuilder();
-  if (builder.role !== "admin" && builder.role !== "karl" && role !== "karl") {
+  // `&& role !== "karl"` used to sit on the end of this line. There is no
+  // variable called `role` in this scope — only `builder.role`. Because && short
+  // circuits, an admin or karl never evaluated it, which is why this survived:
+  // the only callers who reached the broken term were the ones the check exists
+  // to turn away, and they got an unhandled ReferenceError (500) instead of the
+  // clean 403 written right below it. tsc has been reporting it as
+  // "Cannot find name 'role'" the whole time.
+  if (builder.role !== "admin" && builder.role !== "karl") {
     return NextResponse.json({ ok: false, error: "Admin only" }, { status: 403 });
   }
 

@@ -561,14 +561,19 @@ export function ChangeOrdersPanel({
   role,
 }: {
   jobId: string;
-  role: "admin" | "pm" | "engineer" | "shop" | "installer";
+  // "karl" was missing from this union and from canEdit below. The job page
+  // passes session.role straight in, so the owner's own role did not typecheck
+  // (a real tsc error on main) and, worse, canEdit came out false — Karl saw
+  // the Change Orders panel read-only on every job while the API,
+  // /api/change-orders/[coId], happily accepts ["karl","admin","pm"].
+  role: "karl" | "admin" | "pm" | "engineer" | "shop" | "installer";
 }) {
   const [cos, setCos] = useState<CO[]>([]);
   const [items, setItems] = useState<COItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const canEdit = role === "admin" || role === "pm";
+  const canEdit = role === "karl" || role === "admin" || role === "pm";
 
   const refresh = useCallback(async () => {
     try {

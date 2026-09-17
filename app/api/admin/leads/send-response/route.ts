@@ -1,12 +1,18 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin-auth";
+import { guardApi } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { newLeadAlert } from "@/lib/email-templates";
 
 export async function POST(req: NextRequest) {
-  await requireAdmin();
+  // Was requireAdmin() from the retired shared-password admin login: it could
+  // never pass (nothing has minted that cookie since 2026-05), and it redirects
+  // rather than returning JSON, which is the wrong shape for an API route
+  // regardless. "Send a response to this lead" has been answering with a
+  // redirect to a dead login page ever since.
+  const guard = await guardApi(["admin"]);
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
 
   const body = await req.json() as {
     // Lead info
