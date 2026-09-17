@@ -27,14 +27,22 @@ const ROLE_LABELS: Record<Role, string> = {
   installer: "Installer",
 };
 
-// What each role can access — shown in the role description
+/*
+  What each role can actually do, as of the capability map (2026-09-17).
+
+  These were written before lib/permissions.ts existed and had drifted: "shop —
+  jobs + schedule (read-only)" was wrong, the shop adds punch items and uploads
+  files; and karl and admin had different descriptions while being identical in
+  code. The authoritative answer is /admin/permissions, which is generated from
+  the map. This is the short version, for the moment of choosing from a dropdown.
+*/
 const ROLE_DESC: Record<Role, string> = {
-  karl:      "Super-admin: admin tab + all permissions",
-  admin:     "Full access: jobs, schedule, admin panel",
-  pm:        "Jobs, schedule, spec editing",
-  engineer:  "Engineering queue + job detail",
-  shop:      "Jobs + schedule (read-only)",
-  installer: "Mobile install calendar",
+  karl:      "Everything, including logins and anything with no undo",
+  admin:     "A second owner — same as Karl. Nobody holds this today",
+  pm:        "Runs jobs: edit, advance, schedule, specs, punch, client emails",
+  engineer:  "Engineering queue and specs; reads jobs, schedule, documents",
+  shop:      "Reads jobs, specs and schedule; adds punch items and files",
+  installer: "Their own day, job detail, and closing punch items with photos",
 };
 
 const ROLE_BADGE: Record<Role, string> = {
@@ -55,9 +63,10 @@ function Label({ children }: { children: React.ReactNode }) {
 }
 
 function TextIn({
-  value, onChange, placeholder, type = "text",
+  value, onChange, placeholder, type = "text", autoComplete = "off", name,
 }: {
   value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+  autoComplete?: string; name?: string;
 }) {
   return (
     <input
@@ -65,6 +74,27 @@ function TextIn({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
+      /*
+        Karl, 2026-09-17, on this very form: "I can't change the UN or the PW."
+
+        Chrome saw a text field next to a password field, decided this was a
+        login form, and autofilled his OWN username and password into the
+        "create a new account for somebody else" form — then kept putting them
+        back. Worse, the autofilled fields are painted with Chrome's pale
+        background, so on this dark page they went white-on-white.
+
+        autoComplete defaults to "off" here, and the two fields Chrome is most
+        eager about pass "username"/"new-password" explicitly below —
+        "new-password" is the only value Chrome reliably honours for a password
+        field it must not fill from the saved-login store.
+
+        The colour half is handled globally in app/globals.css, since Chrome
+        will still autofill fields it is entitled to.
+      */
+      autoComplete={autoComplete}
+      name={name}
+      data-1p-ignore
+      data-lpignore="true"
       className="w-full bg-white/5 border border-white/15 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#f08122]/60"
     />
   );
@@ -254,6 +284,13 @@ export default function BuildersAdminPage() {
               <p className="text-[10px] mt-0.5 opacity-70">{ROLE_DESC[r]}</p>
             </div>
           ))}
+          <p className="col-span-full text-white/30 text-[11px] mt-1">
+            Short version.{" "}
+            <a href="/admin/permissions" className="text-[#f08122]/70 hover:text-[#f08122] underline">
+              Who can do what
+            </a>{" "}
+            is generated from the permission map and is the authoritative answer.
+          </p>
         </section>
 
         {/* New account form */}
@@ -261,14 +298,14 @@ export default function BuildersAdminPage() {
           <h2 className="font-condensed uppercase tracking-widest text-xs text-[#f08122] mb-6 pb-1 border-b border-white/10">
             New Account
           </h2>
-          <form onSubmit={handleCreate} className="grid grid-cols-2 gap-4">
+          <form onSubmit={handleCreate} className="grid grid-cols-2 gap-4" autoComplete="off">
             <div>
               <Label>Username *</Label>
-              <TextIn value={form.username} onChange={(v) => setForm({ ...form, username: v })} placeholder="e.g. jsmith" />
+              <TextIn value={form.username} onChange={(v) => setForm({ ...form, username: v })} placeholder="e.g. jsmith" name="new-account-username" autoComplete="off" />
             </div>
             <div>
               <Label>Temporary Password *</Label>
-              <TextIn value={form.password} onChange={(v) => setForm({ ...form, password: v })} type="password" placeholder="They'll change it on first login" />
+              <TextIn value={form.password} onChange={(v) => setForm({ ...form, password: v })} type="password" placeholder="They'll change it on first login" name="new-account-password" autoComplete="new-password" />
             </div>
             <div>
               <Label>Full Name *</Label>

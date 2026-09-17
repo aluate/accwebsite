@@ -129,3 +129,57 @@
     @apply font-sans;
   }
 }
+/* ───────────────────────────────────────────────────────────────────────────
+   Native <select> dropdowns on a dark page.
+
+   Karl, 2026-09-17, trying to pick a role on /admin/builders: "the role has the
+   wrong text/fill colors on the page for me to do that." He could see the one
+   highlighted option and nothing else.
+
+   Every select in this app is styled dark — text-white on a translucent white
+   fill — which is right for the closed control. But the OPTION LIST is drawn by
+   the operating system, on its own white background, and it inherits the
+   select's colour. White on white. Only the highlighted row, which the OS paints
+   itself, was readable.
+
+   Thirty-four components have a select with unstyled options, so this belongs
+   here rather than in any of them. Setting both colours explicitly on the option
+   is the only reliable fix across browsers — `color-scheme: dark` alone does not
+   cover Chrome on Windows, which is what the field and the office run.
+   ─────────────────────────────────────────────────────────────────────────── */
+select {
+  color-scheme: dark;
+}
+select option,
+select optgroup {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+select option:disabled {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Chrome autofill on dark inputs.
+
+   The same report: "I can't change the UN or the PW." Chrome had decided the
+   New Account form was a login form and filled in Karl's OWN credentials,
+   repainting the fields with its pale autofill background — so a dark-themed
+   input turned into near-white text on near-white fill.
+
+   The autofill itself is stopped per-field with autoComplete on the inputs
+   that must never be filled. This rule handles the rest: anywhere Chrome does
+   autofill something, keep it readable instead of leaving white on white.
+   ─────────────────────────────────────────────────────────────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ffffff;
+  /* There is no way to set the autofill background directly; a long inset
+     shadow is the standard way to paint over it. */
+  -webkit-box-shadow: 0 0 0 1000px #262626 inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
