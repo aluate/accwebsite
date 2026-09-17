@@ -11,6 +11,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
+import { requireCap } from "@/lib/permissions";
 type InvoiceRow = {
   id: string;
   invoice_number: number | null;
@@ -45,7 +46,7 @@ function ageBadge(days: number) {
 }
 
 export default async function BillingPage() {
-  await requireRole("admin");
+  await requireCap("billing.view");
 
   // All sent (unpaid) invoices with job info and totals
   const sentInvoices = await sql<InvoiceRow[]>`

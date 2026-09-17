@@ -9,6 +9,7 @@ import { syncJobToInnergy } from "@/lib/innergy-sync";
 import { requireBuilderApi, guardApi } from "@/lib/auth";
 import { syncInstallEventToOfficialDate } from "@/lib/install-date";
 
+import { guardCap } from "@/lib/permissions";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.advancedcabinets.org";
 
 /**
@@ -48,8 +49,23 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await requireBuilderApi();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  /*
+    THE WIDEST HOLE IN THE APP UNTIL NOW.
+
+    This was requireBuilderApi() — logged in, and nothing else. JOB_PATCH_FIELDS
+    below includes status, pm, estimated_value, engineer, bid_number,
+    delivery_date, install_start_date, the client's phone and email and every
+    mod_* flag. Any account of any role could rewrite all of them, on any job.
+
+    It was not theoretical: /jobs/[id]/edit has no gate either and
+    JobInlineEditClient renders unconditionally, so the app actively OFFERED the
+    editor to engineer, shop and installer accounts. Both sides are fixed in this
+    patch — narrowing an API without removing the button that calls it just moves
+    the failure from a silent write to a confusing 403.
+  */
+  const guard = await guardCap("jobs.edit");
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  const session = guard.session;
   const { id } = await params;
   const body = await req.json();
 
@@ -241,7 +257,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   // This read `await getBuilder()` with no import for getBuilder — a ReferenceError
   // at runtime, so the handler had never once succeeded and the admin Delete Job
   // button did nothing. Turbopack does not typecheck during build, so it shipped.
-  const guard = await guardApi(["admin"]);
+  const guard = await guardCap("jobs.delete");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const [row] = await sql`SELECT id, client_name FROM jobs WHERE id = ${id} OR job_number = ${id}` as Array<{ id: string; client_name: string }>;

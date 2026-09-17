@@ -3,9 +3,11 @@ export const dynamic = "force-dynamic";
 import { sql } from "@/lib/db";
 import { WipeJobsClient } from "@/components/WipeJobsClient";
 
+import { requireCap } from "@/lib/permissions";
 // requireRole("admin") is enforced by app/admin/(protected)/layout.tsx
 
 export default async function WipeJobsPage() {
+  await requireCap("system.destructive");
   const [{ count }] = await sql<[{ count: number }]>`SELECT COUNT(*)::int AS count FROM jobs`;
 
   return (

@@ -7,12 +7,13 @@ import { EstimateEditorClient } from "@/components/EstimateEditorClient";
 import cabinetTypes from "@/data/catalogs/cabinet_types.json";
 import cabinetFeatures from "@/data/catalogs/cabinet_features.json";
 
+import { requireCap } from "@/lib/permissions";
 export default async function EstimateEditorPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole("admin");
+  await requireCap("estimating.view");
   const { id } = await params;
 
   const [estimateRows, roomRows, itemRows, settingsRows, jobsRows, fgRows] = await Promise.all([

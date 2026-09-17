@@ -6,6 +6,7 @@ import { logActivity } from "@/lib/activity-log";
 import { syncJobToInnergy } from "@/lib/innergy-sync";
 import { requireBuilderApi } from "@/lib/auth";
 
+import { guardCap } from "@/lib/permissions";
 export async function GET(req: NextRequest) {
   const session = await requireBuilderApi();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -94,7 +95,11 @@ function modulesFor(body: Record<string, unknown>): {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await requireBuilderApi();
+  // Creating a job is a PM action. GET above stays open to every internal
+  // role — the shop and the field need to read the job list.
+  const guard = await guardCap("jobs.create");
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  const session = guard.session;
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const { id } = await nextJobId();

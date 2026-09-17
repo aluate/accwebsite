@@ -31,6 +31,7 @@ import { buildEngineeringEmail } from "@/lib/engineering-email";
 import { AUTO_INVOICE_ENABLED, createDraftInvoice, invoiceExists } from "@/lib/invoices";
 import { resolveRecipients, jobRoleAddresses } from "@/lib/notification-routing";
 
+import { guardCap } from "@/lib/permissions";
 type JobRow = JobMeta & {
   status: string;
   install_type?: string | null;
@@ -58,7 +59,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("jobs.advance");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const body = await req.json();

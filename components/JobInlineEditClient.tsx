@@ -245,12 +245,22 @@ function EngineerRow({ jobId, value, engineerOptions, onSaved }: EngineerRowProp
 
 interface Props {
   jobId: string;
+  /**
+   * Whether this viewer holds jobs.edit. Defaults to false deliberately: a call
+   * site that forgets to pass it gets a read-only panel, not a form that 403s.
+   *
+   * Until 2026-09-17 this component rendered its editors for every role, and
+   * PATCH /api/jobs/[id] accepted every role to match. Closing the API without
+   * closing this would have left engineer, shop and installer clicking fields
+   * that silently refused to save.
+   */
+  canEdit?: boolean;
   initialValues: Partial<Record<EditableField, string | null>> & { engineer?: string | null };
   pmOptions?: string[];
   engineerOptions?: string[];
 }
 
-export function JobInlineEditClient({ jobId, initialValues, pmOptions = [], engineerOptions = [] }: Props) {
+export function JobInlineEditClient({ jobId, canEdit = false, initialValues, pmOptions = [], engineerOptions = [] }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState<EditableField | null>(null);
   const [values, setValues] = useState<Partial<Record<EditableField, string>> & { engineer?: string }>(
@@ -291,6 +301,7 @@ export function JobInlineEditClient({ jobId, initialValues, pmOptions = [], engi
   }
 
   function startEdit(field: EditableField) {
+    if (!canEdit) return;
     setEditing(field);
     setTimeout(() => inputRef.current?.focus(), 30);
   }

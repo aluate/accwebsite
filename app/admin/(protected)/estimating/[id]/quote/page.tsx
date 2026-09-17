@@ -5,12 +5,13 @@ import { sql } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { EstimateQuoteClient } from "@/components/EstimateQuoteClient";
 
+import { requireCap } from "@/lib/permissions";
 export default async function EstimateQuotePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole("admin");
+  await requireCap("estimating.view");
   const { id } = await params;
 
   const [estimateRows, roomRows, itemRows, settingsRows] = await Promise.all([

@@ -15,8 +15,14 @@ import { requireBuilder } from "@/lib/auth";
 import { generateSignoffToken, signoffUrl } from "@/lib/signoff";
 import { logActivity } from "@/lib/activity-log";
 
+import { guardCap } from "@/lib/permissions";
 export async function POST(req: NextRequest) {
-  const session = await requireBuilder();
+  // Was requireBuilder() with no role check at all, while the button that calls it
+  // is shown only to karl/admin/pm. Any signed-in account could mint a
+  // client-facing signoff link straight from the API.
+  const guard = await guardCap("client.send");
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  const session = guard.session;
   const body = await req.json() as {
     job_id: string;
     pm_note?: string;

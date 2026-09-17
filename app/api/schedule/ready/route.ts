@@ -16,8 +16,14 @@ import { requireBuilder } from "@/lib/auth";
 import { createEvent } from "@/lib/schedule";
 import { sql, uid } from "@/lib/db";
 
+import { guardCap } from "@/lib/permissions";
 export async function POST(req: NextRequest) {
-  const builder = await requireBuilder();
+  // Was requireBuilder() with no role check, while the Ready to Schedule button
+  // that calls it is shown only to karl/admin/pm. The restriction lived entirely
+  // in the UI; any signed-in account could put a job on deck from the API.
+  const guard = await guardCap("schedule.edit");
+  if (!guard.ok) return NextResponse.json({ ok: false, error: guard.error }, { status: guard.status });
+  const builder = guard.session;
   const { job_id, note } = (await req.json()) as { job_id?: string; note?: string };
 
   if (!job_id) return NextResponse.json({ ok: false, error: "job_id required" }, { status: 400 });

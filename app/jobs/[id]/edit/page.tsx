@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { sql } from "@/lib/db";
 import { IntakeForm } from "@/components/IntakeForm";
+import { requireCap } from "@/lib/permissions";
 
 type Job = {
   id: string; job_type: string; client_name: string; client_email: string;
@@ -17,6 +18,9 @@ type Job = {
 };
 
 export default async function EditJobPage({ params }: { params: Promise<{ id: string }> }) {
+  // This page had no gate of any kind beyond the jobs layout's requireBuilder(),
+  // so every internal role could open the full intake form and save it.
+  await requireCap("jobs.edit");
   const { id } = await params;
   // Either name: the link that gets here carries the job number.
   const [job] = await sql`SELECT * FROM jobs WHERE id = ${id} OR job_number = ${id}` as Job[];

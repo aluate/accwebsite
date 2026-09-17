@@ -2,8 +2,9 @@ import { requireRole } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { EstimatingListClient } from "@/components/EstimatingListClient";
 
+import { requireCap } from "@/lib/permissions";
 export default async function EstimatingListPage() {
-  await requireRole("admin");
+  await requireCap("estimating.view");
 
   const estimates = await sql`
     SELECT e.id, e.title, e.status, e.scope, e.is_budget_estimate,

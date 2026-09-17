@@ -6,6 +6,7 @@ import { sql } from "@/lib/db";
 import { JobPortalAdmin } from "@/components/JobPortalAdmin";
 import { listRequiredInputs, summarize } from "@/lib/portal-required-inputs";
 
+import { requireCap } from "@/lib/permissions";
 type JobRow = {
   id: string; client_name: string; builder_company: string | null;
   builder_portal_enabled: boolean; target_delivery_weeks: number;
@@ -13,6 +14,7 @@ type JobRow = {
 };
 
 export default async function JobPortalAdminPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireCap("portal.manage");
   const { id } = await params;
   const [job] = await sql`
     SELECT id, client_name, builder_company, builder_portal_enabled, target_delivery_weeks,

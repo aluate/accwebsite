@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { requireCap } from "@/lib/permissions";
 import {
   calcEstimateCost,
   calcBOMReport,
@@ -17,7 +18,7 @@ export default async function BOMReportPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole("admin");
+  await requireCap("estimating.view");
   const { id } = await params;
 
   const [estimateRows, roomRows, itemRows, settingsRows] = await Promise.all([

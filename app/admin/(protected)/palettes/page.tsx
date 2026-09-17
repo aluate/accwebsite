@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { sql } from "@/lib/db";
 import Link from "next/link";
 
+import { requireCap } from "@/lib/permissions";
 type Palette = {
   id: string; builder_company: string; palette_name: string;
   finish_type: string | null; default_carcass_id: string | null;
@@ -16,6 +17,7 @@ type PaletteFG = {
 };
 
 export default async function PalettesPage() {
+  await requireCap("catalog.view");
   let palettes: Palette[] = [];
   let fgRows: PaletteFG[] = [];
 

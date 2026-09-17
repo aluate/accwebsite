@@ -2,8 +2,9 @@ import { requireRole } from "@/lib/auth";
 import Link from "next/link";
 import { getAllConstructionProfiles } from "@/lib/estimate-engine";
 
+import { requireCap } from "@/lib/permissions";
 export default async function ConstructionProfilesPage() {
-  await requireRole("admin");
+  await requireCap("estimating.setup");
   const profiles = getAllConstructionProfiles();
 
   const badge = (txt: string, color: string) => ({ txt, color });

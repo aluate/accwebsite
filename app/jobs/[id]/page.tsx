@@ -23,6 +23,7 @@ import { PlaceholderLinkPanel } from "@/components/PlaceholderLinkPanel";
 import { requireBuilder } from "@/lib/auth";
 import { listActivityForJob, type ActivityRow } from "@/lib/activity-log";
 
+import { can } from "@/lib/permissions";
 const STATUS_STEPS = [
   "intake", "bid", "design", "field_dims",
   "engineering", "procurement",
@@ -257,6 +258,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <div className="md:col-span-1 space-y-6">
           <JobInlineEditClient
             jobId={internalId}
+            canEdit={can(session.role, "jobs.edit")}
             pmOptions={pmNames}
             engineerOptions={engineerNames}
             initialValues={{

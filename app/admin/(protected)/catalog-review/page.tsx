@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { sql } from "@/lib/db";
 
+import { requireCap } from "@/lib/permissions";
 type UnverifiedRow = {
   table_name: string;
   id: string;
@@ -11,6 +12,7 @@ type UnverifiedRow = {
 };
 
 export default async function CatalogReviewPage() {
+  await requireCap("catalog.view");
   const unverified: UnverifiedRow[] = [];
 
   const queries: Array<[string, string]> = [
