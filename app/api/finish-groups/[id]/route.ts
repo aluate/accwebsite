@@ -1,35 +1,43 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { requireBuilderApi } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 
 /**
  * PATCH /api/finish-groups/[id]
  * Updates planning-only fields (box_count, wo_count) on a finish group.
- * Auth: admin/karl only (these are internal planning fields, not visible on specs).
+ * Auth: specs.edit.
  */
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await requireBuilderApi();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { id } = await params;
+  /*
+    THE OWNERSHIP RULE THAT COULD NEVER PASS.
 
-  // PM role: verify they own the parent job
-  const isPrivileged = session.role === "karl" || session.role === "admin";
-  if (!isPrivileged) {
-    if (session.role !== "pm") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-    const [ownership] = await sql`
-      SELECT 1 FROM finish_groups fg
-      JOIN residential_specs rs ON rs.id = fg.spec_id
-      JOIN jobs j ON j.id = rs.job_id
-      WHERE fg.id = ${id} AND j.pm = ${session.email}
-    `;
-    if (!ownership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+    This used to require, for a pm, that the parent job's `pm` column equal the
+    caller's session EMAIL:
+
+        WHERE fg.id = ${id} AND j.pm = ${session.email}
+
+    `jobs.pm` does not hold emails. /api/jobs/pms returns { name, email } and
+    IntakeForm binds the option to `pm.name` — so the column holds a DISPLAY
+    NAME ("Karl Vaage"), and the comparison was name-against-email. It could
+    never match for anybody. Every PM, on every job, including their own, was
+    refused box_count / wo_count / pm_complexity / wo_number: the four planning
+    fields that decide how many work orders the shop cuts.
+
+    It read as a broken save rather than a refusal, which is why it survived.
+
+    Karl, 2026-09-18, asked whether to fix the comparison or drop the rule, and
+    chose to drop it: any PM can edit any job, the way every other PM capability
+    in the map already works, because covering a colleague's job is normal here.
+    So this is now the same one-line capability check as its neighbours, and the
+    rule that lived only in this file and nowhere in the map is gone.
+  */
+  const guard = await guardCap("specs.edit");
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  const { id } = await params;
   const body = await req.json() as { box_count?: number | null; wo_count?: number | null; pm_complexity?: number | null; wo_number?: string | null };
 
   const allowedNumeric = ["box_count", "wo_count", "pm_complexity"];

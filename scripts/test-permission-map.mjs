@@ -111,5 +111,52 @@ check("it has no hand-written role table left", !permPage.includes("const PAGES"
       "600 hand-maintained rows, last correct 2026-07-16, wrong in six places by September");
 check("it reads the same grants the gates read", permPage.includes("rolesWith(") && permPage.includes("can("));
 
+console.log("\n7. the spec write path answers to the map, not to its own role lists\n");
+/*
+  WHY THIS SECTION EXISTS.
+
+  2026-09-18. Karl asked a plain question — "an ENG can edit for when an
+  accessory has to change?" — and the answer was no. The map said
+  engineering.edit was "Open and WORK a spec in engineering" and included
+  engineer; every route that would let them do it carried a hardcoded
+  guardApi(["admin","pm"]) and returned 403. The spec editor opened, every field
+  was editable, Save failed.
+
+  The map was right and unread. That is the failure this file exists to catch,
+  and it was catching it only for pages under /admin. These are the routes that
+  actually change a spec, so they are checked by name: a new one added with a
+  role array rather than a capability is a test failure, not a discovery three
+  weeks later in the field.
+*/
+const SPEC_WRITE_ROUTES = [
+  "app/api/specs/route.ts",
+  "app/api/specs/[id]/save/route.ts",
+  "app/api/specs/[id]/accessories/route.ts",
+  "app/api/specs/[id]/hardware/route.ts",
+  "app/api/specs/[id]/pulls/route.ts",
+  "app/api/specs/[id]/trim/route.ts",
+  "app/api/specs/[id]/trim-defaults/route.ts",
+  "app/api/specs/[id]/appliances/route.ts",
+  "app/api/specs/[id]/trim-propagate/route.ts",
+  "app/api/specs/[id]/finish-groups/[fgId]/edgebands/[code]/route.ts",
+  "app/api/finish-groups/[id]/route.ts",
+  "app/api/jobs/[id]/work-orders/route.ts",
+];
+for (const route of SPEC_WRITE_ROUTES) {
+  const src = read(route);
+  check(`${route.replace("app/api/", "")}: writes gated by specs.edit`,
+        src.includes('guardCap("specs.edit")'),
+        "a spec write route that does not consult the map cannot follow it");
+  check(`${route.replace("app/api/", "")}: no hardcoded role array left`,
+        !/guardApi\(\s*\[/.test(src) && !/\[\s*"karl"\s*,/.test(src),
+        "this is the exact shape that blocked engineers from saving an accessory");
+}
+check("an engineer holds specs.edit",
+      rolesWith("specs.edit").includes("engineer"),
+      "Karl 2026-09-18 — if this is ever narrowed again, the routes above follow it automatically, which is the point");
+check("finish-groups no longer compares a name column to an email",
+      !read("app/api/finish-groups/[id]/route.ts").includes("j.pm = "),
+      "jobs.pm holds a display name; comparing it to session.email refused every PM on every job");
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

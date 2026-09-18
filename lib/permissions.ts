@@ -189,7 +189,23 @@ const GRANTS: Record<Capability, readonly Role[]> = {
   "schedule.admin":   ["admin", "pm"],
 
   // Specs. Engineers work them; PMs set them up.
-  "specs.edit":       ["admin", "pm"],
+  /*
+    engineer added 2026-09-18, Karl's call, asked as: "an ENG can edit for when
+    an accessory has to change because of some reason?"
+
+    The answer was no, and nothing in the map said so. specs.edit was admin/pm
+    while engineering.edit ("Open and WORK a spec in engineering") included
+    engineer — so the map granted an engineer the right to work a spec and then
+    every route that would let them do it hardcoded ["admin","pm"] and returned
+    403. The spec editor opened, every field was editable, and Save failed. That
+    is the worst shape a permission bug can take: it looks like a broken app, not
+    a refusal, so the engineer rings the PM instead of reading an error.
+
+    Karl chose the wide grant over a narrow accessories-only one, so an engineer
+    now edits a spec the same way a PM does. Deleting or archiving a spec is NOT
+    included and stays admin/pm — see the comment on those routes.
+  */
+  "specs.edit":       ["admin", "pm", "engineer"],
   "engineering.view": ["admin", "pm", "engineer"],
   // Karl, 2026-09-17, asked whether PMs should be shut out of this: "they can do
   // that too if needed." So a PM can open and work a spec in engineering — it is

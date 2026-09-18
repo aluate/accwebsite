@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import { guardApi } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 import { sql } from "@/lib/db";
 import { propagateTrimDefaults } from "@/lib/trim-propagate";
 
@@ -20,7 +20,7 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.view");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   try {
@@ -42,7 +42,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.edit");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const body = await req.json() as { finish_group_id: string; trim_defaults: TrimDefaultPayload[] };

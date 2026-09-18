@@ -2,10 +2,11 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { guardApi } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 import { sql } from "@/lib/db";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.view");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
 
@@ -34,7 +35,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.edit");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;
   const { name, status } = await req.json();
@@ -51,6 +52,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Deliberately still admin/pm. Karl widened spec EDITING to engineer on
+  // 2026-09-18; deleting a spec outright was not part of that and is not
+  // assumed. If engineers should be able to delete specs, say so and this
+  // becomes guardCap of a capability that says it.
   const guard = await guardApi(["admin", "pm"]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id } = await params;

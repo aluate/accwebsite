@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { sql, uid } from "@/lib/db";
 import { getBuilder } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 
 // GET /api/jobs/[id]/work-orders
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -49,10 +50,17 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 // POST /api/jobs/[id]/work-orders  — upsert full list
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getBuilder();
-  if (!session || !["karl", "admin", "pm"].includes(session.role ?? "")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
+  /*
+    Was a hardcoded ["karl","admin","pm"], which left an engineer able to change
+    an accessory (as of 2026-09-18) and then unable to rebuild the work-order
+    list that tells the shop about it. Half a flow is worse than none.
+
+    It also returned the body "Unauthorized" under a 403, which is the mixed
+    signal 0061 removed elsewhere: 401 means log in again, 403 means your role
+    cannot do this. guardCap says `Requires: specs.edit`.
+  */
+  const guard = await guardCap("specs.edit");
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
 
   const { id } = await params;
   const [job] = await sql`SELECT id FROM jobs WHERE id = ${id} OR job_number = ${id}`;

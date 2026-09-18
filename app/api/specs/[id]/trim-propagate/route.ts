@@ -24,13 +24,13 @@ export const dynamic = "force-dynamic";
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { guardApi } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 import { propagateTrimDefaults, retrimRoomForFinishGroup } from "@/lib/trim-propagate";
 
 type Body = { finish_group_id: string; room_id?: string; overwrite?: boolean };
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.edit");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
 
   const { id: specId } = await params;

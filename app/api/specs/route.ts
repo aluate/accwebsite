@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import { guardApi } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 import { sql, uid } from "@/lib/db";
 import { asArray } from "@/lib/catalogs";
 
 // GET /api/specs?job_id=ACC-2026-0001
 export async function GET(req: NextRequest) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.view");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const job_id = req.nextUrl.searchParams.get("job_id");
   if (!job_id) return NextResponse.json({ error: "job_id required" }, { status: 400 });
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/specs  { job_id, name?, builder_profile_id? }
 export async function POST(req: NextRequest) {
-  const guard = await guardApi(["admin", "pm"]);
+  const guard = await guardCap("specs.edit");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const body = await req.json();
   if (!body.job_id) return NextResponse.json({ error: "job_id required" }, { status: 400 });
