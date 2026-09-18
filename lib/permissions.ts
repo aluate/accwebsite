@@ -65,7 +65,7 @@ export const CAPABILITIES = {
   "engineering.edit": "Open and work a spec in engineering; release it",
 
   // ── Schedule ──────────────────────────────────────────────────────────────
-  "schedule.view":    "See the calendar",
+  "schedule.view":    "See the company wall calendar (every crew, every job)",
   "schedule.edit":    "Put work on the calendar, move it, assign a crew",
   "schedule.admin":   "Crews, PTO, the change-request queue, locking a week",
 
@@ -147,7 +147,20 @@ const GRANTS: Record<Capability, readonly Role[]> = {
   "jobs.view":        ["admin", "pm", "engineer", "shop", "installer"],
   "specs.view":       ["admin", "pm", "engineer", "shop", "installer"],
   "files.view":       ["admin", "pm", "engineer", "shop", "installer"],
-  "schedule.view":    ["admin", "pm", "engineer", "shop", "installer"],
+  /*
+    installer is deliberately NOT here, agreed with Karl 2026-09-18.
+
+    schedule.view means the COMPANY wall calendar at /schedule — every crew,
+    every job, drag-and-drop. An installer's calendar is /installer: their own
+    day, their own jobs, built for a phone. /schedule has always redirected them
+    there, and the map used to claim otherwise, which the role matrix duly
+    reported as a disagreement.
+
+    This is the map catching up with the design, not a capability being taken
+    away. If /installer ever stops being their calendar, this is the line to
+    revisit.
+  */
+  "schedule.view":    ["admin", "pm", "engineer", "shop"],
   "punch.view":       ["admin", "pm", "engineer", "shop", "installer"],
 
   // Anyone on a job can add a punch item and close one out. The photo
