@@ -55,6 +55,9 @@ const SUITES = [
   { file: "test-punch.mjs",            db: false, what: "the punch loop can actually be closed (pure)" },
   { file: "test-permission-gates.mjs", db: false, what: "no gate 500s, lies, or locks the owner out (pure)" },
   { file: "test-permission-map.mjs",   db: false, what: "one capability map, nothing under /admin ungated (pure)" },
+  // Not in this list on purpose: test-role-matrix.mjs needs DATABASE_URL *and* a
+  // deployed BASE_URL, and it signs in as every role against a live site. It is
+  // the post-deploy check, not a unit suite. Run it with role-matrix.bat.
   { file: "test-catalog-loader.mjs",    db: true,  what: "the single catalog loader" },
   { file: "test-job-patch-fields.mjs",  db: true,  what: "every PATCH field is a real column" },
   { file: "test-engineering-autocheck.mjs", db: true, what: "which checklist items the app can prove" },
