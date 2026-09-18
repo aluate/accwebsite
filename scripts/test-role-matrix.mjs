@@ -164,7 +164,17 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 async function hit(token, method, path, attempt = 0) {
   await wait(PACE_MS);
   const c = new AbortController();
-  const t = setTimeout(() => c.abort(), 15000);
+  /*
+    30s, not 15s. CLAUDE.md states a Vercel Lambda cold start here "can take
+    10-30s", so a 15s abort was inside the documented normal range and the run of
+    2026-09-18 duly reported 30 pages as BROKEN:timeout. Five of them
+    (/schedule and four /admin pages) run ZERO database queries, which is what
+    proved it: a page with no query cannot be timing out on the database.
+
+    A number chosen below the documented worst case is not a test, it is a
+    coin toss.
+  */
+  const t = setTimeout(() => c.abort(), 30000);
   try {
     const r = await fetch(BASE + path, {
       method,
@@ -195,7 +205,12 @@ async function hit(token, method, path, attempt = 0) {
 async function hitRetry(token, method, path) {
   const first = await hit(token, method, path);
   if (typeof first === "string" && first.startsWith("BROKEN")) {
-    await wait(2000);
+    /*
+      10s, not 2s. A retry two seconds after a cold-start timeout lands in the
+      same cold window and fails the same way, which is how one slow lambda
+      became two identical findings.
+    */
+    await wait(10000);
     return hit(token, method, path);
   }
   return first;
@@ -241,6 +256,32 @@ async function main() {
     process.exit(2);
   }
   console.log("session check: a minted session authenticates against this site. Good.\n");
+
+  /*
+    WARM-UP. Not politeness — correctness.
+
+    GO.bat ships and then immediately runs this, so the first probes land while
+    Vercel is still swapping the deployment in and every lambda is cold. On
+    2026-09-18 that produced 30 "unreachable" lines, including /schedule and four
+    /admin pages that run no database query at all, and it made a clean run look
+    like a site falling over.
+
+    One untimed pass over each distinct page boots those lambdas before anything
+    is asserted. It is unauthenticated, so it wakes the function and its module
+    graph but not the logged-in query path — most of the cold start, none of the
+    risk of writing anything. Failures here are ignored on purpose: this pass
+    exists to absorb the first-hit cost, not to measure it.
+  */
+  const warmPaths = [...new Set([
+    ...Object.keys(ADMIN_PAGE_CAPS).map((seg) => `/admin/${seg}`),
+    ...PAGES.map(([path]) => path),
+  ])];
+  process.stdout.write(`warming ${warmPaths.length} routes`);
+  for (const path of warmPaths) {
+    await fetch(BASE + path, { redirect: "manual" }).catch(() => {});
+    process.stdout.write(".");
+  }
+  console.log(" done.\n");
 
   for (const role of ROLES) {
     const s = await sessionFor(role);
