@@ -41,15 +41,51 @@
  */
 import postgres from "postgres";
 import { randomBytes } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { CAPABILITIES, ADMIN_PAGE_CAPS, can } from "../lib/permissions.ts";
 
-const DB   = process.env.DATABASE_URL;
+/*
+  Finding the right database.
+
+  First run of this failed with ECONNRESET, and the cause was neither the script
+  nor the batch file: .env.local's bare DATABASE_URL points at
+  localhost:5432/acc_website — the LOCAL dev database. Production lives in
+  DATABASE_URL_DIRECT, which is the same order scripts/migrate-prod.mjs already
+  resolves. Reusing that order rather than inventing a second convention.
+
+  Parsing happens here rather than in the .bat because batch mangles % and !
+  inside a connection string, and a corrupted password is a confusing failure.
+*/
+function fromEnvFile(keys) {
+  for (const file of [".env.local", "../.env.local"]) {
+    let text;
+    try { text = readFileSync(new URL(file, import.meta.url), "utf8"); } catch { continue; }
+    for (const key of keys) {
+      const m = text.match(new RegExp(`^${key}=(.*)$`, "m"));
+      if (m) {
+        const v = m[1].trim().replace(/^["']|["']$/g, "");
+        if (v) return { value: v, key, file };
+      }
+    }
+  }
+  return null;
+}
+
 const BASE = (process.env.BASE_URL || "").replace(/\/$/, "");
-if (!DB || !BASE) {
-  console.error("Need DATABASE_URL and BASE_URL.\n" +
-    "  DATABASE_URL=postgres://... BASE_URL=https://www.advancedcabinets.org node scripts/test-role-matrix.mjs");
+const picked = process.env.PROD_DATABASE_URL
+  ? { value: process.env.PROD_DATABASE_URL, key: "PROD_DATABASE_URL", file: "environment" }
+  : process.env.DATABASE_URL
+  ? { value: process.env.DATABASE_URL, key: "DATABASE_URL", file: "environment" }
+  : fromEnvFile(["PROD_DATABASE_URL", "DATABASE_URL_DIRECT", "DATABASE_URL"]);
+
+if (!picked || !BASE) {
+  console.error(
+    "Need a production database URL and BASE_URL.\n" +
+    "  Looked for PROD_DATABASE_URL, then DATABASE_URL_DIRECT, then DATABASE_URL\n" +
+    "  in the environment and in .env.local — same order as migrate-prod.mjs.");
   process.exit(2);
 }
+const DB = picked.value;
 
 // prepare:false is load-bearing on the Supabase pooler — see CLAUDE.md.
 const sql = postgres(DB, { ssl: "require", prepare: false });
@@ -140,7 +176,40 @@ async function main() {
     WHERE job_number IS NOT NULL AND status NOT IN ('complete','cancelled')
     ORDER BY created_at DESC LIMIT 1`;
   const jobRef = job?.job_number ?? job?.id;
-  console.log(`\nBASE_URL ${BASE}\nprobing with job ${jobRef}\n`);
+  console.log(`\nBASE_URL  ${BASE}`);
+  console.log(`database  ${picked.key} (from ${picked.file})`);
+  console.log(`probing with job ${jobRef}\n`);
+
+  /*
+    THE GUARD THAT MATTERS MOST IN THIS FILE.
+
+    This mints sessions in a DATABASE and then makes requests to a SITE. If those
+    two are not the same system, every request arrives unauthenticated, every
+    deny-assertion passes for the wrong reason, and the run reports all green
+    while having tested nothing at all. That is far worse than crashing.
+
+    So: mint one session, call an endpoint that requires a session, and refuse to
+    continue unless it actually authenticates. The first run of this harness
+    connected to localhost:5432 while testing production, which is exactly the
+    mismatch this catches.
+  */
+  const probe = await sessionFor("karl") || await sessionFor("admin");
+  if (!probe) {
+    console.error("No karl or admin account to sanity-check with. Stopping.");
+    process.exit(2);
+  }
+  const auth = await hit(probe.token, "GET", "/api/jobs/pms");
+  if (auth !== 200) {
+    console.error(
+      `\nSTOPPING: a freshly minted session did not authenticate against ${BASE}\n` +
+      `  (GET /api/jobs/pms answered ${auth})\n\n` +
+      `  The database this script wrote the session into is not the one backing\n` +
+      `  that site. Every result would be a false pass.\n\n` +
+      `  Using ${picked.key} from ${picked.file}. If that is the local dev\n` +
+      `  database, set PROD_DATABASE_URL or point BASE_URL at the matching site.\n`);
+    process.exit(2);
+  }
+  console.log("session check: a minted session authenticates against this site. Good.\n");
 
   for (const role of ROLES) {
     const s = await sessionFor(role);
