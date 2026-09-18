@@ -13,7 +13,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBuilder } from "@/lib/auth";
-import { sql } from "@/lib/db";
+import { sql, withDbTimeout } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -299,7 +299,22 @@ export default async function InstallerPage() {
     : [];
   const crewId = crewRows[0]?.id ?? null;
 
-  const [events, activeJobs] = await Promise.all([fetchEvents(crewId), fetchActiveJobs(crewId)]);
+  /*
+    F9 — this page 500'd intermittently and it is the field crew's ONLY screen.
+    When it fails they get "SOMETHING WENT WRONG / RETRY" and no way to work.
+
+    It ran two parallel queries bare. CLAUDE.md is explicit that every server
+    page hitting the DB must race them against a timeout, because a Lambda cold
+    start with an exhausted Supabase pool otherwise hangs until the hard kill.
+    /jobs and /jobs/[id] have had the guard for months; this did not — three of
+    thirty-one sql-using pages do.
+
+    That does not make a slow database fast. What it does is turn a hang into a
+    named error the boundary can show, in under twelve seconds instead of
+    whatever Vercel decides.
+  */
+  const [events, activeJobs] = await withDbTimeout(() =>
+    Promise.all([fetchEvents(crewId), fetchActiveJobs(crewId)]));
   const today  = todayIso();
   const { past, todayEvts, upcoming, undated } = groupEvents(events, today);
 

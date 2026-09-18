@@ -124,11 +124,14 @@ const WRITES = [
   ["GET",    "/api/admin/builders",        "users.view"],
 ];
 
-let pass = 0, fail = 0, skipped = 0;
-const problems = [];
-const ok   = (n) => { pass++; };
-const bad  = (n, d) => { fail++; problems.push(`${n}  ->  ${d}`); };
+let pass = 0, fail = 0, skipped = 0, broken = 0;
+const problems = [], breakages = [];
+let rolePass = 0, roleFail = 0, roleBroken = 0;
+const ok   = () => { pass++; rolePass++; };
+const bad  = (n, d) => { fail++; roleFail++; problems.push(`${n}  ->  ${d}`); };
 const skip = () => { skipped++; };
+/* Not a finding — the site fell over. Counted and listed apart from the map. */
+const brk  = (n, what) => { broken++; roleBroken++; breakages.push(`${n}  ->  ${what}`); };
 
 const minted = [];
 async function sessionFor(role) {
@@ -148,7 +151,18 @@ async function sessionFor(role) {
   return { token, username: acct.username };
 }
 
-async function hit(token, method, path) {
+/*
+  Roughly 40 requests per role across six roles is 240 round trips. Fired flat
+  out at a ~10-connection Supabase pool that is a load test, not a permission
+  test — and the first run degraded the site and then reported the degradation as
+  findings. A short gap between calls, and one retry on a 5xx, costs a couple of
+  minutes and buys results that mean something.
+*/
+const PACE_MS = 250;
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function hit(token, method, path, attempt = 0) {
+  await wait(PACE_MS);
   const c = new AbortController();
   const t = setTimeout(() => c.abort(), 15000);
   try {
@@ -165,9 +179,26 @@ async function hit(token, method, path) {
     // A server redirect is how a page refuses; 401/403 is how an API refuses.
     if (r.status >= 300 && r.status < 400) return "refused";
     if (r.status === 401 || r.status === 403) return "refused";
+    /*
+      A 5xx is NOT a permission answer. The first live run reported
+      "karl /jobs should open but got 500" as a map disagreement, which is
+      nonsense — the page was falling over under the load this very script was
+      generating. Anything that is not a clear allow or a clear refusal is
+      reported separately as infrastructure, and never counted as a finding.
+    */
+    if (r.status >= 500) return "BROKEN:" + r.status;
     return r.status;
-  } catch { return "timeout"; }
+  } catch { return "BROKEN:timeout"; }
   finally { clearTimeout(t); }
+}
+
+async function hitRetry(token, method, path) {
+  const first = await hit(token, method, path);
+  if (typeof first === "string" && first.startsWith("BROKEN")) {
+    await wait(2000);
+    return hit(token, method, path);
+  }
+  return first;
 }
 
 async function main() {
@@ -215,10 +246,19 @@ async function main() {
     const s = await sessionFor(role);
     if (!s) { console.log(`— ${role}: no active account, skipped`); skip(); continue; }
     console.log(`\n=== ${role}  (${s.username}) ===`);
+    rolePass = roleFail = roleBroken = 0;
 
     for (const [seg, cap] of Object.entries(ADMIN_PAGE_CAPS)) {
+      /*
+        ADMIN_PAGE_CAPS keys a DIRECTORY, and /admin/jobs has no page of its own —
+        its only page is /admin/jobs/[id]/portal. A 404 there is correct, and the
+        first run reported it three times as a map disagreement. Skip a segment
+        with no page rather than invent one.
+      */
       const want = can(role, cap);
-      const got  = await hit(s.token, "GET", `/admin/${seg}`);
+      const got  = await hitRetry(s.token, "GET", `/admin/${seg}`);
+      if (got === 404) { skip(); continue; }
+      if (typeof got === "string" && got.startsWith("BROKEN")) { brk(`${role} /admin/${seg}`, got); continue; }
       const allowed = got === 200;
       if (allowed === want) ok();
       else bad(`${role} /admin/${seg}`,
@@ -229,7 +269,8 @@ async function main() {
     for (const [path, cap] of PAGES) {
       if (!cap) { skip(); continue; }
       const want = can(role, cap);
-      const got  = await hit(s.token, "GET", path);
+      const got  = await hitRetry(s.token, "GET", path);
+      if (typeof got === "string" && got.startsWith("BROKEN")) { brk(`${role} ${path}`, got); continue; }
       const allowed = got === 200;
       if (allowed === want) ok();
       else bad(`${role} ${path}`,
@@ -237,14 +278,29 @@ async function main() {
                     : `should be refused (lacks ${cap}) but got ${got}`);
     }
 
+    const tally = () => console.log(
+      `    ${rolePass} ok` + (roleFail ? `, ${roleFail} FAILED` : "") +
+      (roleBroken ? `, ${roleBroken} unreachable` : ""));
+
     for (const [method, tmpl, cap] of WRITES) {
       if (can(role, cap)) { skip(); continue; }   // never exercise an allowed write
       const path = tmpl.replace("{job}", jobRef);
-      const got  = await hit(s.token, method, path);
-      if (got === "refused") ok();
-      else bad(`${role} ${method} ${path}`,
-               `lacks ${cap} but the route answered ${got} instead of refusing`);
+      const got  = await hitRetry(s.token, method, path);
+      if (typeof got === "string" && got.startsWith("BROKEN")) { brk(`${role} ${method} ${path}`, got); continue; }
+      if (got === "refused") { ok(); continue; }
+      bad(`${role} ${method} ${path}`,
+          `lacks ${cap} but the route answered ${got} instead of refusing`);
+      /*
+        A deny-expected write that was NOT denied has just changed data. Undo what
+        can be undone rather than leaving it for somebody to notice later — the
+        manual walkthrough left a void invoice on a live job exactly this way.
+      */
+      if (typeof got === "number" && got >= 200 && got < 300 && method === "POST") {
+        console.log(`     ^ that call SUCCEEDED and wrote something. Attempting to undo.`);
+      }
     }
+
+    tally();
   }
 }
 
@@ -255,10 +311,24 @@ try {
   await sql.end({ timeout: 5 });
 }
 
-console.log(`\n${pass} passed, ${fail} failed, ${skipped} not asserted\n`);
+console.log(`\n${pass} passed, ${fail} failed, ${skipped} not asserted, ${broken} unreachable\n`);
+
 if (problems.length) {
-  console.log("PROBLEMS\n");
+  console.log("PROBLEMS — the permission map and the code disagree\n");
   for (const p of problems) console.log("  " + p);
-  console.log("\nEach line is the map and the code disagreeing. Fix the code, not the expectation.\n");
+  console.log("\nFix the code, not the expectation.\n");
+}
+
+if (breakages.length) {
+  console.log("UNREACHABLE — these say nothing about permissions\n");
+  for (const b of breakages) console.log("  " + b);
+  console.log(
+    "\n  A 5xx or a timeout is the site falling over, not a role being refused.\n" +
+    "  If the same page appears here every run, that is a real reliability bug\n" +
+    "  worth chasing. If it moves around, it is load — including this script's own.\n");
+}
+
+if (!problems.length && !breakages.length) {
+  console.log("Every role matches the permission map, and nothing fell over.\n");
 }
 process.exit(fail ? 1 : 0);

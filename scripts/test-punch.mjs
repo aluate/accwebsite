@@ -143,7 +143,10 @@ check("engineer and shop are on it",
       "the panel offers every internal role an Add button; the guard 403'd two of them");
 check("no route is left on the old three-role list",
       ![itemApi, jobApi, photoApi].some((s) => s.includes('guardApi(["admin", "pm", "installer"])')));
-check("delete is still manager-only", itemApi.includes("actor?.canManage"));
+check("delete is still manager-only", /if \(!actor\.canManage\)/.test(itemApi),
+      "the check moved from actor?.canManage to an explicit !actor then !actor.canManage, so the refusal can be a 403 rather than a 401");
+check("and refuses with 403, not 401", /Requires: punch\.manage[\s\S]{0,80}status: 403/.test(itemApi),
+      "401 tells a client to log in again, which is wrong advice for a permissions problem");
 check("the panel's canManage matches lib/punch-auth.ts",
       panel.includes('role === "admin" || role === "karl" || role === "pm"') &&
       strip("../lib/punch-auth.ts").includes('["admin", "karl", "pm"].includes(builder.role)'),

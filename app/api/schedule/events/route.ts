@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
  */
 import { NextRequest, NextResponse } from "next/server";
 import { requireBuilder } from "@/lib/auth";
+import { guardCap } from "@/lib/permissions";
 import {
   createEvent,
   forwardEvents,
@@ -51,7 +52,19 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const builder = await requireBuilder();
+  /*
+    Was requireBuilder() — signed in, and nothing else. The role matrix caught it
+    on 2026-09-18: engineer, shop AND installer all created calendar events, none
+    of whom hold schedule.edit. A 400 in that report meant the request got PAST
+    the guard and only failed body validation.
+
+    So anyone with a login could add, move or delete anything on the calendar.
+    Nobody had, but this is the table the whole punch-to-installer flow is about
+    to depend on.
+  */
+  const guard = await guardCap("schedule.edit");
+  if (!guard.ok) return NextResponse.json({ ok: false, error: guard.error }, { status: guard.status });
+  const builder = guard.session;
   const body = (await req.json()) as CreatePayload;
 
   if (!body.job_id)     return NextResponse.json({ error: "job_id required" }, { status: 400 });

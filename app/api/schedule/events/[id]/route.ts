@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { requireBuilder } from "@/lib/auth";
 import { installDatePromptFor } from "@/lib/install-date";
+import { guardCap } from "@/lib/permissions";
 import {
   updateEvent,
   deleteEvent,
@@ -35,7 +36,19 @@ type PatchPayload = {
 };
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const builder = await requireBuilder();
+  /*
+    Was requireBuilder() — signed in, and nothing else. The role matrix caught it
+    on 2026-09-18: engineer, shop AND installer all created calendar events, none
+    of whom hold schedule.edit. A 400 in that report meant the request got PAST
+    the guard and only failed body validation.
+
+    So anyone with a login could add, move or delete anything on the calendar.
+    Nobody had, but this is the table the whole punch-to-installer flow is about
+    to depend on.
+  */
+  const guard = await guardCap("schedule.edit");
+  if (!guard.ok) return NextResponse.json({ ok: false, error: guard.error }, { status: guard.status });
+  const builder = guard.session;
   const { id } = await params;
   const body = (await req.json()) as PatchPayload;
 
@@ -86,7 +99,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const builder = await requireBuilder();
+  /*
+    Was requireBuilder() — signed in, and nothing else. The role matrix caught it
+    on 2026-09-18: engineer, shop AND installer all created calendar events, none
+    of whom hold schedule.edit. A 400 in that report meant the request got PAST
+    the guard and only failed body validation.
+
+    So anyone with a login could add, move or delete anything on the calendar.
+    Nobody had, but this is the table the whole punch-to-installer flow is about
+    to depend on.
+  */
+  const guard = await guardCap("schedule.edit");
+  if (!guard.ok) return NextResponse.json({ ok: false, error: guard.error }, { status: guard.status });
+  const builder = guard.session;
   const { id } = await params;
   const result = await deleteEvent(id, builder.username);
   if (!result.ok) {

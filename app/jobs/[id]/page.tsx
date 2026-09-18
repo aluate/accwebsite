@@ -395,7 +395,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           {((session.role === "admin" || session.role === "karl") || session.role === "pm") && (
             <div className="mt-6 pt-4 border-t border-white/5">
-              <InvoicePanel jobId={internalId} canManage={isAdmin || session.role === "pm"} />
+              <InvoicePanel jobId={internalId} canManage={can(session.role, "billing.manage")} />
             </div>
           )}
 

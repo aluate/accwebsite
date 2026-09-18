@@ -123,10 +123,18 @@ export default function BuildersAdminPage() {
   const [editForm, setEditForm] = useState({ name: "", email: "", phone: "", username: "" });
   const [editSaving, setEditSaving] = useState(false);
 
+  // users.view lets a PM read the roster; users.manage is the owner's. The API
+  // sends the answer with the data because this is a client component and
+  // cannot consult lib/permissions.ts itself.
+  const [canManage, setCanManage] = useState(false);
+
   async function load() {
     setLoading(true);
     const res = await fetch("/api/admin/builders");
-    setAccounts(await res.json());
+    const body = await res.json();
+    // Tolerate the old bare-array shape as well as { accounts, canManage }.
+    setAccounts(Array.isArray(body) ? body : (body.accounts ?? []));
+    setCanManage(Array.isArray(body) ? true : !!body.canManage);
     setLoading(false);
   }
 
@@ -294,6 +302,7 @@ export default function BuildersAdminPage() {
         </section>
 
         {/* New account form */}
+        {canManage && (<>
         <section>
           <h2 className="font-condensed uppercase tracking-widest text-xs text-[#f08122] mb-6 pb-1 border-b border-white/10">
             New Account
@@ -343,7 +352,7 @@ export default function BuildersAdminPage() {
               {success && <span className="text-green-400 text-xs">{success}</span>}
             </div>
           </form>
-        </section>
+        </section></>)}
 
         {/* Account list */}
         <section>
@@ -382,6 +391,18 @@ export default function BuildersAdminPage() {
                       {a.phone && <span>{a.phone}</span>}
                     </div>
                   </div>
+                  {/*
+                    Every control in this row writes, and every write needs
+                    users.manage. Without it the roster stays readable — which is
+                    the whole point of users.view for a PM assigning a job — and
+                    nothing is offered that the API would then refuse.
+                  */}
+                  {!canManage && (
+                    <span className="shrink-0 text-white/25 font-condensed uppercase tracking-widest text-[10px]">
+                      view only
+                    </span>
+                  )}
+                  {canManage && (
                   <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                     <select
                       value={a.role}
@@ -417,6 +438,7 @@ export default function BuildersAdminPage() {
                       Delete
                     </button>
                   </div>
+                  )}
                 </div>
               ))}
             </div>

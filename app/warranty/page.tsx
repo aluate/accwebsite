@@ -4,6 +4,7 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 
+import { requireCap } from "@/lib/permissions";
 type WarrantyRow = {
   id: string; job_id: string; reported_at: string; reported_by: string;
   category: string; description: string; status: string; priority: string;
@@ -29,7 +30,12 @@ function fmtDate(iso: string | Date) {
 }
 
 export default async function WarrantyListPage() {
-  await requireRole(["admin", "pm"]);
+  /*
+    Was a hardcoded role list. This page sits outside app/admin/, so the 0057
+    pass that moved the admin tree onto capabilities never reached it — and the
+    role matrix found the consequence on 2026-09-18: engineer and installer hold warranty.view and were redirected away.
+  */
+  await requireCap("warranty.view");
 
   const items = await sql`
     SELECT w.*, j.client_name, j.job_number

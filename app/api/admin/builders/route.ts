@@ -5,6 +5,7 @@ import { guardApi } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { sql, uid } from "@/lib/db";
 
+import { guardCap, can } from "@/lib/permissions";
 type AccountRow = {
   id: string; username: string; name: string;
   company: string | null; email: string | null; phone: string | null;
@@ -13,20 +14,38 @@ type AccountRow = {
 
 // GET /api/admin/builders — list all accounts (incl. role)
 export async function GET() {
-  const guard = await guardApi(["admin"]);
+  /*
+    The map grants a PM users.view — they need the roster to assign a job to
+    somebody. This route stayed admin-only, so /admin/builders opened for a PM
+    and then showed a dead "Retry" when the list 403'd. Found by the role
+    matrix, 2026-09-18.
+  */
+  const guard = await guardCap("users.view");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const rows = await sql<AccountRow[]>`
     SELECT id, username, name, company, email, phone, active, created_at, role, must_change_pw
     FROM builder_accounts ORDER BY created_at DESC
   `;
-  return NextResponse.json(rows);
+  /*
+    The shape changes from a bare array to { accounts, canManage }.
+
+    users.view and users.manage are different capabilities: a PM may read the
+    roster to assign a job, and may not create logins or change roles. The page
+    is a client component and cannot ask the map itself, so the answer travels
+    with the data — otherwise it would render a create form and Reset PW / Delete
+    buttons that every write then refuses, which is the class of bug 0056 fixed
+    on the Advance button.
+
+    Kept backward-compatible: `accounts` is the array the page used to receive.
+  */
+  return NextResponse.json({ accounts: rows, canManage: can(guard.session.role, "users.manage") });
 }
 
 // POST /api/admin/builders — create account
 //   body: { username, password, name, company?, email?, phone?, role? }
 //   New accounts always get must_change_pw = 1 so users set their own password on first login.
 export async function POST(req: NextRequest) {
-  const guard = await guardApi(["admin"]);
+  const guard = await guardCap("users.manage");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { username, password, name, company, email, phone, role } = await req.json();
 
@@ -61,7 +80,7 @@ export async function POST(req: NextRequest) {
 //   body: { id, username?, active?, password?, must_change_pw?, name?, company?, email?, phone?, role? }
 //   Setting password also sets must_change_pw = 1 (Reset PW flow).
 export async function PATCH(req: NextRequest) {
-  const guard = await guardApi(["admin"]);
+  const guard = await guardCap("users.manage");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const { id, username, active, password, must_change_pw, name, company, email, phone, role } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
@@ -103,7 +122,7 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE /api/admin/builders?id=... — remove account
 export async function DELETE(req: NextRequest) {
-  const guard = await guardApi(["admin"]);
+  const guard = await guardCap("users.manage");
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });

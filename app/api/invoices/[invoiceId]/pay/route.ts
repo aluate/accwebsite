@@ -12,14 +12,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireBuilder } from "@/lib/auth";
 
+import { guardCap } from "@/lib/permissions";
 type Params = { params: Promise<{ invoiceId: string }> };
 
 export async function POST(req: NextRequest, { params }: Params) {
   const session = await requireBuilder();
-  if (!["karl", "admin", "pm"].includes(session.role)) {
-    return NextResponse.json({ error: "PM or admin required" }, { status: 403 });
-  }
+  /*
+    Karl, 2026-09-17: "mine only. we can roll out billing after more testing."
+    The map held billing.* to the owner from that day; this route kept its own
+    ["karl","admin","pm"] list, so it did not. The role matrix caught it on
+    2026-09-18 — a PM POSTed here and got a 201 with a real invoice.
 
+    When billing does roll out, the change is one line in lib/permissions.ts.
+  */
+  const bGuard = await guardCap("billing.manage");
+  if (!bGuard.ok) return NextResponse.json({ error: bGuard.error }, { status: bGuard.status });
   const { invoiceId } = await params;
   const [invoice] = await sql`SELECT id, status FROM invoices WHERE id = ${invoiceId}`;
   if (!invoice) return NextResponse.json({ error: "Not found" }, { status: 404 });

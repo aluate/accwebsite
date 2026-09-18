@@ -107,8 +107,12 @@ export async function DELETE(
   const guard = await guardApi([...PUNCH_ROLES]);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
   const actor = await getPunchActor();
-  if (!actor?.canManage) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!actor.canManage) {
+    // 403, not 401. The caller IS authenticated — they are simply not allowed.
+    // A 401 tells a client to log in again, which is wrong advice for a
+    // permissions problem and sends somebody round a login loop.
+    return NextResponse.json({ error: "Requires: punch.manage" }, { status: 403 });
   }
 
   const { itemId } = await params;

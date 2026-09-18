@@ -4,6 +4,7 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 
+import { requireCap } from "@/lib/permissions";
 type PunchRow = {
   id: string;
   job_id: string;
@@ -176,7 +177,12 @@ export default async function PunchPage({
 }: {
   searchParams: Promise<{ filter?: string }>;
 }) {
-  await requireRole(["admin", "pm", "engineer"]);
+  /*
+    Was a hardcoded role list. This page sits outside app/admin/, so the 0057
+    pass that moved the admin tree onto capabilities never reached it — and the
+    role matrix found the consequence on 2026-09-18: shop and installer hold punch.view and were redirected away — the field crew, from the punch screen.
+  */
+  await requireCap("punch.view");
   const sp = await searchParams;
   const filter = sp.filter === "done" ? "done" : sp.filter === "all" ? "all" : "open";
 
