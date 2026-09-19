@@ -14,11 +14,11 @@
  *   DATABASE_URL=postgres://... npx tsx scripts/test-catalog-loader.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { getCatalogs, invalidateCatalogCache } from "../lib/catalogs.ts";
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
-const isLocal = url.includes("localhost") || url.includes("127.0.0.1");
+const url = requireTestDatabase("the catalog loader suite");
+const isLocal = isLocalDb(url);
 const sql = postgres(url, { ssl: isLocal ? false : "require", max: 1, prepare: false });
 
 let pass = 0, fail = 0;

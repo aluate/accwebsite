@@ -25,12 +25,12 @@
  *   DATABASE_URL=postgres://... npx tsx scripts/test-release-gate.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { randomBytes } from "node:crypto";
 import { transitionLifecycle } from "../lib/lifecycle.ts";
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
-const isLocal = url.includes("localhost") || url.includes("127.0.0.1");
+const url = requireTestDatabase("the engineering release gate suite");
+const isLocal = isLocalDb(url);
 const sql = postgres(url, { ssl: isLocal ? false : "require", max: 2, prepare: false });
 
 let pass = 0, fail = 0;

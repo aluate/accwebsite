@@ -18,12 +18,15 @@
  * A 200 that stores nonsense is worse than a 500. This asserts the shape that
  * comes back, not the status code that went in.
  */
+import { assertTestDatabase } from "./test-db.mjs";
 import { sql, uid } from "../lib/db.ts";
 
-if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL is not set — this suite needs a database.");
-  process.exit(1);
-}
+/*
+  This suite uses the APP's client (lib/db.ts above), which reads
+  process.env.DATABASE_URL. That is the variable the guard vets, for every suite
+  — see the note in test-db.mjs about why there is only one.
+*/
+assertTestDatabase("the checklist round-trip suite");
 
 let pass = 0, fail = 0;
 const check = (name, cond, detail = "") => {

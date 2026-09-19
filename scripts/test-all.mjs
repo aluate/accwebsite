@@ -32,6 +32,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
   right rather than guessing from the file name.
 */
 const SUITES = [
+  { file: "test-db-guard.mjs",         db: false, what: "the writing suites cannot reach production (pure)" },
   { file: "test-catalog-resolve.mjs",   db: false, what: "db-vs-file catalog resolution (pure)" },
   { file: "test-upload-paths.mjs",      db: false, what: "where an uploaded file may land (pure)" },
   { file: "test-trim-defaults.mjs",     db: false, what: "trim sizes, species, and what stays blank" },
@@ -55,6 +56,16 @@ const SUITES = [
   { file: "test-punch.mjs",            db: false, what: "the punch loop can actually be closed (pure)" },
   { file: "test-permission-gates.mjs", db: false, what: "no gate 500s, lies, or locks the owner out (pure)" },
   { file: "test-permission-map.mjs",   db: false, what: "one capability map, nothing under /admin ungated (pure)" },
+  /*
+    Added 2026-09-19. These four were committed and in no runner table, so they
+    had never run — not once, not on the day they were written. test-trim-propagate
+    covers a route this session changed in 0063, and it could not have told us.
+
+    A suite that is not in this table does not exist. If you write one, add it
+    here in the same commit.
+  */
+  { file: "test-door-material.mjs",    db: false, what: "base door material is derived, and the gate accepts it (pure)" },
+  { file: "test-trim-types.mjs",       db: false, what: "the trim vocabulary is one list with one spelling (pure)" },
   // Not in this list on purpose: test-role-matrix.mjs needs DATABASE_URL *and* a
   // deployed BASE_URL, and it signs in as every role against a live site. It is
   // the post-deploy check, not a unit suite. Run it with role-matrix.bat.
@@ -71,6 +82,8 @@ const SUITES = [
   { file: "test-trim-save-sequence.mjs", db: true,  http: true, what: "trim survives the form's save sequence" },
   { file: "test-job-create-fields.mjs", db: true,  http: true, what: "the create form's fields all survive the save" },
   { file: "test-melamine-release.mjs",  db: true,  http: true, what: "a melamine spec can actually reach engineering" },
+  { file: "test-acc-standards.mjs",     db: true,  what: "seeding scope — per-table vs per-role" },
+  { file: "test-trim-propagate.mjs",    db: true,  what: "the trim propagate writes, against real Postgres" },
 ];
 
 const unitOnly = process.argv.includes("--unit");
@@ -109,7 +122,11 @@ if (skipped.length) {
   console.log(`  Skipped here means UNTESTED: the catalog loader, the install-date rule, the`);
   console.log(`  engineering release gate and every assertion about what the PDFs actually say.`);
   console.log(`  Only test-catalog-resolve runs without a database. Do not read this as a pass.\n`);
-  console.log(`  Point it at a database:  DATABASE_URL=postgres://... npm test`);
+  console.log(`  Point it at a SCRATCH database — these suites write:`);
+  console.log(`    DATABASE_URL=postgres://localhost:5432/acc_scratch npm test\n`);
+  console.log(`  scripts/test-db.mjs refuses to run them against production, and knows`);
+  console.log(`  the pooler and direct URLs are the same database, so you cannot get`);
+  console.log(`  past it by swapping one for the other.`);
   console.log(`  For the http suite also:  BASE_URL=http://127.0.0.1:3000 SESSION_TOKEN=<token>\n`);
 }
 

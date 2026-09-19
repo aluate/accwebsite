@@ -23,12 +23,12 @@
  *   DATABASE_URL=postgres://... npx tsx scripts/test-door-front-save.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { randomBytes } from "node:crypto";
 import { ROLE_BASE, ROLE_DRAWER_FRONT, ROLE_APPLIED_END, isDoorFrontRole } from "../lib/door-front-roles.ts";
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
-const isLocal = url.includes("localhost") || url.includes("127.0.0.1");
+const url = requireTestDatabase("the door/drawer-front save suite");
+const isLocal = isLocalDb(url);
 const sql = postgres(url, { ssl: isLocal ? false : "require", max: 2, prepare: false });
 
 let pass = 0, fail = 0;

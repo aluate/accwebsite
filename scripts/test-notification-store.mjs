@@ -18,6 +18,7 @@
  * back, and see the same values.
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import {
   saveRouteOverride, loadRouteOverrides,
   saveTestMode, loadTestMode,
@@ -25,9 +26,8 @@ import {
 } from "../lib/notification-routing.ts";
 import { EVENT_BY_KEY } from "../lib/notification-events.ts";
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("need DATABASE_URL"); process.exit(1); }
-const sql = postgres(url, { ssl: url.includes("127.0.0.1") || url.includes("localhost") ? false : "require", prepare: false, max: 2 });
+const url = requireTestDatabase("the notification settings suite");
+const sql = postgres(url, { ssl: isLocalDb(url) ? false : "require", prepare: false, max: 2 });
 
 let pass = 0, fail = 0;
 const check = (name, cond, detail = "") => {

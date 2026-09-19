@@ -29,13 +29,14 @@
  *     SESSION_TOKEN=<builder_sessions.token> npx tsx scripts/test-trim-save-sequence.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { randomBytes } from "node:crypto";
 
-const url = process.env.DATABASE_URL;
+const url = requireTestDatabase("the trim save sequence suite");
 const BASE = process.env.BASE_URL;
 const TOKEN = process.env.SESSION_TOKEN;
-if (!url || !BASE || !TOKEN) {
-  console.error("need DATABASE_URL, BASE_URL and SESSION_TOKEN");
+if (!BASE || !TOKEN) {
+  console.error("need BASE_URL and SESSION_TOKEN");
   process.exit(1);
 }
 const sql = postgres(url, { ssl: false, prepare: false, max: 2 });

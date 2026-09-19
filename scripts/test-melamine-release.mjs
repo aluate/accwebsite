@@ -21,11 +21,13 @@
  *     SESSION_TOKEN=<builder_sessions.token> node --import tsx scripts/test-melamine-release.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { randomBytes } from "node:crypto";
 
-const url = process.env.DATABASE_URL, BASE = process.env.BASE_URL, TOKEN = process.env.SESSION_TOKEN;
-if (!url || !BASE || !TOKEN) { console.error("need DATABASE_URL, BASE_URL and SESSION_TOKEN"); process.exit(1); }
-const sql = postgres(url, { ssl: url.includes("127.0.0.1") || url.includes("localhost") ? false : "require", prepare: false, max: 2 });
+const url = requireTestDatabase("the melamine release suite");
+const BASE = process.env.BASE_URL, TOKEN = process.env.SESSION_TOKEN;
+if (!BASE || !TOKEN) { console.error("need BASE_URL and SESSION_TOKEN"); process.exit(1); }
+const sql = postgres(url, { ssl: isLocalDb(url) ? false : "require", prepare: false, max: 2 });
 const uid = () => randomBytes(6).toString("hex");
 
 let pass = 0, fail = 0;

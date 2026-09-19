@@ -13,13 +13,13 @@
  *   DATABASE_URL=postgres://... npx tsx scripts/test-trim-propagate.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { readFileSync } from "fs";
 import { randomBytes } from "node:crypto";
 import { deriveRoomTrim, retrimForFinishGroupSwap } from "../lib/trim-defaults.ts";
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
-const sql = postgres(url, { ssl: false, prepare: false, max: 2 });
+const url = requireTestDatabase("the trim propagate SQL suite");
+const sql = postgres(url, { ssl: isLocalDb(url) ? false : "require", prepare: false, max: 2 });
 const uid = () => randomBytes(8).toString("hex");
 
 let pass = 0, fail = 0;

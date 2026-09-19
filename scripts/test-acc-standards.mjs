@@ -10,11 +10,11 @@
  *   DATABASE_URL=postgres://... node scripts/test-acc-standards.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { randomBytes } from "node:crypto";
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
-const sql = postgres(url, { ssl: false, prepare: false, max: 2 });
+const url = requireTestDatabase("the ACC standards seeding suite");
+const sql = postgres(url, { ssl: isLocalDb(url) ? false : "require", prepare: false, max: 2 });
 const uid = () => randomBytes(8).toString("hex");
 
 // ── the code under test, imported by transpiling the real module ─────────────

@@ -17,6 +17,7 @@
  *   DATABASE_URL=postgres://... npx tsx scripts/test-pdf-documents.mjs
  */
 import postgres from "postgres";
+import { requireTestDatabase, isLocal as isLocalDb } from "./test-db.mjs";
 import { randomBytes } from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import { readFileSync, existsSync } from "fs";
@@ -25,8 +26,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const url = process.env.DATABASE_URL;
-if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
+const url = requireTestDatabase("the document content suite");
 const sql = postgres(url, { ssl: false, prepare: false, max: 2 });
 const uid = () => randomBytes(8).toString("hex");
 
