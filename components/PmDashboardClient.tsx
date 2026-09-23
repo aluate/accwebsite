@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import type { PmJob } from "@/app/pm-dashboard/page";
+import { engWarnWeeks } from "@/lib/eng-warning";
 
 // ── Constants ─────────────────────────────────────────────────────────────────────────────
 
@@ -426,17 +427,6 @@ function InlinePmCell({
   );
 }
 
-const PRE_ENG_STATUSES = new Set(["intake", "bid", "design", "field_dims"]);
-const ENG_WARN_WEEKS = 8;
-
-function engWarnWeeks(deliveryDate: string | null, status: string): number | null {
-  if (!deliveryDate || !PRE_ENG_STATUSES.has(status)) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const delivery = new Date(deliveryDate + "T12:00:00Z");
-  const weeksOut = Math.ceil((delivery.getTime() - today.getTime()) / (7 * 86400000));
-  return weeksOut <= ENG_WARN_WEEKS ? weeksOut : null;
-}
 
 // ── Main component ────────────────────────────────────────────────────────────────────────────
 
@@ -475,7 +465,7 @@ export function PmDashboardClient({
   const engWarnMap = useMemo(() => {
     const m = new Map<string, number>();
     for (const j of jobs) {
-      const w = engWarnWeeks(j.delivery_date, j.status);
+      const w = engWarnWeeks(j);
       if (w !== null) m.set(j.id, w);
     }
     return m;

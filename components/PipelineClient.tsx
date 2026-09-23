@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import PasteJobsModal from "./PasteJobsModal";
+import { engWarnWeeks } from "@/lib/eng-warning";
 
 const STATUS_ORDER = ["intake","bid","design","field_dims","engineering","procurement","production","delivery","install","punch","complete","cancelled"];
 const STATUS_LABEL: Record<string,string> = {
@@ -35,14 +36,6 @@ function installTypeLabel(v: string | null) {
 }
 function fmt$(n: number) {
   return "$" + Math.round(n).toLocaleString();
-}
-const PRE_ENG = new Set(["intake","bid","design","field_dims"]);
-function engWarnWeeks(deliveryDate: string | null, status: string): number | null {
-  if (!deliveryDate || !PRE_ENG.has(status)) return null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const delivery = new Date(deliveryDate + "T12:00:00Z");
-  const w = Math.ceil((delivery.getTime() - today.getTime()) / (7 * 86400000));
-  return w <= 8 ? w : null;
 }
 
 function monthKey(dateStr: string | null): string {
@@ -980,7 +973,13 @@ export default function PipelineClient() {
   const totalShop    = visible.reduce((s,j) => s + (countShop(j) ? effectiveShopHrs(j) : 0), 0);
   const totalInstall = visible.reduce((s,j) => s + (countInstall(j) ? effectiveInstallHrs(j) : 0), 0);
 
-  const engWarnJobs = jobs.filter(j => !j.is_placeholder && engWarnWeeks(j.anticipated_delivery ?? j.delivery_date, j.status) !== null);
+  /*
+    delivery_date, not anticipated_delivery. anticipated_delivery leads with
+    install_start_date, so on any job with an install start this counted down to
+    the wrong day and ignored the date the PM had just typed into the cell two
+    columns over. Karl's call, 2026-09-23 — see lib/eng-warning.ts.
+  */
+  const engWarnJobs = jobs.filter(j => !j.is_placeholder && engWarnWeeks(j) !== null);
 
   const statusCounts = STATUS_ORDER.reduce<Record<string,number>>((acc,s) => {
     const base = filterMonth !== "all" ? jobs.filter(j => monthKey(j.anticipated_delivery ?? j.delivery_date) === filterMonth) : jobs;
@@ -1277,7 +1276,7 @@ export default function PipelineClient() {
                           {job.placeholder_id && (
                             <div className="text-orange-400/50 text-[8px] mt-0.5">⬡ placeholder linked</div>
                           )}
-                          {(() => { const w = engWarnWeeks(job.anticipated_delivery ?? job.delivery_date, job.status); return w !== null ? <div className="text-amber-400 text-[9px] mt-0.5">⚠ Ships in {w}w — needs ENG</div> : null; })()}
+                          {(() => { const w = engWarnWeeks(job); return w !== null ? <div className="text-amber-400 text-[9px] mt-0.5">⚠ Ships in {w}w — needs ENG</div> : null; })()}
                         </Link>
                       )}
                     </td>
