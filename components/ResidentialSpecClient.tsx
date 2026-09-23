@@ -312,7 +312,9 @@ function validateForSave(groups: FinishGroup[], rooms: Room[]): Violation[] {
 // For paint → live API type-ahead (/api/paint-colors) with brand filter tabs,
 //   debounced input, swatch chips, selected-state chip + X to clear.
 // For stain/melamine → catalog-backed filter + select (unchanged).
-type CPEntry = { id: string; brand: string; code: string; name: string; hex?: string | null; image?: string | null };
+// `finish` is what distinguishes 55 melamine rows whose code and name are
+// identical to another row's. It is not optional decoration — see ColorPicker.
+type CPEntry = { id: string; brand: string; code: string; name: string; finish?: string; hex?: string | null; image?: string | null };
 
 // ── PaintColorTypeAhead ──────────────────────────────────────────────────────
 // Replaces the static select for paint finish groups.
@@ -494,14 +496,49 @@ function ColorPicker({
     );
   }
 
-  // Stain / Melamine: catalog-backed (unchanged behavior)
+  /*
+    Stain / Melamine: a type-ahead over the local catalog.
+
+    WHAT WAS HERE, AND WHY IT HAD TO GO. Karl, 2026-09-23, building Jim's Cabin:
+    "When I am typing in a melamine I can't type it in. I have to find it in the
+    list. That sucks. There's also a ton of duplicates."
+
+    Both complaints were one control. It was a 128px-wide filter box sitting next
+    to a <select> of all 366 melamine colours. You could not type a colour — you
+    typed into a box that narrowed a list you then had to open and hunt. Paint got
+    a real type-ahead months ago; the comment on this branch said "(unchanged)",
+    and unchanged it stayed.
+
+    THE DUPLICATES ARE NOT DUPLICATES. Nothing in colors_melamine is duplicated:
+    366 rows, 366 distinct ids, zero rows identical on brand+code+finish+texture.
+    What repeated was the OPTION TEXT. The label was `code + name` and nothing
+    else, while the thing that actually distinguishes these products is
+    finish_type. So:
+
+        L203  Black   x4    Tafisa   Materia / Classic / InnoColor / KARISMA
+        U732  Dust Grey x3  Egger    textured_tfl / perfectsense_pm / perfectsense_pg
+
+    55 of the 366 options rendered as text identical to another option. Picking
+    between them was a coin toss, and the spec recorded whichever way it landed —
+    a matte and a high-gloss panel are not the same order to the shop.
+
+    So finish now appears in the label, in the list, and in the stored name. That
+    last one is deliberate: the label is what gets written to the finish group and
+    printed, and "L203 · Black — Tafisa" was never enough to order from.
+
+    Search covers code, name, brand AND finish, so "black materia" or "egger matte"
+    both narrow to one row.
+  */
   const [filterBrand, setFilterBrand] = useState("");
-  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [cursor, setCursor] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const all: CPEntry[] = useMemo(() => {
     if (type === "stain") {
       return catalogs.stainColors
-        .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name }));
+        .map((c) => ({ id: c.id, brand: c.brand, code: c.code && c.code !== "—" ? c.code : "", name: c.name, finish: "" }));
     }
     return catalogs.melamineColors
       .map((c) => ({
@@ -509,30 +546,64 @@ function ColorPicker({
         brand: c.brand,
         code: c.color_code && c.color_code !== "—" ? c.color_code : "",
         name: c.color_name,
+        finish: c.finish_type ?? "",
         image: c.image_url,
       }));
   }, [type, catalogs]);
 
   const brands = useMemo(() => [...new Set(all.map((c) => c.brand))].sort(), [all]);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+  /* finish_type arrives as textured_tfl / perfectsense_pm / PerfectMatte / ICONIQ —
+     two naming conventions from different suppliers. Shown as typed, minus the
+     underscores, rather than invented into a house vocabulary nobody uses. */
+  const prettyFinish = (f: string) => f.replace(/_/g, " ").trim();
+
+  const MAX_SHOWN = 60;
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const terms = q.split(/\s+/).filter(Boolean);
     return all.filter((c) => {
       if (filterBrand && c.brand !== filterBrand) return false;
-      if (q) return c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
-      return true;
+      if (!terms.length) return true;
+      const hay = `${c.code} ${c.name} ${c.brand} ${prettyFinish(c.finish ?? "")}`.toLowerCase();
+      return terms.every((t) => hay.includes(t));
     });
-  }, [all, filterBrand, search]);
+  }, [all, filterBrand, query]);
 
+  const shown = matches.slice(0, MAX_SHOWN);
   const selected = all.find((c) => c.id === value);
   const isCustom = value === "STN-CUSTOM" || value === "MEL-CUSTOM";
 
+  useEffect(() => { setCursor(0); }, [query, filterBrand]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   function makeLabel(c: CPEntry) {
-    return `${c.code ? c.code + " · " : ""}${c.name} — ${c.brand}`;
+    const finish = prettyFinish(c.finish ?? "");
+    return `${c.code ? c.code + " · " : ""}${c.name} — ${c.brand}${finish ? ` (${finish})` : ""}`;
+  }
+
+  function pick(c: CPEntry) {
+    onChange(c.id, makeLabel(c));
+    setQuery("");
+    setOpen(false);
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "ArrowDown") { e.preventDefault(); setOpen(true); setCursor((i) => Math.min(i + 1, shown.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setCursor((i) => Math.max(i - 1, 0)); }
+    else if (e.key === "Enter" && open && shown[cursor]) { e.preventDefault(); pick(shown[cursor]); }
+    else if (e.key === "Escape") { setOpen(false); }
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" ref={containerRef}>
       {/* Brand / supplier filter pills */}
       <div className="flex gap-1 flex-wrap">
         <button type="button" onClick={() => setFilterBrand("")}
@@ -544,46 +615,79 @@ function ColorPicker({
           >{b}</button>
         ))}
       </div>
-      {/* Code search + dropdown */}
-      <div className="flex gap-2 items-center">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Code # or name…"
-          className="w-32 bg-[#1a1a1a] border border-white/15 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors font-mono"
-        />
-        <select
-          value={value}
-          onChange={(e) => {
-            const c = all.find((x) => x.id === e.target.value);
-            onChange(e.target.value, c ? makeLabel(c) : "");
-          }}
-          className="flex-1 bg-[#1a1a1a] border border-white/15 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#f08122] transition-colors min-w-0"
-        >
-          <option value="">-- Select Color --</option>
-          {filtered.map((c) => (
-            <option key={c.id} value={c.id}>{c.code ? `${c.code}  ` : ""}{c.name}</option>
-          ))}
-        </select>
-        {/*
-          A melamine colour is a photograph of a woodgrain or texture. It was
-          previously represented by an approximate hex, which for "Valenti Walnut"
-          conveys roughly nothing. Stains still have no image, so the hex chip stays
-          as the fallback.
-        */}
-        {!isCustom && selected?.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={selected.image}
-            alt={selected.name}
-            className="w-9 h-9 rounded shrink-0 border border-white/20 object-cover"
+
+      {/* Selected chip — shown instead of the input once a colour is chosen */}
+      {selected && !isCustom && !open ? (
+        <div className="flex items-center gap-2 bg-[#252525] border border-[#f08122]/30 rounded px-3 py-2">
+          {selected.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={selected.image} alt={selected.name} className="w-9 h-9 rounded shrink-0 border border-white/20 object-cover" />
+          ) : (
+            <span className="w-4 h-4 rounded shrink-0 border border-white/20" style={{ background: valueHex || "#555" }} />
+          )}
+          <span className="text-white text-sm flex-1 min-w-0 truncate">
+            {selected.code && <span className="text-white/50 font-mono text-xs mr-1">{selected.code}</span>}
+            {selected.name}
+            <span className="text-white/30 text-[11px] font-condensed ml-2">
+              {selected.brand}{prettyFinish(selected.finish ?? "") ? ` · ${prettyFinish(selected.finish ?? "")}` : ""}
+            </span>
+          </span>
+          <button type="button" onClick={() => setOpen(true)}
+            className="text-white/30 hover:text-white text-[10px] font-condensed uppercase tracking-widest shrink-0">Change</button>
+          <button type="button" onClick={() => onChange("", "")}
+            className="text-white/30 hover:text-white text-xs ml-1 shrink-0" aria-label="Clear color">✕</button>
+        </div>
+      ) : (
+        <div className="relative">
+          <input
+            type="text"
+            value={query}
+            autoFocus={open && !!selected}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+            onKeyDown={onKeyDown}
+            placeholder={type === "stain" ? "Type a stain name or code…" : "Type a colour, code, brand or finish — e.g. black materia"}
+            className="w-full bg-[#1a1a1a] border border-white/15 rounded px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#f08122] transition-colors"
           />
-        )}
-        {!isCustom && !selected?.image && selected?.hex && (
-          <span className="w-6 h-6 rounded-full shrink-0 border border-white/20" style={{ background: selected.hex }} />
-        )}
-      </div>
+          {open && (
+            <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-[#232323] border border-white/15 rounded shadow-xl max-h-72 overflow-y-auto">
+              {shown.length === 0 && (
+                <div className="px-3 py-2 text-white/30 text-sm">No matches — try a different name, code or finish</div>
+              )}
+              {shown.map((c, i) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onMouseDown={() => pick(c)}
+                  onMouseEnter={() => setCursor(i)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors ${i === cursor ? "bg-[#2d2d2d]" : "hover:bg-[#2d2d2d]"}`}
+                >
+                  {c.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.image} alt="" className="w-7 h-7 rounded shrink-0 border border-white/20 object-cover" />
+                  ) : (
+                    <span className="w-4 h-4 rounded shrink-0 border border-white/20 bg-white/10" />
+                  )}
+                  <span className="text-white/50 font-mono text-xs w-16 shrink-0 truncate">{c.code}</span>
+                  <span className="text-white text-sm flex-1 min-w-0 truncate">{c.name}</span>
+                  {/* The finish is why two rows can share a name and a code. It is
+                      the thing being chosen between, so it is not decoration. */}
+                  {prettyFinish(c.finish ?? "") && (
+                    <span className="text-[#f08122]/70 text-[10px] font-condensed uppercase tracking-wide shrink-0">{prettyFinish(c.finish ?? "")}</span>
+                  )}
+                  <span className="text-white/30 text-[10px] font-condensed uppercase shrink-0 w-16 text-right truncate">{c.brand}</span>
+                </button>
+              ))}
+              {matches.length > MAX_SHOWN && (
+                <div className="px-3 py-2 text-white/25 text-[11px] font-condensed border-t border-white/10">
+                  {matches.length - MAX_SHOWN} more — keep typing to narrow
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Free-text for Custom Match */}
       {isCustom && (
         <input
@@ -593,11 +697,6 @@ function ColorPicker({
           onChange={(e) => onChange(value, e.target.value || "Other / Custom Match")}
           className="w-full bg-[#1a1a1a] border border-[#f08122]/40 rounded px-2 py-1.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#f08122] transition-colors"
         />
-      )}
-      {selected && !isCustom && (
-        <p className="text-white/30 text-[11px] font-condensed">
-          ✓ {selected.brand}  {selected.code}  ·  {selected.name}
-        </p>
       )}
     </div>
   );
@@ -1373,6 +1472,35 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           })
         ),
       ]);
+
+      /*
+        FINISH-GROUP TRIM DEFAULTS, WHICH THIS BLOCK USED TO OMIT ENTIRELY.
+
+        Everything else the main save payload does not carry is above: accessories,
+        hardware, appliances, pulls, room trim. Trim defaults were missing, so
+        generating a document was a second way to lose them — the PM fills in FG
+        trim, hits Generate, and the work order prints without it because
+        finish_group_trim_defaults was never written.
+
+        Karl hit the Save All version of this on Jim's Cabin, 2026-09-23. This is
+        the same hole in the other button.
+
+        Sequential, and AFTER the room trim above, for the reason spelled out in
+        saveAll: POST /trim replaces a room's rows from this form's state, and
+        POST /trim-defaults propagates defaults back onto those rooms. Raced, the
+        winner is whichever the network returns last. Ordered, the room's own
+        edits win and propagation only fills what is still blank.
+      */
+      for (const g of groups) {
+        await fetch(`/api/specs/${specId}/trim-defaults`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            finish_group_id: g.id,
+            trim_defaults: fgTrimDefaults.filter(d => d.finish_group_id === g.id),
+          }),
+        });
+      }
     }
     setGenError("");          // a retry must not show the previous failure's reason
     setGenState("generating");
@@ -1399,7 +1527,12 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
       setGenError(`The request did not complete: ${(e as Error)?.message ?? e}`);
       setGenState("error");
     }
-  }, [specId, dirty, violations.length, save, specAccs, specHW, appliances, pulls, rooms]);
+  /* groups and fgTrimDefaults added with the trim-defaults save above. CLAUDE.md:
+     a useCallback that closes over state and omits it from this array is the
+     canonical stale-closure bug here — it would generate from the finish groups
+     as they were at page load, which is exactly how the spec once generated with
+     a stale accessories list. */
+  }, [specId, dirty, violations.length, save, specAccs, specHW, appliances, pulls, rooms, groups, fgTrimDefaults]);
 
   const [combineState, setCombineState] = useState<"idle"|"working"|"done"|"error">("idle");
   const [combineErr, setCombineErr] = useState<string>("");
@@ -1949,13 +2082,37 @@ export function ResidentialSpecClient({ specId, jobId, initialFinishGroups, init
           )}
           <button
             onClick={() => {
-              if (violations.length > 0) {
-                // Partial save — show violations banner but save anyway as DRAFT
-                setShowViolations(true);
-                save(undefined, true);
-              } else {
-                saveAll();
-              }
+              /*
+                THIS USED TO BRANCH, AND THE BRANCH THREW AWAY THE PM'S WORK.
+
+                It read:
+
+                    if (violations.length > 0) { setShowViolations(true); save(undefined, true); }
+                    else { saveAll(); }
+
+                The intent was "some required field is blank, so save what we have
+                as a draft". The effect was that save() — which posts ONLY
+                finish_groups, rooms, materials and door_fronts — became the whole
+                save. Everything saveAll() sends afterwards was silently dropped:
+                trim defaults, room trim, pulls, appliances, hardware, accessories,
+                and the edgeband cell overrides. No error, no warning; the button
+                just said "Saved".
+
+                Karl hit it on Jim's Cabin, 2026-09-23: finish-group trim filled in
+                and nothing arriving in the Room list. A spec mid-build almost
+                always has SOME required field still blank, so for a PM actually
+                building a job this was the normal path, not the edge case.
+
+                The bitter part: saveAll() already handles violations. It passes the
+                flag straight through as the draft flag on line 1207 and tolerates a
+                refused legacy save, and the ordering comment inside it describes
+                fixing this exact symptom. That fix was correct and sat on a code
+                path this button never took when it mattered.
+
+                There is no branch now. saveAll() decides what a draft means.
+              */
+              if (violations.length > 0) setShowViolations(true);
+              saveAll();
             }}
             disabled={saveAllState === "saving"}
             title={violations.length > 0 ? "Save as DRAFT — blank required fields will be flagged" : "Save spec + schedules in one click"}
