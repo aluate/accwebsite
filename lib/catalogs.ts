@@ -86,8 +86,35 @@ export type StainColor = {
   name: string;
   is_in_house_mix: boolean;
   is_custom_match: boolean;
+  /*
+    Empty everywhere today, on purpose. Karl, 2026-09-24: "we don't have any
+    images for stain colors yet, but we can have the architecture there for it."
+
+    Same column name and same served-path convention as MelamineColor.image_url,
+    so lib/spec-data.ts indexes both with the same code and a stain photograph
+    starts printing on the day a file lands in public/ and a path lands in
+    colors_stain.csv — no code change, no deploy.
+  */
+  image_url: string | null;
   notes: string | null;
   placeholder: boolean;
+};
+
+/*
+  The big brand paint decks: paint_colors_sw.json (1,526 rows) and
+  paint_colors_bm.json (2,175). Flat, four columns, keyed by code — and `code` is
+  exactly what a paint finish group stores in color_id, because
+  PaintColorTypeAhead calls onChange(c.code, …).
+
+  These were listed in CATALOG_NAMES and had no accessor, so nothing could read
+  the hex that has been sitting in them all along. That is why a paint colour
+  printed as a name with no swatch while melamine printed a photograph.
+*/
+export type PaintSwatch = {
+  brand: string;
+  name: string;
+  code: string | null;
+  hex: string | null;
 };
 
 /**
@@ -486,6 +513,8 @@ function makeSnapshot(db: Map<string, unknown>) {
 
   return {
     paintColors:    () => rows<PaintColor>("colors_paint"),
+    paintSwatchesSW: () => rows<PaintSwatch>("paint_colors_sw"),
+    paintSwatchesBM: () => rows<PaintSwatch>("paint_colors_bm"),
     stainColors:    () => rows<StainColor>("colors_stain"),
     melamineColors: () => rows<MelamineColor>("colors_melamine"),
     species:        () => rows<Species>("species"),

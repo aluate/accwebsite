@@ -35,6 +35,7 @@ const SUITES = [
   { file: "test-db-guard.mjs",         db: false, what: "the writing suites cannot reach production (pure)" },
   { file: "test-spec-save-completeness.mjs", db: false, what: "every save button saves the whole spec (pure)" },
   { file: "test-eng-warning.mjs",     db: false, what: "the ships-in-Nw warning gives one answer (pure)" },
+  { file: "test-color-swatches.mjs", db: false, what: "a finish colour reaches the documents (pure)" },
   { file: "test-catalog-resolve.mjs",   db: false, what: "db-vs-file catalog resolution (pure)" },
   { file: "test-upload-paths.mjs",      db: false, what: "where an uploaded file may land (pure)" },
   { file: "test-trim-defaults.mjs",     db: false, what: "trim sizes, species, and what stays blank" },

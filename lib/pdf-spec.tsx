@@ -46,6 +46,12 @@ export type FinishGroupView = {
    * missing image, and a work order that will not render beats one without a picture.
    */
   color_image: string;
+  /**
+   * Paint has no photograph but does have a hex, so its swatch is a filled
+   * rectangle rather than an Image. "" when there is nothing to draw. A group
+   * never has both: color_image wins where it exists.
+   */
+  color_hex: string;
   wo_number: string | null;
   grain_orientation: string | null;
   applied_panels: string | null;
@@ -580,12 +586,19 @@ function FinishSchedulePage({ data }: { data: SpecPDFData }) {
                 {/*
                   The colour, as a picture. A client choosing a finish is choosing what
                   it LOOKS like, and a sheet that says "MOAB RIFT" asks them to trust a
-                  name. Empty for paint and stain, which have no photograph — an empty
-                  cell is quieter than a placeholder.
+                  name.
+
+                  This used to read "Empty for paint and stain, which have no
+                  photograph" and leave the cell blank. True about photographs, false
+                  about colour: paint carries a hex in the brand decks, so it gets a
+                  filled chip. Stain has neither yet and stays empty until a photograph
+                  exists — see the stain note in lib/spec-data.ts.
                 */}
                 <View style={{ flex: COL.swatch, padding: 3, alignItems: "center", justifyContent: "center" }}>
                   {fg.color_image
                     ? <Image src={fg.color_image} style={{ width: 34, height: 34, borderWidth: 0.3, borderColor: HAIR }} />
+                    : fg.color_hex
+                    ? <View style={{ width: 34, height: 34, backgroundColor: fg.color_hex, borderWidth: 0.3, borderColor: HAIR }} />
                     : null}
                 </View>
                 {/*
@@ -1222,8 +1235,12 @@ function WorkOrderPage({ data, fg, index }: { data: SpecPDFData; fg: FinishGroup
         <View style={WS.hdrRight}>
           <Text style={WS.hdrFgLabel}>FINISH GROUP</Text>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }}>
+            {/* Photograph if there is one, otherwise paint's hex. See the note on
+                the client sheet's swatch cell. */}
             {fg.color_image
               ? <Image src={fg.color_image} style={{ width: 30, height: 30, marginRight: 5, borderWidth: 0.4, borderColor: "#999" }} />
+              : fg.color_hex
+              ? <View style={{ width: 30, height: 30, marginRight: 5, backgroundColor: fg.color_hex, borderWidth: 0.4, borderColor: "#999" }} />
               : null}
             <View>
               <Text style={WS.hdrFinish}>

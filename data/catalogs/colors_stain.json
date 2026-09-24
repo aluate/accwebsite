@@ -6,6 +6,7 @@
     "name": "Bellini",
     "is_in_house_mix": true,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "ACC in-house stain — warm peach/amber tone on alder and oak",
     "placeholder": false
   },
@@ -16,6 +17,7 @@
     "name": "Gimlet",
     "is_in_house_mix": true,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "ACC in-house stain — used on RC White Oak veneer (Bush Legacy)",
     "placeholder": false
   },
@@ -26,6 +28,7 @@
     "name": "Amaretto",
     "is_in_house_mix": true,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "ACC in-house stain — warm amber (Bissell showroom reference)",
     "placeholder": false
   },
@@ -36,6 +39,7 @@
     "name": "Manhattan",
     "is_in_house_mix": true,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "ACC in-house stain — dark warm brown, classic wood tone",
     "placeholder": false
   },
@@ -46,6 +50,7 @@
     "name": "Natural",
     "is_in_house_mix": true,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "ACC in-house — clear/natural finish on RC White Oak and other species; no pigment",
     "placeholder": false
   },
@@ -56,6 +61,7 @@
     "name": "ACC In-House (other — Karl to add)",
     "is_in_house_mix": true,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "Placeholder for remaining cocktail-name stains not yet listed",
     "placeholder": true
   },
@@ -66,6 +72,7 @@
     "name": "ML Campbell stains — populate from rep",
     "is_in_house_mix": false,
     "is_custom_match": false,
+    "image_url": null,
     "notes": "Need ML Campbell stain catalog",
     "placeholder": true
   },
@@ -76,6 +83,7 @@
     "name": "Other / Custom Match",
     "is_in_house_mix": false,
     "is_custom_match": true,
+    "image_url": null,
     "notes": "Escape hatch — PM specifies brand + code or sample reference in finish notes",
     "placeholder": false
   }

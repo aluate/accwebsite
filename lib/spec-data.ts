@@ -173,17 +173,91 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
   // Only when the file really exists: a missing image makes @react-pdf throw, and a
   // work order that fails to render is far worse than one without a swatch. The
   // catalog and the files on disk went out of step once already this week.
-  const melamineImageIdx = new Map<string, string>();
-  for (const c of catalogs.melamineColors()) {
-    if (!c.image_url) continue;
-    const abs = path.join(process.cwd(), "public", c.image_url.replace(/^\//, ""));
-    if (existsSync(abs)) melamineImageIdx.set(c.id, abs);
+  const colorImageIdx = new Map<string, string>();
+  const indexImages = (rows: { id: string; image_url: string | null }[]) => {
+    for (const c of rows) {
+      if (!c.image_url) continue;
+      const abs = path.join(process.cwd(), "public", c.image_url.replace(/^\//, ""));
+      if (existsSync(abs)) colorImageIdx.set(c.id, abs);
+    }
+  };
+  indexImages(catalogs.melamineColors());
+  /*
+    Stain, on the same index and the same rules. Every image_url in
+    colors_stain.csv is empty today — Karl, 2026-09-24: "we don't have any images
+    for stain colors yet, but we can have the architecture there for it." The
+    existsSync above means an empty column and a missing file behave identically,
+    so this adds nothing to the documents until a real path and a real file exist,
+    and starts working on that day without a code change.
+  */
+  indexImages(catalogs.stainColors());
+
+  /*
+    PAINT: A HEX, NOT A PHOTOGRAPH.
+
+    Karl, 2026-09-24: paint colours were not printing. They never could — the
+    index above was melamine-only, and the comment in pdf-spec said so out loud:
+    "Empty for paint and stain, which have no photograph."
+
+    True about photographs, false about colour. paint_colors_sw.json (1,526 rows)
+    and paint_colors_bm.json (2,175) each carry a hex, and colors_paint.json has
+    hex_approx for the ML deck. A paint swatch is a filled rectangle; it needs no
+    asset and no download.
+
+    Keyed by CODE, because that is what a paint finish group stores in color_id —
+    PaintColorTypeAhead calls onChange(c.code, …) while melamine and stain store a
+    catalog row id. Two different key spaces in one column is its own latent
+    problem, but it is not today's and is not fixed here on the way past.
+  */
+  const paintHexIdx = new Map<string, string>();
+  const indexHex = (code: string | null | undefined, hex: string | null | undefined) => {
+    if (!code || !hex) return;
+    const h = hex.trim();
+    // Only a real #rrggbb. A half-filled cell must not print a black chip.
+    if (!/^#[0-9a-f]{6}$/i.test(h)) return;
+    if (!paintHexIdx.has(code)) paintHexIdx.set(code, h);
+  };
+  /*
+    THE TABLE FIRST, THE FILES SECOND, AND THE REASON MATTERS.
+
+    The picker does not read these files. PaintColorTypeAhead fetches
+    /api/paint-colors, which selects from the `paint_colors` TABLE — so the codes
+    stored on finish groups are that table's codes, and the swatch has to be
+    looked up in the same place the code came from.
+
+    The committed decks are not a substitute: every one of the 2,175 rows in
+    paint_colors_bm.json has `code: null` (2,175 hexes, zero codes), so a
+    file-only index would have printed swatches for Sherwin and silently nothing
+    for Benjamin Moore — a bug that looks exactly like the one being fixed, on
+    half the paint jobs.
+
+    Queried for the codes actually on this spec rather than loading the table, and
+    tolerant of failure: a spec sheet without a swatch is a small loss, a spec
+    sheet that will not render is a large one.
+  */
+  const paintCodes = [...new Set(
+    fgs.filter((g) => g.finish_type === "paint" && g.color_id).map((g) => g.color_id as string),
+  )];
+  if (paintCodes.length) {
+    const rows = await sql<{ code: string; hex: string | null }[]>`
+      SELECT code, hex FROM paint_colors WHERE code = ANY(${paintCodes})
+    `.catch(() => []);
+    for (const r of rows) indexHex(r.code, r.hex);
   }
+
+  // The committed decks, as a fallback for anything the table did not answer —
+  // and as the whole index on a machine with no database, which is where the
+  // desktop spec generator will be.
+  for (const c of catalogs.paintSwatchesSW()) indexHex(c.code, c.hex);
+  for (const c of catalogs.paintSwatchesBM()) indexHex(c.code, c.hex);
+  for (const c of catalogs.paintColors())     indexHex(c.code, c.hex_approx);
 
   const fgViews: FinishGroupView[] = fgs.map((g) => {
     // Color display: use stored color_name directly (handles both catalog and custom)
     const colorName = g.color_name ?? "";
-    const colorImage = g.color_id ? (melamineImageIdx.get(g.color_id) ?? "") : "";
+    const colorImage = g.color_id ? (colorImageIdx.get(g.color_id) ?? "") : "";
+    // A picture wins where there is one; the hex is what paint has instead.
+    const colorHex = !colorImage && g.color_id ? (paintHexIdx.get(g.color_id) ?? "") : "";
     const isStain = g.finish_type === "stain";
     const carcassName = g.carcass_id ? (carcassIdx.get(g.carcass_id) ?? g.carcass_id) : "";
     const doorName = g.door_style_id ? (doorStyleIdx.get(g.door_style_id) ?? g.door_style_id) : "";
@@ -231,6 +305,7 @@ export async function loadSpecPDFData(specId: string): Promise<SpecPDFData> {
       id: g.id, label: g.label, finish_type: g.finish_type, notes: g.notes ?? "", species: g.species ?? "",
       color_name: colorName,
       color_image: colorImage,
+      color_hex: colorHex,
       wo_number: g.wo_number ?? null,
       grain_orientation: g.grain_orientation ?? null,
       applied_panels: g.applied_panels ?? null, rollout_box_name: rolloutBoxName,
